@@ -1,0 +1,53 @@
+## Changelog ##
+
+#### v1.1.0 ####
+* Added mod config panel toggle for verbosity option
+* Added ethereal to cards in the game state
+* Added number of times damaged to the game state
+
+#### v1.0.4 ####
+* Added low verbosity option (set verbose=false in config file)
+* Fixed compatibility with v2.2 of Slay the Spire
+
+#### v1.0.3 ####
+* Match and Keep! no longer hijacks the cursor
+* Match and Keep! no longer hangs when using SuperFastMode
+* Improved Match and Keep! event option descriptions and ordering
+* Do not crash if a start command is sent before Communication Mod is ready
+
+#### v1.0.2 ####
+* Added BaseMod as a mod dependency (so now you can't load them in the wrong order)
+
+#### v1.0.1 ####
+* Fixed crash when closing the boss chest
+* Fixed a bug causing the cancel command to do nothing once in a shop when the external program was launched from the mods menu
+
+#### v1.0.0 ####
+* Added key command
+* Added click command
+* Added wait command
+* Fixed compatibility with version 2.0 of StS
+
+#### v0.8.0 ####
+* Added card_in_play to the game state
+* Added the turn number to the game state
+* Added the number of cards discarded this turn to the game state
+* Added the monsters' last two move ids to the game state
+* Fixed crash with StS version 1.1
+* Fixed a bug where max energy would be transmitted instead of current energy
+
+#### v0.7.0 ####
+* Added Limbo to the game state, which is used for various cards such as Havoc
+* Added a number of new fields to specific powers which did not have all of their state captured
+
+#### v0.6.0 ####
+* Added "act_boss" to the game state, indicating the first boss to be fought in the current Act
+* Made Communication Mod compatible with Slay the Spire v1.1
+
+#### v0.5.0 ####
+* Added "any_number" to the grid select screen state, indicating whether any number of cards can be selected
+* Fixed "choose boss" rarely failing to select the boss node
+* Communication Mod now waits for more rest actions to finish before becoming ready, fixing a number of related issues
+
+#### v0.4.0 ####
+* Initial public release
