@@ -19,14 +19,11 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ProcessBuilder;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
-import static java.lang.Thread.sleep;
 
 @SpireInitializer
 public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, PreUpdateSubscriber {
@@ -248,7 +245,6 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     private static void sendGameState() {
         String state = GameStateConverter.getCommunicationState();
         sendMessage(state);
-        System.out.println(state);
     }
 
     public static void dispose() {

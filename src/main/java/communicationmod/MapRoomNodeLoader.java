@@ -62,9 +62,6 @@ public class MapRoomNodeLoader {
         this.phase = room.phase;
         this.event = room.event;
 
-        System.out.printf("Duping room:%s %s %s %s\n", room
-                .getClass(), room.phase, AbstractDungeon.actionManager.currentAction, AbstractDungeon.actionManager.actions);
-
         // rooms that haven't been entered have null Monster groups
         if (room.monsters != null) {
             this.monsterData = room.monsters.monsters.stream()
@@ -142,7 +139,6 @@ public class MapRoomNodeLoader {
                 room.update();
             }
         }
-        System.out.println("update successful");
 
         return mapRoomNode;
     }

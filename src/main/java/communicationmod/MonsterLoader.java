@@ -74,7 +74,6 @@ public class MonsterLoader extends CreatureLoader {
 
         monster.tint = new TintEffect();
         monster.init();
-        monster.update();
         monster.healthBarUpdatedEvent();
         monster.showHealthBar();
         monster.createIntent();

@@ -49,7 +49,6 @@ public class GameStateConverter {
      * @return A string containing the JSON representation of CommunicationMod's status
      */
     public static String getCommunicationState() {
-        System.out.printf("getCommunicationState waiting for command: %s\n", GameStateListener.isWaitingForCommand());
         HashMap<String, Object> response = new HashMap<>();
         response.put("available_commands", CommandExecutor.getAvailableCommands());
         response.put("ready_for_command", GameStateListener.isWaitingForCommand());
