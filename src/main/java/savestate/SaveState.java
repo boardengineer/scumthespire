@@ -1,46 +1,37 @@
-package communicationmod;
+package savestate;
 
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 
 import java.util.ArrayList;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
-public class SaveStateController {
-    public static Stack<SaveStateController> saveStates = null;
-
+public class SaveState {
     MapRoomNode mapNode;
-    ArrayList<ArrayList<MapRoomNodeLoader>> roomNodeLoaders;
-    ListLoader listLoader;
+    ArrayList<ArrayList<MapRoomNodeState>> roomNodeLoaders;
+    ListState listLoader;
     int floorNum;
 
-    PlayerLoader playerLoader;
-    MapRoomNodeLoader roomLoader;
-    RngLoader rngLoader;
-    CombatRewardScreenLoader combatRewardScreenLoader;
+    PlayerState playerLoader;
+    MapRoomNodeState roomLoader;
+    RngState rngLoader;
+    CombatRewardScreenState combatRewardScreenLoader;
     AbstractDungeon.CurrentScreen screen;
 
-    public void saveState() {
-        playerLoader = new PlayerLoader(AbstractDungeon.player);
+    public SaveState() {
+        playerLoader = new PlayerState(AbstractDungeon.player);
         roomNodeLoaders = AbstractDungeon.map.stream()
-                                             .map(list -> list.stream().map(MapRoomNodeLoader::new)
+                                             .map(list -> list.stream().map(MapRoomNodeState::new)
                                                               .collect(Collectors
                                                                       .toCollection(ArrayList::new)))
                                              .collect(Collectors.toCollection(ArrayList::new));
         mapNode = AbstractDungeon.currMapNode;
         screen = AbstractDungeon.screen;
-        roomLoader = new MapRoomNodeLoader(mapNode);
-        combatRewardScreenLoader = new CombatRewardScreenLoader(AbstractDungeon.combatRewardScreen);
-        rngLoader = new RngLoader();
-        listLoader = new ListLoader();
+        roomLoader = new MapRoomNodeState(mapNode);
+        combatRewardScreenLoader = new CombatRewardScreenState(AbstractDungeon.combatRewardScreen);
+        rngLoader = new RngState();
+        listLoader = new ListState();
         floorNum = AbstractDungeon.floorNum;
-
-        if (SaveStateController.saveStates == null) {
-            SaveStateController.saveStates = new Stack<>();
-        }
-
-        saveStates.push(this);
     }
 
     public void loadState() {
@@ -60,7 +51,7 @@ public class SaveStateController {
 
         AbstractDungeon.map = roomNodeLoaders.stream()
                                              .map(list -> list.stream()
-                                                              .map(MapRoomNodeLoader::loadMapRoomNode)
+                                                              .map(MapRoomNodeState::loadMapRoomNode)
                                                               .collect(Collectors
                                                                       .toCollection(ArrayList::new)))
                                              .collect(Collectors.toCollection(ArrayList::new));

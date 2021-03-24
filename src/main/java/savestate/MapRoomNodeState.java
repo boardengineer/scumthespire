@@ -1,6 +1,5 @@
-package communicationmod;
+package savestate;
 
-import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.events.AbstractEvent;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
@@ -12,17 +11,17 @@ import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class MapRoomNodeLoader {
+public class MapRoomNodeState {
     private final AbstractRoom room;
     private final MapRoomNode mapRoomNode;
     private final boolean taken;
     private final boolean highlighted;
     private final boolean hasEmeraldKey;
     ArrayList<AbstractMonster> monsters = null;
-    ArrayList<MonsterLoader> monsterData = null;
+    ArrayList<MonsterState> monsterData = null;
     private ArrayList<AbstractRelic> relics;
     private ArrayList<RewardItem> rewards;
-    private ArrayList<MapRoomNodeLoader> parentLoaders;
+    private ArrayList<MapRoomNodeState> parentLoaders;
     private AbstractRoom.RoomPhase phase;
     private AbstractEvent event;
     private float rewardPopOutTimer;
@@ -41,7 +40,7 @@ public class MapRoomNodeLoader {
     private float waitTimer;
     private ArrayList<AbstractPotion> potions = null;
 
-    public MapRoomNodeLoader(MapRoomNode mapRoomNode) {
+    public MapRoomNodeState(MapRoomNode mapRoomNode) {
         this.taken = mapRoomNode.taken;
         this.highlighted = mapRoomNode.highlighted;
         this.hasEmeraldKey = mapRoomNode.hasEmeraldKey;
@@ -65,7 +64,7 @@ public class MapRoomNodeLoader {
         // rooms that haven't been entered have null Monster groups
         if (room.monsters != null) {
             this.monsterData = room.monsters.monsters.stream()
-                                                     .map(monster -> new MonsterLoader(monster))
+                                                     .map(monster -> new MonsterState(monster))
                                                      .collect(Collectors
                                                              .toCollection(ArrayList::new));
 
@@ -123,7 +122,7 @@ public class MapRoomNodeLoader {
         AbstractRoom.waitTimer = this.waitTimer;
 
         if (monsterData != null) {
-            room.monsters.monsters = monsterData.stream().map(MonsterLoader::loadMonster)
+            room.monsters.monsters = monsterData.stream().map(MonsterState::loadMonster)
                                                 .collect(Collectors
                                                         .toCollection(ArrayList::new));
         } else {

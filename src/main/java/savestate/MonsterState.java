@@ -1,4 +1,4 @@
-package communicationmod;
+package savestate;
 
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.core.Settings;
@@ -7,10 +7,11 @@ import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.*;
 import com.megacrit.cardcrawl.vfx.TintEffect;
+import communicationmod.CreatureLoader;
 
 import java.util.ArrayList;
 
-public class MonsterLoader extends CreatureLoader {
+public class MonsterState extends CreatureLoader {
     private final float deathTimer;
     private final boolean tintFadeOutCalled;
     private final boolean escaped;
@@ -29,7 +30,7 @@ public class MonsterLoader extends CreatureLoader {
     private final String moveName;
     private final AbstractMonster monster;
 
-    public MonsterLoader(AbstractMonster monster) {
+    public MonsterState(AbstractMonster monster) {
         super(monster);
 
         this.deathTimer = monster.deathTimer;

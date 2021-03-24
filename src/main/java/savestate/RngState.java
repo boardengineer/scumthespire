@@ -1,4 +1,4 @@
-package communicationmod;
+package savestate;
 
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -7,7 +7,7 @@ import com.megacrit.cardcrawl.random.Random;
 
 import java.util.ArrayList;
 
-public class RngLoader {
+public class RngState {
     private final Random monsterRng;
     private final Random mapRng;
     private final Random eventRng;
@@ -24,7 +24,7 @@ public class RngLoader {
 
     private final ArrayList<Float> eventHelperChances;
 
-    public RngLoader() {
+    public RngState() {
         monsterRng = new Random(Settings.seed, AbstractDungeon.monsterRng.counter);
         mapRng = new Random(Settings.seed, AbstractDungeon.mapRng.counter);
         eventRng = new Random(Settings.seed, AbstractDungeon.eventRng.counter);

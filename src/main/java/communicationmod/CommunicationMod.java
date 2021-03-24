@@ -19,19 +19,20 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import communicationmod.patches.InputActionPatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import savestate.SaveState;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 @SpireInitializer
 public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, PreUpdateSubscriber {
-
     private static final Logger logger = LogManager.getLogger(CommunicationMod.class.getName());
     private static final String MODNAME = "Communication Mod";
     private static final String AUTHOR = "Forgotten Arbiter";
@@ -44,6 +45,7 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     private static final long DEFAULT_TIMEOUT = 10L;
     private static final boolean DEFAULT_VERBOSITY = true;
     private static final StringBuilder inputBuffer = new StringBuilder();
+    public static Stack<SaveState> saveStates = null;
     public static boolean messageReceived = false;
     public static boolean mustSendGameState = false;
     private static Process listener;
@@ -52,12 +54,9 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     private static Thread readThread;
     private static BlockingQueue<String> readQueue;
     private static SpireConfig communicationConfig;
-    private final SaveStateController saveStateController;
 
     public CommunicationMod() {
         BaseMod.subscribe(this);
-
-        saveStateController = new SaveStateController();
 
         try {
             Properties defaults = new Properties();
@@ -88,23 +87,34 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     private static void sendGameState() {
         System.out.printf("sendGameState commands: %s\n", CommandExecutor.getAvailableCommands());
         if (CommandExecutor.getAvailableCommands().contains("play")) {
-            new SaveStateController().saveState();
+            if (saveStates == null) {
+                saveStates = new Stack<>();
+            }
+
+            saveStates.push(new SaveState());
 
             AbstractPlayer player = AbstractDungeon.player;
             List<AbstractCard> hand = player.hand.group;
 
             List<AbstractMonster> monsters = AbstractDungeon.currMapNode.room.monsters.monsters;
 
-            for(AbstractCard card : hand) {
-                for(AbstractMonster monster : monsters) {
-                    if(card.canUse(player,monster)) {
-                        System.out.printf("Can use %s on %s\n", card, monster);
+            for (AbstractCard card : hand) {
+                if (card.target == AbstractCard.CardTarget.ENEMY || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
+                    for (AbstractMonster monster : monsters) {
+                        if (card.canUse(player, monster)) {
+                            System.out.printf("Can use %s on %s\n", card, monster);
+                        }
+                    }
+                }
+
+                if (card.target == AbstractCard.CardTarget.SELF || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
+                    if (card.canUse(player, null)) {
+                        System.out.printf("Can use %s on self\n", card);
                     }
                 }
             }
 
-            System.out.printf("saving state, stateStackSize:%s\n", SaveStateController.saveStates
-                    .size());
+            System.out.printf("saving state, stateStackSize:%s\n", saveStates.size());
         }
         String state = GameStateConverter.getCommunicationState();
         sendMessage(state);
@@ -377,7 +387,6 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 
         @Override
         protected void onClick() {
-            saveStateController.saveState();
             System.out.println("you clicked on save");
             // your onclick code
         }
@@ -395,11 +404,11 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 //            saveStateController.loadState();
             System.out.println("you clicked on load");
 
-            if (SaveStateController.saveStates.size() < 2) {
+            if (saveStates.size() < 2) {
                 System.out.println("Nothing to load");
             } else {
-                SaveStateController.saveStates.pop();
-                SaveStateController.saveStates.peek().loadState();
+                saveStates.pop();
+                saveStates.peek().loadState();
             }
 
             // your onclick code

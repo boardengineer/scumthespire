@@ -1,4 +1,4 @@
-package communicationmod;
+package savestate;
 
 import com.megacrit.cardcrawl.blights.AbstractBlight;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
@@ -7,22 +7,23 @@ import com.megacrit.cardcrawl.orbs.AbstractOrb;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.stances.AbstractStance;
 import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
+import communicationmod.CreatureLoader;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class PlayerLoader extends CreatureLoader {
+public class PlayerState extends CreatureLoader {
     private final AbstractPlayer.PlayerClass chosenClass;
     private final int gameHandSize;
     private final int masterHandSize;
     private final int startingMaxHP;
-    private final ArrayList<CardLoader> masterDeck;
-    private final ArrayList<CardLoader> drawPile;
-    private final ArrayList<CardLoader> hand;
-    private final ArrayList<CardLoader> discardPile;
-    private final ArrayList<CardLoader> exhaustPile;
-    private final ArrayList<CardLoader> limbo;
-    private final ArrayList<RelicLoader> relics;
+    private final ArrayList<CardState> masterDeck;
+    private final ArrayList<CardState> drawPile;
+    private final ArrayList<CardState> hand;
+    private final ArrayList<CardState> discardPile;
+    private final ArrayList<CardState> exhaustPile;
+    private final ArrayList<CardState> limbo;
+    private final ArrayList<RelicState> relics;
     private final ArrayList<AbstractBlight> blights;
     private final int potionSlots;
     private final ArrayList<AbstractPotion> potions;
@@ -43,7 +44,7 @@ public class PlayerLoader extends CreatureLoader {
 
     private final AbstractPlayer player;
 
-    public PlayerLoader(AbstractPlayer player) {
+    public PlayerState(AbstractPlayer player) {
         super(player);
 
         this.chosenClass = player.chosenClass;
@@ -51,22 +52,22 @@ public class PlayerLoader extends CreatureLoader {
         this.masterHandSize = player.masterHandSize;
         this.startingMaxHP = player.startingMaxHP;
 
-        this.masterDeck = player.masterDeck.group.stream().map(CardLoader::new)
+        this.masterDeck = player.masterDeck.group.stream().map(CardState::new)
                                                  .collect(Collectors.toCollection(ArrayList::new));
-        this.drawPile = player.drawPile.group.stream().map(CardLoader::new)
+        this.drawPile = player.drawPile.group.stream().map(CardState::new)
                                              .collect(Collectors.toCollection(ArrayList::new));
-        this.hand = player.hand.group.stream().map(CardLoader::new)
+        this.hand = player.hand.group.stream().map(CardState::new)
                                      .collect(Collectors.toCollection(ArrayList::new));
-        this.discardPile = player.discardPile.group.stream().map(CardLoader::new)
+        this.discardPile = player.discardPile.group.stream().map(CardState::new)
                                                    .collect(Collectors
                                                            .toCollection(ArrayList::new));
-        this.exhaustPile = player.exhaustPile.group.stream().map(CardLoader::new)
+        this.exhaustPile = player.exhaustPile.group.stream().map(CardState::new)
                                                    .collect(Collectors
                                                            .toCollection(ArrayList::new));
-        this.limbo = player.limbo.group.stream().map(CardLoader::new)
+        this.limbo = player.limbo.group.stream().map(CardState::new)
                                        .collect(Collectors.toCollection(ArrayList::new));
 
-        this.relics = player.relics.stream().map(RelicLoader::new)
+        this.relics = player.relics.stream().map(RelicState::new)
                                    .collect(Collectors.toCollection(ArrayList::new));
         this.blights = (ArrayList<AbstractBlight>) player.blights.clone();
         this.potionSlots = player.potionSlots;
@@ -97,19 +98,19 @@ public class PlayerLoader extends CreatureLoader {
         player.masterHandSize = this.masterHandSize;
         player.startingMaxHP = this.startingMaxHP;
 
-        player.masterDeck.group = this.masterDeck.stream().map(CardLoader::loadCard)
+        player.masterDeck.group = this.masterDeck.stream().map(CardState::loadCard)
                                                  .collect(Collectors.toCollection(ArrayList::new));
-        player.drawPile.group = this.drawPile.stream().map(CardLoader::loadCard)
+        player.drawPile.group = this.drawPile.stream().map(CardState::loadCard)
                                              .collect(Collectors.toCollection(ArrayList::new));
-        player.hand.group = this.hand.stream().map(CardLoader::loadCard)
+        player.hand.group = this.hand.stream().map(CardState::loadCard)
                                      .collect(Collectors.toCollection(ArrayList::new));
-        player.discardPile.group = this.discardPile.stream().map(CardLoader::loadCard)
+        player.discardPile.group = this.discardPile.stream().map(CardState::loadCard)
                                                    .collect(Collectors
                                                            .toCollection(ArrayList::new));
-        player.exhaustPile.group = this.exhaustPile.stream().map(CardLoader::loadCard)
+        player.exhaustPile.group = this.exhaustPile.stream().map(CardState::loadCard)
                                                    .collect(Collectors
                                                            .toCollection(ArrayList::new));
-        player.limbo.group = this.limbo.stream().map(CardLoader::loadCard)
+        player.limbo.group = this.limbo.stream().map(CardState::loadCard)
                                        .collect(Collectors.toCollection(ArrayList::new));
 
         player.hand.refreshHandLayout();
@@ -118,7 +119,7 @@ public class PlayerLoader extends CreatureLoader {
         player.exhaustPile.refreshHandLayout();
         player.limbo.refreshHandLayout();
 
-        player.relics = this.relics.stream().map(RelicLoader::loadRelic)
+        player.relics = this.relics.stream().map(RelicState::loadRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
         player.blights = (ArrayList<AbstractBlight>) this.blights.clone();
         player.potionSlots = this.potionSlots;

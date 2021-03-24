@@ -1,10 +1,10 @@
-package communicationmod;
+package savestate;
 
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
 import java.util.ArrayList;
 
-public class ListLoader {
+public class ListState {
     private final ArrayList<String> commonRelicPool;
     private final ArrayList<String> rareRelicPool;
     private final ArrayList<String> shopRelicPool;
@@ -16,7 +16,7 @@ public class ListLoader {
     private final ArrayList<String> shrineList;
     private final ArrayList<String> specialOneTimeEventList;
 
-    public ListLoader() {
+    public ListState() {
         commonRelicPool = (ArrayList<String>) AbstractDungeon.commonRelicPool.clone();
         rareRelicPool = (ArrayList<String>) AbstractDungeon.rareRelicPool.clone();
         shopRelicPool = (ArrayList<String>) AbstractDungeon.shopRelicPool.clone();

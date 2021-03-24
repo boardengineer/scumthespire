@@ -1,4 +1,4 @@
-package communicationmod;
+package savestate;
 
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rewards.RewardItem;
@@ -7,13 +7,13 @@ import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 
 import java.util.ArrayList;
 
-public class CombatRewardScreenLoader {
+public class CombatRewardScreenState {
     private final CombatRewardScreen combatRewardScreen;
     private final ArrayList<RewardItem> rewards;
     private final ArrayList<AbstractGameEffect> effects;
     private final boolean hasTakenAll;
 
-    public CombatRewardScreenLoader(CombatRewardScreen combatRewardScreen) {
+    public CombatRewardScreenState(CombatRewardScreen combatRewardScreen) {
         this.combatRewardScreen = combatRewardScreen;
 
         this.rewards = (ArrayList<RewardItem>) combatRewardScreen.rewards.clone();
