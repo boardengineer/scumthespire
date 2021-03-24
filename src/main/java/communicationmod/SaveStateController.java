@@ -4,9 +4,12 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 
 import java.util.ArrayList;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 public class SaveStateController {
+    public static Stack<SaveStateController> saveStates = null;
+
     MapRoomNode mapNode;
     ArrayList<ArrayList<MapRoomNodeLoader>> roomNodeLoaders;
     ListLoader listLoader;
@@ -25,7 +28,6 @@ public class SaveStateController {
                                                               .collect(Collectors
                                                                       .toCollection(ArrayList::new)))
                                              .collect(Collectors.toCollection(ArrayList::new));
-
         mapNode = AbstractDungeon.currMapNode;
         screen = AbstractDungeon.screen;
         roomLoader = new MapRoomNodeLoader(mapNode);
@@ -33,6 +35,12 @@ public class SaveStateController {
         rngLoader = new RngLoader();
         listLoader = new ListLoader();
         floorNum = AbstractDungeon.floorNum;
+
+        if (SaveStateController.saveStates == null) {
+            SaveStateController.saveStates = new Stack<>();
+        }
+
+        saveStates.push(this);
     }
 
     public void loadState() {
