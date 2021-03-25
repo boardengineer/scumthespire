@@ -2,6 +2,9 @@ package savestate;
 
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.map.MapRoomNode;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import communicationmod.CommunicationMod;
+import communicationmod.GameStateListener;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -18,6 +21,11 @@ public class SaveState {
     CombatRewardScreenState combatRewardScreenLoader;
     AbstractDungeon.CurrentScreen screen;
 
+    AbstractDungeon.CurrentScreen previousScreen = null;
+    boolean previousScreenUp = false;
+    AbstractRoom.RoomPhase previousPhase = null;
+    boolean myTurn = false;
+
     public SaveState() {
         playerLoader = new PlayerState(AbstractDungeon.player);
         roomNodeLoaders = AbstractDungeon.map.stream()
@@ -32,9 +40,16 @@ public class SaveState {
         rngLoader = new RngState();
         listLoader = new ListState();
         floorNum = AbstractDungeon.floorNum;
+
+        previousScreen = GameStateListener.previousScreen;
+        previousScreenUp = GameStateListener.previousScreenUp;
+        previousPhase = GameStateListener.previousPhase;
+        myTurn = GameStateListener.myTurn;
     }
 
     public void loadState() {
+        System.out.println("loading state...");
+
         AbstractDungeon.player = playerLoader.loadPlayer();
 
         AbstractDungeon.currMapNode = mapNode;
@@ -58,5 +73,16 @@ public class SaveState {
 
         rngLoader.loadRng();
         AbstractDungeon.combatRewardScreen = combatRewardScreenLoader.loadCombatRewardScreen();
+        CommunicationMod.readyForUpdate = true;
+
+        GameStateListener.previousScreen = previousScreen;
+        GameStateListener.previousScreenUp = previousScreenUp;
+        GameStateListener.previousPhase = previousPhase;
+        GameStateListener.myTurn = myTurn;
+        GameStateListener.externalChange = true;
+    }
+
+    public int getPlayerHealth() {
+        return playerLoader.getCurrentHealth();
     }
 }

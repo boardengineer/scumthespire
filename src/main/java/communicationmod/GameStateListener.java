@@ -9,12 +9,13 @@ import com.megacrit.cardcrawl.rooms.EventRoom;
 import com.megacrit.cardcrawl.rooms.VictoryRoom;
 
 public class GameStateListener {
-    private static AbstractDungeon.CurrentScreen previousScreen = null;
-    private static boolean previousScreenUp = false;
-    private static AbstractRoom.RoomPhase previousPhase = null;
+    public static AbstractDungeon.CurrentScreen previousScreen = null;
+    public static boolean previousScreenUp = false;
+    public static AbstractRoom.RoomPhase previousPhase = null;
+    public static boolean myTurn = false;
+
     private static int previousGold = 99;
-    private static boolean externalChange = false;
-    private static boolean myTurn = false;
+    public static boolean externalChange = false;
     private static boolean blocked = false;
     private static boolean waitingForCommand = false;
     private static boolean hasPresentedOutOfGameState = false;

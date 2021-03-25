@@ -122,4 +122,8 @@ public class CreatureLoader {
         creature.reticleAlpha = this.reticleAlpha;
         creature.reticleRendered = this.reticleRendered;
     }
+
+    public int getCurrentHealth() {
+        return currentHealth;
+    }
 }

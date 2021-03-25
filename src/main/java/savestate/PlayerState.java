@@ -30,6 +30,7 @@ public class PlayerState extends CreatureLoader {
 
     private final int energyManagerEnergy;
     private final int energyManagerMaxMaster;
+    private final int energyPanelTotalEnergy;
 
     private final boolean isEndingTurn;
     private final boolean viewingRelics;
@@ -74,6 +75,10 @@ public class PlayerState extends CreatureLoader {
         this.potions = (ArrayList<AbstractPotion>) player.potions.clone();
 
         this.energyManagerEnergy = player.energy.energy;
+        this.energyPanelTotalEnergy = EnergyPanel.totalCount;
+
+        System.out.println("saving energy to " + energyPanelTotalEnergy);
+
         this.energyManagerMaxMaster = player.energy.energyMaster;
 
         this.isEndingTurn = player.isEndingTurn;
@@ -81,6 +86,7 @@ public class PlayerState extends CreatureLoader {
         this.inspectMode = player.inspectMode;
         this.inspectHb = player.inspectHb;
         this.damagedThisCombat = player.damagedThisCombat;
+
         this.title = player.title;
         this.orbs = (ArrayList<AbstractOrb>) player.orbs.clone();
         this.masterMaxOrbs = player.masterMaxOrbs;
@@ -129,6 +135,10 @@ public class PlayerState extends CreatureLoader {
         player.energy.energyMaster = this.energyManagerMaxMaster;
         EnergyPanel.setEnergy(this.energyManagerEnergy);
 
+        EnergyPanel.totalCount = energyPanelTotalEnergy;
+
+        System.out.println("setting energy to " + energyPanelTotalEnergy);
+
         player.isEndingTurn = this.isEndingTurn;
         player.viewingRelics = this.viewingRelics;
         player.inspectMode = this.inspectMode;
@@ -141,5 +151,9 @@ public class PlayerState extends CreatureLoader {
         player.stance = this.stance;
 
         return player;
+    }
+
+    public int getDamagedThisCombat() {
+        return damagedThisCombat;
     }
 }

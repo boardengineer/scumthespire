@@ -5,17 +5,15 @@ import basemod.interfaces.PostDungeonUpdateSubscriber;
 import basemod.interfaces.PostInitializeSubscriber;
 import basemod.interfaces.PostUpdateSubscriber;
 import basemod.interfaces.PreUpdateSubscriber;
+import battleai.BattleAiController;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.google.gson.Gson;
-import com.megacrit.cardcrawl.cards.AbstractCard;
-import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
-import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import communicationmod.patches.InputActionPatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +22,6 @@ import savestate.SaveState;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
@@ -47,16 +44,29 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     private static final StringBuilder inputBuffer = new StringBuilder();
     public static Stack<SaveState> saveStates = null;
     public static boolean messageReceived = false;
+    private boolean canStep = false;
     public static boolean mustSendGameState = false;
+
+    public static boolean readyForUpdate;
     private static Process listener;
     private static Thread writeThread;
     private static BlockingQueue<String> writeQueue;
     private static Thread readThread;
     private static BlockingQueue<String> readQueue;
     private static SpireConfig communicationConfig;
+    private static BattleAiController battleAiController = null;
+
+    private SaveState saveState;
 
     public CommunicationMod() {
         BaseMod.subscribe(this);
+
+        Settings.ACTION_DUR_XFAST = 0.01F;
+        Settings.ACTION_DUR_FASTER = 0.02F;
+        Settings.ACTION_DUR_FAST = 0.025F;
+        Settings.ACTION_DUR_MED = 0.05F;
+        Settings.ACTION_DUR_LONG = .10F;
+        Settings.ACTION_DUR_XLONG = .15F;
 
         try {
             Properties defaults = new Properties();
@@ -84,37 +94,28 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         CommunicationMod mod = new CommunicationMod();
     }
 
-    private static void sendGameState() {
+    private void sendGameState() {
         System.out.printf("sendGameState commands: %s\n", CommandExecutor.getAvailableCommands());
-        if (CommandExecutor.getAvailableCommands().contains("play")) {
-            if (saveStates == null) {
-                saveStates = new Stack<>();
-            }
+        if (CommandExecutor.getAvailableCommands().contains("play") || CommandExecutor
+                .isEndCommandAvailable() || CommandExecutor.isChooseCommandAvailable()) {
+            if (battleAiController != null) {
+                if(canStep || true) {
+                    canStep = false;
 
-            saveStates.push(new SaveState());
-
-            AbstractPlayer player = AbstractDungeon.player;
-            List<AbstractCard> hand = player.hand.group;
-
-            List<AbstractMonster> monsters = AbstractDungeon.currMapNode.room.monsters.monsters;
-
-            for (AbstractCard card : hand) {
-                if (card.target == AbstractCard.CardTarget.ENEMY || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
-                    for (AbstractMonster monster : monsters) {
-                        if (card.canUse(player, monster)) {
-                            System.out.printf("Can use %s on %s\n", card, monster);
-                        }
-                    }
-                }
-
-                if (card.target == AbstractCard.CardTarget.SELF || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
-                    if (card.canUse(player, null)) {
-                        System.out.printf("Can use %s on self\n", card);
-                    }
+                    battleAiController.step();
                 }
             }
-
-            System.out.printf("saving state, stateStackSize:%s\n", saveStates.size());
+//            if (saveStates == null) {
+//                saveStates = new Stack<>();
+//            }
+//
+//            SaveState state = new SaveState();
+//
+//            new BattleAiController(state);
+//            saveStates.push(state);
+//
+//
+//            System.out.printf("saving state, stateStackSize:%s\n", saveStates.size());
         }
         String state = GameStateConverter.getCommunicationState();
         sendMessage(state);
@@ -219,16 +220,20 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         if (!mustSendGameState && GameStateListener.checkForMenuStateChange()) {
             mustSendGameState = true;
         }
-        if (mustSendGameState) {
+        if (readyForUpdate) {
+            System.out.println("setting to false");
             sendGameState();
-            mustSendGameState = false;
+            readyForUpdate = false;
         }
         InputActionPatch.doKeypress = false;
     }
 
     public void receivePostDungeonUpdate() {
+
         if (GameStateListener.checkForDungeonStateChange()) {
+            System.out.println("receivePostDungeonUpdate");
             mustSendGameState = true;
+            readyForUpdate = true;
         }
         if (AbstractDungeon.getCurrRoom().isBattleOver) {
             GameStateListener.signalTurnEnd();
@@ -388,6 +393,9 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         @Override
         protected void onClick() {
             System.out.println("you clicked on save");
+            saveState = new SaveState();
+            battleAiController = new BattleAiController(new SaveState());
+            readyForUpdate = true;
             // your onclick code
         }
     }
@@ -404,12 +412,18 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 //            saveStateController.loadState();
             System.out.println("you clicked on load");
 
-            if (saveStates.size() < 2) {
-                System.out.println("Nothing to load");
-            } else {
-                saveStates.pop();
-                saveStates.peek().loadState();
-            }
+            canStep = true;
+            readyForUpdate = true;
+            receivePostUpdate();
+//            saveState.loadState();
+
+//            battleAiController.step();
+//            if (saveStates.size() < 2) {
+//                System.out.println("Nothing to load");
+//            } else {
+//                saveStates.pop();
+//                saveStates.peek().loadState();
+//            }
 
             // your onclick code
         }

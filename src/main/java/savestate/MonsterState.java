@@ -77,7 +77,10 @@ public class MonsterState extends CreatureLoader {
         monster.init();
         monster.healthBarUpdatedEvent();
         monster.showHealthBar();
-        monster.createIntent();
+        monster.update();
+
+        System.out.printf("next move:%s\n", nextMove);
+        System.out.printf("intent:%s\n", intent);
 
         return monster;
     }
@@ -98,6 +101,10 @@ public class MonsterState extends CreatureLoader {
             monster = new ApologySlime();
         } else if (monster instanceof Cultist) {
             monster = new Cultist(offsetX, offsetY);
+            if (intent != AbstractMonster.Intent.BUFF) {
+                // clear the firstMove boolean by rolling a move
+                monster.rollMove();
+            }
         } else if (monster instanceof FungiBeast) {
             monster = new FungiBeast(offsetX, offsetY);
         } else if (monster instanceof GremlinFat) {
@@ -116,6 +123,9 @@ public class MonsterState extends CreatureLoader {
             monster = new Hexaghost();
         } else if (monster instanceof JawWorm) {
             monster = new JawWorm(offsetX, offsetY);
+            if (!monster.moveHistory.isEmpty()) {
+                monster.rollMove();
+            }
         } else if (monster instanceof Lagavulin) {
             monster = new Lagavulin(false);
         } else if (monster instanceof Looter) {
