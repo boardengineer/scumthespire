@@ -1,17 +1,18 @@
-package communicationmod;
+package savestate;
 
 import com.esotericsoftware.spine.AnimationState;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.helpers.Hitbox;
-import com.megacrit.cardcrawl.powers.AbstractPower;
 import com.megacrit.cardcrawl.vfx.TintEffect;
+import communicationmod.HitboxLoader;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
-public class CreatureLoader {
+public class CreatureState {
     private final String name;
     private final String id;
-    private final ArrayList<AbstractPower> powers;
+    private final ArrayList<PowerState> powers;
     private final boolean isPlayer;
     private final boolean isBloodied;
     private final float drawX;
@@ -45,10 +46,11 @@ public class CreatureLoader {
     private final float reticleAlpha;
     private final boolean reticleRendered;
 
-    public CreatureLoader(AbstractCreature creature) {
+    public CreatureState(AbstractCreature creature) {
         this.name = creature.name;
         this.id = creature.id;
-        this.powers = (ArrayList<AbstractPower>) creature.powers.clone();
+        this.powers = creature.powers.stream().map(PowerState::new)
+                                     .collect(Collectors.toCollection(ArrayList::new));
         this.isPlayer = creature.isPlayer;
         this.isBloodied = creature.isBloodied;
         this.drawX = creature.drawX;
@@ -88,7 +90,8 @@ public class CreatureLoader {
     public void loadCreature(AbstractCreature creature) {
         creature.name = this.name;
         creature.id = this.id;
-        creature.powers = (ArrayList<AbstractPower>) this.powers.clone();
+        creature.powers = this.powers.stream().map(PowerState::loadPower)
+                                     .collect(Collectors.toCollection(ArrayList::new));
         creature.isPlayer = this.isPlayer;
         creature.isBloodied = this.isBloodied;
         creature.drawX = this.drawX;

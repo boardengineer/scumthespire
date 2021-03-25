@@ -55,7 +55,6 @@ public class StateNode {
         commandIndex++;
         isDone = commandIndex >= commands.size();
 
-        System.out.printf("executing:%s isDone:%s", toExecute, isDone);
         toExecute.execute();
         return false;
     }
@@ -72,20 +71,20 @@ public class StateNode {
 
         List<AbstractMonster> monsters = AbstractDungeon.currMapNode.room.monsters.monsters;
 
-        for (AbstractCard card : hand) {
+        for (int i = 0; i < hand.size(); i++) {
+            AbstractCard card = hand.get(i);
             if (card.target == AbstractCard.CardTarget.ENEMY || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
-                for (AbstractMonster monster : monsters) {
+                for (int j = 0; j < monsters.size(); j++) {
+                    AbstractMonster monster = monsters.get(j);
                     if (card.canUse(player, monster)) {
-                        commands.add(new CardCommand(card, monster));
-//                        System.out.printf("Can use %s on %s\n", card, monster);
+                        commands.add(new CardCommand(i, j));
                     }
                 }
             }
 
             if (card.target == AbstractCard.CardTarget.SELF || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
                 if (card.canUse(player, null)) {
-                    commands.add(new CardCommand(card, null));
-//                    System.out.printf("Can use %s on self\n", card);
+                    commands.add(new CardCommand(i));
                 }
             }
         }
@@ -103,7 +102,24 @@ public class StateNode {
         return minDamage;
     }
 
-    public String getLastCommand() {
+    public String getLastCommandString() {
         return lastCommand == null ? "start" : lastCommand.toString();
     }
+
+    public Command getLastCommand() {
+        return lastCommand;
+    }
+
+    public int getPlayerHealth() {
+        return saveState.getPlayerHealth();
+    }
+
+    public String getHandString() {
+        return saveState.getPlayerHand();
+    }
+
+    public String getStateString() {
+        return String.format(" %2d / %2d ", commandIndex, commands != null ? commands.size() : 0);
+    }
+
 }

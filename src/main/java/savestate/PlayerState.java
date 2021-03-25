@@ -7,12 +7,11 @@ import com.megacrit.cardcrawl.orbs.AbstractOrb;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.stances.AbstractStance;
 import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
-import communicationmod.CreatureLoader;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class PlayerState extends CreatureLoader {
+public class PlayerState extends CreatureState {
     private final AbstractPlayer.PlayerClass chosenClass;
     private final int gameHandSize;
     private final int masterHandSize;
@@ -77,8 +76,6 @@ public class PlayerState extends CreatureLoader {
         this.energyManagerEnergy = player.energy.energy;
         this.energyPanelTotalEnergy = EnergyPanel.totalCount;
 
-        System.out.println("saving energy to " + energyPanelTotalEnergy);
-
         this.energyManagerMaxMaster = player.energy.energyMaster;
 
         this.isEndingTurn = player.isEndingTurn;
@@ -134,10 +131,7 @@ public class PlayerState extends CreatureLoader {
         player.energy.energy = this.energyManagerEnergy;
         player.energy.energyMaster = this.energyManagerMaxMaster;
         EnergyPanel.setEnergy(this.energyManagerEnergy);
-
         EnergyPanel.totalCount = energyPanelTotalEnergy;
-
-        System.out.println("setting energy to " + energyPanelTotalEnergy);
 
         player.isEndingTurn = this.isEndingTurn;
         player.viewingRelics = this.viewingRelics;
@@ -155,5 +149,11 @@ public class PlayerState extends CreatureLoader {
 
     public int getDamagedThisCombat() {
         return damagedThisCombat;
+    }
+
+    public String getHandString() {
+        return String.format("hand:%s discard:%s", hand.stream().map(CardState::getName)
+                                                       .collect(Collectors.joining(" ")),
+                discardPile.stream().map(CardState::getName).collect(Collectors.joining(" ")));
     }
 }

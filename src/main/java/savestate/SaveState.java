@@ -1,5 +1,6 @@
 package savestate;
 
+import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
@@ -25,6 +26,7 @@ public class SaveState {
     boolean previousScreenUp = false;
     AbstractRoom.RoomPhase previousPhase = null;
     boolean myTurn = false;
+    int turn;
 
     public SaveState() {
         playerLoader = new PlayerState(AbstractDungeon.player);
@@ -41,6 +43,7 @@ public class SaveState {
         listLoader = new ListState();
         floorNum = AbstractDungeon.floorNum;
 
+        this.turn = GameActionManager.turn;
         previousScreen = GameStateListener.previousScreen;
         previousScreenUp = GameStateListener.previousScreenUp;
         previousPhase = GameStateListener.previousPhase;
@@ -50,6 +53,7 @@ public class SaveState {
     public void loadState() {
         System.out.println("loading state...");
 
+        GameActionManager.turn = this.turn;
         AbstractDungeon.player = playerLoader.loadPlayer();
 
         AbstractDungeon.currMapNode = mapNode;
@@ -84,5 +88,9 @@ public class SaveState {
 
     public int getPlayerHealth() {
         return playerLoader.getCurrentHealth();
+    }
+
+    public String getPlayerHand() {
+        return playerLoader.getHandString();
     }
 }

@@ -1,17 +1,18 @@
 package savestate;
 
+import basemod.ReflectionHacks;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 import com.megacrit.cardcrawl.monsters.exordium.*;
 import com.megacrit.cardcrawl.vfx.TintEffect;
-import communicationmod.CreatureLoader;
 
 import java.util.ArrayList;
 
-public class MonsterState extends CreatureLoader {
+public class MonsterState extends CreatureState {
     private final float deathTimer;
     private final boolean tintFadeOutCalled;
     private final boolean escaped;
@@ -29,9 +30,13 @@ public class MonsterState extends CreatureLoader {
     private final float intentOffsetX;
     private final String moveName;
     private final AbstractMonster monster;
+    private final EnemyMoveInfo moveInfo;
 
     public MonsterState(AbstractMonster monster) {
         super(monster);
+
+        this.moveInfo = ReflectionHacks
+                .getPrivate(monster, AbstractMonster.class, "move");
 
         this.deathTimer = monster.deathTimer;
         this.tintFadeOutCalled = monster.tintFadeOutCalled;
@@ -55,6 +60,8 @@ public class MonsterState extends CreatureLoader {
     public AbstractMonster loadMonster() {
         AbstractMonster monster = resetMonster();
         super.loadCreature(monster);
+        monster.init();
+
 
         monster.deathTimer = this.deathTimer;
         monster.tintFadeOutCalled = this.tintFadeOutCalled;
@@ -72,15 +79,14 @@ public class MonsterState extends CreatureLoader {
         monster.intentAlphaTarget = this.intentAlphaTarget;
         monster.intentOffsetX = this.intentOffsetX;
         monster.moveName = this.moveName;
+        monster.setMove(moveName, moveInfo.nextMove, moveInfo.intent, moveInfo.baseDamage, moveInfo.multiplier, moveInfo.isMultiDamage);
+
 
         monster.tint = new TintEffect();
-        monster.init();
         monster.healthBarUpdatedEvent();
         monster.showHealthBar();
         monster.update();
-
-        System.out.printf("next move:%s\n", nextMove);
-        System.out.printf("intent:%s\n", intent);
+        monster.createIntent();
 
         return monster;
     }
@@ -123,9 +129,6 @@ public class MonsterState extends CreatureLoader {
             monster = new Hexaghost();
         } else if (monster instanceof JawWorm) {
             monster = new JawWorm(offsetX, offsetY);
-            if (!monster.moveHistory.isEmpty()) {
-                monster.rollMove();
-            }
         } else if (monster instanceof Lagavulin) {
             monster = new Lagavulin(false);
         } else if (monster instanceof Looter) {

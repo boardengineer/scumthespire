@@ -6,6 +6,9 @@ import basemod.interfaces.PostInitializeSubscriber;
 import basemod.interfaces.PostUpdateSubscriber;
 import basemod.interfaces.PreUpdateSubscriber;
 import battleai.BattleAiController;
+import battleai.CardCommand;
+import battleai.Command;
+import battleai.EndCommand;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
@@ -21,6 +24,7 @@ import savestate.SaveState;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Stack;
@@ -44,9 +48,7 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     private static final StringBuilder inputBuffer = new StringBuilder();
     public static Stack<SaveState> saveStates = null;
     public static boolean messageReceived = false;
-    private boolean canStep = false;
     public static boolean mustSendGameState = false;
-
     public static boolean readyForUpdate;
     private static Process listener;
     private static Thread writeThread;
@@ -55,7 +57,7 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     private static BlockingQueue<String> readQueue;
     private static SpireConfig communicationConfig;
     private static BattleAiController battleAiController = null;
-
+    private boolean canStep = false;
     private SaveState saveState;
 
     public CommunicationMod() {
@@ -92,33 +94,6 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 
     public static void initialize() {
         CommunicationMod mod = new CommunicationMod();
-    }
-
-    private void sendGameState() {
-        System.out.printf("sendGameState commands: %s\n", CommandExecutor.getAvailableCommands());
-        if (CommandExecutor.getAvailableCommands().contains("play") || CommandExecutor
-                .isEndCommandAvailable() || CommandExecutor.isChooseCommandAvailable()) {
-            if (battleAiController != null) {
-                if(canStep || true) {
-                    canStep = false;
-
-                    battleAiController.step();
-                }
-            }
-//            if (saveStates == null) {
-//                saveStates = new Stack<>();
-//            }
-//
-//            SaveState state = new SaveState();
-//
-//            new BattleAiController(state);
-//            saveStates.push(state);
-//
-//
-//            System.out.printf("saving state, stateStackSize:%s\n", saveStates.size());
-        }
-        String state = GameStateConverter.getCommunicationState();
-        sendMessage(state);
     }
 
     public static void dispose() {
@@ -189,6 +164,33 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         return communicationConfig.getBool(VERBOSE_OPTION);
     }
 
+    private void sendGameState() {
+        if (CommandExecutor.getAvailableCommands().contains("play") || CommandExecutor
+                .isEndCommandAvailable() || CommandExecutor.isChooseCommandAvailable()) {
+            if (battleAiController != null) {
+                if (canStep || true) {
+//                if (canStep || !battleAiController.runCommandMode) {
+                    canStep = false;
+
+                    battleAiController.step();
+                }
+            }
+//            if (saveStates == null) {
+//                saveStates = new Stack<>();
+//            }
+//
+//            SaveState state = new SaveState();
+//
+//            new BattleAiController(state);
+//            saveStates.push(state);
+//
+//
+//            System.out.printf("saving state, stateStackSize:%s\n", saveStates.size());
+        }
+        String state = GameStateConverter.getCommunicationState();
+        sendMessage(state);
+    }
+
     public void receivePreUpdate() {
         if (listener != null && !listener.isAlive() && writeThread != null && writeThread
                 .isAlive()) {
@@ -221,7 +223,6 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
             mustSendGameState = true;
         }
         if (readyForUpdate) {
-            System.out.println("setting to false");
             sendGameState();
             readyForUpdate = false;
         }
@@ -231,7 +232,6 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     public void receivePostDungeonUpdate() {
 
         if (GameStateListener.checkForDungeonStateChange()) {
-            System.out.println("receivePostDungeonUpdate");
             mustSendGameState = true;
             readyForUpdate = true;
         }
@@ -394,7 +394,23 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         protected void onClick() {
             System.out.println("you clicked on save");
             saveState = new SaveState();
-            battleAiController = new BattleAiController(new SaveState());
+            if (battleAiController == null) {
+
+//                ArrayList<Command> commands = new ArrayList<>();
+
+//                commands.add(new CardCommand(0, 0));
+//                commands.add(new CardCommand(0, 0));
+//                commands.add(new CardCommand(1, 0));
+//                commands.add(new EndCommand());
+//                commands.add(new CardCommand(0, 0));
+//                commands.add(new CardCommand(0, 0));
+//                commands.add(new CardCommand(0, 0));
+//                commands.add(new EndCommand());
+//                battleAiController = new BattleAiController(commands);
+
+
+                battleAiController = new BattleAiController(new SaveState());
+            }
             readyForUpdate = true;
             // your onclick code
         }
@@ -415,6 +431,7 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
             canStep = true;
             readyForUpdate = true;
             receivePostUpdate();
+
 //            saveState.loadState();
 
 //            battleAiController.step();

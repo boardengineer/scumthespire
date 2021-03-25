@@ -15,4 +15,8 @@ public class CardState {
         card.upgraded = upgraded;
         return card;
     }
+
+    public String getName() {
+        return card.name;
+    }
 }

@@ -10,7 +10,6 @@ import communicationmod.GameStateListener;
 )
 public class EnableEndTurnPatch {
     public static void Postfix(EnableEndTurnButtonAction _instance) {
-        System.out.println("Start of turn happened here?");
         GameStateListener.signalTurnStart();
     }
 }

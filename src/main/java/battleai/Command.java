@@ -1,5 +1,5 @@
 package battleai;
 
-interface Command {
+public interface Command {
     void execute();
 }
