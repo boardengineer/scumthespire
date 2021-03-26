@@ -1,16 +1,17 @@
 package savestate;
 
 import basemod.ReflectionHacks;
-import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 import com.megacrit.cardcrawl.monsters.exordium.*;
+import com.megacrit.cardcrawl.powers.AbstractPower;
 import com.megacrit.cardcrawl.vfx.TintEffect;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class MonsterState extends CreatureState {
     private final float deathTimer;
@@ -19,7 +20,7 @@ public class MonsterState extends CreatureState {
     private final boolean escapeNext;
     private final AbstractMonster.EnemyType type;
     private final boolean cannotEscape;
-    private final ArrayList<DamageInfo> damage;
+    private final ArrayList<DamageInfoState> damage;
     private final ArrayList<Byte> moveHistory;
     private final byte nextMove;
     private final Hitbox intentHb;
@@ -44,7 +45,8 @@ public class MonsterState extends CreatureState {
         this.escapeNext = monster.escapeNext;
         this.type = monster.type;
         this.cannotEscape = monster.cannotEscape;
-        this.damage = (ArrayList<DamageInfo>) monster.damage.clone();
+        this.damage = monster.damage.stream().map(DamageInfoState::new)
+                                    .collect(Collectors.toCollection(ArrayList::new));
         this.moveHistory = (ArrayList<Byte>) monster.moveHistory.clone();
         this.nextMove = monster.nextMove;
         this.intentHb = monster.intentHb;
@@ -69,7 +71,8 @@ public class MonsterState extends CreatureState {
         monster.escapeNext = this.escapeNext;
         monster.type = this.type;
         monster.cannotEscape = this.cannotEscape;
-        monster.damage = (ArrayList<DamageInfo>) this.damage.clone();
+        monster.damage = this.damage.stream().map(DamageInfoState::loadDamageInfo)
+                                    .collect(Collectors.toCollection(ArrayList::new));
         monster.moveHistory = (ArrayList<Byte>) this.moveHistory.clone();
         monster.nextMove = this.nextMove;
         monster.intentHb = this.intentHb;
@@ -87,6 +90,13 @@ public class MonsterState extends CreatureState {
         monster.showHealthBar();
         monster.update();
         monster.createIntent();
+
+        monster.updatePowers();
+
+
+        AbstractPower strength = monster.getPower("Strength");
+        System.out.println(strength != null ? strength.amount : "no strength");
+        System.out.printf("all powers: %s\n", monster.powers);
 
         return monster;
     }

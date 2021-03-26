@@ -8,7 +8,9 @@ import communicationmod.CommandExecutor;
 import savestate.SaveState;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class StateNode {
     final Command lastCommand;
@@ -70,14 +72,23 @@ public class StateNode {
         List<AbstractCard> hand = player.hand.group;
 
         List<AbstractMonster> monsters = AbstractDungeon.currMapNode.room.monsters.monsters;
+        Set<String> seenCommands = new HashSet<>();
 
         for (int i = 0; i < hand.size(); i++) {
             AbstractCard card = hand.get(i);
+
+            String setName = card.name + (card.upgraded ? "+" : "");
+            int oldCount = seenCommands.size();
+            seenCommands.add(setName);
+            if (oldCount == seenCommands.size()) {
+                continue;
+            }
+
             if (card.target == AbstractCard.CardTarget.ENEMY || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
                 for (int j = 0; j < monsters.size(); j++) {
                     AbstractMonster monster = monsters.get(j);
                     if (card.canUse(player, monster)) {
-                        commands.add(new CardCommand(i, j));
+                        commands.add(0, new CardCommand(i, j));
                     }
                 }
             }

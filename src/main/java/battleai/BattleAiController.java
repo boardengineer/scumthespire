@@ -21,6 +21,8 @@ public class BattleAiController {
     private Iterator<Command> bestPathRunner;
 
     public BattleAiController(SaveState state) {
+        minDamage = 5000;
+        lastCommand = null;
         startingState = state;
     }
 
@@ -98,6 +100,9 @@ public class BattleAiController {
                     CommunicationMod.readyForUpdate = true;
                     foundCommand = true;
                     command.execute();
+                } else {
+                    foundCommand = true;
+                    startingState.loadState();
                 }
             }
         }

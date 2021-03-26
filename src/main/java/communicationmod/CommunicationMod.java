@@ -1,18 +1,13 @@
 package communicationmod;
 
 import basemod.*;
-import basemod.interfaces.PostDungeonUpdateSubscriber;
-import basemod.interfaces.PostInitializeSubscriber;
-import basemod.interfaces.PostUpdateSubscriber;
-import basemod.interfaces.PreUpdateSubscriber;
+import basemod.interfaces.*;
 import battleai.BattleAiController;
-import battleai.CardCommand;
-import battleai.Command;
-import battleai.EndCommand;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.google.gson.Gson;
+import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.FontHelper;
@@ -24,7 +19,6 @@ import savestate.SaveState;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Stack;
@@ -33,7 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 @SpireInitializer
-public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, PreUpdateSubscriber {
+public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, PreUpdateSubscriber, OnPlayerDamagedSubscriber {
     private static final Logger logger = LogManager.getLogger(CommunicationMod.class.getName());
     private static final String MODNAME = "Communication Mod";
     private static final String AUTHOR = "Forgotten Arbiter";
@@ -168,8 +162,8 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         if (CommandExecutor.getAvailableCommands().contains("play") || CommandExecutor
                 .isEndCommandAvailable() || CommandExecutor.isChooseCommandAvailable()) {
             if (battleAiController != null) {
-                if (canStep || true) {
-//                if (canStep || !battleAiController.runCommandMode) {
+//                if (canStep || true) {
+                if (canStep || !battleAiController.runCommandMode) {
                     canStep = false;
 
                     battleAiController.step();
@@ -383,6 +377,13 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         return false;
     }
 
+    @Override
+    public int receiveOnPlayerDamaged(int i, DamageInfo damageInfo) {
+        System.out
+                .printf("damage info: %s %s %s %s %s", damageInfo.name, damageInfo.base, damageInfo.isModified, damageInfo.owner, damageInfo.type);
+        return i;
+    }
+
     public class SaveStateTopPanel extends TopPanelItem {
         public static final String ID = "yourmodname:SaveState";
 
@@ -394,7 +395,6 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         protected void onClick() {
             System.out.println("you clicked on save");
             saveState = new SaveState();
-            if (battleAiController == null) {
 
 //                ArrayList<Command> commands = new ArrayList<>();
 
@@ -409,8 +409,8 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 //                battleAiController = new BattleAiController(commands);
 
 
-                battleAiController = new BattleAiController(new SaveState());
-            }
+            battleAiController = new BattleAiController(new SaveState());
+
             readyForUpdate = true;
             // your onclick code
         }
