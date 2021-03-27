@@ -51,8 +51,6 @@ public class SaveState {
     }
 
     public void loadState() {
-        System.out.println("loading state...");
-
         GameActionManager.turn = this.turn;
         AbstractDungeon.player = playerLoader.loadPlayer();
 

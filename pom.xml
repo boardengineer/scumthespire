@@ -34,11 +34,18 @@
             <systemPath>${basedir}/../lib/ModTheSpire.jar</systemPath>
         </dependency>
         <dependency>
+            <groupId>superfast</groupId>
+            <artifactId>superfast</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../_ModTheSpire/mods/SuperFastMode.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>com.evacipated.cardcrawl</groupId>
             <artifactId>BaseMod</artifactId>
             <version>${BaseMod.version}</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../lib/BaseMod.jar</systemPath>
+            <systemPath>${basedir}/../_ModTheSpire/mods/BaseMod.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

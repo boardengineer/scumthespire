@@ -7,19 +7,28 @@ import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.google.gson.Gson;
+import com.megacrit.cardcrawl.actions.AbstractGameAction;
+import com.megacrit.cardcrawl.actions.IntentFlashAction;
+import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
+import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
+import com.megacrit.cardcrawl.vfx.CardTrailEffect;
+import com.megacrit.cardcrawl.vfx.EnemyTurnEffect;
+import com.megacrit.cardcrawl.vfx.PlayerTurnEffect;
 import communicationmod.patches.InputActionPatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import savestate.SaveState;
+import skrelpoid.superfastmode.SuperFastMode;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
@@ -162,8 +171,8 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         if (CommandExecutor.getAvailableCommands().contains("play") || CommandExecutor
                 .isEndCommandAvailable() || CommandExecutor.isChooseCommandAvailable()) {
             if (battleAiController != null) {
-//                if (canStep || true) {
-                if (canStep || !battleAiController.runCommandMode) {
+                if (canStep || true) {
+//                if (canStep || !battleAiController.runCommandMode) {
                     canStep = false;
 
                     battleAiController.step();
@@ -182,10 +191,48 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 //            System.out.printf("saving state, stateStackSize:%s\n", saveStates.size());
         }
         String state = GameStateConverter.getCommunicationState();
+        CardTrailEffect e;
         sendMessage(state);
     }
 
     public void receivePreUpdate() {
+        Settings.ACTION_DUR_XFAST = 0.001F;
+        Settings.ACTION_DUR_FASTER = 0.002F;
+        Settings.ACTION_DUR_FAST = 0.0025F;
+        Settings.ACTION_DUR_MED = 0.005F;
+        Settings.ACTION_DUR_LONG = .01F;
+        Settings.ACTION_DUR_XLONG = .015F;
+
+        SuperFastMode.deltaMultiplier = 100000000.0F;
+        SuperFastMode.isInstantLerp = true;
+        SuperFastMode.isDeltaMultiplied = true;
+        Settings.DISABLE_EFFECTS = true;
+        Iterator<AbstractGameEffect> topLevelEffects = AbstractDungeon.topLevelEffects.iterator();
+        while (topLevelEffects.hasNext()) {
+            AbstractGameEffect effect = topLevelEffects.next();
+            effect.duration = Math.min(effect.duration, .005F);
+
+            if (effect instanceof EnemyTurnEffect || effect instanceof PlayerTurnEffect) {
+                effect.isDone = true;
+            }
+
+            if (effect instanceof CardTrailEffect) {
+                topLevelEffects.remove();
+            } else {
+                System.out.println(effect.getClass());
+                topLevelEffects.remove();
+            }
+        }
+
+        Iterator<AbstractGameAction> deleter = AbstractDungeon.actionManager.actions.iterator();
+
+        while (deleter.hasNext()) {
+            AbstractGameAction action = deleter.next();
+            if (action instanceof WaitAction || action instanceof IntentFlashAction) {
+                deleter.remove();
+            }
+        }
+
         if (listener != null && !listener.isAlive() && writeThread != null && writeThread
                 .isAlive()) {
             logger.info("Child process has died...");

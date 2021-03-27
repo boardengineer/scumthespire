@@ -9,6 +9,7 @@ import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 import com.megacrit.cardcrawl.monsters.exordium.*;
 import com.megacrit.cardcrawl.powers.AbstractPower;
 import com.megacrit.cardcrawl.vfx.TintEffect;
+import monsters.DifferentJawWorm;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -95,8 +96,6 @@ public class MonsterState extends CreatureState {
 
 
         AbstractPower strength = monster.getPower("Strength");
-        System.out.println(strength != null ? strength.amount : "no strength");
-        System.out.printf("all powers: %s\n", monster.powers);
 
         return monster;
     }
@@ -138,7 +137,7 @@ public class MonsterState extends CreatureState {
         } else if (monster instanceof Hexaghost) {
             monster = new Hexaghost();
         } else if (monster instanceof JawWorm) {
-            monster = new JawWorm(offsetX, offsetY);
+            monster = new DifferentJawWorm(offsetX, offsetY);
         } else if (monster instanceof Lagavulin) {
             monster = new Lagavulin(false);
         } else if (monster instanceof Looter) {
