@@ -1,6 +1,7 @@
 package battleai;
 
 import communicationmod.CommunicationMod;
+import org.apache.logging.log4j.LogManager;
 import savestate.SaveState;
 
 import java.util.ArrayList;
@@ -13,12 +14,16 @@ public class BattleAiController {
     public static int minDamage = 5000;
     public static int startingHealth;
     public static Command lastCommand = null;
+    public boolean runCommandMode = false;
     private SaveState startingState;
     private Stack<StateNode> states;
     private boolean initialized = false;
     private String bestPath = "";
-    public boolean runCommandMode = false;
     private Iterator<Command> bestPathRunner;
+
+    private long startingNanos;
+    private long lastStepNanos;
+    private int steps;
 
     public BattleAiController(SaveState state) {
         minDamage = 5000;
@@ -29,17 +34,23 @@ public class BattleAiController {
     public BattleAiController(Collection<Command> commands) {
         runCommandMode = true;
         bestPathRunner = commands.iterator();
+
     }
 
     public void step() {
         if (!runCommandMode) {
-            if (states != null) {
-//                String statesString = states.stream().map(StateNode::getStateString)
-//                                            .collect(Collectors.joining("-"));
-//                System.out.println(statesString);
+            long currentTime = System.nanoTime();
+            if (currentTime - lastStepNanos > 500_000_000 || (lastCommand != null && lastCommand instanceof EndCommand) || true) {
+                LogManager.getLogger("hello").info(String.format("step time:%s last Command: %s step: %s\n", (currentTime - lastStepNanos) / 1E6, lastCommand == null ? "null" : lastCommand
+                                .getClass(), steps++));
+            } else {
+                steps++;
             }
+            lastStepNanos = currentTime;
 
             if (!initialized) {
+                startingNanos = lastStepNanos = System.nanoTime();
+                steps = 0;
                 initialized = true;
                 runCommandMode = false;
                 states = new Stack<>();
@@ -54,6 +65,7 @@ public class BattleAiController {
                 minDamage = Math.min(minDamage, curState.getMinDamage());
                 states.pop();
                 if (!states.empty()) {
+                    System.err.println("about to load state...");
                     states.peek().saveState.loadState();
                 }
             } else {
@@ -88,11 +100,11 @@ public class BattleAiController {
             if (states.isEmpty()) {
                 runCommandMode = true;
                 System.out.println("best path is " + bestPath);
+                System.err.printf("%s %s\n", steps, (System.nanoTime() - startingNanos) / 1E9);
             }
         }
         if (runCommandMode) {
             boolean foundCommand = false;
-            System.out.printf("%s %s\n", bestPathRunner.hasNext(), foundCommand);
             while (bestPathRunner.hasNext() && !foundCommand) {
                 Command command = bestPathRunner.next();
                 if (command != null) {
