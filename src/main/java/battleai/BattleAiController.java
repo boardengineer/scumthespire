@@ -15,12 +15,12 @@ public class BattleAiController {
     public static int startingHealth;
     public static Command lastCommand = null;
     public boolean runCommandMode = false;
+    public boolean isDone = false;
     private SaveState startingState;
     private Stack<StateNode> states;
     private boolean initialized = false;
     private String bestPath = "";
     private Iterator<Command> bestPathRunner;
-
     private long startingNanos;
     private long lastStepNanos;
     private int steps;
@@ -34,14 +34,17 @@ public class BattleAiController {
     public BattleAiController(Collection<Command> commands) {
         runCommandMode = true;
         bestPathRunner = commands.iterator();
-
     }
 
     public void step() {
+        if (isDone) {
+            return;
+        }
         if (!runCommandMode) {
             long currentTime = System.nanoTime();
             if (currentTime - lastStepNanos > 500_000_000 || (lastCommand != null && lastCommand instanceof EndCommand) || true) {
-                LogManager.getLogger("hello").info(String.format("step time:%s last Command: %s step: %s\n", (currentTime - lastStepNanos) / 1E6, lastCommand == null ? "null" : lastCommand
+                LogManager.getLogger("hello").info(String
+                        .format("step time:%s last Command: %s step: %s\n", (currentTime - lastStepNanos) / 1E6, lastCommand == null ? "null" : lastCommand
                                 .getClass(), steps++));
             } else {
                 steps++;
@@ -65,7 +68,6 @@ public class BattleAiController {
                 minDamage = Math.min(minDamage, curState.getMinDamage());
                 states.pop();
                 if (!states.empty()) {
-                    System.err.println("about to load state...");
                     states.peek().saveState.loadState();
                 }
             } else {
@@ -80,13 +82,10 @@ public class BattleAiController {
                         bestPathRunner = states.stream().map(StateNode::getLastCommand)
                                                .collect(Collectors.toCollection(ArrayList::new))
                                                .iterator();
-                        System.out.printf("replacing best path:%s\n", bestPath);
-                        System.out
-                                .println("updated bestPathRunner: %s: " + bestPathRunner.hasNext());
 
                         minDamage = stateDamage;
                     }
-//                minDamage = Math.min(minDamage, stateDamage);
+
                     states.pop();
                     if (!states.isEmpty()) {
                         states.peek().saveState.loadState();
@@ -116,6 +115,10 @@ public class BattleAiController {
                     foundCommand = true;
                     startingState.loadState();
                 }
+            }
+
+            if (!bestPathRunner.hasNext()) {
+                isDone = true;
             }
         }
     }

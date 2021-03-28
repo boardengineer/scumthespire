@@ -21,7 +21,6 @@ public class StateNode {
     private int commandIndex = -1;
     private boolean isDone = false;
 
-
     public StateNode(Command lastCommand) {
         this.lastCommand = lastCommand;
     }
@@ -31,6 +30,7 @@ public class StateNode {
      */
     public boolean step() {
         populateCommands();
+
         if (!initialized) {
             saveState = new SaveState();
             initialized = true;
@@ -38,7 +38,7 @@ public class StateNode {
             if (shouldLookForPlay() && damage < BattleAiController.minDamage) {
                 commandIndex = 0;
             } else {
-                System.out
+                System.err
                         .printf("Found terminal state on init: damage this combat:%s; best damage: %s\n", damage, BattleAiController.minDamage);
 
                 if (shouldLookForPlay()) {

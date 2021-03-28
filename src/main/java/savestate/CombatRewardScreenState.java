@@ -1,6 +1,5 @@
 package savestate;
 
-import basemod.BaseMod;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rewards.RewardItem;
 import com.megacrit.cardcrawl.screens.CombatRewardScreen;
@@ -28,6 +27,8 @@ public class CombatRewardScreenState {
         combatRewardScreen.hasTakenAll = this.hasTakenAll;
 
         combatRewardScreen.clear();
+        combatRewardScreen.update();
+        AbstractDungeon.overlayMenu.proceedButton.hide();
 
         AbstractDungeon.dynamicBanner.hide();
 
@@ -37,6 +38,7 @@ public class CombatRewardScreenState {
 
         AbstractDungeon.overlayMenu.hideBlackScreen();
         AbstractDungeon.overlayMenu.showCombatPanels();
+        AbstractDungeon.closeCurrentScreen();
 
         return combatRewardScreen;
     }

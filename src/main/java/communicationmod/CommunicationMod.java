@@ -9,17 +9,29 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.google.gson.Gson;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.IntentFlashAction;
+import com.megacrit.cardcrawl.actions.common.DiscardAction;
+import com.megacrit.cardcrawl.actions.common.DiscardAtEndOfTurnAction;
+import com.megacrit.cardcrawl.actions.common.DrawCardAction;
+import com.megacrit.cardcrawl.actions.common.EmptyDeckShuffleAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.DamageInfo;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
+import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 import com.megacrit.cardcrawl.vfx.CardTrailEffect;
 import com.megacrit.cardcrawl.vfx.EnemyTurnEffect;
 import com.megacrit.cardcrawl.vfx.PlayerTurnEffect;
 import communicationmod.patches.InputActionPatch;
+import fastobjects.ScreenShakeFast;
+import fastobjects.actions.DiscardAtEndOfTurnActionFast;
+import fastobjects.actions.DiscardCardActionFast;
+import fastobjects.actions.DrawCardActionFast;
+import fastobjects.actions.EmptyDeckShuffleActionFast;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import savestate.SaveState;
@@ -27,16 +39,13 @@ import skrelpoid.superfastmode.SuperFastMode;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 @SpireInitializer
-public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, PreUpdateSubscriber, OnPlayerDamagedSubscriber {
+public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, PreUpdateSubscriber, OnPlayerDamagedSubscriber, EditCharactersSubscriber {
     private static final Logger logger = LogManager.getLogger(CommunicationMod.class.getName());
     private static final String MODNAME = "Communication Mod";
     private static final String AUTHOR = "Forgotten Arbiter";
@@ -60,6 +69,7 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     private static BlockingQueue<String> readQueue;
     private static SpireConfig communicationConfig;
     private static BattleAiController battleAiController = null;
+    private static HashMap<Class, Integer> framesPerClass = new HashMap<>();
     private boolean canStep = false;
     private SaveState saveState;
 
@@ -72,6 +82,8 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         Settings.ACTION_DUR_MED = 0.05F;
         Settings.ACTION_DUR_LONG = .10F;
         Settings.ACTION_DUR_XLONG = .15F;
+
+        CardCrawlGame.screenShake = new ScreenShakeFast();
 
         try {
             Properties defaults = new Properties();
@@ -171,11 +183,22 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         if (CommandExecutor.getAvailableCommands().contains("play") || CommandExecutor
                 .isEndCommandAvailable() || CommandExecutor.isChooseCommandAvailable()) {
             if (battleAiController != null) {
+//                if (canStep) {
                 if (canStep || true) {
 //                if (canStep || !battleAiController.runCommandMode) {
                     canStep = false;
 
                     battleAiController.step();
+                }
+
+                if (battleAiController.isDone) {
+                    System.err.println(framesPerClass);
+
+                    framesPerClass.entrySet().stream()
+                                  .sorted((first, second) -> second.getValue() - first.getValue())
+                                  .forEach(entry -> System.err.println(entry));
+                    framesPerClass = new HashMap<>();
+                    battleAiController = null;
                 }
             }
 //            if (saveStates == null) {
@@ -224,13 +247,21 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
             }
         }
 
-        Iterator<AbstractGameAction> deleter = AbstractDungeon.actionManager.actions.iterator();
+        AbstractDungeon.effectList.clear();
 
-        while (deleter.hasNext()) {
-            AbstractGameAction action = deleter.next();
-            if (action instanceof WaitAction || action instanceof IntentFlashAction) {
-                deleter.remove();
+        clearActions(AbstractDungeon.actionManager.actions);
+        clearActions(AbstractDungeon.actionManager.preTurnActions);
+
+        try {
+            Class actionClass = AbstractDungeon.actionManager.currentAction.getClass();
+            if (!framesPerClass.containsKey(actionClass)) {
+                framesPerClass.put(actionClass, 0);
             }
+            framesPerClass.put(actionClass, framesPerClass.get(actionClass) + 1);
+//            System.err.println(AbstractDungeon.actionManager.currentAction.getClass());
+        } catch (NullPointerException e) {
+//            e.printStackTrace();
+//            System.err.println("there was a null though");
         }
 
         if (listener != null && !listener.isAlive() && writeThread != null && writeThread
@@ -251,6 +282,16 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
                 jsonError.put("ready_for_command", GameStateListener.isWaitingForCommand());
                 Gson gson = new Gson();
                 sendMessage(gson.toJson(jsonError));
+            }
+        }
+
+        if (AbstractDungeon.player != null) {
+            AbstractPlayer player = AbstractDungeon.player;
+            float animScale = player.state.getTimeScale();
+            player.state.setTimeScale(Math.min(animScale, .0001F));
+
+            for (AbstractRelic relic : player.relics) {
+                relic.flashTimer = Math.min(relic.flashTimer, .00001F);
             }
         }
     }
@@ -357,8 +398,11 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         settingsPanel.addUIElement(verbosityOption);
         BaseMod.registerModBadge(ImageMaster
                 .loadImage("Icon.png"), "Communication Mod", "Forgotten Arbiter", null, settingsPanel);
-        BaseMod.addTopPanelItem(new SaveStateTopPanel());
-        BaseMod.addTopPanelItem(new LoadStateTopPanel());
+        //BaseMod.addTopPanelItem(new SaveStateTopPanel());
+        //BaseMod.addTopPanelItem(new LoadStateTopPanel());
+        BaseMod.addTopPanelItem(new StartAIPanel());
+        BaseMod.addTopPanelItem(new StepTopPanel());
+
     }
 
     private void startCommunicationThreads() {
@@ -426,9 +470,12 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 
     @Override
     public int receiveOnPlayerDamaged(int i, DamageInfo damageInfo) {
-        System.out
-                .printf("damage info: %s %s %s %s %s", damageInfo.name, damageInfo.base, damageInfo.isModified, damageInfo.owner, damageInfo.type);
         return i;
+    }
+
+    @Override
+    public void receiveEditCharacters() {
+//        BaseMod.ed
     }
 
     public class SaveStateTopPanel extends TopPanelItem {
@@ -456,6 +503,24 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 //                battleAiController = new BattleAiController(commands);
 
 
+//            battleAiController = new BattleAiController(new SaveState());
+
+            readyForUpdate = true;
+            // your onclick code
+        }
+    }
+
+    public class StartAIPanel extends TopPanelItem {
+        public static final String ID = "yourmodname:SaveState";
+
+        public StartAIPanel() {
+            super(new Texture("save.png"), ID);
+        }
+
+        @Override
+        protected void onClick() {
+
+
             battleAiController = new BattleAiController(new SaveState());
 
             readyForUpdate = true;
@@ -479,6 +544,36 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
             readyForUpdate = true;
             receivePostUpdate();
 
+            saveState.loadState();
+
+//            battleAiController.step();
+//            if (saveStates.size() < 2) {
+//                System.out.println("Nothing to load");
+//            } else {
+//                saveStates.pop();
+//                saveStates.peek().loadState();
+//            }
+
+            // your onclick code
+        }
+    }
+
+    public class StepTopPanel extends TopPanelItem {
+        public static final String ID = "yourmodname:Step";
+
+        public StepTopPanel() {
+            super(new Texture("Icon.png"), ID);
+        }
+
+        @Override
+        protected void onClick() {
+//            saveStateController.loadState();
+            System.out.println("you clicked on load");
+
+            canStep = true;
+            readyForUpdate = true;
+            receivePostUpdate();
+
 //            saveState.loadState();
 
 //            battleAiController.step();
@@ -490,6 +585,36 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 //            }
 
             // your onclick code
+        }
+    }
+
+    private void clearActions(List<AbstractGameAction> actions) {
+        for (int i = 0; i < actions.size(); i++) {
+            AbstractGameAction action = actions.get(i);
+            if (action instanceof WaitAction || action instanceof IntentFlashAction) {
+                actions.remove(i);
+                i--;
+            } else if (action instanceof DrawCardAction) {
+//                System.err.println("draw card action");
+                actions.remove(i);
+//                i--;
+                actions.add(i, new DrawCardActionFast(AbstractDungeon.player, action.amount));
+            } else if (action instanceof EmptyDeckShuffleAction) {
+//                System.err.println("empty deck shuffle action");
+                actions.remove(i);
+//                i--;
+                actions.add(i, new EmptyDeckShuffleActionFast());
+            } else if (action instanceof DiscardAction) {
+//                System.err.println("empty deck shuffle action");
+                actions.remove(i);
+//                i--;
+                actions.add(i, new DiscardCardActionFast(AbstractDungeon.player, null, action.amount, false));
+            } else if (action instanceof DiscardAtEndOfTurnAction) {
+//                System.err.println("empty deck shuffle action");
+                actions.remove(i);
+//                i--;
+                actions.add(i, new DiscardAtEndOfTurnActionFast());
+            }
         }
     }
 

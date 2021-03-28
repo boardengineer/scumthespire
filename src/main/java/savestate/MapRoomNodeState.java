@@ -125,6 +125,7 @@ public class MapRoomNodeState {
             room.monsters.monsters = monsterData.stream().map(MonsterState::loadMonster)
                                                 .collect(Collectors
                                                         .toCollection(ArrayList::new));
+            room.monsters.update();
         } else {
             room.monsters = null;
         }

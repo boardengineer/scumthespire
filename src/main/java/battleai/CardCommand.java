@@ -25,6 +25,7 @@ public class CardCommand implements Command {
     public void execute() {
         AbstractCard card = AbstractDungeon.player.hand.group.get(cardIndex);
         AbstractMonster monster = null;
+
         if (monsterIndex != -1) {
             monster = AbstractDungeon.getMonsters().monsters.get(monsterIndex);
         }
@@ -44,6 +45,6 @@ public class CardCommand implements Command {
     @Override
     public String toString() {
         return String
-                .format("Use %s on %s", cardIndex, cardIndex);
+                .format("Use %s on %s", cardIndex, monsterIndex);
     }
 }

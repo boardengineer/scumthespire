@@ -66,6 +66,11 @@ public class SaveState {
 
         AbstractDungeon.floorNum = floorNum;
 
+
+        AbstractDungeon.combatRewardScreen = combatRewardScreenLoader.loadCombatRewardScreen();
+
+        CommunicationMod.readyForUpdate = true;
+
         AbstractDungeon.map = roomNodeLoaders.stream()
                                              .map(list -> list.stream()
                                                               .map(MapRoomNodeState::loadMapRoomNode)
@@ -74,8 +79,6 @@ public class SaveState {
                                              .collect(Collectors.toCollection(ArrayList::new));
 
         rngLoader.loadRng();
-        AbstractDungeon.combatRewardScreen = combatRewardScreenLoader.loadCombatRewardScreen();
-        CommunicationMod.readyForUpdate = true;
 
         GameStateListener.previousScreen = previousScreen;
         GameStateListener.previousScreenUp = previousScreenUp;
