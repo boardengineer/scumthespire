@@ -43,6 +43,7 @@ public class DiscardCardActionFast extends AbstractGameAction {
     }
 
     public void update() {
+        isDone = true;
         AbstractCard c;
 
         this.duration = 0;
@@ -56,8 +57,6 @@ public class DiscardCardActionFast extends AbstractGameAction {
         int handSize;
         if (this.p.hand.size() <= this.amount) {
             shouldSkipEverything = true;
-
-            System.err.println("discarding everything");
 
             this.amount = this.p.hand.size();
             handSize = this.p.hand.size();

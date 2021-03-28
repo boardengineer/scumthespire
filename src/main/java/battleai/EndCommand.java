@@ -58,7 +58,7 @@ public class EndCommand implements Command {
         AbstractDungeon.player.isEndingTurn = false;
     }
 
-    private static class SomeAction extends AbstractGameAction {
+    public static class SomeAction extends AbstractGameAction {
 
         @Override
         public void update() {

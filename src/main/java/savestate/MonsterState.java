@@ -8,10 +8,6 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 import com.megacrit.cardcrawl.monsters.exordium.*;
 import com.megacrit.cardcrawl.vfx.TintEffect;
-import fastobjects.monsters.AcidSlime_MFast;
-import fastobjects.monsters.CultistFast;
-import fastobjects.monsters.JawWormFast;
-import fastobjects.monsters.SpikeSlime_SFast;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -38,7 +34,6 @@ public class MonsterState extends CreatureState {
 
     public MonsterState(AbstractMonster monster) {
         super(monster);
-        JawWormFast worm;
         this.moveInfo = ReflectionHacks
                 .getPrivate(monster, AbstractMonster.class, "move");
 
@@ -108,13 +103,13 @@ public class MonsterState extends CreatureState {
         if (monster instanceof AcidSlime_L) {
             monster = new AcidSlime_L(offsetX, offsetY);
         } else if (monster instanceof AcidSlime_M) {
-            monster = new AcidSlime_MFast(offsetX, offsetY);
+            monster = new AcidSlime_M(offsetX, offsetY);
         } else if (monster instanceof AcidSlime_S) {
             monster = new AcidSlime_S(offsetX, offsetY, 0);
         } else if (monster instanceof ApologySlime) {
             monster = new ApologySlime();
         } else if (monster instanceof Cultist) {
-            monster = new CultistFast(offsetX, offsetY, false);
+            monster = new Cultist(offsetX, offsetY, false);
             if (intent != AbstractMonster.Intent.BUFF) {
                 // clear the firstMove boolean by rolling a move
                 monster.rollMove();
@@ -135,8 +130,8 @@ public class MonsterState extends CreatureState {
             monster = new GremlinWizard(offsetX, offsetY);
         } else if (monster instanceof Hexaghost) {
             monster = new Hexaghost();
-        } else if (monster instanceof JawWorm || monster instanceof JawWormFast) {
-            monster = new JawWormFast(offsetX, offsetY);
+        } else if (monster instanceof JawWorm) {
+            monster = new JawWorm(offsetX, offsetY);
         } else if (monster instanceof Lagavulin) {
             monster = new Lagavulin(false);
         } else if (monster instanceof Looter) {
@@ -158,7 +153,7 @@ public class MonsterState extends CreatureState {
         } else if (monster instanceof SpikeSlime_M) {
             monster = new SpikeSlime_M(offsetX, offsetY);
         } else if (monster instanceof SpikeSlime_S) {
-            monster = new SpikeSlime_SFast(offsetX, offsetY, 0);
+            monster = new SpikeSlime_S(offsetX, offsetY, 0);
         } else if (monster instanceof TheGuardian) {
             monster = new TheGuardian();
         }

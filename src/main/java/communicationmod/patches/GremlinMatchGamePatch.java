@@ -60,6 +60,7 @@ public class GremlinMatchGamePatch {
         public static AbstractCard hoverCard = null;
 
         @SpireInsertPatch(
+
                 locator=Locator.class,
                 localvars = {"c"}
         )

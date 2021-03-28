@@ -1,6 +1,5 @@
 package fastobjects.actions;
 
-import com.badlogic.gdx.Gdx;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.DiscardAtEndOfTurnAction;
 import com.megacrit.cardcrawl.actions.common.DrawCardAction;
@@ -24,6 +23,7 @@ public class DrawCardActionFast extends AbstractGameAction {
     private boolean shuffleCheck;
     private boolean clearDrawHistory;
     private AbstractGameAction followUpAction;
+    private boolean alreadyDrawing = false;
 
     public DrawCardActionFast(AbstractCreature source, int amount, boolean endTurnDraw) {
         this.shuffleCheck = false;
@@ -68,6 +68,10 @@ public class DrawCardActionFast extends AbstractGameAction {
     }
 
     public void update() {
+        if(alreadyDrawing) {
+            System.err.println("stopping early because already drawing");
+            return;
+        }
         if (this.clearDrawHistory) {
             this.clearDrawHistory = false;
             drawnCards.clear();
@@ -97,6 +101,7 @@ public class DrawCardActionFast extends AbstractGameAction {
                         }
 
                         if (this.amount > deckSize) {
+                            alreadyDrawing = true;
                             tmp = this.amount - deckSize;
                             this.addToTop(new DrawCardActionFast(tmp, this.followUpAction, false));
                             this.addToTop(new EmptyDeckShuffleActionFast());
@@ -112,14 +117,8 @@ public class DrawCardActionFast extends AbstractGameAction {
                         this.shuffleCheck = true;
                     }
 
-                    this.duration -= Gdx.graphics.getDeltaTime();
                     while (this.amount != 0) {
-                        if (Settings.FAST_MODE) {
-                            this.duration = Settings.ACTION_DUR_XFAST;
-                        } else {
-                            this.duration = Settings.ACTION_DUR_FASTER;
-                        }
-
+                        alreadyDrawing = true;
                         --this.amount;
                         if (!AbstractDungeon.player.drawPile.isEmpty()) {
                             drawnCards.add(AbstractDungeon.player.drawPile.getTopCard());
@@ -134,6 +133,10 @@ public class DrawCardActionFast extends AbstractGameAction {
                         if (this.amount == 0) {
                             this.endActionWithFollowUp();
                         }
+                    }
+
+                    if (this.amount == 0) {
+                        this.endActionWithFollowUp();
                     }
 
                 }

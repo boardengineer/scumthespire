@@ -11,13 +11,16 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 public class BattleAiController {
+    public static final int MAX_DEPTH = 8;
+
+    public static int minShallowDamage = 5000;
     public static int minDamage = 5000;
     public static int startingHealth;
     public static Command lastCommand = null;
     public boolean runCommandMode = false;
     public boolean isDone = false;
     private SaveState startingState;
-    private Stack<StateNode> states;
+    public static Stack<StateNode> states;
     private boolean initialized = false;
     private String bestPath = "";
     private Iterator<Command> bestPathRunner;
@@ -49,7 +52,6 @@ public class BattleAiController {
             } else {
                 steps++;
             }
-            lastStepNanos = currentTime;
 
             if (!initialized) {
                 startingNanos = lastStepNanos = System.nanoTime();
@@ -62,6 +64,9 @@ public class BattleAiController {
                 startingHealth = startingState.getPlayerHealth();
                 states.push(firstStateContainer);
             }
+
+            System.err.println(String.format("step: %s depth: %s", steps, states.size()));
+            lastStepNanos = currentTime;
 
             StateNode curState = states.peek();
             if (curState.isDone()) {
@@ -99,7 +104,8 @@ public class BattleAiController {
             if (states.isEmpty()) {
                 runCommandMode = true;
                 System.out.println("best path is " + bestPath);
-                System.err.printf("%s %s\n", steps, (System.nanoTime() - startingNanos) / 1E9);
+                System.err.printf("%s %s\n", steps, (System
+                        .nanoTime() - startingNanos) / 1E9);
             }
         }
         if (runCommandMode) {
