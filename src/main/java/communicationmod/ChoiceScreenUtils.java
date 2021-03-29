@@ -11,11 +11,8 @@ import com.megacrit.cardcrawl.dungeons.TheEnding;
 import com.megacrit.cardcrawl.events.AbstractImageEvent;
 import com.megacrit.cardcrawl.events.GenericEventDialog;
 import com.megacrit.cardcrawl.events.RoomEventDialog;
-import com.megacrit.cardcrawl.events.shrines.GremlinMatchGame;
-import com.megacrit.cardcrawl.events.shrines.GremlinWheelGame;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
-import com.megacrit.cardcrawl.map.DungeonMap;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rewards.RewardItem;
@@ -31,7 +28,6 @@ import com.megacrit.cardcrawl.shop.StorePotion;
 import com.megacrit.cardcrawl.shop.StoreRelic;
 import com.megacrit.cardcrawl.ui.buttons.*;
 import com.megacrit.cardcrawl.ui.campfire.AbstractCampfireOption;
-import communicationmod.patches.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -115,9 +111,6 @@ public class ChoiceScreenUtils {
         ChoiceType choiceType = getCurrentChoiceType();
         ArrayList<String> choices;
         switch (choiceType) {
-            case EVENT:
-                choices = getEventScreenChoices();
-                break;
             case CHEST:
                 choices = getChestRoomChoices();
                 break;
@@ -161,35 +154,14 @@ public class ChoiceScreenUtils {
     public static void executeChoice(int choice_index) {
         ChoiceType choiceType = getCurrentChoiceType();
         switch (choiceType) {
-            case EVENT:
-                makeEventChoice(choice_index);
-                return;
             case CHEST:
                 makeChestRoomChoice(choice_index);
-                return;
-            case SHOP_ROOM:
-                makeShopRoomChoice(choice_index);
                 return;
             case REST:
                 makeRestRoomChoice(choice_index);
                 return;
-            case CARD_REWARD:
-                makeCardRewardChoice(choice_index);
-                return;
             case COMBAT_REWARD:
                 makeCombatRewardChoice(choice_index);
-                return;
-            case MAP:
-                makeMapChoice(choice_index);
-                return;
-            case BOSS_REWARD:
-                makeBossRewardChoice(choice_index);
-                return;
-            case SHOP_SCREEN:
-                makeShopScreenChoice(choice_index);
-                return;
-            case GRID:
-                makeGridScreenChoice(choice_index);
                 return;
             case HAND_SELECT:
                 makeHandSelectScreenChoice(choice_index);
@@ -398,21 +370,6 @@ public class ChoiceScreenUtils {
         return !((boolean) ReflectionHacks.getPrivate(skipButton, SkipCardButton.class, "isHidden"));
     }
 
-    public static void makeCardRewardChoice(int choice) {
-        ArrayList<String> choices = getCardRewardScreenChoices();
-        if(choices.get(choice).equals("bowl")) {
-            SingingBowlButton bowlButton = (SingingBowlButton) ReflectionHacks.getPrivate(AbstractDungeon.cardRewardScreen, CardRewardScreen.class, "bowlButton");
-            bowlButton.onClick();
-            AbstractDungeon.cardRewardScreen.closeFromBowlButton();
-            AbstractDungeon.closeCurrentScreen();
-        } else {
-            AbstractCard selectedCard = AbstractDungeon.cardRewardScreen.rewardGroup.get(choice);
-            CardRewardScreenPatch.doHover = true;
-            CardRewardScreenPatch.hoverCard = selectedCard;
-            selectedCard.hb.clicked = true;
-        }
-    }
-
     public static ArrayList<String> getHandSelectScreenChoices() {
         ArrayList<String> choices = new ArrayList<>();
         HandCardSelectScreen screen = AbstractDungeon.handCardSelectScreen;
@@ -468,12 +425,6 @@ public class ChoiceScreenUtils {
         return choices;
     }
 
-    public static void makeGridScreenChoice (int choice) {
-        GridCardSelectScreen screen = AbstractDungeon.gridSelectScreen;
-        GridCardSelectScreenPatch.hoverCard = getGridScreenCards().get(choice);
-        GridCardSelectScreenPatch.replaceHoverCard = true;
-    }
-
     private static void clickGridScreenConfirmButton() {
         GridCardSelectScreen screen = AbstractDungeon.gridSelectScreen;
         screen.confirmButton.hb.clicked = true;
@@ -526,13 +477,6 @@ public class ChoiceScreenUtils {
         return choices;
     }
 
-    public static void makeBossRewardChoice(int choice) {
-        AbstractRelic chosenRelic = AbstractDungeon.bossRelicScreen.relics.get(choice);
-        AbstractRelicUpdatePatch.doHover = true;
-        AbstractRelicUpdatePatch.hoverRelic = chosenRelic;
-        InputHelper.justClickedLeft = true;
-    }
-
     public static ArrayList<String> getChestRoomChoices() {
         ArrayList<String> choices = new ArrayList<>();
         AbstractChest chest = null;
@@ -563,10 +507,6 @@ public class ChoiceScreenUtils {
         ArrayList<String> choices = new ArrayList<>();
         choices.add("shop");
         return choices;
-    }
-
-    public static void makeShopRoomChoice (int choice) {
-        MerchantPatch.visitMerchant = true;
     }
 
     public static ArrayList<String> getShopScreenChoices() {
@@ -633,28 +573,6 @@ public class ChoiceScreenUtils {
         return choices;
     }
 
-    public static void makeShopScreenChoice(int choice) {
-        ArrayList<Object> shopItems = getAvailableShopItems();
-        Object shopItem = shopItems.get(choice);
-        if (shopItem instanceof String) {
-            AbstractDungeon.previousScreen = AbstractDungeon.CurrentScreen.SHOP;
-            AbstractDungeon.gridSelectScreen.open(
-                    CardGroup.getGroupWithoutBottledCards(AbstractDungeon.player.masterDeck.getPurgeableCards()),
-                    1, ShopScreen.NAMES[13], false, false, true, true);
-        } else if (shopItem instanceof AbstractCard) {
-            AbstractCard card = (AbstractCard)shopItem;
-            ShopScreenPatch.doHover = true;
-            ShopScreenPatch.hoverCard = card;
-            card.hb.clicked = true;
-        } else if (shopItem instanceof StoreRelic) {
-            StoreRelic relic = (StoreRelic) shopItem;
-            relic.relic.hb.clicked = true;
-        } else if (shopItem instanceof StorePotion) {
-            StorePotion potion = (StorePotion) shopItem;
-            potion.potion.hb.clicked = true;
-        }
-    }
-
     private static void clickProceedButton() {
         AbstractDungeon.overlayMenu.proceedButton.show();
         Hitbox hb = (Hitbox) ReflectionHacks.getPrivate(AbstractDungeon.overlayMenu.proceedButton, ProceedButton.class, "hb");
@@ -715,22 +633,6 @@ public class ChoiceScreenUtils {
         return choices;
     }
 
-    public static void makeMapChoice(int choice) {
-        MapRoomNode currMapNode = AbstractDungeon.getCurrMapNode();
-        if(currMapNode.y == 14 || (AbstractDungeon.id.equals(TheEnding.ID) && currMapNode.y == 2)) {
-            if(choice == 0) {
-                DungeonMapPatch.doBossHover = true;
-                return;
-            } else {
-                throw new IndexOutOfBoundsException("Only a boss node can be chosen here.");
-            }
-        }
-        ArrayList<MapRoomNode> nodeChoices = getMapScreenNodeChoices();
-        MapRoomNodeHoverPatch.hoverNode = nodeChoices.get(choice);
-        MapRoomNodeHoverPatch.doHover = true;
-        AbstractDungeon.dungeonMapScreen.clicked = true;
-    }
-
     public static String getOptionName(String input) {
         String unformatted = input.replaceAll("#.|NL", "");
         Pattern regex = Pattern.compile("\\[(.*?)\\]");
@@ -777,44 +679,6 @@ public class ChoiceScreenUtils {
             }
         }
         return activeButtons;
-    }
-
-    public static ArrayList<String> getEventScreenChoices() {
-        ArrayList<String> choiceList = new ArrayList<>();
-        ArrayList<LargeDialogOptionButton> activeButtons = getActiveEventButtons();
-
-        if (activeButtons.size() > 0) {
-            for(LargeDialogOptionButton button : activeButtons) {
-                choiceList.add(getOptionName(button.msg).toLowerCase());
-            }
-        } else if(AbstractDungeon.getCurrRoom().event instanceof GremlinWheelGame) {
-            choiceList.add("spin");
-        } else if(AbstractDungeon.getCurrRoom().event instanceof GremlinMatchGame) {
-            ArrayList<AbstractCard> pickableCards = GremlinMatchGamePatch.getOrderedCards();
-            for (AbstractCard c : pickableCards) {
-                if (GremlinMatchGamePatch.revealedCards.contains(c.uuid)) {
-                    choiceList.add(c.cardID);
-                } else {
-                    choiceList.add(String.format("card%d", GremlinMatchGamePatch.cardPositions.get(c.uuid)));
-                }
-            }
-        }
-        return choiceList;
-    }
-
-    public static void makeEventChoice(int choice) {
-        ArrayList<LargeDialogOptionButton> activeButtons = getActiveEventButtons();
-        if (activeButtons.size() > 0) {
-            activeButtons.get(choice).pressed = true;
-        } else if (AbstractDungeon.getCurrRoom().event instanceof GremlinWheelGame) {
-            GremlinWheelGame event = (GremlinWheelGame) AbstractDungeon.getCurrRoom().event;
-            ReflectionHacks.setPrivate(event, GremlinWheelGame.class, "buttonPressed", true);
-            CardCrawlGame.sound.play("WHEEL");
-        } else if (AbstractDungeon.getCurrRoom().event instanceof GremlinMatchGame) {
-            ArrayList<AbstractCard> pickable = GremlinMatchGamePatch.getOrderedCards();
-            GremlinMatchGamePatch.HoverCardPatch.hoverCard = pickable.get(choice);
-            GremlinMatchGamePatch.HoverCardPatch.doHover = true;
-        }
     }
 
     public static ArrayList<String> getRestRoomChoices() {

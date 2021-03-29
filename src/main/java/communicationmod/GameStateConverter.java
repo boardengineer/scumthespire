@@ -8,12 +8,10 @@ import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.events.AbstractEvent;
 import com.megacrit.cardcrawl.map.MapEdge;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
-import com.megacrit.cardcrawl.neow.NeowEvent;
 import com.megacrit.cardcrawl.orbs.AbstractOrb;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.potions.PotionSlot;
@@ -30,9 +28,7 @@ import com.megacrit.cardcrawl.screens.select.GridCardSelectScreen;
 import com.megacrit.cardcrawl.shop.ShopScreen;
 import com.megacrit.cardcrawl.shop.StorePotion;
 import com.megacrit.cardcrawl.shop.StoreRelic;
-import com.megacrit.cardcrawl.ui.buttons.LargeDialogOptionButton;
 import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
-import communicationmod.patches.UpdateBodyTextPatch;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -172,66 +168,6 @@ public class GameStateConverter {
     private static String removeTextFormatting(String text) {
         text = text.replaceAll("~|@(\\S+)~|@", "$1");
         return text.replaceAll("#.|NL", "");
-    }
-
-    /**
-     * The event state object contains:
-     * "body_text" (string): The current body text for the event, or an empty string if there is none
-     * "event_name" (string): The name of the event, in the current language
-     * "event_id" (string): The ID of the event (NOTE: This implementation is sketchy and may not play nice with mods)
-     * "options" (list): A list of options, in the order they are presented in game. Each option contains:
-     * - "text" (string): The full text associated with the option (Eg. "[Banana] Heal 10 hp")
-     * - "disabled" (boolean): Whether the current option or button is disabled. Disabled buttons cannot be chosen
-     * - "label" (string): The simple label of a button or option (Eg. "Banana")
-     * - "choice_index" (int): The index of the option for the choose command, if applicable
-     * @return The event state object
-     */
-    private static HashMap<String, Object> getEventState() {
-        HashMap<String, Object> state = new HashMap<>();
-        ArrayList<Object> options = new ArrayList<>();
-        ChoiceScreenUtils.EventDialogType eventDialogType = ChoiceScreenUtils.getEventDialogType();
-        AbstractEvent event = AbstractDungeon.getCurrRoom().event;
-        int choice_index = 0;
-        if (eventDialogType == ChoiceScreenUtils.EventDialogType.IMAGE || eventDialogType == ChoiceScreenUtils.EventDialogType.ROOM) {
-            for (LargeDialogOptionButton button : ChoiceScreenUtils.getEventButtons()) {
-                HashMap<String, Object> json_button = new HashMap<>();
-                json_button.put("text", removeTextFormatting(button.msg));
-                json_button.put("disabled", button.isDisabled);
-                json_button.put("label", ChoiceScreenUtils.getOptionName(button.msg));
-                if (!button.isDisabled) {
-                    json_button.put("choice_index", choice_index);
-                    choice_index += 1;
-                }
-                options.add(json_button);
-            }
-            state.put("body_text", removeTextFormatting(UpdateBodyTextPatch.bodyText));
-        } else {
-            for (String misc_option : ChoiceScreenUtils.getEventScreenChoices()) {
-                HashMap<String, Object> json_button = new HashMap<>();
-                json_button.put("text", misc_option);
-                json_button.put("disabled", false);
-                json_button.put("label", misc_option);
-                json_button.put("choice_index", choice_index);
-                choice_index += 1;
-                options.add(json_button);
-            }
-            state.put("body_text", "");
-        }
-        state.put("event_name", ReflectionHacks.getPrivateStatic(event.getClass(), "NAME"));
-        if (event instanceof NeowEvent) {
-            state.put("event_id", "Neow Event");
-        } else {
-            try {
-                // AbstractEvent does not have a static "ID" field, but all of the events in the base game do.
-                Field targetField = event.getClass().getDeclaredField("ID");
-                state.put("event_id", (String)targetField.get(null));
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                state.put("event_id", "");
-            }
-            state.put("event_id", ReflectionHacks.getPrivateStatic(event.getClass(), "ID"));
-        }
-        state.put("options", options);
-        return state;
     }
 
     /**
@@ -462,8 +398,6 @@ public class GameStateConverter {
     private static HashMap<String, Object> getScreenState() {
         ChoiceScreenUtils.ChoiceType screenType = ChoiceScreenUtils.getCurrentChoiceType();
         switch (screenType) {
-            case EVENT:
-                return getEventState();
             case CHEST:
             case REST:
                 return getRoomState();
