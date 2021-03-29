@@ -118,14 +118,6 @@ public class MonsterPatch {
                     actionManager.currentAction.update();
                 }
                 actionManager.update();
-
-
-                if (actionManager.currentAction != null) {
-                    if (lastAction == actionManager.currentAction) {
-                        System.err.println(lastAction + " is taking multiple frames");
-                    }
-                    lastAction = actionManager.currentAction;
-                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package communicationmod;
 
+import battleai.BattleAiController;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -169,7 +170,7 @@ public class GameStateListener {
      */
     public static boolean checkForDungeonStateChange() {
         boolean stateChange = false;
-        if (CommandExecutor.isInDungeon()) {
+        if (BattleAiController.isInDungeon()) {
             stateChange = hasDungeonStateChanged();
             if (stateChange) {
                 externalChange = false;

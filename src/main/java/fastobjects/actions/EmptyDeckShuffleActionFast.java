@@ -46,12 +46,10 @@ public class EmptyDeckShuffleActionFast extends AbstractGameAction {
     }
 
     public void update() {
-        System.err.println("shuffling empty deck?");
         if (didTheThing) {
             return;
         }
 
-        System.err.println("shuffling empty deck!!!!!!!!!!!!!");
         didTheThing = true;
         if (!this.shuffled) {
             this.shuffled = true;
@@ -66,10 +64,7 @@ public class EmptyDeckShuffleActionFast extends AbstractGameAction {
                 AbstractCard e = c.next();
                 c.remove();
                 AbstractDungeon.player.drawPile.addToBottom(e);
-//                AbstractDungeon.getCurrRoom().souls.shuffle(e, this.count >= 11);
-                System.err.println("soul shuffle");
             }
-//            AbstractDungeon.getCurrRoom().souls.update();
             this.vfxDone = true;
         }
 

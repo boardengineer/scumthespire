@@ -1,5 +1,9 @@
 package battleai;
 
+import com.megacrit.cardcrawl.core.CardCrawlGame;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import communicationmod.ChoiceScreenUtils;
 import communicationmod.CommunicationMod;
 import org.apache.logging.log4j.LogManager;
 import savestate.SaveState;
@@ -17,10 +21,10 @@ public class BattleAiController {
     public static int minDamage = 5000;
     public static int startingHealth;
     public static Command lastCommand = null;
+    public static Stack<StateNode> states;
     public boolean runCommandMode = false;
     public boolean isDone = false;
     private SaveState startingState;
-    public static Stack<StateNode> states;
     private boolean initialized = false;
     private String bestPath = "";
     private Iterator<Command> bestPathRunner;
@@ -37,6 +41,26 @@ public class BattleAiController {
     public BattleAiController(Collection<Command> commands) {
         runCommandMode = true;
         bestPathRunner = commands.iterator();
+    }
+
+    public static boolean shouldStep() {
+        return shouldCheckForPlays() || isEndCommandAvailable() || !ChoiceScreenUtils
+                .getCurrentChoiceList().isEmpty();
+    }
+
+    public static boolean isInDungeon() {
+        return CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY && AbstractDungeon
+                .isPlayerInDungeon() && AbstractDungeon.currMapNode != null;
+    }
+
+    private static boolean shouldCheckForPlays() {
+        return isInDungeon() && (AbstractDungeon
+                .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp);
+    }
+
+    private static boolean isEndCommandAvailable() {
+        return isInDungeon() && AbstractDungeon
+                .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp;
     }
 
     public void step() {

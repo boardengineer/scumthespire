@@ -4,7 +4,6 @@ import com.esotericsoftware.spine.AnimationState;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.vfx.TintEffect;
-import communicationmod.HitboxLoader;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;

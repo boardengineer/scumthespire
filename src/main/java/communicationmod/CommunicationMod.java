@@ -57,8 +57,7 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     }
 
     private void sendGameState() {
-        if (CommandExecutor.getAvailableCommands().contains("play") || CommandExecutor
-                .isEndCommandAvailable() || CommandExecutor.isChooseCommandAvailable()) {
+        if (BattleAiController.shouldStep()) {
             if (battleAiController != null) {
 //                if (canStep) {
                 if (canStep || true) {

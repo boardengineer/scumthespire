@@ -1,4 +1,4 @@
-package communicationmod;
+package savestate;
 
 import com.megacrit.cardcrawl.helpers.Hitbox;
 
