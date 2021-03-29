@@ -17,7 +17,6 @@ public class GameStateListener {
     private static int previousGold = 99;
     public static boolean externalChange = false;
     private static boolean blocked = false;
-    private static boolean waitingForCommand = false;
     private static boolean hasPresentedOutOfGameState = false;
     private static boolean waitOneUpdate = false;
     private static int timeout = 0;
@@ -28,36 +27,6 @@ public class GameStateListener {
      */
     public static void registerStateChange() {
         externalChange = true;
-        waitingForCommand = false;
-    }
-
-    /**
-     * Used to tell hasStateChanged() to indicate a state change after a specified number of frames.
-     * @param newTimeout The number of frames to wait
-     */
-    public static void setTimeout(int newTimeout) {
-        timeout = newTimeout;
-    }
-
-    /**
-     * Used to indicate that an external command has been executed
-     */
-    public static void registerCommandExecution() {
-        waitingForCommand = false;
-    }
-
-    /**
-     * Prevents hasStateChanged() from indicating a state change until resumeStateUpdate() is called.
-     */
-    public static void blockStateUpdate() {
-        blocked = true;
-    }
-
-    /**
-     * Removes the block instantiated by blockStateChanged()
-     */
-    public static void resumeStateUpdate() {
-        blocked = false;
     }
 
     /**
@@ -73,21 +42,6 @@ public class GameStateListener {
      */
     public static void signalTurnEnd() {
         myTurn = false;
-    }
-
-    /**
-     * Resets all state detection variables for the start of a new run.
-     */
-    public static void resetStateVariables() {
-        previousScreen = null;
-        previousScreenUp = false;
-        previousPhase = null;
-        previousGold = 99;
-        externalChange = false;
-        myTurn = false;
-        blocked = false;
-        waitingForCommand = false;
-        waitOneUpdate = false;
     }
 
     /**
@@ -202,7 +156,6 @@ public class GameStateListener {
         }
         if (stateChange) {
             externalChange = false;
-            waitingForCommand = true;
         }
         return stateChange;
     }
@@ -220,7 +173,6 @@ public class GameStateListener {
             stateChange = hasDungeonStateChanged();
             if (stateChange) {
                 externalChange = false;
-                waitingForCommand = true;
                 previousPhase = AbstractDungeon.getCurrRoom().phase;
                 previousScreen = AbstractDungeon.screen;
                 previousScreenUp = AbstractDungeon.isScreenUp;
@@ -231,9 +183,5 @@ public class GameStateListener {
             myTurn = false;
         }
         return stateChange;
-    }
-
-    public static boolean isWaitingForCommand() {
-        return waitingForCommand;
     }
 }

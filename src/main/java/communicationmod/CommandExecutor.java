@@ -6,10 +6,19 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.potions.PotionSlot;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 
 public class CommandExecutor {
+
+    private static final Logger logger = LogManager.getLogger(CommandExecutor.class.getName());
+
+    public static void printPossibleActions() {
+
+    }
+
     public static ArrayList<String> getAvailableCommands() {
         ArrayList<String> availableCommands = new ArrayList<>();
         if (isPlayCommandAvailable()) {
@@ -42,15 +51,23 @@ public class CommandExecutor {
         return availableCommands;
     }
 
+    public static boolean isCommandAvailable(String command) {
+        if(command.equals("confirm") || command.equalsIgnoreCase("proceed")) {
+            return isConfirmCommandAvailable();
+        } else if (command.equals("skip") || command.equals("cancel") || command.equals("return") || command.equals("leave")) {
+            return isCancelCommandAvailable();
+        } else {
+            return getAvailableCommands().contains(command);
+        }
+    }
+
     public static boolean isInDungeon() {
-        return CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY && AbstractDungeon
-                .isPlayerInDungeon() && AbstractDungeon.currMapNode != null;
+        return CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY && AbstractDungeon.isPlayerInDungeon() && AbstractDungeon.currMapNode != null;
     }
 
     private static boolean isPlayCommandAvailable() {
-        if (isInDungeon()) {
-            if (AbstractDungeon
-                    .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp) {
+        if(isInDungeon()) {
+            if(AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp) {
                 // Play command is not available if none of the cards are playable.
                 // TODO: this does not check the case where there is no legal target for a target card.
                 for (AbstractCard card : AbstractDungeon.player.hand.group) {
@@ -64,12 +81,11 @@ public class CommandExecutor {
     }
 
     public static boolean isEndCommandAvailable() {
-        return isInDungeon() && AbstractDungeon
-                .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp;
+        return isInDungeon() && AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp;
     }
 
     public static boolean isChooseCommandAvailable() {
-        if (isInDungeon()) {
+        if(isInDungeon()) {
             return !isPlayCommandAvailable() && !ChoiceScreenUtils.getCurrentChoiceList().isEmpty();
         } else {
             return false;
@@ -77,9 +93,9 @@ public class CommandExecutor {
     }
 
     public static boolean isPotionCommandAvailable() {
-        if (isInDungeon()) {
-            for (AbstractPotion potion : AbstractDungeon.player.potions) {
-                if (!(potion instanceof PotionSlot)) {
+        if(isInDungeon()) {
+            for(AbstractPotion potion : AbstractDungeon.player.potions) {
+                if(!(potion instanceof PotionSlot)) {
                     return true;
                 }
             }
@@ -88,7 +104,7 @@ public class CommandExecutor {
     }
 
     public static boolean isConfirmCommandAvailable() {
-        if (isInDungeon()) {
+        if(isInDungeon()) {
             return ChoiceScreenUtils.isConfirmButtonAvailable();
         } else {
             return false;
@@ -96,7 +112,7 @@ public class CommandExecutor {
     }
 
     public static boolean isCancelCommandAvailable() {
-        if (isInDungeon()) {
+        if(isInDungeon()) {
             return ChoiceScreenUtils.isCancelButtonAvailable();
         } else {
             return false;

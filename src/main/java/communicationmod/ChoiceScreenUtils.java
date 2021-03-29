@@ -331,9 +331,6 @@ public class ChoiceScreenUtils {
             case COMBAT_REWARD:
                 clickProceedButton();
                 return;
-            case GRID:
-                clickGridScreenConfirmButton();
-                return;
             case HAND_SELECT:
                 clickHandSelectScreenConfirmButton();
                 return;
@@ -423,15 +420,6 @@ public class ChoiceScreenUtils {
             choices.add(card.name.toLowerCase());
         }
         return choices;
-    }
-
-    private static void clickGridScreenConfirmButton() {
-        GridCardSelectScreen screen = AbstractDungeon.gridSelectScreen;
-        screen.confirmButton.hb.clicked = true;
-        if (AbstractDungeon.previousScreen == AbstractDungeon.CurrentScreen.SHOP) {
-            // The rest of the associated shop purge logic will not run in this update, so we need to block until it does.
-            GameStateListener.blockStateUpdate();
-        }
     }
 
     private static boolean isGridScreenCancelAvailable() {

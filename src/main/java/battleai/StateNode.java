@@ -2,9 +2,10 @@ package battleai;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import communicationmod.CommandExecutor;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import savestate.SaveState;
 
 import java.util.ArrayList;
@@ -23,6 +24,21 @@ public class StateNode {
 
     public StateNode(Command lastCommand) {
         this.lastCommand = lastCommand;
+    }
+
+    private static boolean isInDungeon() {
+        return CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY && AbstractDungeon
+                .isPlayerInDungeon() && AbstractDungeon.currMapNode != null;
+    }
+
+    private static boolean shouldCheckForPlays() {
+        return isInDungeon() && (AbstractDungeon
+                .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp);
+    }
+
+    private static boolean isEndCommandAvailable() {
+        return isInDungeon() && AbstractDungeon
+                .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp;
     }
 
     /**
@@ -62,8 +78,7 @@ public class StateNode {
     }
 
     private boolean shouldLookForPlay() {
-        ArrayList<String> maybes = CommandExecutor.getAvailableCommands();
-        return maybes.contains("play") || maybes.contains("end");
+        return shouldCheckForPlays() || isEndCommandAvailable();
     }
 
     private void populateCommands() {
@@ -100,7 +115,7 @@ public class StateNode {
             }
         }
 
-        if (CommandExecutor.isEndCommandAvailable()) {
+        if (isEndCommandAvailable()) {
             commands.add(new EndCommand());
         }
     }
@@ -132,5 +147,4 @@ public class StateNode {
     public String getStateString() {
         return String.format(" %2d / %2d ", commandIndex, commands != null ? commands.size() : 0);
     }
-
 }
