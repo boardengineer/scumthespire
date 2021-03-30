@@ -94,4 +94,12 @@ public class SaveState {
     public String getPlayerHand() {
         return playerLoader.getHandString();
     }
+
+    public String getDedupeString() {
+        String monsterHealths = roomLoader.monsters.stream().map(monster -> String
+                .format("%03d", monster.currentHealth)).collect(Collectors.joining());
+
+        return String
+                .format("%03d%s%03d%s", playerLoader.currentHealth, monsterHealths, turn, getPlayerHand());
+    }
 }

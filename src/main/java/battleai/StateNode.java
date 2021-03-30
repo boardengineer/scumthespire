@@ -12,17 +12,21 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class StateNode {
+    final StateNode parent;
     final Command lastCommand;
     SaveState saveState;
     private int minDamage = 5000;
     private ArrayList<Command> commands;
+    private HashSet<String> turns = new HashSet<>();
     private boolean initialized = false;
     private int commandIndex = -1;
     private boolean isDone = false;
 
-    public StateNode(Command lastCommand) {
+    public StateNode(StateNode parent, Command lastCommand) {
+        this.parent = parent;
         this.lastCommand = lastCommand;
     }
 
@@ -49,6 +53,8 @@ public class StateNode {
 
         if (!initialized) {
             saveState = new SaveState();
+            String stateString = saveState.getDedupeString();
+
             initialized = true;
             int damage = BattleAiController.startingHealth - saveState.getPlayerHealth();
             if (shouldLookForPlay() && damage < BattleAiController.minDamage) {
@@ -72,6 +78,22 @@ public class StateNode {
         BattleAiController.lastCommand = toExecute;
         commandIndex++;
         isDone = commandIndex >= commands.size();
+
+        if (toExecute instanceof EndCommand) {
+            StateNode iterator = this;
+            ArrayList<String> commandsThisTurn = new ArrayList<>();
+            while ((iterator.lastCommand != null) && !(iterator.lastCommand instanceof EndCommand)) {
+                commandsThisTurn.add(iterator.lastCommand.toString());
+                iterator = iterator.parent;
+            }
+
+            String turnString = commandsThisTurn.stream().sorted().collect(Collectors.joining());
+            if (iterator.turns.contains(turnString)) {
+                System.err.println("deduping turn");
+                return true;
+            }
+            iterator.turns.add(turnString);
+        }
 
         toExecute.execute();
         return false;
@@ -103,14 +125,14 @@ public class StateNode {
                 for (int j = 0; j < monsters.size(); j++) {
                     AbstractMonster monster = monsters.get(j);
                     if (card.canUse(player, monster)) {
-                        commands.add(0, new CardCommand(i, j));
+                        commands.add(0, new CardCommand(i, j, card.name));
                     }
                 }
             }
 
             if (card.target == AbstractCard.CardTarget.SELF || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
                 if (card.canUse(player, null)) {
-                    commands.add(new CardCommand(i));
+                    commands.add(new CardCommand(i, card.name));
                 }
             }
         }

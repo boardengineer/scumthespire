@@ -8,10 +8,7 @@ import communicationmod.CommunicationMod;
 import org.apache.logging.log4j.LogManager;
 import savestate.SaveState;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BattleAiController {
@@ -22,6 +19,7 @@ public class BattleAiController {
     public static int startingHealth;
     public static Command lastCommand = null;
     public static Stack<StateNode> states;
+    public static HashSet<String> visitedStates;
     public boolean runCommandMode = false;
     public boolean isDone = false;
     private SaveState startingState;
@@ -78,12 +76,13 @@ public class BattleAiController {
             }
 
             if (!initialized) {
+                visitedStates = new HashSet<>();
                 startingNanos = lastStepNanos = System.nanoTime();
                 steps = 0;
                 initialized = true;
                 runCommandMode = false;
                 states = new Stack<>();
-                StateNode firstStateContainer = new StateNode(null);
+                StateNode firstStateContainer = new StateNode(null, null);
                 startingState.loadState();
                 startingHealth = startingState.getPlayerHealth();
                 states.push(firstStateContainer);
@@ -120,7 +119,7 @@ public class BattleAiController {
                         states.peek().saveState.loadState();
                     }
                 } else {
-                    states.push(new StateNode(lastCommand));
+                    states.push(new StateNode(curState, lastCommand));
                 }
             }
 

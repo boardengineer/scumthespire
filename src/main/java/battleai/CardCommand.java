@@ -10,15 +10,18 @@ public class CardCommand implements Command {
 
     private final int cardIndex;
     private final int monsterIndex;
+    private String displayString;
 
-    public CardCommand(int cardIndex, int monsterIndex) {
+    public CardCommand(int cardIndex, int monsterIndex, String displayString) {
         this.cardIndex = cardIndex;
         this.monsterIndex = monsterIndex;
+        this.displayString = displayString;
     }
 
-    public CardCommand(int cardIndex) {
+    public CardCommand(int cardIndex, String displayString) {
         this.cardIndex = cardIndex;
         this.monsterIndex = -1;
+        this.displayString = displayString;
     }
 
     @Override
@@ -44,7 +47,6 @@ public class CardCommand implements Command {
 
     @Override
     public String toString() {
-        return String
-                .format("Use %s on %s", cardIndex, monsterIndex);
+        return displayString + monsterIndex;
     }
 }

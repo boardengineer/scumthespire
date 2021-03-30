@@ -152,7 +152,7 @@ public class PlayerState extends CreatureState {
     }
 
     public String getHandString() {
-        return String.format("hand:%s discard:%s", hand.stream().map(CardState::getName)
+        return String.format("hand:%s discard:%s", hand.stream().map(CardState::getName).sorted()
                                                        .collect(Collectors.joining(" ")),
                 discardPile.stream().map(CardState::getName).collect(Collectors.joining(" ")));
     }
