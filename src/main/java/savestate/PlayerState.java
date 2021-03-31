@@ -116,11 +116,11 @@ public class PlayerState extends CreatureState {
         player.limbo.group = this.limbo.stream().map(CardState::loadCard)
                                        .collect(Collectors.toCollection(ArrayList::new));
 
-        player.hand.refreshHandLayout();
-        player.drawPile.refreshHandLayout();
-        player.discardPile.refreshHandLayout();
-        player.exhaustPile.refreshHandLayout();
-        player.limbo.refreshHandLayout();
+//        player.hand.refreshHandLayout();
+//        player.drawPile.refreshHandLayout();
+//        player.discardPile.refreshHandLayout();
+//        player.exhaustPile.refreshHandLayout();
+//        player.limbo.refreshHandLayout();
 
         player.relics = this.relics.stream().map(RelicState::loadRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));

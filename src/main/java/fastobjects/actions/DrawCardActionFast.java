@@ -69,7 +69,6 @@ public class DrawCardActionFast extends AbstractGameAction {
 
     public void update() {
         if(alreadyDrawing) {
-            System.err.println("stopping early because already drawing");
             return;
         }
         if (this.clearDrawHistory) {

@@ -8,18 +8,18 @@ import communicationmod.CommunicationMod;
 import org.apache.logging.log4j.LogManager;
 import savestate.SaveState;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 public class BattleAiController {
-    public static final int MAX_DEPTH = 8;
-
-    public static int minShallowDamage = 5000;
+    public static StateNode root = null;
     public static int minDamage = 5000;
     public static int startingHealth;
     public static Command lastCommand = null;
     public static Stack<StateNode> states;
-    public static HashSet<String> visitedStates;
     public boolean runCommandMode = false;
     public boolean isDone = false;
     private SaveState startingState;
@@ -76,15 +76,16 @@ public class BattleAiController {
             }
 
             if (!initialized) {
-                visitedStates = new HashSet<>();
                 startingNanos = lastStepNanos = System.nanoTime();
                 steps = 0;
+                StateNode.turnLabel = 0;
                 initialized = true;
                 runCommandMode = false;
                 states = new Stack<>();
                 StateNode firstStateContainer = new StateNode(null, null);
                 startingState.loadState();
                 startingHealth = startingState.getPlayerHealth();
+                root = firstStateContainer;
                 states.push(firstStateContainer);
             }
 
@@ -125,6 +126,7 @@ public class BattleAiController {
 
 
             if (states.isEmpty()) {
+                root = null;
                 runCommandMode = true;
                 System.out.println("best path is " + bestPath);
                 System.err.printf("%s %s\n", steps, (System

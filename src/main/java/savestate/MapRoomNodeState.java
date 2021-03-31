@@ -125,14 +125,14 @@ public class MapRoomNodeState {
             room.monsters.monsters = monsterData.stream().map(MonsterState::loadMonster)
                                                 .collect(Collectors
                                                         .toCollection(ArrayList::new));
-            room.monsters.update();
+//            room.monsters.update();
         } else {
             room.monsters = null;
         }
 
         if (room.phase == AbstractRoom.RoomPhase.COMBAT) {
             if (room.monsters != null) {
-                room.update();
+//                room.update();
             }
         } else if (room.phase == AbstractRoom.RoomPhase.EVENT) {
             if (room.event != null) {

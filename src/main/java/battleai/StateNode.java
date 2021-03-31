@@ -8,19 +8,20 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import savestate.SaveState;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class StateNode {
-    final StateNode parent;
+    public static int turnLabel = 0;
+    public final StateNode parent;
+    public final HashMap<String, StateNode> children = new HashMap<>();
     final Command lastCommand;
+    public int stateNumber = -1;
+    public String stateString;
+
     SaveState saveState;
     private int minDamage = 5000;
     private ArrayList<Command> commands;
-    private HashSet<String> turns = new HashSet<>();
     private boolean initialized = false;
     private int commandIndex = -1;
     private boolean isDone = false;
@@ -52,8 +53,18 @@ public class StateNode {
         populateCommands();
 
         if (!initialized) {
+            stateNumber = ++turnLabel;
+
+            // This will be a problem when we win on the enemy turn
+            if (lastCommand == null || lastCommand instanceof EndCommand) {
+                if (saveToParent()) {
+                    return true;
+                }
+            }
+
             saveState = new SaveState();
             String stateString = saveState.getDedupeString();
+
 
             initialized = true;
             int damage = BattleAiController.startingHealth - saveState.getPlayerHealth();
@@ -67,6 +78,7 @@ public class StateNode {
                     System.out.println("Terminating for damage");
                 }
 
+                saveToParent();
                 minDamage = damage;
                 isDone = true;
                 return true;
@@ -78,22 +90,6 @@ public class StateNode {
         BattleAiController.lastCommand = toExecute;
         commandIndex++;
         isDone = commandIndex >= commands.size();
-
-        if (toExecute instanceof EndCommand) {
-            StateNode iterator = this;
-            ArrayList<String> commandsThisTurn = new ArrayList<>();
-            while ((iterator.lastCommand != null) && !(iterator.lastCommand instanceof EndCommand)) {
-                commandsThisTurn.add(iterator.lastCommand.toString());
-                iterator = iterator.parent;
-            }
-
-            String turnString = commandsThisTurn.stream().sorted().collect(Collectors.joining());
-            if (iterator.turns.contains(turnString)) {
-                System.err.println("deduping turn");
-                return true;
-            }
-            iterator.turns.add(turnString);
-        }
 
         toExecute.execute();
         return false;
@@ -168,5 +164,25 @@ public class StateNode {
 
     public String getStateString() {
         return String.format(" %2d / %2d ", commandIndex, commands != null ? commands.size() : 0);
+    }
+
+    private boolean saveToParent() {
+        StateNode iterator = parent == null ? this : parent;
+        ArrayList<String> commandsThisTurn = new ArrayList<>();
+        while ((iterator.lastCommand != null) && !(iterator.lastCommand instanceof EndCommand)) {
+            commandsThisTurn.add(iterator.lastCommand.toString());
+            iterator = iterator.parent;
+        }
+
+        String turnString = commandsThisTurn.stream().sorted().collect(Collectors.joining());
+        if (iterator.children.containsKey(turnString)) {
+            return true;
+        }
+
+        if (iterator != this) {
+            stateString = turnString;
+            iterator.children.put(turnString, this);
+        }
+        return false;
     }
 }
