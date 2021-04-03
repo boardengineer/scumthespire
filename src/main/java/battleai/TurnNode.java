@@ -8,7 +8,7 @@ import java.util.Stack;
 
 public class TurnNode implements Comparable<TurnNode> {
     private final BattleAiController controller;
-    public static Stack<StateNode> states;
+    public Stack<StateNode> states;
     private final HashSet<String> completedTurns = new HashSet<>();
     public boolean runningCommands = false;
     public boolean isDone = false;
@@ -49,15 +49,15 @@ public class TurnNode implements Comparable<TurnNode> {
             states.pop();
             runningCommands = false;
             if (curState.saveState == null) {
-                //we just ended turn, i dont like this
+                // We just ended turn, i dont like this
                 curState.saveState = new SaveState();
             }
 
-            if (BattleAiController.bestEndSoFar == null || BattleAiController.bestEndSoFar.saveState.turn < curState.saveState.turn) {
-                BattleAiController.bestEndSoFar = curState;
+            if (controller.bestEndSoFar == null || controller.bestEndSoFar.saveState.turn < curState.saveState.turn) {
+                controller.bestEndSoFar = curState;
             }
 
-            BattleAiController.turns.add(toAdd);
+            controller.turns.add(toAdd);
             turnIndex++;
 
             CommunicationMod.readyForUpdate = true;
@@ -111,7 +111,7 @@ public class TurnNode implements Comparable<TurnNode> {
     }
 
     public static int getPlayerDamage(TurnNode turnNode) {
-        return BattleAiController.startingHealth - turnNode.startingState.saveState
+        return turnNode.controller.startingHealth - turnNode.startingState.saveState
                 .getPlayerHealth();
     }
 
@@ -130,7 +130,7 @@ public class TurnNode implements Comparable<TurnNode> {
         int playerDamage = getPlayerDamage(turnNode);
         int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealth(turnNode.startingState.saveState);
 
-        return monsterDamage - 3 * playerDamage;
+        return monsterDamage - 6 * playerDamage;
     }
 
     @Override

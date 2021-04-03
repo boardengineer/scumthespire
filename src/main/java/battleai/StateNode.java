@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 public class StateNode {
     private final BattleAiController controller;
-    public static int turnLabel = 0;
     public final StateNode parent;
     public final HashMap<String, StateNode> children = new HashMap<>();
     final Command lastCommand;
@@ -56,7 +55,6 @@ public class StateNode {
 
         if (!initialized) {
             initialized = true;
-            stateNumber = ++turnLabel;
 
             // This will be a problem when we win on the enemy turn
             // Start of turn
@@ -71,7 +69,7 @@ public class StateNode {
                 saveState = new SaveState();
             }
 
-            int damage = BattleAiController.startingHealth - saveState.getPlayerHealth();
+            int damage = controller.startingHealth - saveState.getPlayerHealth();
 
             boolean isBattleOver = !shouldLookForPlay();
             if (!isBattleOver && damage < controller.minDamage) {
@@ -83,7 +81,7 @@ public class StateNode {
                 if (isBattleOver) {
                     if (damage < controller.minDamage) {
                         controller.minDamage = damage;
-                        BattleAiController.bestEnd = this;
+                        controller.bestEnd = this;
                     }
                 }
 

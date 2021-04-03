@@ -98,8 +98,8 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     private void sendGameState() {
         if (battleAiController != null && BattleAiController.shouldStep()) {
 //                if (canStep) {
-//            if (canStep || true) {
-                if (canStep || !battleAiController.runCommandMode) {
+            if (canStep || true) {
+//                if (canStep || !battleAiController.runCommandMode) {
                 canStep = false;
 
                 battleAiController.step();
@@ -264,14 +264,14 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
         public void loadImage() {
             try {
                 String textPath = "C:\\Users\\pasha\\test.dot";
-                if (BattleAiController.root != null) {
+                if (battleAiController.root != null) {
 
                     try {
                         FileWriter myWriter = new FileWriter(textPath);
 
                         String graphString = "digraph G {\n";
                         Stack<StateNode> toVisit = new Stack<>();
-                        toVisit.add(BattleAiController.root);
+                        toVisit.add(battleAiController.root);
                         while (!toVisit.isEmpty()) {
                             StateNode node = toVisit.pop();
                             toVisit.addAll(node.children.values());

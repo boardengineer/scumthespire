@@ -13,14 +13,14 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 
 public class BattleAiController {
-    public static PriorityQueue<TurnNode> turns = new PriorityQueue<>();
-    public static StateNode root = null;
+    public PriorityQueue<TurnNode> turns = new PriorityQueue<>();
+    public StateNode root = null;
 
     public int minDamage = 5000;
-    public static StateNode bestEnd = null;
-    public static StateNode bestEndSoFar = null;
+    public StateNode bestEnd = null;
+    public StateNode bestEndSoFar = null;
 
-    public static int startingHealth;
+    public int startingHealth;
     public boolean isDone = false;
     public SaveState startingState;
     private boolean initialized = false;
@@ -114,7 +114,6 @@ public class BattleAiController {
             long currentTime = System.nanoTime();
 
             if (!initialized) {
-                StateNode.turnLabel = 0;
                 initialized = true;
                 runCommandMode = false;
                 StateNode firstStateContainer = new StateNode(null, null, this);
