@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class StateNode {
+    private final BattleAiController controller;
     public static int turnLabel = 0;
     public final StateNode parent;
     public final HashMap<String, StateNode> children = new HashMap<>();
@@ -26,9 +27,10 @@ public class StateNode {
     private int commandIndex = -1;
     private boolean isDone = false;
 
-    public StateNode(StateNode parent, Command lastCommand) {
+    public StateNode(StateNode parent, Command lastCommand, BattleAiController controller) {
         this.parent = parent;
         this.lastCommand = lastCommand;
+        this.controller = controller;
     }
 
     private static boolean isInDungeon() {
@@ -49,50 +51,54 @@ public class StateNode {
     /**
      * Does the next step and returns true iff the parent should load state
      */
-    public boolean step() {
+    public Command step() {
         populateCommands();
 
         if (!initialized) {
+            initialized = true;
             stateNumber = ++turnLabel;
 
             // This will be a problem when we win on the enemy turn
+            // Start of turn
             if (lastCommand == null || lastCommand instanceof EndCommand) {
                 if (saveToParent()) {
-                    return true;
+                    System.err.println("deduping turn");
+                    return null;
                 }
             }
 
-            saveState = new SaveState();
-            String stateString = saveState.getDedupeString();
+            if (saveState == null) {
+                saveState = new SaveState();
+            }
 
-
-            initialized = true;
             int damage = BattleAiController.startingHealth - saveState.getPlayerHealth();
-            if (shouldLookForPlay() && damage < BattleAiController.minDamage) {
+
+            boolean isBattleOver = !shouldLookForPlay();
+            if (!isBattleOver && damage < controller.minDamage) {
                 commandIndex = 0;
             } else {
                 System.err
-                        .printf("Found terminal state on init: damage this combat:%s; best damage: %s\n", damage, BattleAiController.minDamage);
+                        .printf("Found terminal state on init: damage this combat:%s; best damage: %s\n", damage, controller.minDamage);
 
-                if (shouldLookForPlay()) {
-                    System.out.println("Terminating for damage");
+                if (isBattleOver) {
+                    if (damage < controller.minDamage) {
+                        controller.minDamage = damage;
+                        BattleAiController.bestEnd = this;
+                    }
                 }
 
                 saveToParent();
                 minDamage = damage;
                 isDone = true;
-                return true;
+                return null;
             }
         }
 
         Command toExecute = commands.get(commandIndex);
-
-        BattleAiController.lastCommand = toExecute;
         commandIndex++;
         isDone = commandIndex >= commands.size();
 
-        toExecute.execute();
-        return false;
+        return toExecute;
     }
 
     private boolean shouldLookForPlay() {
@@ -167,6 +173,7 @@ public class StateNode {
     }
 
     private boolean saveToParent() {
+        System.err.println("saving to parent");
         StateNode iterator = parent == null ? this : parent;
         ArrayList<String> commandsThisTurn = new ArrayList<>();
         while ((iterator.lastCommand != null) && !(iterator.lastCommand instanceof EndCommand)) {
@@ -184,5 +191,15 @@ public class StateNode {
             iterator.children.put(turnString, this);
         }
         return false;
+    }
+
+    public String getTurnString() {
+        ArrayList<String> commandsThisTurn = new ArrayList<>();
+        StateNode iterator = parent == null ? this : parent;
+        while ((iterator.lastCommand != null) && !(iterator.lastCommand instanceof EndCommand)) {
+            commandsThisTurn.add(iterator.lastCommand.toString());
+            iterator = iterator.parent;
+        }
+        return commandsThisTurn.stream().sorted().collect(Collectors.joining());
     }
 }

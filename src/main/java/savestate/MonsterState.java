@@ -7,6 +7,7 @@ import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 import com.megacrit.cardcrawl.monsters.exordium.*;
+import com.megacrit.cardcrawl.vfx.TintEffect;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -82,15 +83,13 @@ public class MonsterState extends CreatureState {
         monster.setMove(moveName, moveInfo.nextMove, moveInfo.intent, moveInfo.baseDamage, moveInfo.multiplier, moveInfo.isMultiDamage);
 
 
-        /*
         monster.tint = new TintEffect();
         monster.healthBarUpdatedEvent();
         monster.showHealthBar();
         monster.update();
         monster.createIntent();
-
         monster.updatePowers();
-*/
+
         return monster;
     }
 

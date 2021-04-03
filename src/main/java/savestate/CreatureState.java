@@ -89,7 +89,7 @@ public class CreatureState {
     public void loadCreature(AbstractCreature creature) {
         creature.name = this.name;
         creature.id = this.id;
-        creature.powers = this.powers.stream().map(PowerState::loadPower)
+        creature.powers = this.powers.stream().map(powerState -> powerState.loadPower(creature))
                                      .collect(Collectors.toCollection(ArrayList::new));
         creature.isPlayer = this.isPlayer;
         creature.isBloodied = this.isBloodied;

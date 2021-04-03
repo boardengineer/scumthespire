@@ -23,10 +23,7 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
-import com.megacrit.cardcrawl.vfx.CardTrailEffect;
-import com.megacrit.cardcrawl.vfx.EnemyTurnEffect;
-import com.megacrit.cardcrawl.vfx.PlayerTurnEffect;
+import com.megacrit.cardcrawl.vfx.*;
 import fastobjects.ScreenShakeFast;
 import fastobjects.actions.*;
 import savestate.SaveState;
@@ -98,12 +95,10 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     }
 
     private void sendGameState() {
-
-
         if (battleAiController != null && BattleAiController.shouldStep()) {
 //                if (canStep) {
-            if (canStep || true) {
-//                if (canStep || !battleAiController.runCommandMode) {
+//            if (canStep || true) {
+                if (canStep || !battleAiController.runCommandMode) {
                 canStep = false;
 
                 battleAiController.step();
@@ -140,18 +135,16 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     }
 
     public void receivePostUpdate() {
-
         if (!mustSendGameState && GameStateListener.checkForMenuStateChange()) {
             mustSendGameState = true;
         }
         if (readyForUpdate) {
-            sendGameState();
             readyForUpdate = false;
+            sendGameState();
         }
     }
 
     public void receivePostDungeonUpdate() {
-
         if (GameStateListener.checkForDungeonStateChange()) {
             mustSendGameState = true;
             readyForUpdate = true;
@@ -164,6 +157,9 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     private void setUpOptionsMenu() {
         BaseMod.addTopPanelItem(new StartAIPanel());
         BaseMod.addTopPanelItem(new StepTopPanel());
+
+//        BaseMod.addTopPanelItem(new SaveStateTopPanel());
+//        BaseMod.addTopPanelItem(new LoadStateTopPanel());
     }
 
     private void makeGameVeryFast() {
@@ -189,13 +185,19 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 
             if (effect instanceof CardTrailEffect) {
                 topLevelEffects.remove();
-            } else {
-                System.out.println(effect.getClass());
+            } else if (effect instanceof FastCardObtainEffect) {
+                // don't remove card obtain effects of they get skipped
+            }else {
                 topLevelEffects.remove();
             }
         }
 
-        AbstractDungeon.effectList.clear();
+        Iterator<AbstractGameEffect> effectIterator = AbstractDungeon.effectList.iterator();
+        while(effectIterator.hasNext()) {
+            if(!(effectIterator.next() instanceof FastCardObtainEffect)) {
+                effectIterator.remove();
+            }
+        }
 
         clearActions(AbstractDungeon.actionManager.actions);
         clearActions(AbstractDungeon.actionManager.preTurnActions);

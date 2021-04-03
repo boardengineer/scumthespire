@@ -5,7 +5,6 @@ import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.DiscardAtEndOfTurnAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import communicationmod.CommunicationMod;
 import communicationmod.GameStateListener;
 import org.apache.logging.log4j.LogManager;
 
@@ -15,8 +14,6 @@ public class EndCommand implements Command {
     @Override
     public void execute() {
         endTurn();
-
-        CommunicationMod.readyForUpdate = true;
     }
 
     private void endTurn() {

@@ -1,39 +1,44 @@
 package battleai;
 
+import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import communicationmod.ChoiceScreenUtils;
-import communicationmod.CommunicationMod;
-import org.apache.logging.log4j.LogManager;
 import savestate.SaveState;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Stack;
-import java.util.stream.Collectors;
+import java.util.PriorityQueue;
 
 public class BattleAiController {
+    public static PriorityQueue<TurnNode> turns = new PriorityQueue<>();
     public static StateNode root = null;
-    public static int minDamage = 5000;
+
+    public int minDamage = 5000;
+    public static StateNode bestEnd = null;
+    public static StateNode bestEndSoFar = null;
+
     public static int startingHealth;
-    public static Command lastCommand = null;
-    public static Stack<StateNode> states;
-    public boolean runCommandMode = false;
     public boolean isDone = false;
-    private SaveState startingState;
+    public SaveState startingState;
     private boolean initialized = false;
-    private String bestPath = "";
     private Iterator<Command> bestPathRunner;
-    private long startingNanos;
-    private long lastStepNanos;
-    private int steps;
+    private TurnNode curTurn;
+
+    private int turnsLoaded = 0;
+    public TurnNode furthestSoFar = null;
+
+    public boolean runCommandMode = false;
+    public boolean runPartialMode = false;
 
     public BattleAiController(SaveState state) {
         minDamage = 5000;
-        lastCommand = null;
+        bestEnd = null;
         startingState = state;
+        initialized = false;
+        startingState.loadState();
     }
 
     public BattleAiController(Collection<Command> commands) {
@@ -65,81 +70,103 @@ public class BattleAiController {
         if (isDone) {
             return;
         }
-        if (!runCommandMode) {
-            long currentTime = System.nanoTime();
-            if (currentTime - lastStepNanos > 500_000_000 || (lastCommand != null && lastCommand instanceof EndCommand) || true) {
-                LogManager.getLogger("hello").info(String
-                        .format("step time:%s last Command: %s step: %s\n", (currentTime - lastStepNanos) / 1E6, lastCommand == null ? "null" : lastCommand
-                                .getClass(), steps++));
-            } else {
-                steps++;
+        if (!runCommandMode && !runPartialMode) {
+            if (minDamage == 0) {
+                System.err.println("we are done");
+                runCommandMode = true;
+
+                ArrayList<Command> commands = new ArrayList<>();
+                StateNode iterator = bestEnd;
+                while (iterator != null) {
+                    if (iterator.lastCommand != null) {
+                        commands.add(0, iterator.lastCommand);
+                    }
+                    System.err.println(iterator.lastCommand);
+                    iterator = iterator.parent;
+                }
+
+                startingState.loadState();
+                bestPathRunner = commands.iterator();
+                return;
             }
 
+            if (turnsLoaded >= 100 && curTurn == null) {
+                System.err.println("should go into partial rerun");
+                runPartialMode = true;
+                turnsLoaded = 0;
+
+                ArrayList<Command> commands = new ArrayList<>();
+                StateNode iterator = bestEndSoFar;
+                while (iterator != root.parent) {
+                    if (iterator.lastCommand != null) {
+                        commands.add(0, iterator.lastCommand);
+                    }
+                    System.err.println(iterator.lastCommand);
+                    iterator = iterator.parent;
+                }
+
+                System.err.println("loading for patial state");
+                startingState.loadState();
+                System.err.println("loaded for patial state");
+                bestPathRunner = commands.iterator();
+                return;
+            }
+
+            GameActionManager s;
+            long currentTime = System.nanoTime();
+
             if (!initialized) {
-                startingNanos = lastStepNanos = System.nanoTime();
-                steps = 0;
                 StateNode.turnLabel = 0;
                 initialized = true;
                 runCommandMode = false;
-                states = new Stack<>();
-                StateNode firstStateContainer = new StateNode(null, null);
-                startingState.loadState();
+                StateNode firstStateContainer = new StateNode(null, null, this);
                 startingHealth = startingState.getPlayerHealth();
                 root = firstStateContainer;
-                states.push(firstStateContainer);
+                firstStateContainer.saveState = startingState;
+                turns = new PriorityQueue<>();
+                turns.add(new TurnNode(firstStateContainer, this));
             }
 
-            System.err.println(String.format("step: %s depth: %s", steps, states.size()));
-            lastStepNanos = currentTime;
-
-            StateNode curState = states.peek();
-            if (curState.isDone()) {
-                minDamage = Math.min(minDamage, curState.getMinDamage());
-                states.pop();
-                if (!states.empty()) {
-                    states.peek().saveState.loadState();
-                }
-            } else {
-                boolean shouldContinue = curState.step();
-                if (shouldContinue) {
-                    int stateDamage = curState.getMinDamage();
-                    if (stateDamage < minDamage) {
-                        bestPath = states.stream().map(node -> String
-                                .format("%s %s %s\n", node.getLastCommandString(), node
-                                        .getPlayerHealth(), node.getHandString()))
-                                         .collect(Collectors.joining("\n"));
-                        bestPathRunner = states.stream().map(StateNode::getLastCommand)
-                                               .collect(Collectors.toCollection(ArrayList::new))
-                                               .iterator();
-
-                        minDamage = stateDamage;
-                    }
-
-                    states.pop();
-                    if (!states.isEmpty()) {
-                        states.peek().saveState.loadState();
-                    }
-                } else {
-                    states.push(new StateNode(curState, lastCommand));
+            while (!turns.isEmpty() && (curTurn == null || curTurn.isDone)) {
+                curTurn = turns.peek();
+                System.err.println("the best turn has damage " + curTurn + " " + turns
+                        .size() + " " + (++turnsLoaded));
+                if (curTurn.isDone) {
+                    System.err.println("finished turn");
+                    turns.poll();
                 }
             }
 
-
-            if (states.isEmpty()) {
-                root = null;
+            if (curTurn.isDone && turns.isEmpty()) {
                 runCommandMode = true;
-                System.out.println("best path is " + bestPath);
-                System.err.printf("%s %s\n", steps, (System
-                        .nanoTime() - startingNanos) / 1E9);
+
+                ArrayList<Command> commands = new ArrayList<>( );
+                StateNode iterator = bestEnd;
+                while (iterator != null) {
+                    if (iterator.lastCommand != null) {
+                        commands.add(0, iterator.lastCommand);
+                    }
+                    System.err.println(iterator.lastCommand);
+                    iterator = iterator.parent;
+                }
+
+                startingState.loadState();
+                bestPathRunner = commands.iterator();
+                return;
+            } else {
+                boolean reachedNewTurn = curTurn.step();
+                if (reachedNewTurn) {
+                    curTurn = null;
+                }
             }
+
         }
-        if (runCommandMode) {
+        if (runPartialMode) {
+            System.err.println("starting partial rerun");
             boolean foundCommand = false;
             while (bestPathRunner.hasNext() && !foundCommand) {
                 Command command = bestPathRunner.next();
                 if (command != null) {
-                    System.out.println("running command " + command);
-                    CommunicationMod.readyForUpdate = true;
                     foundCommand = true;
                     command.execute();
                 } else {
@@ -149,6 +176,31 @@ public class BattleAiController {
             }
 
             if (!bestPathRunner.hasNext()) {
+                turns = new PriorityQueue<>();
+                root = bestEndSoFar;
+                StateNode rootClone = new StateNode(root.parent, root.lastCommand, this);
+                turns.add(new TurnNode(rootClone, this));
+                runPartialMode = false;
+                curTurn = null;
+            }
+        } else if (runCommandMode) {
+            boolean foundCommand = false;
+            while (bestPathRunner.hasNext() && !foundCommand) {
+                Command command = bestPathRunner.next();
+                if (command != null) {
+                    foundCommand = true;
+                    command.execute();
+                } else {
+                    foundCommand = true;
+                    startingState.loadState();
+                }
+            }
+
+            if (!bestPathRunner.hasNext()) {
+                turns = new PriorityQueue<>();
+                root = null;
+                minDamage = 5000;
+                bestEnd = null;
                 isDone = true;
             }
         }

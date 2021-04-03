@@ -10,14 +10,17 @@ import communicationmod.GameStateListener;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
+import static communicationmod.patches.MonsterPatch.shouldGoFast;
+
 public class SaveState {
-    MapRoomNode mapNode;
+    public MapRoomNode mapNode;
     ArrayList<ArrayList<MapRoomNodeState>> roomNodeLoaders;
     ListState listLoader;
     int floorNum;
 
     PlayerState playerLoader;
-    MapRoomNodeState roomLoader;
+    public MapRoomNodeState roomLoader;
     RngState rngLoader;
     CombatRewardScreenState combatRewardScreenLoader;
     AbstractDungeon.CurrentScreen screen;
@@ -26,9 +29,20 @@ public class SaveState {
     boolean previousScreenUp = false;
     AbstractRoom.RoomPhase previousPhase = null;
     boolean myTurn = false;
-    int turn;
+    public int turn;
 
     public SaveState() {
+        if (shouldGoFast()) {
+            if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
+                    .isEmpty()) {
+                while (actionManager.currentAction != null && !actionManager.currentAction.isDone) {
+                    actionManager.currentAction.update();
+                }
+                actionManager.update();
+            }
+        }
+
+
         playerLoader = new PlayerState(AbstractDungeon.player);
         roomNodeLoaders = AbstractDungeon.map.stream()
                                              .map(list -> list.stream().map(MapRoomNodeState::new)
@@ -51,6 +65,16 @@ public class SaveState {
     }
 
     public void loadState() {
+        if (shouldGoFast()) {
+            if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
+                    .isEmpty()) {
+                while (actionManager.currentAction != null && !actionManager.currentAction.isDone) {
+                    actionManager.currentAction.update();
+                }
+                actionManager.update();
+            }
+        }
+
         GameActionManager.turn = this.turn;
         AbstractDungeon.player = playerLoader.loadPlayer();
 
@@ -66,9 +90,6 @@ public class SaveState {
 
         AbstractDungeon.floorNum = floorNum;
 
-
-        AbstractDungeon.combatRewardScreen = combatRewardScreenLoader.loadCombatRewardScreen();
-
         CommunicationMod.readyForUpdate = true;
 
         AbstractDungeon.map = roomNodeLoaders.stream()
@@ -77,6 +98,8 @@ public class SaveState {
                                                               .collect(Collectors
                                                                       .toCollection(ArrayList::new)))
                                              .collect(Collectors.toCollection(ArrayList::new));
+
+        AbstractDungeon.combatRewardScreen = combatRewardScreenLoader.loadCombatRewardScreen();
 
         rngLoader.loadRng();
 

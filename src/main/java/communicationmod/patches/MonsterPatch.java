@@ -1,5 +1,6 @@
 package communicationmod.patches;
 
+import basemod.ReflectionHacks;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
@@ -7,6 +8,8 @@ import com.megacrit.cardcrawl.actions.animations.AnimateFastAttackAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateHopAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
+import com.megacrit.cardcrawl.actions.common.EnableEndTurnButtonAction;
+import com.megacrit.cardcrawl.actions.common.RemoveSpecificPowerAction;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import communicationmod.CommunicationMod;
 
@@ -81,6 +84,40 @@ public class MonsterPatch {
         }
     }
 
+
+    @SpirePatch(
+            clz = RemoveSpecificPowerAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class FastRemovePowerPatch {
+        public static void Prefix(RemoveSpecificPowerAction _instance) {
+            if (shouldGoFast()) {
+                ReflectionHacks
+                        .setPrivate(_instance, AbstractGameAction.class, "duration", .1F);
+            }
+        }
+
+        public static void Postfix(RemoveSpecificPowerAction _instance) {
+            if (shouldGoFast()) {
+                _instance.isDone = true;
+            }
+        }
+    }
+
+    @SpirePatch(
+            clz = EnableEndTurnButtonAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class InformEndTurnEnabledActionPatch {
+        public static void Postfix(EnableEndTurnButtonAction _instance) {
+            if (shouldGoFast()) {
+                CommunicationMod.readyForUpdate = true;
+            }
+        }
+    }
+
     @SpirePatch(
             clz = GameActionManager.class,
             paramtypez = {},
@@ -91,7 +128,8 @@ public class MonsterPatch {
 
         public static void Postfix(GameActionManager actionManager) {
             if (shouldGoFast()) {
-                if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS) {
+                if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
+                        .isEmpty()) {
                     while (actionManager.currentAction != null && !actionManager.currentAction.isDone) {
                         actionManager.currentAction.update();
                     }

@@ -3,7 +3,9 @@ package savestate;
 import com.megacrit.cardcrawl.events.AbstractEvent;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
+import com.megacrit.cardcrawl.powers.VulnerablePower;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rewards.RewardItem;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
@@ -17,7 +19,7 @@ public class MapRoomNodeState {
     private final boolean taken;
     private final boolean highlighted;
     private final boolean hasEmeraldKey;
-    ArrayList<AbstractMonster> monsters = null;
+    public ArrayList<AbstractMonster> monsters = null;
     ArrayList<MonsterState> monsterData = null;
     private ArrayList<AbstractRelic> relics;
     private ArrayList<RewardItem> rewards;
@@ -47,6 +49,7 @@ public class MapRoomNodeState {
 
         this.mapRoomNode = mapRoomNode;
         this.room = mapRoomNode.room;
+        VulnerablePower v;
 
         if (room == null) {
             return;
@@ -122,9 +125,8 @@ public class MapRoomNodeState {
         AbstractRoom.waitTimer = this.waitTimer;
 
         if (monsterData != null) {
-            room.monsters.monsters = monsterData.stream().map(MonsterState::loadMonster)
-                                                .collect(Collectors
-                                                        .toCollection(ArrayList::new));
+            room.monsters = new MonsterGroup(monsterData.stream().map(MonsterState::loadMonster)
+                                                        .toArray(AbstractMonster[]::new));
 //            room.monsters.update();
         } else {
             room.monsters = null;

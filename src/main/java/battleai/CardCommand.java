@@ -33,15 +33,9 @@ public class CardCommand implements Command {
             monster = AbstractDungeon.getMonsters().monsters.get(monsterIndex);
         }
 
-
-//        card.use(AbstractDungeon.player, monster);
-//        AbstractDungeon.player.useCard(card, monster, card.cost);
-//        AbstractDungeon.actionManager.
-//        AbstractDungeon.actionManager.addToTop((AbstractGameAction)new UseCardAction(card, monster));
         AbstractDungeon.actionManager
                 .addToTop(new NewQueueCardAction(card, monster));
         AbstractDungeon.actionManager.update();
-//        AbstractDungeon.actionManager.cardQueue.add(new CardQueueItem(card, monster));
         CommunicationMod.readyForUpdate = true;
     }
 
