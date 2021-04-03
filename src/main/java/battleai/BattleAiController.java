@@ -105,9 +105,7 @@ public class BattleAiController {
                     iterator = iterator.parent;
                 }
 
-                System.err.println("loading for patial state");
                 startingState.loadState();
-                System.err.println("loaded for patial state");
                 bestPathRunner = commands.iterator();
                 return;
             }
@@ -162,7 +160,6 @@ public class BattleAiController {
 
         }
         if (runPartialMode) {
-            System.err.println("starting partial rerun");
             boolean foundCommand = false;
             while (bestPathRunner.hasNext() && !foundCommand) {
                 Command command = bestPathRunner.next();
