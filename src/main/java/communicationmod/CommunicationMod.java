@@ -24,6 +24,7 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.vfx.*;
+import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
 import fastobjects.ScreenShakeFast;
 import fastobjects.actions.*;
 import savestate.SaveState;
@@ -194,7 +195,8 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
 
         Iterator<AbstractGameEffect> effectIterator = AbstractDungeon.effectList.iterator();
         while(effectIterator.hasNext()) {
-            if(!(effectIterator.next() instanceof FastCardObtainEffect)) {
+            AbstractGameEffect effect = effectIterator.next();
+            if(!(effect instanceof FastCardObtainEffect || effect instanceof ShowCardAndAddToDiscardEffect)) {
                 effectIterator.remove();
             }
         }

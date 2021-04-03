@@ -176,9 +176,11 @@ public class BattleAiController {
             }
 
             if (!bestPathRunner.hasNext()) {
+                System.err.println("Done running partial rerun");
                 turns = new PriorityQueue<>();
                 root = bestEndSoFar;
                 StateNode rootClone = new StateNode(root.parent, root.lastCommand, this);
+                rootClone.saveState = root.saveState;
                 turns.add(new TurnNode(rootClone, this));
                 runPartialMode = false;
                 curTurn = null;

@@ -57,6 +57,8 @@ public class EmptyDeckShuffleActionFast extends AbstractGameAction {
         }
 
         if (!this.vfxDone) {
+            System.err.println("shuffling " + AbstractDungeon.player.discardPile.group.size());
+            System.err.println("hand size " + AbstractDungeon.player.hand.group.size());
             Iterator<AbstractCard> c = AbstractDungeon.player.discardPile.group.iterator();
 
             while (c.hasNext()) {

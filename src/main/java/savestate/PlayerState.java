@@ -156,4 +156,17 @@ public class PlayerState extends CreatureState {
                                                        .collect(Collectors.joining(" ")),
                 discardPile.stream().map(CardState::getName).collect(Collectors.joining(" ")));
     }
+
+    public int getNumSlimes() {
+        long numSlimes = discardPile.stream().filter(card -> card.getName().equals("Slimed"))
+                                    .count();
+
+        numSlimes += hand.stream().filter(card -> card.getName().equals("Slimed"))
+                         .count();
+
+        numSlimes += drawPile.stream().filter(card -> card.getName().equals("Slimed"))
+                             .count();
+
+        return (int) numSlimes;
+    }
 }

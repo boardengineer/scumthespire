@@ -125,4 +125,8 @@ public class SaveState {
         return String
                 .format("%03d%s%03d%s", playerLoader.currentHealth, monsterHealths, turn, getPlayerHand());
     }
+
+    public int getNumSlimes() {
+        return playerLoader.getNumSlimes();
+    }
 }

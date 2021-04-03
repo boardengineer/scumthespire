@@ -7,7 +7,6 @@ import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 import com.megacrit.cardcrawl.monsters.exordium.*;
-import com.megacrit.cardcrawl.vfx.TintEffect;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -45,7 +44,9 @@ public class MonsterState extends CreatureState {
         this.cannotEscape = monster.cannotEscape;
         this.damage = monster.damage.stream().map(DamageInfoState::new)
                                     .collect(Collectors.toCollection(ArrayList::new));
-        this.moveHistory = (ArrayList<Byte>) monster.moveHistory.clone();
+        this.moveHistory = monster.moveHistory.stream().map(Byte::byteValue)
+                                              .collect(Collectors.toCollection(ArrayList::new));
+
         this.nextMove = monster.nextMove;
         this.intentHb = monster.intentHb;
         this.intent = monster.intent;
@@ -71,7 +72,12 @@ public class MonsterState extends CreatureState {
         monster.cannotEscape = this.cannotEscape;
         monster.damage = this.damage.stream().map(DamageInfoState::loadDamageInfo)
                                     .collect(Collectors.toCollection(ArrayList::new));
-        monster.moveHistory = (ArrayList<Byte>) this.moveHistory.clone();
+
+        monster.setMove(moveName, moveInfo.nextMove, moveInfo.intent, moveInfo.baseDamage, moveInfo.multiplier, moveInfo.isMultiDamage);
+
+        monster.moveHistory = this.moveHistory.stream()
+                                              .collect(Collectors.toCollection(ArrayList::new));
+
         monster.nextMove = this.nextMove;
         monster.intentHb = this.intentHb;
         monster.intent = this.intent;
@@ -80,15 +86,14 @@ public class MonsterState extends CreatureState {
         monster.intentAlphaTarget = this.intentAlphaTarget;
         monster.intentOffsetX = this.intentOffsetX;
         monster.moveName = this.moveName;
-        monster.setMove(moveName, moveInfo.nextMove, moveInfo.intent, moveInfo.baseDamage, moveInfo.multiplier, moveInfo.isMultiDamage);
 
 
-        monster.tint = new TintEffect();
-        monster.healthBarUpdatedEvent();
-        monster.showHealthBar();
-        monster.update();
+//        monster.tint = new TintEffect();
+//        monster.healthBarUpdatedEvent();
+//        monster.showHealthBar();
+//        monster.update();
         monster.createIntent();
-        monster.updatePowers();
+//        monster.updatePowers();
 
         return monster;
     }

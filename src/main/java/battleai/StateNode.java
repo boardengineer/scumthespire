@@ -61,10 +61,10 @@ public class StateNode {
             // This will be a problem when we win on the enemy turn
             // Start of turn
             if (lastCommand == null || lastCommand instanceof EndCommand) {
-                if (saveToParent()) {
-                    System.err.println("deduping turn");
-                    return null;
-                }
+//                if (saveToParent()) {
+//                    System.err.println("deduping turn");
+//                    return null;
+//                }
             }
 
             if (saveState == null) {

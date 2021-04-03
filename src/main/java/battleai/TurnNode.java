@@ -103,7 +103,7 @@ public class TurnNode implements Comparable<TurnNode> {
 
     @Override
     public String toString() {
-        return getPlayerDamage(this) + " " + getTotalMonsterHealth(this) + " " + turnIndex + " " + startingState.saveState.turn;
+        return getPlayerDamage(this) + " " + getTotalMonsterHealth(this) + " " + turnIndex + " " + startingState.saveState.turn + " slimes: " + getNumSlimes(this);
     }
 
     public static int getTotalMonsterHealth(TurnNode turnNode) {
@@ -113,6 +113,10 @@ public class TurnNode implements Comparable<TurnNode> {
     public static int getPlayerDamage(TurnNode turnNode) {
         return BattleAiController.startingHealth - turnNode.startingState.saveState
                 .getPlayerHealth();
+    }
+
+    public static int getNumSlimes(TurnNode turnNode) {
+        return turnNode.startingState.saveState.getNumSlimes();
     }
 
     public static int getTotalMonsterHealth(SaveState saveState) {
