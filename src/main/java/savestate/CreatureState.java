@@ -8,7 +8,7 @@ import com.megacrit.cardcrawl.vfx.TintEffect;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-// TODO: make encoderzz11aa
+// TODO: make encoderzz11aaSSS
 public class CreatureState {
     private final String name;
     private final String id;
