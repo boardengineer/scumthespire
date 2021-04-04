@@ -1,22 +1,46 @@
 package savestate;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.helpers.CardLibrary;
 
 public class CardState {
-    private final AbstractCard card;
+    private final String cardId;
     private final boolean upgraded;
 
     public CardState(AbstractCard card) {
-        this.card = card;
-        upgraded = card.upgraded;
+        this.cardId = card.cardID;
+        this.upgraded = card.upgraded;
+    }
+
+    public CardState(String jsonString) {
+        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+
+        this.cardId = parsed.get("card_id").getAsString();
+        this.upgraded = parsed.get("upgraded").getAsBoolean();
     }
 
     public AbstractCard loadCard() {
-        card.upgraded = upgraded;
-        return card;
+        AbstractCard result = CardLibrary.getCard(cardId);
+
+        if (upgraded) {
+            result.upgrade();
+        }
+
+        return result;
     }
 
     public String getName() {
-        return card.name;
+        return cardId;
+    }
+
+    public String encode() {
+        JsonObject cardStateJson = new JsonObject();
+
+        cardStateJson.addProperty("card_id", cardId);
+        cardStateJson.addProperty("upgraded", upgraded);
+
+        return cardStateJson.toString();
     }
 }
