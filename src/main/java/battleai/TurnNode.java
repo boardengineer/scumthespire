@@ -53,8 +53,9 @@ public class TurnNode implements Comparable<TurnNode> {
                 curState.saveState = new SaveState();
             }
 
-            if (controller.bestEndSoFar == null || controller.bestEndSoFar.saveState.turn < curState.saveState.turn) {
-                controller.bestEndSoFar = curState;
+            if (controller.bestTurn == null || controller.bestTurn.startingState.saveState.turn < curState.saveState.turn || (controller.bestTurn.startingState.saveState.turn == curState.saveState.turn && this
+                    .isBetterThan(controller.bestTurn))) {
+                controller.bestTurn = this;
             }
 
             controller.turns.add(toAdd);
@@ -130,7 +131,7 @@ public class TurnNode implements Comparable<TurnNode> {
         int playerDamage = getPlayerDamage(turnNode);
         int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealth(turnNode.startingState.saveState);
 
-        return monsterDamage - 6 * playerDamage;
+        return monsterDamage - 2 * (Math.max(0, playerDamage - 6));
     }
 
     @Override
@@ -146,5 +147,9 @@ public class TurnNode implements Comparable<TurnNode> {
 
 
         return getTurnScore(otherTurn) - getTurnScore(this);
+    }
+
+    public boolean isBetterThan(TurnNode other) {
+        return compareTo(other) < 0;
     }
 }

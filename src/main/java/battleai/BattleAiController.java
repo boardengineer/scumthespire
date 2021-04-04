@@ -18,7 +18,7 @@ public class BattleAiController {
 
     public int minDamage = 5000;
     public StateNode bestEnd = null;
-    public StateNode bestEndSoFar = null;
+    public TurnNode bestTurn = null;
 
     public int startingHealth;
     public boolean isDone = false;
@@ -90,14 +90,14 @@ public class BattleAiController {
                 return;
             }
 
-            if (turnsLoaded >= 100 && curTurn == null) {
-                System.err.println("should go into partial rerun");
+            if (turnsLoaded >= 300 && curTurn == null) {
+                System.err.println("should go into partial rerun " + bestTurn + " " + bestTurn.startingState.saveState.turn);
                 runPartialMode = true;
                 turnsLoaded = 0;
 
                 ArrayList<Command> commands = new ArrayList<>();
-                StateNode iterator = bestEndSoFar;
-                while (iterator != root.parent) {
+                StateNode iterator = bestTurn.startingState;
+                while (iterator != root) {
                     if (iterator.lastCommand != null) {
                         commands.add(0, iterator.lastCommand);
                     }
@@ -105,7 +105,7 @@ public class BattleAiController {
                     iterator = iterator.parent;
                 }
 
-                startingState.loadState();
+                root.saveState.loadState();
                 bestPathRunner = commands.iterator();
                 return;
             }
@@ -172,14 +172,17 @@ public class BattleAiController {
             }
 
             if (!bestPathRunner.hasNext()) {
-                System.err.println("Done running partial rerun");
                 turns = new PriorityQueue<>();
-                root = bestEndSoFar;
-                StateNode rootClone = new StateNode(root.parent, root.lastCommand, this);
-                rootClone.saveState = root.saveState;
-                turns.add(new TurnNode(rootClone, this));
+                StateNode rootClone = new StateNode(bestTurn.startingState.parent, bestTurn.startingState.lastCommand, this);
+                rootClone.saveState = bestTurn.startingState.saveState;
+                root = rootClone;
+                TurnNode turnNode = new TurnNode(rootClone, this);
+                turns.add(turnNode);
+
+                System.err.println("Done running partial rerun will start from " + turnNode );
                 runPartialMode = false;
                 curTurn = null;
+                bestTurn = null;
             }
         } else if (runCommandMode) {
             boolean foundCommand = false;
