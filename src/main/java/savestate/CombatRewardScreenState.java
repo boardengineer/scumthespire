@@ -7,6 +7,7 @@ import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 
 import java.util.ArrayList;
 
+// TODO: make encoder
 public class CombatRewardScreenState {
     private final CombatRewardScreen combatRewardScreen;
     private final ArrayList<RewardItem> rewards;

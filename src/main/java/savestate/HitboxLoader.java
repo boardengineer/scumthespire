@@ -2,6 +2,7 @@ package savestate;
 
 import com.megacrit.cardcrawl.helpers.Hitbox;
 
+// TODO make encoder
 public class HitboxLoader {
     private final float x;
     private final float y;

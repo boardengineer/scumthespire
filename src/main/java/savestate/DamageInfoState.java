@@ -3,6 +3,7 @@ package savestate;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 
+// TODO make encoder
 public class DamageInfoState {
     private final DamageInfo damageInfo;
     private final AbstractCreature owner;
