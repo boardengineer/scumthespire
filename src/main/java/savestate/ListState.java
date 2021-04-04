@@ -4,7 +4,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
 import java.util.ArrayList;
 
-// TODO make encoder
+// TODO make encoderzz
 public class ListState {
     private final ArrayList<String> commonRelicPool;
     private final ArrayList<String> rareRelicPool;
