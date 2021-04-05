@@ -1,25 +1,26 @@
 package savestate;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.core.AbstractCreature;
-import com.megacrit.cardcrawl.vfx.TintEffect;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 // TODO: make encoderzz11aaSSSAAA
 public class CreatureState {
+    private static final String POWER_DELIMETER = ";;;";
+
     private final String name;
     public final String id;
-    private final ArrayList<PowerState> powers;
+
     private final boolean isPlayer;
     private final boolean isBloodied;
     private final float drawX;
     private final float drawY;
     private final float dialogX;
     private final float dialogY;
-
-    private final HitboxState hb;
-    private final HitboxState healthHb;
 
     private final int gold;
     private final int displayGold;
@@ -39,11 +40,16 @@ public class CreatureState {
     private final int maxHealth;
     private final int currentBlock;
     private final float hbAlpha;
-    private final TintEffect tint;
+
     private final float animX;
     private final float animY;
     private final float reticleAlpha;
     private final boolean reticleRendered;
+
+    private final HitboxState hb;
+    private final HitboxState healthHb;
+
+    private final ArrayList<PowerState> powers;
 
     public CreatureState(AbstractCreature creature) {
         this.name = creature.name;
@@ -78,11 +84,52 @@ public class CreatureState {
         this.maxHealth = creature.maxHealth;
         this.currentBlock = creature.currentBlock;
         this.hbAlpha = creature.hbAlpha;
-        this.tint = creature.tint;
         this.animX = creature.animX;
         this.animY = creature.animY;
         this.reticleAlpha = creature.reticleAlpha;
         this.reticleRendered = creature.reticleRendered;
+    }
+
+    public CreatureState(String jsonString) {
+        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+
+        this.name = parsed.get("name").getAsString();
+        this.id = parsed.get("id").isJsonNull() ? null : parsed.get("id").getAsString();
+        this.isPlayer = parsed.get("is_player").getAsBoolean();
+        this.isBloodied = parsed.get("is_bloodied").getAsBoolean();
+        this.drawX = parsed.get("draw_x").getAsInt();
+        this.drawY = parsed.get("draw_y").getAsInt();
+        this.dialogX = parsed.get("dialog_x").getAsInt();
+        this.dialogY = parsed.get("dialog_y").getAsInt();
+        this.gold = parsed.get("gold").getAsInt();
+        this.displayGold = parsed.get("display_gold").getAsInt();
+        this.isDying = parsed.get("is_dying").getAsBoolean();
+        this.isDead = parsed.get("is_dead").getAsBoolean();
+        this.halfDead = parsed.get("half_dead").getAsBoolean();
+        this.flipHorizontal = parsed.get("flip_horizontal").getAsBoolean();
+        this.flipVertical = parsed.get("flip_vertical").getAsBoolean();
+        this.escapeTimer = parsed.get("escape_timer").getAsInt();
+        this.isEscaping = parsed.get("is_escaping").getAsBoolean();
+        this.lastDamageTaken = parsed.get("last_damage_taken").getAsInt();
+        this.hb_x = parsed.get("hb_x").getAsInt();
+        this.hb_y = parsed.get("hb_y").getAsInt();
+        this.hb_w = parsed.get("hb_w").getAsInt();
+        this.hb_h = parsed.get("hb_h").getAsInt();
+        this.currentHealth = parsed.get("current_health").getAsInt();
+        this.maxHealth = parsed.get("max_health").getAsInt();
+        this.currentBlock = parsed.get("current_block").getAsInt();
+        this.hbAlpha = parsed.get("hb_alpha").getAsInt();
+        this.animX = parsed.get("anim_x").getAsInt();
+        this.animY = parsed.get("anim_y").getAsInt();
+        this.reticleAlpha = parsed.get("reticle_alpha").getAsInt();
+        this.reticleRendered = parsed.get("reticle_rendered").getAsBoolean();
+
+        this.hb = new HitboxState(parsed.get("hb").getAsString());
+        this.healthHb = new HitboxState(parsed.get("health_hb").getAsString());
+
+        this.powers = Stream.of(parsed.get("powers").getAsString().split(POWER_DELIMETER))
+                            .filter(s -> !s.isEmpty())
+                            .map(PowerState::new).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void loadCreature(AbstractCreature creature) {
@@ -117,7 +164,6 @@ public class CreatureState {
         creature.maxHealth = this.maxHealth;
         creature.currentBlock = this.currentBlock;
         creature.hbAlpha = this.hbAlpha;
-        creature.tint = this.tint;
         creature.animX = this.animX;
         creature.animY = this.animY;
         creature.reticleAlpha = this.reticleAlpha;
@@ -126,5 +172,49 @@ public class CreatureState {
 
     public int getCurrentHealth() {
         return currentHealth;
+    }
+
+    public String encode() {
+        JsonObject creatureStateJson = new JsonObject();
+
+        creatureStateJson.addProperty("name", name);
+        creatureStateJson.addProperty("id", id);
+        creatureStateJson.addProperty("is_player", isPlayer);
+        creatureStateJson.addProperty("is_bloodied", isBloodied);
+        creatureStateJson.addProperty("draw_x", drawX);
+        creatureStateJson.addProperty("draw_y", drawY);
+        creatureStateJson.addProperty("dialog_x", dialogX);
+        creatureStateJson.addProperty("dialog_y", dialogY);
+        creatureStateJson.addProperty("gold", gold);
+        creatureStateJson.addProperty("display_gold", displayGold);
+        creatureStateJson.addProperty("is_dying", isDying);
+        creatureStateJson.addProperty("is_dead", isDead);
+        creatureStateJson.addProperty("half_dead", halfDead);
+        creatureStateJson.addProperty("flip_horizontal", flipHorizontal);
+        creatureStateJson.addProperty("flip_vertical", flipVertical);
+        creatureStateJson.addProperty("escape_timer", escapeTimer);
+        creatureStateJson.addProperty("is_escaping", isEscaping);
+        creatureStateJson.addProperty("last_damage_taken", lastDamageTaken);
+        creatureStateJson.addProperty("hb_x", hb_x);
+        creatureStateJson.addProperty("hb_y", hb_y);
+        creatureStateJson.addProperty("hb_w", hb_w);
+        creatureStateJson.addProperty("hb_h", hb_h);
+        creatureStateJson.addProperty("current_health", currentHealth);
+        creatureStateJson.addProperty("max_health", maxHealth);
+        creatureStateJson.addProperty("current_block", currentBlock);
+        creatureStateJson.addProperty("hb_alpha", hbAlpha);
+        creatureStateJson.addProperty("anim_x", animX);
+        creatureStateJson.addProperty("anim_y", animY);
+        creatureStateJson.addProperty("reticle_alpha", reticleAlpha);
+        creatureStateJson.addProperty("reticle_rendered", reticleRendered);
+
+        creatureStateJson.addProperty("hb", hb.encode());
+        creatureStateJson.addProperty("health_hb", healthHb.encode());
+
+        creatureStateJson.addProperty("powers", powers.stream().map(PowerState::encode)
+                                                      .collect(Collectors
+                                                              .joining(POWER_DELIMETER)));
+
+        return creatureStateJson.toString();
     }
 }
