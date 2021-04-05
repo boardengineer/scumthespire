@@ -33,19 +33,12 @@ public class MonsterState extends CreatureState {
     public MonsterState(AbstractMonster monster) {
         super(monster);
 
-        this.moveInfo = new EnemyMoveInfoState((EnemyMoveInfo) ReflectionHacks
-                .getPrivate(monster, AbstractMonster.class, "move"));
-
         this.deathTimer = monster.deathTimer;
         this.tintFadeOutCalled = monster.tintFadeOutCalled;
         this.escaped = monster.escaped;
         this.escapeNext = monster.escapeNext;
         this.type = monster.type;
         this.cannotEscape = monster.cannotEscape;
-        this.damage = monster.damage.stream().map(DamageInfoState::new)
-                                    .collect(Collectors.toCollection(ArrayList::new));
-        this.moveHistory = monster.moveHistory.stream().map(Byte::byteValue)
-                                              .collect(Collectors.toCollection(ArrayList::new));
 
         this.nextMove = monster.nextMove;
         this.intentHb = monster.intentHb;
@@ -55,6 +48,17 @@ public class MonsterState extends CreatureState {
         this.intentAlphaTarget = monster.intentAlphaTarget;
         this.intentOffsetX = monster.intentOffsetX;
         this.moveName = monster.moveName;
+
+        this.moveInfo = new EnemyMoveInfoState((EnemyMoveInfo) ReflectionHacks
+                .getPrivate(monster, AbstractMonster.class, "move"));
+
+        this.damage = monster.damage.stream().map(DamageInfoState::new).map(damageInfoState -> {
+            damageInfoState.owner = monster;
+            return damageInfoState;
+        }).collect(Collectors.toCollection(ArrayList::new));
+
+        this.moveHistory = monster.moveHistory.stream().map(Byte::byteValue)
+                                              .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public AbstractMonster loadMonster() {
