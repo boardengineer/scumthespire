@@ -17,8 +17,8 @@ public class CreatureState {
 
     private final boolean isPlayer;
     private final boolean isBloodied;
-    private final float drawX;
-    private final float drawY;
+    protected final float drawX;
+    protected final float drawY;
     private final float dialogX;
     private final float dialogY;
 

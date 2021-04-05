@@ -28,11 +28,11 @@ public class MonsterState extends CreatureState {
     private final float intentAlphaTarget;
     private final float intentOffsetX;
     private final String moveName;
-    private final AbstractMonster monster;
     private final EnemyMoveInfo moveInfo;
 
     public MonsterState(AbstractMonster monster) {
         super(monster);
+
         this.moveInfo = ReflectionHacks
                 .getPrivate(monster, AbstractMonster.class, "move");
 
@@ -55,7 +55,6 @@ public class MonsterState extends CreatureState {
         this.intentAlphaTarget = monster.intentAlphaTarget;
         this.intentOffsetX = monster.intentOffsetX;
         this.moveName = monster.moveName;
-        this.monster = monster;
     }
 
     public AbstractMonster loadMonster() {
@@ -99,10 +98,10 @@ public class MonsterState extends CreatureState {
     }
 
     private AbstractMonster getMonsterFromId() {
-        AbstractMonster monster = this.monster;
-        float offsetX = (monster.drawX - (float) Settings.WIDTH * 0.75F) / Settings.xScale;
-        float offsetY = (monster.drawY - AbstractDungeon.floorY) / Settings.yScale;
+        float offsetX = (drawX - (float) Settings.WIDTH * 0.75F) / Settings.xScale;
+        float offsetY = (drawY - AbstractDungeon.floorY) / Settings.yScale;
 
+        AbstractMonster monster = null;
         // exordium fastobjects.monsters
         if (id.equals("AcidSlime_L")) {
             monster = new AcidSlime_L(offsetX, offsetY);
