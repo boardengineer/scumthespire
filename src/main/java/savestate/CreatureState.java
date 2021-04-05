@@ -1,8 +1,6 @@
 package savestate;
 
-import com.esotericsoftware.spine.AnimationState;
 import com.megacrit.cardcrawl.core.AbstractCreature;
-import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.vfx.TintEffect;
 
 import java.util.ArrayList;
@@ -19,7 +17,10 @@ public class CreatureState {
     private final float drawY;
     private final float dialogX;
     private final float dialogY;
-    private final HitboxLoader hb;
+
+    private final HitboxState hb;
+    private final HitboxState healthHb;
+
     private final int gold;
     private final int displayGold;
     private final boolean isDying;
@@ -29,7 +30,6 @@ public class CreatureState {
     private final boolean flipVertical;
     private final float escapeTimer;
     private final boolean isEscaping;
-    private final Hitbox healthHb;
     private final int lastDamageTaken;
     private final float hb_x;
     private final float hb_y;
@@ -42,7 +42,6 @@ public class CreatureState {
     private final TintEffect tint;
     private final float animX;
     private final float animY;
-    private final AnimationState state;
     private final float reticleAlpha;
     private final boolean reticleRendered;
 
@@ -58,7 +57,8 @@ public class CreatureState {
         this.dialogX = creature.dialogX;
         this.dialogY = creature.dialogY;
 
-        this.hb = new HitboxLoader(creature.hb);
+        this.hb = new HitboxState(creature.hb);
+        this.healthHb = new HitboxState(creature.healthHb);
 
         this.gold = creature.gold;
         this.displayGold = creature.displayGold;
@@ -69,7 +69,6 @@ public class CreatureState {
         this.flipVertical = creature.flipVertical;
         this.escapeTimer = creature.escapeTimer;
         this.isEscaping = creature.isEscaping;
-        this.healthHb = creature.healthHb;
         this.lastDamageTaken = creature.lastDamageTaken;
         this.hb_x = creature.hb_x;
         this.hb_y = creature.hb_y;
@@ -82,7 +81,6 @@ public class CreatureState {
         this.tint = creature.tint;
         this.animX = creature.animX;
         this.animY = creature.animY;
-        this.state = creature.state;
         this.reticleAlpha = creature.reticleAlpha;
         this.reticleRendered = creature.reticleRendered;
     }
@@ -98,8 +96,10 @@ public class CreatureState {
         creature.drawY = this.drawY;
         creature.dialogX = this.dialogX;
         creature.dialogY = this.dialogY;
+
         creature.hb = hb.loadHitbox();
-        hb.loadHitbox();
+        creature.healthHb = this.healthHb.loadHitbox();
+
         creature.gold = this.gold;
         creature.displayGold = this.displayGold;
         creature.isDying = this.isDying;
@@ -109,7 +109,6 @@ public class CreatureState {
         creature.flipVertical = this.flipVertical;
         creature.escapeTimer = this.escapeTimer;
         creature.isEscaping = this.isEscaping;
-        creature.healthHb = this.healthHb;
         creature.lastDamageTaken = this.lastDamageTaken;
         creature.hb_x = this.hb_x;
         creature.hb_y = this.hb_y;
@@ -121,7 +120,6 @@ public class CreatureState {
         creature.tint = this.tint;
         creature.animX = this.animX;
         creature.animY = this.animY;
-        creature.state = this.state;
         creature.reticleAlpha = this.reticleAlpha;
         creature.reticleRendered = this.reticleRendered;
     }

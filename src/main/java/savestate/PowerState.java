@@ -41,6 +41,8 @@ public class PowerState {
             result = new ThieveryPower(targetAndSource, amount);
         } else if (powerId.equals("Metallicize")) {
             result = new MetallicizePower(targetAndSource, amount);
+        } else if (powerId.equals("Dexterity")) {
+            result = new DexterityPower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }
