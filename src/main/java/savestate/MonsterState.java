@@ -28,13 +28,13 @@ public class MonsterState extends CreatureState {
     private final float intentAlphaTarget;
     private final float intentOffsetX;
     private final String moveName;
-    private final EnemyMoveInfo moveInfo;
+    private final EnemyMoveInfoState moveInfo;
 
     public MonsterState(AbstractMonster monster) {
         super(monster);
 
-        this.moveInfo = ReflectionHacks
-                .getPrivate(monster, AbstractMonster.class, "move");
+        this.moveInfo = new EnemyMoveInfoState((EnemyMoveInfo) ReflectionHacks
+                .getPrivate(monster, AbstractMonster.class, "move"));
 
         this.deathTimer = monster.deathTimer;
         this.tintFadeOutCalled = monster.tintFadeOutCalled;
