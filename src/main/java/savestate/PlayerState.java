@@ -2,6 +2,7 @@ package savestate;
 
 import com.megacrit.cardcrawl.blights.AbstractBlight;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.orbs.AbstractOrb;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
@@ -122,8 +123,14 @@ public class PlayerState extends CreatureState {
 //        player.exhaustPile.refreshHandLayout();
 //        player.limbo.refreshHandLayout();
 
+
         player.relics = this.relics.stream().map(RelicState::loadRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
+        AbstractDungeon.topPanel.adjustRelicHbs();
+        for(int i = 0; i < player.relics.size(); i++) {
+            player.relics.get(i).instantObtain(player, i, false);
+        }
+
         player.blights = (ArrayList<AbstractBlight>) this.blights.clone();
         player.potionSlots = this.potionSlots;
         player.potions = (ArrayList<AbstractPotion>) this.potions.clone();

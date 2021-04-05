@@ -59,9 +59,9 @@ public class IroncladDeckPatch {
 //            add(new FeelNoPain());
             add(new FiendFire());
 //            add(new FireBreathing());
-//            add(new FlameBarrier());
+            add(new FlameBarrier());
 //            add(new Flex());
-//            add(new GhostlyArmor());
+            add(new GhostlyArmor());
 
 //            add(new Headbutt());
             add(new Hemokinesis());
@@ -82,20 +82,20 @@ public class IroncladDeckPatch {
             add(new Reaper());
             add(new RecklessCharge());
 //            add(new Rupture());
-//            add(new SearingBlow());
+            add(new SearingBlow());
 //            add(new SecondWind());
-//            add(new SeeingRed());
-//            add(new SeverSoul());
-//            add(new Shockwave());
-//            add(new ShrugItOff());
+            add(new SeeingRed());
+            add(new SeverSoul());
+            add(new Shockwave());
+            add(new ShrugItOff());
 
-//            add(new SwordBoomerang());
-//            add(new ThunderClap());
+            add(new SwordBoomerang());
+            add(new ThunderClap());
 //            add(new TrueGrit());
-//            add(new TwinStrike());
-//            add(new Uppercut());
+            add(new TwinStrike());
+            add(new Uppercut());
 //            add(new Warcry());
-//            add(new Whirlwind());
+            add(new Whirlwind());
         }
     }
 }

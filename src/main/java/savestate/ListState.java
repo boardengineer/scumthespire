@@ -7,6 +7,7 @@ import java.util.ArrayList;
 // TODO make encoderzz
 public class ListState {
     private final ArrayList<String> commonRelicPool;
+    private final ArrayList<String> uncommonRelicPool;
     private final ArrayList<String> rareRelicPool;
     private final ArrayList<String> shopRelicPool;
     private final ArrayList<String> bossRelicPool;
@@ -19,6 +20,7 @@ public class ListState {
 
     public ListState() {
         commonRelicPool = (ArrayList<String>) AbstractDungeon.commonRelicPool.clone();
+        uncommonRelicPool = (ArrayList<String>) AbstractDungeon.uncommonRelicPool.clone();
         rareRelicPool = (ArrayList<String>) AbstractDungeon.rareRelicPool.clone();
         shopRelicPool = (ArrayList<String>) AbstractDungeon.shopRelicPool.clone();
         bossRelicPool = (ArrayList<String>) AbstractDungeon.bossRelicPool.clone();
@@ -33,6 +35,7 @@ public class ListState {
 
     public void loadLists() {
         AbstractDungeon.commonRelicPool = (ArrayList<String>) commonRelicPool.clone();
+        AbstractDungeon.uncommonRelicPool = (ArrayList<String>) uncommonRelicPool.clone();
         AbstractDungeon.rareRelicPool = (ArrayList<String>) rareRelicPool.clone();
         AbstractDungeon.shopRelicPool = (ArrayList<String>) shopRelicPool.clone();
         AbstractDungeon.bossRelicPool = (ArrayList<String>) bossRelicPool.clone();
