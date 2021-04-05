@@ -59,7 +59,7 @@ public class MonsterState extends CreatureState {
     }
 
     public AbstractMonster loadMonster() {
-        AbstractMonster monster = resetMonster();
+        AbstractMonster monster = getMonsterFromId();
         super.loadCreature(monster);
         monster.init();
 
@@ -98,68 +98,70 @@ public class MonsterState extends CreatureState {
         return monster;
     }
 
-    private AbstractMonster resetMonster() {
+    private AbstractMonster getMonsterFromId() {
         AbstractMonster monster = this.monster;
         float offsetX = (monster.drawX - (float) Settings.WIDTH * 0.75F) / Settings.xScale;
         float offsetY = (monster.drawY - AbstractDungeon.floorY) / Settings.yScale;
 
         // exordium fastobjects.monsters
-        if (monster instanceof AcidSlime_L) {
+        if (id.equals("AcidSlime_L")) {
             monster = new AcidSlime_L(offsetX, offsetY);
-        } else if (monster instanceof AcidSlime_M) {
+        } else if (id.equals("AcidSlime_M")) {
             monster = new AcidSlime_M(offsetX, offsetY);
-        } else if (monster instanceof AcidSlime_S) {
+        } else if (id.equals("AcidSlime_S")) {
             monster = new AcidSlime_S(offsetX, offsetY, 0);
-        } else if (monster instanceof ApologySlime) {
+        } else if (id.equals("Apology Slime")) {
             monster = new ApologySlime();
-        } else if (monster instanceof Cultist) {
+        } else if (id.equals("Cultist")) {
             monster = new Cultist(offsetX, offsetY, false);
             if (intent != AbstractMonster.Intent.BUFF) {
                 // clear the firstMove boolean by rolling a move
                 monster.rollMove();
             }
-        } else if (monster instanceof FungiBeast) {
+        } else if (id.equals("FungiBeast")) {
             monster = new FungiBeast(offsetX, offsetY);
-        } else if (monster instanceof GremlinFat) {
+        } else if (id.equals("GremlinFat")) {
             monster = new GremlinFat(offsetX, offsetY);
-        } else if (monster instanceof GremlinNob) {
+        } else if (id.equals("GremlinNob")) {
             monster = new GremlinNob(offsetX, offsetY);
-        } else if (monster instanceof GremlinThief) {
+        } else if (id.equals("GremlinThief")) {
             monster = new GremlinThief(offsetX, offsetY);
-        } else if (monster instanceof GremlinTsundere) {
+        } else if (id.equals("GremlinTsundere")) {
             monster = new GremlinTsundere(offsetX, offsetY);
-        } else if (monster instanceof GremlinWarrior) {
+        } else if (id.equals("GremlinWarrior")) {
             monster = new GremlinWarrior(offsetX, offsetY);
-        } else if (monster instanceof GremlinWizard) {
+        } else if (id.equals("GremlinWizard")) {
             monster = new GremlinWizard(offsetX, offsetY);
-        } else if (monster instanceof Hexaghost) {
+        } else if (id.equals("Hexaghost")) {
             monster = new Hexaghost();
-        } else if (monster instanceof JawWorm) {
+        } else if (id.equals("JawWorm")) {
             monster = new JawWorm(offsetX, offsetY);
-        } else if (monster instanceof Lagavulin) {
+        } else if (id.equals("Lagavulin")) {
             monster = new Lagavulin(false);
-        } else if (monster instanceof Looter) {
+        } else if (id.equals("Looter")) {
             monster = new Looter(offsetX, offsetY);
-        } else if (monster instanceof LouseDefensive) {
+        } else if (id.equals("FuzzyLouseDefensive")) {
             monster = new LouseDefensive(offsetX, offsetY);
-        } else if (monster instanceof LouseNormal) {
+        } else if (id.equals("FuzzyLouseNormal")) {
             monster = new LouseNormal(offsetX, offsetY);
-        } else if (monster instanceof Sentry) {
+        } else if (id.equals("Sentry")) {
             monster = new Sentry(offsetX, offsetY);
-        } else if (monster instanceof SlaverBlue) {
+        } else if (id.equals("SlaverBlue")) {
             monster = new SlaverBlue(offsetX, offsetY);
-        } else if (monster instanceof SlaverRed) {
+        } else if (id.equals("SlaverRed")) {
             monster = new SlaverRed(offsetX, offsetY);
-        } else if (monster instanceof SlimeBoss) {
+        } else if (id.equals("SlimeBoss")) {
             monster = new SlimeBoss();
-        } else if (monster instanceof SpikeSlime_L) {
+        } else if (id.equals("SpikeSlime_L")) {
             monster = new SpikeSlime_L(offsetX, offsetY);
-        } else if (monster instanceof SpikeSlime_M) {
+        } else if (id.equals("SpikeSlime_M")) {
             monster = new SpikeSlime_M(offsetX, offsetY);
-        } else if (monster instanceof SpikeSlime_S) {
+        } else if (id.equals("SpikeSlime_S")) {
             monster = new SpikeSlime_S(offsetX, offsetY, 0);
-        } else if (monster instanceof TheGuardian) {
+        } else if (id.equals("TheGuardian")) {
             monster = new TheGuardian();
+        } else {
+            System.err.println("couldn't find monster with id " + id);
         }
 
         return monster;

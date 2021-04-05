@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 // TODO: make encoderzz11aaSSSAAA
 public class CreatureState {
     private final String name;
-    private final String id;
+    public final String id;
     private final ArrayList<PowerState> powers;
     private final boolean isPlayer;
     private final boolean isBloodied;
