@@ -1,12 +1,8 @@
 package savestate;
 
-import com.megacrit.cardcrawl.blights.AbstractBlight;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.Hitbox;
-import com.megacrit.cardcrawl.orbs.AbstractOrb;
-import com.megacrit.cardcrawl.potions.AbstractPotion;
-import com.megacrit.cardcrawl.stances.AbstractStance;
 import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
 
 import java.util.ArrayList;
@@ -24,9 +20,6 @@ public class PlayerState extends CreatureState {
     private final ArrayList<CardState> exhaustPile;
     private final ArrayList<CardState> limbo;
     private final ArrayList<RelicState> relics;
-    private final ArrayList<AbstractBlight> blights;
-    private final int potionSlots;
-    private final ArrayList<AbstractPotion> potions;
 
     private final int energyManagerEnergy;
     private final int energyManagerMaxMaster;
@@ -38,10 +31,6 @@ public class PlayerState extends CreatureState {
     private final Hitbox inspectHb;
     private final int damagedThisCombat;
     private final String title;
-    private final ArrayList<AbstractOrb> orbs;
-    private final int masterMaxOrbs;
-    private final int maxOrbs;
-    private final AbstractStance stance;
 
     private final AbstractPlayer player;
 
@@ -70,9 +59,6 @@ public class PlayerState extends CreatureState {
 
         this.relics = player.relics.stream().map(RelicState::new)
                                    .collect(Collectors.toCollection(ArrayList::new));
-        this.blights = (ArrayList<AbstractBlight>) player.blights.clone();
-        this.potionSlots = player.potionSlots;
-        this.potions = (ArrayList<AbstractPotion>) player.potions.clone();
 
         this.energyManagerEnergy = player.energy.energy;
         this.energyPanelTotalEnergy = EnergyPanel.totalCount;
@@ -86,16 +72,14 @@ public class PlayerState extends CreatureState {
         this.damagedThisCombat = player.damagedThisCombat;
 
         this.title = player.title;
-        this.orbs = (ArrayList<AbstractOrb>) player.orbs.clone();
-        this.masterMaxOrbs = player.masterMaxOrbs;
-        this.maxOrbs = player.maxOrbs;
-        this.stance = player.stance;
 
         this.player = player;
     }
 
     public AbstractPlayer loadPlayer() {
         super.loadCreature(player);
+
+//        CardCrawlGame.characterManager.getCharacter(AbstractPlayer.PlayerClass.IRONCLAD)
 
         player.chosenClass = this.chosenClass;
         player.gameHandSize = this.gameHandSize;
@@ -123,17 +107,12 @@ public class PlayerState extends CreatureState {
 //        player.exhaustPile.refreshHandLayout();
 //        player.limbo.refreshHandLayout();
 
-
         player.relics = this.relics.stream().map(RelicState::loadRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
         AbstractDungeon.topPanel.adjustRelicHbs();
         for(int i = 0; i < player.relics.size(); i++) {
             player.relics.get(i).instantObtain(player, i, false);
         }
-
-        player.blights = (ArrayList<AbstractBlight>) this.blights.clone();
-        player.potionSlots = this.potionSlots;
-        player.potions = (ArrayList<AbstractPotion>) this.potions.clone();
 
         player.energy.energy = this.energyManagerEnergy;
         player.energy.energyMaster = this.energyManagerMaxMaster;
@@ -146,10 +125,6 @@ public class PlayerState extends CreatureState {
         player.inspectHb = this.inspectHb;
         player.damagedThisCombat = this.damagedThisCombat;
         player.title = this.title;
-        player.orbs = (ArrayList<AbstractOrb>) this.orbs.clone();
-        player.masterMaxOrbs = this.masterMaxOrbs;
-        player.maxOrbs = this.maxOrbs;
-        player.stance = this.stance;
 
         return player;
     }
