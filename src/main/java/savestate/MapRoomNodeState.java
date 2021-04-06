@@ -1,13 +1,9 @@
 package savestate;
 
-import com.megacrit.cardcrawl.events.AbstractEvent;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
-import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.powers.VulnerablePower;
-import com.megacrit.cardcrawl.relics.AbstractRelic;
-import com.megacrit.cardcrawl.rewards.RewardItem;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
 import java.util.ArrayList;
@@ -20,11 +16,7 @@ public class MapRoomNodeState {
     private final boolean highlighted;
     private final boolean hasEmeraldKey;
     public ArrayList<MonsterState> monsterData = null;
-    private ArrayList<AbstractRelic> relics;
-    private ArrayList<RewardItem> rewards;
     private AbstractRoom.RoomPhase phase;
-    private AbstractEvent event;
-    private float rewardPopOutTimer;
     private boolean isBattleOver;
     private boolean cannotLose;
     private boolean eliteTrigger;
@@ -33,12 +25,7 @@ public class MapRoomNodeState {
     private boolean rewardAllowed;
     private boolean rewardTime;
     private boolean skipMonsterTurn;
-    private int baseRareCardChance;
-    private int baseUncommonCardChance;
-    private int rareCardChance;
-    private int uncommonCardChance;
     private float waitTimer;
-    private ArrayList<AbstractPotion> potions = null;
 
     public MapRoomNodeState(MapRoomNode mapRoomNode) {
         this.taken = mapRoomNode.taken;
@@ -53,14 +40,7 @@ public class MapRoomNodeState {
             return;
         }
 
-        if (room.potions != null) {
-            this.potions = (ArrayList<AbstractPotion>) room.potions.clone();
-        }
-        this.relics = (ArrayList<AbstractRelic>) room.relics.clone();
-        this.rewards = (ArrayList<RewardItem>) room.rewards.clone();
-
         this.phase = room.phase;
-        this.event = room.event;
 
         // rooms that haven't been entered have null Monster groups
         if (room.monsters != null) {
@@ -69,7 +49,6 @@ public class MapRoomNodeState {
                                                      .collect(Collectors
                                                              .toCollection(ArrayList::new));
         }
-        this.rewardPopOutTimer = room.rewardPopOutTimer;
         this.isBattleOver = room.isBattleOver;
         this.cannotLose = room.cannotLose;
         this.eliteTrigger = room.eliteTrigger;
@@ -78,10 +57,6 @@ public class MapRoomNodeState {
         this.rewardAllowed = room.rewardAllowed;
         this.rewardTime = room.rewardTime;
         this.skipMonsterTurn = room.skipMonsterTurn;
-        this.baseRareCardChance = room.baseRareCardChance;
-        this.baseUncommonCardChance = room.baseUncommonCardChance;
-        this.rareCardChance = room.rareCardChance;
-        this.uncommonCardChance = room.uncommonCardChance;
         this.waitTimer = AbstractRoom.waitTimer;
     }
 
@@ -93,16 +68,8 @@ public class MapRoomNodeState {
         if (room == null) {
             return mapRoomNode;
         }
-        if (potions != null) {
-            room.potions = (ArrayList<AbstractPotion>) this.potions.clone();
-        }
-        room.relics = (ArrayList<AbstractRelic>) this.relics.clone();
-        room.rewards = (ArrayList<RewardItem>) this.rewards.clone();
-
         room.phase = this.phase;
-        room.event = this.event;
 
-        room.rewardPopOutTimer = this.rewardPopOutTimer;
         room.isBattleOver = this.isBattleOver;
         room.cannotLose = this.cannotLose;
         room.eliteTrigger = this.eliteTrigger;
@@ -111,10 +78,6 @@ public class MapRoomNodeState {
         room.rewardAllowed = this.rewardAllowed;
         room.rewardTime = this.rewardTime;
         room.skipMonsterTurn = this.skipMonsterTurn;
-        room.baseRareCardChance = this.baseRareCardChance;
-        room.baseUncommonCardChance = this.baseUncommonCardChance;
-        room.rareCardChance = this.rareCardChance;
-        room.uncommonCardChance = this.uncommonCardChance;
         AbstractRoom.waitTimer = this.waitTimer;
 
         if (monsterData != null) {
