@@ -1,34 +1,11 @@
 package savestate;
 
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.rewards.RewardItem;
-import com.megacrit.cardcrawl.screens.CombatRewardScreen;
-import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 
-import java.util.ArrayList;
-
-// TODO: make encodersss
+// TODO: make a real version of this if we want a state loader, for now this just closes the
+// reward screen to get back to the battle
 public class CombatRewardScreenState {
-    private final CombatRewardScreen combatRewardScreen;
-    private final ArrayList<RewardItem> rewards;
-    private final ArrayList<AbstractGameEffect> effects;
-    private final boolean hasTakenAll;
-
-    public CombatRewardScreenState(CombatRewardScreen combatRewardScreen) {
-        this.combatRewardScreen = combatRewardScreen;
-
-        this.rewards = (ArrayList<RewardItem>) combatRewardScreen.rewards.clone();
-        this.effects = (ArrayList<AbstractGameEffect>) combatRewardScreen.effects.clone();
-        this.hasTakenAll = combatRewardScreen.hasTakenAll;
-    }
-
-    public CombatRewardScreen loadCombatRewardScreen() {
-        combatRewardScreen.rewards = (ArrayList<RewardItem>) this.rewards.clone();
-        combatRewardScreen.effects = (ArrayList<AbstractGameEffect>) this.effects.clone();
-        combatRewardScreen.hasTakenAll = this.hasTakenAll;
-
-        combatRewardScreen.clear();
-        combatRewardScreen.update();
+    public static void loadCombatRewardScreen() {
         AbstractDungeon.overlayMenu.proceedButton.hide();
 
         AbstractDungeon.dynamicBanner.hide();
@@ -40,7 +17,5 @@ public class CombatRewardScreenState {
         AbstractDungeon.overlayMenu.hideBlackScreen();
         AbstractDungeon.overlayMenu.showCombatPanels();
         AbstractDungeon.closeCurrentScreen();
-
-        return combatRewardScreen;
     }
 }

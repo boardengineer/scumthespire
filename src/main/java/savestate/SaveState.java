@@ -22,7 +22,6 @@ public class SaveState {
     PlayerState playerLoader;
     public MapRoomNodeState roomLoader;
     RngState rngLoader;
-    CombatRewardScreenState combatRewardScreenLoader;
     AbstractDungeon.CurrentScreen screen;
 
     AbstractDungeon.CurrentScreen previousScreen = null;
@@ -52,7 +51,6 @@ public class SaveState {
         mapNode = AbstractDungeon.currMapNode;
         screen = AbstractDungeon.screen;
         roomLoader = new MapRoomNodeState(mapNode);
-        combatRewardScreenLoader = new CombatRewardScreenState(AbstractDungeon.combatRewardScreen);
         rngLoader = new RngState();
         listLoader = new ListState();
         floorNum = AbstractDungeon.floorNum;
@@ -99,7 +97,7 @@ public class SaveState {
                                                                       .toCollection(ArrayList::new)))
                                              .collect(Collectors.toCollection(ArrayList::new));
 
-        AbstractDungeon.combatRewardScreen = combatRewardScreenLoader.loadCombatRewardScreen();
+        CombatRewardScreenState.loadCombatRewardScreen();
 
         rngLoader.loadRng();
 
