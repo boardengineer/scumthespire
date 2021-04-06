@@ -49,7 +49,6 @@ public class TurnNode implements Comparable<TurnNode> {
             states.pop();
             runningCommands = false;
             if (curState.saveState == null) {
-                // We just ended turn, i dont like this
                 curState.saveState = new SaveState();
             }
 
