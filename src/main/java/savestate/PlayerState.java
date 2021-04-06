@@ -1,25 +1,24 @@
 package savestate;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PlayerState extends CreatureState {
+    private static final String CARD_DELIMETER = ";;;";
+    private static final String RELIC_DELIMETER = "!;!";
+
     private final AbstractPlayer.PlayerClass chosenClass;
     private final int gameHandSize;
     private final int masterHandSize;
     private final int startingMaxHP;
-    private final ArrayList<CardState> masterDeck;
-    private final ArrayList<CardState> drawPile;
-    private final ArrayList<CardState> hand;
-    private final ArrayList<CardState> discardPile;
-    private final ArrayList<CardState> exhaustPile;
-    private final ArrayList<CardState> limbo;
-    private final ArrayList<RelicState> relics;
 
     private final int energyManagerEnergy;
     private final int energyManagerMaxMaster;
@@ -28,11 +27,18 @@ public class PlayerState extends CreatureState {
     private final boolean isEndingTurn;
     private final boolean viewingRelics;
     private final boolean inspectMode;
-    private final Hitbox inspectHb;
+    private final HitboxState inspectHb;
     private final int damagedThisCombat;
     private final String title;
 
-    private final AbstractPlayer player;
+    private final ArrayList<CardState> masterDeck;
+    private final ArrayList<CardState> drawPile;
+    private final ArrayList<CardState> hand;
+    private final ArrayList<CardState> discardPile;
+    private final ArrayList<CardState> exhaustPile;
+    private final ArrayList<CardState> limbo;
+
+    private final ArrayList<RelicState> relics;
 
     public PlayerState(AbstractPlayer player) {
         super(player);
@@ -68,18 +74,51 @@ public class PlayerState extends CreatureState {
         this.isEndingTurn = player.isEndingTurn;
         this.viewingRelics = player.viewingRelics;
         this.inspectMode = player.inspectMode;
-        this.inspectHb = player.inspectHb;
+        this.inspectHb = player.inspectHb == null ? null : new HitboxState(player.inspectHb);
         this.damagedThisCombat = player.damagedThisCombat;
 
         this.title = player.title;
+    }
 
-        this.player = player;
+    public PlayerState(String jsonString) {
+        super(new JsonParser().parse(jsonString).getAsJsonObject().get("creature").getAsString());
+
+        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+
+        this.chosenClass = AbstractPlayer.PlayerClass
+                .valueOf(parsed.get("chosen_class_name").getAsString());
+        this.gameHandSize = parsed.get("game_hand_size").getAsInt();
+        this.masterHandSize = parsed.get("master_hand_size").getAsInt();
+        this.startingMaxHP = parsed.get("starting_max_hp").getAsInt();
+
+        this.energyManagerEnergy = parsed.get("energy_manager_energy").getAsInt();
+        this.energyPanelTotalEnergy = parsed.get("energy_panel_total_energy").getAsInt();
+        this.energyManagerMaxMaster = parsed.get("energy_manager_max_master").getAsInt();
+
+        this.isEndingTurn = parsed.get("is_ending_turn").getAsBoolean();
+        this.viewingRelics = parsed.get("viewing_relics").getAsBoolean();
+        this.inspectMode = parsed.get("inspect_mode").getAsBoolean();
+        this.inspectHb = parsed.get("inspect_hb").isJsonNull() ? null : new HitboxState(parsed
+                .get("inspect_hb").getAsString());
+        this.damagedThisCombat = parsed.get("damaged_this_combat").getAsInt();
+
+        this.title = parsed.get("title").getAsString();
+
+        this.masterDeck = decodeCardList(parsed.get("master_deck").getAsString());
+        this.drawPile = decodeCardList(parsed.get("draw_pile").getAsString());
+        this.hand = decodeCardList(parsed.get("hand").getAsString());
+        this.discardPile = decodeCardList(parsed.get("discard_pile").getAsString());
+        this.exhaustPile = decodeCardList(parsed.get("exhaust_pile").getAsString());
+        this.limbo = decodeCardList(parsed.get("limbo").getAsString());
+
+        this.relics = Stream.of(parsed.get("relics").getAsString().split(RELIC_DELIMETER))
+                            .filter(s -> !s.isEmpty()).map(RelicState::new)
+                            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public AbstractPlayer loadPlayer() {
+        AbstractPlayer player = CardCrawlGame.characterManager.getCharacter(chosenClass);
         super.loadCreature(player);
-
-//        CardCrawlGame.characterManager.getCharacter(AbstractPlayer.PlayerClass.IRONCLAD)
 
         player.chosenClass = this.chosenClass;
         player.gameHandSize = this.gameHandSize;
@@ -100,17 +139,10 @@ public class PlayerState extends CreatureState {
                                                            .toCollection(ArrayList::new));
         player.limbo.group = this.limbo.stream().map(CardState::loadCard)
                                        .collect(Collectors.toCollection(ArrayList::new));
-
-//        player.hand.refreshHandLayout();
-//        player.drawPile.refreshHandLayout();
-//        player.discardPile.refreshHandLayout();
-//        player.exhaustPile.refreshHandLayout();
-//        player.limbo.refreshHandLayout();
-
         player.relics = this.relics.stream().map(RelicState::loadRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
         AbstractDungeon.topPanel.adjustRelicHbs();
-        for(int i = 0; i < player.relics.size(); i++) {
+        for (int i = 0; i < player.relics.size(); i++) {
             player.relics.get(i).instantObtain(player, i, false);
         }
 
@@ -122,7 +154,7 @@ public class PlayerState extends CreatureState {
         player.isEndingTurn = this.isEndingTurn;
         player.viewingRelics = this.viewingRelics;
         player.inspectMode = this.inspectMode;
-        player.inspectHb = this.inspectHb;
+        player.inspectHb = this.inspectHb == null ? null : this.inspectHb.loadHitbox();
         player.damagedThisCombat = this.damagedThisCombat;
         player.title = this.title;
 
@@ -151,4 +183,46 @@ public class PlayerState extends CreatureState {
 
         return (int) numSlimes;
     }
+
+    public String encode() {
+        JsonObject playerStateJson = new JsonObject();
+
+        playerStateJson.addProperty("creature", super.encode());
+
+        playerStateJson.addProperty("chosen_class_name", chosenClass.name());
+        playerStateJson.addProperty("game_hand_size", gameHandSize);
+        playerStateJson.addProperty("master_hand_size", masterHandSize);
+        playerStateJson.addProperty("starting_max_hp", startingMaxHP);
+        playerStateJson.addProperty("energy_manager_energy", energyManagerEnergy);
+        playerStateJson.addProperty("energy_manager_max_master", energyManagerMaxMaster);
+        playerStateJson.addProperty("energy_panel_total_energy", energyPanelTotalEnergy);
+        playerStateJson.addProperty("is_ending_turn", isEndingTurn);
+        playerStateJson.addProperty("viewing_relics", viewingRelics);
+        playerStateJson.addProperty("inspect_mode", inspectMode);
+        playerStateJson.addProperty("inspect_hb", inspectHb == null ? null : inspectHb.encode());
+        playerStateJson.addProperty("damaged_this_combat", damagedThisCombat);
+        playerStateJson.addProperty("title", title);
+
+        playerStateJson.addProperty("master_deck", encodeCardList(masterDeck));
+        playerStateJson.addProperty("draw_pile", encodeCardList(drawPile));
+        playerStateJson.addProperty("hand", encodeCardList(hand));
+        playerStateJson.addProperty("discard_pile", encodeCardList(discardPile));
+        playerStateJson.addProperty("exhaust_pile", encodeCardList(exhaustPile));
+        playerStateJson.addProperty("limbo", encodeCardList(limbo));
+
+        playerStateJson.addProperty("relics", relics.stream().map(RelicState::encode)
+                                                    .collect(Collectors.joining(RELIC_DELIMETER)));
+
+        return playerStateJson.toString();
+    }
+
+    private static String encodeCardList(ArrayList<CardState> cardList) {
+        return cardList.stream().map(CardState::encode).collect(Collectors.joining(CARD_DELIMETER));
+    }
+
+    private static ArrayList<CardState> decodeCardList(String cardListString) {
+        return Stream.of(cardListString.split(CARD_DELIMETER)).filter(s -> !s.isEmpty())
+                     .map(CardState::new).collect(Collectors.toCollection(ArrayList::new));
+    }
+
 }
