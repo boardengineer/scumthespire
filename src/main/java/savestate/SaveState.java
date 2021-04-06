@@ -117,7 +117,7 @@ public class SaveState {
     }
 
     public String getDedupeString() {
-        String monsterHealths = roomLoader.monsters.stream().map(monster -> String
+        String monsterHealths = roomLoader.monsterData.stream().map(monster -> String
                 .format("%03d", monster.currentHealth)).collect(Collectors.joining());
 
         return String

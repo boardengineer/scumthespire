@@ -19,8 +19,7 @@ public class MapRoomNodeState {
     private final boolean taken;
     private final boolean highlighted;
     private final boolean hasEmeraldKey;
-    public ArrayList<AbstractMonster> monsters = null;
-    ArrayList<MonsterState> monsterData = null;
+    public ArrayList<MonsterState> monsterData = null;
     private ArrayList<AbstractRelic> relics;
     private ArrayList<RewardItem> rewards;
     private AbstractRoom.RoomPhase phase;
@@ -69,8 +68,6 @@ public class MapRoomNodeState {
                                                      .map(monster -> new MonsterState(monster))
                                                      .collect(Collectors
                                                              .toCollection(ArrayList::new));
-
-            this.monsters = (ArrayList<AbstractMonster>) room.monsters.monsters.clone();
         }
         this.rewardPopOutTimer = room.rewardPopOutTimer;
         this.isBattleOver = room.isBattleOver;
@@ -123,14 +120,12 @@ public class MapRoomNodeState {
         if (monsterData != null) {
             room.monsters = new MonsterGroup(monsterData.stream().map(MonsterState::loadMonster)
                                                         .toArray(AbstractMonster[]::new));
-//            room.monsters.update();
         } else {
             room.monsters = null;
         }
 
         if (room.phase == AbstractRoom.RoomPhase.COMBAT) {
             if (room.monsters != null) {
-//                room.update();
             }
         } else if (room.phase == AbstractRoom.RoomPhase.EVENT) {
             if (room.event != null) {

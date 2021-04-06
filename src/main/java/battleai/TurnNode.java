@@ -121,10 +121,10 @@ public class TurnNode implements Comparable<TurnNode> {
     }
 
     public static int getTotalMonsterHealth(SaveState saveState) {
-        return saveState.roomLoader.monsters.stream()
-                                            .map(monster -> monster.currentHealth)
-                                            .reduce(Integer::sum)
-                                            .get();
+        return saveState.roomLoader.monsterData.stream()
+                                               .map(monster -> monster.currentHealth)
+                                               .reduce(Integer::sum)
+                                               .get();
     }
 
     public static int getTurnScore(TurnNode turnNode) {
