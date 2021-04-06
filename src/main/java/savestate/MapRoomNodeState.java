@@ -23,7 +23,6 @@ public class MapRoomNodeState {
     ArrayList<MonsterState> monsterData = null;
     private ArrayList<AbstractRelic> relics;
     private ArrayList<RewardItem> rewards;
-    private ArrayList<MapRoomNodeState> parentLoaders;
     private AbstractRoom.RoomPhase phase;
     private AbstractEvent event;
     private float rewardPopOutTimer;
@@ -87,9 +86,6 @@ public class MapRoomNodeState {
         this.rareCardChance = room.rareCardChance;
         this.uncommonCardChance = room.uncommonCardChance;
         this.waitTimer = AbstractRoom.waitTimer;
-
-//        this.parentLoaders = mapRoomNode.getParents().stream().map(MapRoomNodeLoader::new)
-//                                        .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public MapRoomNode loadMapRoomNode() {
