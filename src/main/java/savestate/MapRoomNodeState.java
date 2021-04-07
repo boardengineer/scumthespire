@@ -1,45 +1,43 @@
 package savestate;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
-import com.megacrit.cardcrawl.powers.VulnerablePower;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import com.megacrit.cardcrawl.rooms.MonsterRoom;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MapRoomNodeState {
-    private final AbstractRoom room;
-    private final MapRoomNode mapRoomNode;
+    private static final String MONSTER_DELIMETER = "###";
+
     private final boolean taken;
     private final boolean highlighted;
     private final boolean hasEmeraldKey;
+    private final boolean isBattleOver;
+    private final boolean cannotLose;
+    private final boolean eliteTrigger;
+    private final boolean mugged;
+    private final boolean combatEvent;
+    private final boolean rewardAllowed;
+    private final boolean rewardTime;
+    private final boolean skipMonsterTurn;
+
+    private final float waitTimer;
+
     public ArrayList<MonsterState> monsterData = null;
-    private AbstractRoom.RoomPhase phase;
-    private boolean isBattleOver;
-    private boolean cannotLose;
-    private boolean eliteTrigger;
-    private boolean mugged;
-    private boolean combatEvent;
-    private boolean rewardAllowed;
-    private boolean rewardTime;
-    private boolean skipMonsterTurn;
-    private float waitTimer;
+    private final AbstractRoom.RoomPhase phase;
 
     public MapRoomNodeState(MapRoomNode mapRoomNode) {
         this.taken = mapRoomNode.taken;
         this.highlighted = mapRoomNode.highlighted;
         this.hasEmeraldKey = mapRoomNode.hasEmeraldKey;
 
-        this.mapRoomNode = mapRoomNode;
-        this.room = mapRoomNode.room;
-        VulnerablePower v;
-
-        if (room == null) {
-            return;
-        }
-
+        AbstractRoom room = mapRoomNode.room;
         this.phase = room.phase;
 
         // rooms that haven't been entered have null Monster groups
@@ -60,14 +58,39 @@ public class MapRoomNodeState {
         this.waitTimer = AbstractRoom.waitTimer;
     }
 
-    public MapRoomNode loadMapRoomNode() {
+    public MapRoomNodeState(String jsonString) {
+        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+
+        this.taken = parsed.get("taken").getAsBoolean();
+        this.highlighted = parsed.get("highlighted").getAsBoolean();
+        this.hasEmeraldKey = parsed.get("has_emerald_key").getAsBoolean();
+        this.isBattleOver = parsed.get("is_battle_over").getAsBoolean();
+        this.cannotLose = parsed.get("cannot_lose").getAsBoolean();
+        this.eliteTrigger = parsed.get("elite_trigger").getAsBoolean();
+        this.mugged = parsed.get("mugged").getAsBoolean();
+        this.combatEvent = parsed.get("combat_event").getAsBoolean();
+        this.rewardAllowed = parsed.get("reward_allowed").getAsBoolean();
+        this.rewardTime = parsed.get("reward_time").getAsBoolean();
+        this.skipMonsterTurn = parsed.get("skip_monster_turn").getAsBoolean();
+
+        this.waitTimer = parsed.get("wait_timer").getAsFloat();
+
+        this.monsterData = Stream
+                .of(parsed.get("monster_data").getAsString().split(MONSTER_DELIMETER))
+                .filter(s -> !s.isEmpty()).map(MonsterState::new)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        this.phase = AbstractRoom.RoomPhase.valueOf(parsed.get("phase_name").getAsString());
+    }
+
+    public MapRoomNode loadMapRoomNode(MapRoomNode mapRoomNode) {
+        AbstractRoom room = new MonsterRoom();
+
         mapRoomNode.taken = this.taken;
         mapRoomNode.highlighted = this.highlighted;
         mapRoomNode.hasEmeraldKey = this.hasEmeraldKey;
+        mapRoomNode.room = room;
 
-        if (room == null) {
-            return mapRoomNode;
-        }
         room.phase = this.phase;
 
         room.isBattleOver = this.isBattleOver;
@@ -97,6 +120,31 @@ public class MapRoomNodeState {
         }
 
         return mapRoomNode;
+    }
+
+    public String encode() {
+        JsonObject mapRoomNodeStateJson = new JsonObject();
+
+        mapRoomNodeStateJson.addProperty("taken", taken);
+        mapRoomNodeStateJson.addProperty("highlighted", highlighted);
+        mapRoomNodeStateJson.addProperty("has_emerald_key", hasEmeraldKey);
+        mapRoomNodeStateJson.addProperty("is_battle_over", isBattleOver);
+        mapRoomNodeStateJson.addProperty("cannot_lose", cannotLose);
+        mapRoomNodeStateJson.addProperty("elite_trigger", eliteTrigger);
+        mapRoomNodeStateJson.addProperty("mugged", mugged);
+        mapRoomNodeStateJson.addProperty("combat_event", combatEvent);
+        mapRoomNodeStateJson.addProperty("reward_allowed", rewardAllowed);
+        mapRoomNodeStateJson.addProperty("reward_time", rewardTime);
+        mapRoomNodeStateJson.addProperty("skip_monster_turn", skipMonsterTurn);
+        mapRoomNodeStateJson.addProperty("wait_timer", waitTimer);
+
+        mapRoomNodeStateJson
+                .addProperty("monster_data", monsterData.stream().map(MonsterState::encode)
+                                                        .collect(Collectors
+                                                                .joining(MONSTER_DELIMETER)));
+        mapRoomNodeStateJson.addProperty("phase_name", phase.name());
+
+        return mapRoomNodeStateJson.toString();
     }
 
 }

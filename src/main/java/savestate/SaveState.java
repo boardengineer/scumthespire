@@ -61,7 +61,7 @@ public class SaveState {
         GameActionManager.turn = this.turn;
         AbstractDungeon.player = playerLoader.loadPlayer();
 
-        AbstractDungeon.currMapNode = curMapNodeState.loadMapRoomNode();
+        curMapNodeState.loadMapRoomNode(AbstractDungeon.currMapNode);
         AbstractDungeon.screen = screen;
 
         AbstractDungeon.isScreenUp = false;
