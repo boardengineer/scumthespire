@@ -120,7 +120,7 @@ public class TurnNode implements Comparable<TurnNode> {
     }
 
     public static int getTotalMonsterHealth(SaveState saveState) {
-        return saveState.roomLoader.monsterData.stream()
+        return saveState.curMapNodeState.monsterData.stream()
                                                .map(monster -> monster.currentHealth)
                                                .reduce(Integer::sum)
                                                .get();
