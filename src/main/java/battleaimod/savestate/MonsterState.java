@@ -95,10 +95,7 @@ public class MonsterState extends CreatureState {
         this.moveInfo = new EnemyMoveInfoState(parsed.get("move_info").getAsString());
 
         this.damage = Stream.of(parsed.get("damage").getAsString().split(DAMAGE_DELIMETER))
-                            .filter(s -> !s.isEmpty()).map(s -> {
-                    DamageInfoState result = new DamageInfoState(s);
-                    return result;
-                })
+                            .filter(s -> !s.isEmpty()).map(s -> new DamageInfoState(s))
                             .collect(Collectors.toCollection(ArrayList::new));
 
         this.moveHistory = Stream

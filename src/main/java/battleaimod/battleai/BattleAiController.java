@@ -24,7 +24,7 @@ public class BattleAiController {
     public boolean isDone = false;
     public SaveState startingState;
     private boolean initialized = false;
-    private Iterator<Command> bestPathRunner;
+    public Iterator<Command> bestPathRunner;
     private TurnNode curTurn;
 
     private int turnsLoaded = 0;
@@ -184,7 +184,11 @@ public class BattleAiController {
                 curTurn = null;
                 bestTurn = null;
             }
-        } else if (runCommandMode) {
+        }
+
+        /*
+
+        else if (runCommandMode) {
             boolean foundCommand = false;
             while (bestPathRunner.hasNext() && !foundCommand) {
                 Command command = bestPathRunner.next();
@@ -205,5 +209,9 @@ public class BattleAiController {
                 isDone = true;
             }
         }
+
+        */
+
+
     }
 }

@@ -1,11 +1,12 @@
 package battleaimod.battleai;
 
+import battleaimod.GameStateListener;
+import com.google.gson.JsonObject;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.DiscardAtEndOfTurnAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import battleaimod.GameStateListener;
 import org.apache.logging.log4j.LogManager;
 
 import java.util.Iterator;
@@ -51,12 +52,11 @@ public class EndCommand implements Command {
         LogManager.getLogger().info("string action manager");
 
         System.out.println(AbstractDungeon.actionManager.actions);
-        AbstractDungeon.actionManager.addToBottom(new SomeAction());
+        AbstractDungeon.actionManager.addToBottom(new CustonEndGameAction());
         AbstractDungeon.player.isEndingTurn = false;
     }
 
-    public static class SomeAction extends AbstractGameAction {
-
+    public static class CustonEndGameAction extends AbstractGameAction {
         @Override
         public void update() {
             AbstractDungeon.actionManager.turnHasEnded = true;
@@ -64,5 +64,14 @@ public class EndCommand implements Command {
             AbstractDungeon.actionManager.monsterAttacksQueued = false;
             this.isDone = true;
         }
+    }
+
+    @Override
+    public String encode() {
+        JsonObject endCommandJson = new JsonObject();
+
+        endCommandJson.addProperty("type", "END");
+
+        return endCommandJson.toString();
     }
 }

@@ -10,8 +10,12 @@ import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.EndCommand;
 import battleaimod.battleai.StateNode;
+import battleaimod.fastobjects.ScreenShakeFast;
+import battleaimod.fastobjects.actions.*;
+import battleaimod.networking.AiClient;
+import battleaimod.networking.AiServer;
+import battleaimod.savestate.SaveState;
 import com.badlogic.gdx.graphics.Texture;
-import com.evacipated.cardcrawl.modthespire.Patcher;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.IntentFlashAction;
@@ -26,11 +30,6 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.vfx.*;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
-import battleaimod.networking.AiClient;
-import battleaimod.networking.AiServer;
-import battleaimod.fastobjects.ScreenShakeFast;
-import battleaimod.fastobjects.actions.*;
-import battleaimod.savestate.SaveState;
 import skrelpoid.superfastmode.SuperFastMode;
 
 import javax.imageio.ImageIO;
@@ -40,7 +39,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.Socket;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -59,11 +57,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     private boolean canStep = false;
     public static SaveState saveState;
 
-    Socket socket = null;
-
     public BattleAiMod() {
         BaseMod.subscribe(this);
-        Patcher patcher;
         Settings.ACTION_DUR_XFAST = 0.01F;
         Settings.ACTION_DUR_FASTER = 0.02F;
         Settings.ACTION_DUR_FAST = 0.025F;

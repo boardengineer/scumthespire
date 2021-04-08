@@ -1,16 +1,17 @@
 package battleaimod.battleai;
 
+import battleaimod.BattleAiMod;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.utility.NewQueueCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import battleaimod.BattleAiMod;
 
 public class CardCommand implements Command {
-
     private final int cardIndex;
     private final int monsterIndex;
-    private String displayString;
+    private final String displayString;
 
     public CardCommand(int cardIndex, int monsterIndex, String displayString) {
         this.cardIndex = cardIndex;
@@ -22,6 +23,14 @@ public class CardCommand implements Command {
         this.cardIndex = cardIndex;
         this.monsterIndex = -1;
         this.displayString = displayString;
+    }
+
+    public CardCommand(String jsonString) {
+        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+
+        this.cardIndex = parsed.get("card_index").getAsInt();
+        this.monsterIndex = parsed.get("monster_index").getAsInt();
+        this.displayString = parsed.get("display_string").getAsString();
     }
 
     @Override
@@ -42,5 +51,18 @@ public class CardCommand implements Command {
     @Override
     public String toString() {
         return displayString + monsterIndex;
+    }
+
+    @Override
+    public String encode() {
+        JsonObject cardCommandJson = new JsonObject();
+
+        cardCommandJson.addProperty("type", "CARD");
+
+        cardCommandJson.addProperty("card_index", cardIndex);
+        cardCommandJson.addProperty("monster_index", monsterIndex);
+        cardCommandJson.addProperty("display_string", displayString);
+
+        return cardCommandJson.toString();
     }
 }
