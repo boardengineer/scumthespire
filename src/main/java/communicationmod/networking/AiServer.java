@@ -1,7 +1,7 @@
 package communicationmod.networking;
 
 import communicationmod.CommunicationMod;
-import savestate.SaveState;
+import communicationmod.savestate.SaveState;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;

@@ -1,6 +1,6 @@
 package communicationmod.networking;
 
-import savestate.SaveState;
+import communicationmod.savestate.SaveState;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

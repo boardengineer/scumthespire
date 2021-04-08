@@ -1,6 +1,6 @@
 package communicationmod;
 
-import battleai.BattleAiController;
+import communicationmod.battleai.BattleAiController;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;

@@ -8,7 +8,7 @@ import com.megacrit.cardcrawl.actions.common.MakeTempCardInDiscardAction;
 import com.megacrit.cardcrawl.actions.common.RemoveSpecificPowerAction;
 import com.megacrit.cardcrawl.actions.common.RollMoveAction;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import fastobjects.actions.RollMoveActionFast;
+import communicationmod.fastobjects.actions.RollMoveActionFast;
 
 import static communicationmod.patches.MonsterPatch.shouldGoFast;
 
