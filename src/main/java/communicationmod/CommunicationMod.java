@@ -11,6 +11,7 @@ import battleai.BattleAiController;
 import battleai.EndCommand;
 import battleai.StateNode;
 import com.badlogic.gdx.graphics.Texture;
+import com.evacipated.cardcrawl.modthespire.Patcher;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.IntentFlashAction;
@@ -25,6 +26,8 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.vfx.*;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
+import communicationmod.networking.AiClient;
+import communicationmod.networking.AiServer;
 import fastobjects.ScreenShakeFast;
 import fastobjects.actions.*;
 import savestate.SaveState;
@@ -37,6 +40,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -47,14 +51,19 @@ import java.util.concurrent.Executors;
 public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, PreUpdateSubscriber {
     public static boolean mustSendGameState = false;
     public static boolean readyForUpdate;
+    private static AiServer aiServer = null;
+    private static AiClient aiClient = null;
+    public static boolean shouldStartAiFromServer = false;
     public static BattleAiController battleAiController = null;
     private static ShowPNG showPNG;
     private boolean canStep = false;
-    private SaveState saveState;
+    public static SaveState saveState;
+
+    Socket socket = null;
 
     public CommunicationMod() {
         BaseMod.subscribe(this);
-
+        Patcher patcher;
         Settings.ACTION_DUR_XFAST = 0.01F;
         Settings.ACTION_DUR_FASTER = 0.02F;
         Settings.ACTION_DUR_FAST = 0.025F;
@@ -96,6 +105,10 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     }
 
     private void sendGameState() {
+        if (battleAiController == null && shouldStartAiFromServer) {
+            shouldStartAiFromServer = false;
+            battleAiController = new BattleAiController(saveState);
+        }
         if (battleAiController != null && BattleAiController.shouldStep()) {
 //                if (canStep) {
             if (canStep || true) {
@@ -156,8 +169,8 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
     }
 
     private void setUpOptionsMenu() {
-        BaseMod.addTopPanelItem(new StartAIPanel());
-        BaseMod.addTopPanelItem(new StepTopPanel());
+        BaseMod.addTopPanelItem(new StartAiServerTopPanel());
+        BaseMod.addTopPanelItem(new StartAiClientTopPanel());
 
 //        BaseMod.addTopPanelItem(new SaveStateTopPanel());
 //        BaseMod.addTopPanelItem(new LoadStateTopPanel());
@@ -188,15 +201,15 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
                 topLevelEffects.remove();
             } else if (effect instanceof FastCardObtainEffect) {
                 // don't remove card obtain effects of they get skipped
-            }else {
+            } else {
                 topLevelEffects.remove();
             }
         }
 
         Iterator<AbstractGameEffect> effectIterator = AbstractDungeon.effectList.iterator();
-        while(effectIterator.hasNext()) {
+        while (effectIterator.hasNext()) {
             AbstractGameEffect effect = effectIterator.next();
-            if(!(effect instanceof FastCardObtainEffect || effect instanceof ShowCardAndAddToDiscardEffect)) {
+            if (!(effect instanceof FastCardObtainEffect || effect instanceof ShowCardAndAddToDiscardEffect)) {
                 effectIterator.remove();
             }
         }
@@ -340,7 +353,6 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
             battleAiController = new BattleAiController(new SaveState());
 
             readyForUpdate = true;
-            // your onclick code
         }
     }
 
@@ -374,6 +386,44 @@ public class CommunicationMod implements PostInitializeSubscriber, PostUpdateSub
             canStep = true;
             readyForUpdate = true;
             receivePostUpdate();
+        }
+    }
+
+    public class StartAiClientTopPanel extends TopPanelItem {
+        public static final String ID = "yourmodname:Step";
+
+        public StartAiClientTopPanel() {
+            super(new Texture("Icon.png"), ID);
+        }
+
+        @Override
+        protected void onClick() {
+            if (aiClient == null) {
+                try {
+                    aiClient = new AiClient();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(aiClient != null) {
+                aiClient.sendState();
+            }
+        }
+    }
+
+    public class StartAiServerTopPanel extends TopPanelItem {
+        public static final String ID = "yourmodname:startAi";
+
+        public StartAiServerTopPanel() {
+            super(new Texture("save.png"), ID);
+        }
+
+        @Override
+        protected void onClick() {
+            if (aiServer == null) {
+                aiServer = new AiServer();
+            }
         }
     }
 }

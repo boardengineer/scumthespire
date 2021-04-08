@@ -111,8 +111,8 @@ public class MonsterState extends CreatureState {
     public AbstractMonster loadMonster() {
         AbstractMonster monster = getMonsterFromId();
         super.loadCreature(monster);
-        monster.init();
 
+        monster.init();
 
         monster.deathTimer = this.deathTimer;
         monster.tintFadeOutCalled = this.tintFadeOutCalled;
@@ -120,6 +120,7 @@ public class MonsterState extends CreatureState {
         monster.escapeNext = this.escapeNext;
         monster.type = this.type;
         monster.cannotEscape = this.cannotEscape;
+
         monster.damage = this.damage.stream().map(DamageInfoState::loadDamageInfo)
                                     .peek(state -> state.owner = monster)
                                     .collect(Collectors.toCollection(ArrayList::new));
@@ -186,7 +187,11 @@ public class MonsterState extends CreatureState {
         } else if (id.equals("Hexaghost")) {
             monster = new Hexaghost();
         } else if (id.equals("JawWorm")) {
-            monster = new JawWorm(offsetX, offsetY);
+            try {
+                monster = new JawWorm(offsetX, offsetY);
+            } catch (Exception e) {
+                System.err.println(e);
+            }
         } else if (id.equals("Lagavulin")) {
             monster = new Lagavulin(false);
         } else if (id.equals("Looter")) {

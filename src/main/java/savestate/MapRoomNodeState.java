@@ -89,7 +89,6 @@ public class MapRoomNodeState {
         mapRoomNode.taken = this.taken;
         mapRoomNode.highlighted = this.highlighted;
         mapRoomNode.hasEmeraldKey = this.hasEmeraldKey;
-        mapRoomNode.room = room;
 
         room.phase = this.phase;
 
@@ -119,6 +118,7 @@ public class MapRoomNodeState {
             }
         }
 
+        mapRoomNode.room = room;
         return mapRoomNode;
     }
 

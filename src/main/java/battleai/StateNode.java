@@ -171,7 +171,6 @@ public class StateNode {
     }
 
     private boolean saveToParent() {
-        System.err.println("saving to parent");
         StateNode iterator = parent == null ? this : parent;
         ArrayList<String> commandsThisTurn = new ArrayList<>();
         while ((iterator.lastCommand != null) && !(iterator.lastCommand instanceof EndCommand)) {
