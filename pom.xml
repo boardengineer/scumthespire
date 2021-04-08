@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>autoplay</groupId>
-    <artifactId>CommunicationMod</artifactId>
+    <artifactId>BattleAiMod</artifactId>
     <version>1.1.0</version>
     <packaging>jar</packaging>
-    <name>Communication Mod</name>
-    <description>Used to help external programs communicate with Slay the Spire</description>
+    <name>Battle Ai Mod</name>
+    <description>Server/Client setup allowing an AI to control the game</description>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -55,7 +55,7 @@
     </dependencies>
 
     <build>
-        <finalName>CommunicationMod</finalName>
+        <finalName>BattleAiMod</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -63,7 +63,7 @@
                 <version>2.4.2</version>
                 <executions>
                     <execution>
-                        <id>CommunicationMod</id>
+                        <id>BattleAiMod</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
@@ -71,7 +71,7 @@
                         <configuration>
                             <filters>
                                 <filter>
-                                    <artifact>autoplay:CommunicationMod</artifact>
+                                    <artifact>autoplay:BattleAiMod</artifact>
                                 </filter>
                             </filters>
                         </configuration>
@@ -88,7 +88,7 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <copy file="target/CommunicationMod.jar" tofile="../_ModTheSpire/mods/CommunicationMod.jar"/>
+                                <copy file="target/BattleAiMod.jar" tofile="../_ModTheSpire/mods/BattleAiMod.jar"/>
                             </target>
                         </configuration>
                         <goals>
