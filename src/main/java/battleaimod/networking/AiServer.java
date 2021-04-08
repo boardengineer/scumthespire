@@ -4,6 +4,7 @@ import battleaimod.BattleAiMod;
 import battleaimod.battleai.Command;
 import battleaimod.savestate.SaveState;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import java.io.BufferedInputStream;
@@ -64,6 +65,8 @@ public class AiServer {
                                 Command nextCommand = bestPath.next();
                                 if (nextCommand != null) {
                                     commands.add(nextCommand.encode());
+                                } else {
+                                    commands.add(JsonNull.INSTANCE);
                                 }
                             }
 

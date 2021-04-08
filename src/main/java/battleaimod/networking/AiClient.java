@@ -1,5 +1,7 @@
 package battleaimod.networking;
 
+import battleaimod.BattleAiMod;
+import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.CardCommand;
 import battleaimod.battleai.Command;
 import battleaimod.battleai.EndCommand;
@@ -15,6 +17,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,8 +35,9 @@ public class AiClient {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
             try {
+                SaveState state = new SaveState();
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                out.writeUTF(new SaveState().encode());
+                out.writeUTF(state.encode());
 
                 DataInputStream in = new DataInputStream(new BufferedInputStream(socket
                         .getInputStream()));
@@ -52,15 +56,15 @@ public class AiClient {
                     try {
                         JsonObject parsed = new JsonParser().parse(readLine).getAsJsonObject();
                         if (parsed.get("type").getAsString().equals("COMMAND_LIST")) {
+                            ArrayList<Command> commandsFromServer = new ArrayList<>();
                             JsonArray jsonCommands = parsed.get("commands").getAsJsonArray();
                             for (JsonElement jsonCommand : jsonCommands) {
-                                String commandString = jsonCommand.getAsString();
-                                Command toAdd = decodeCommandString(commandString);
-
-                                if (toAdd != null) {
-                                    System.err.println("The server wants to " + toAdd);
-                                }
+                                Command toAdd = toCommand(jsonCommand);
+                                commandsFromServer.add(toAdd);
                             }
+
+                            BattleAiMod.battleAiController = new BattleAiController(state, commandsFromServer);
+                            BattleAiMod.readyForUpdate = true;
 
                         }
                         System.err.println("Server sent proper json message");
@@ -77,7 +81,11 @@ public class AiClient {
         });
     }
 
-    private static Command decodeCommandString(String commandString) {
+    private static Command toCommand(JsonElement jsonElement) {
+        if (jsonElement.isJsonNull()) {
+            return null;
+        }
+        String commandString = jsonElement.getAsString();
         String type = new JsonParser().parse(commandString).getAsJsonObject()
                                       .get("type").getAsString();
 

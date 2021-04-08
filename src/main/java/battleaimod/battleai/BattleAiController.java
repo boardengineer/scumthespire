@@ -1,15 +1,15 @@
 package battleaimod.battleai;
 
+import battleaimod.ChoiceScreenUtils;
+import battleaimod.savestate.SaveState;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
-import battleaimod.ChoiceScreenUtils;
-import battleaimod.savestate.SaveState;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.PriorityQueue;
 
 public class BattleAiController {
@@ -22,7 +22,7 @@ public class BattleAiController {
 
     public int startingHealth;
     public boolean isDone = false;
-    public SaveState startingState;
+    public final SaveState startingState;
     private boolean initialized = false;
     public Iterator<Command> bestPathRunner;
     private TurnNode curTurn;
@@ -33,17 +33,22 @@ public class BattleAiController {
     public boolean runCommandMode = false;
     public boolean runPartialMode = false;
 
+    private final boolean shouldRunWhenFound;
+
     public BattleAiController(SaveState state) {
         minDamage = 5000;
         bestEnd = null;
+        shouldRunWhenFound = false;
         startingState = state;
         initialized = false;
         startingState.loadState();
     }
 
-    public BattleAiController(Collection<Command> commands) {
+    public BattleAiController(SaveState saveState, List<Command> commands) {
         runCommandMode = true;
+        shouldRunWhenFound = true;
         bestPathRunner = commands.iterator();
+        startingState = saveState;
     }
 
     public static boolean shouldStep() {
@@ -91,7 +96,8 @@ public class BattleAiController {
             }
 
             if (turnsLoaded >= 300 && curTurn == null) {
-                System.err.println("should go into partial rerun " + bestTurn + " " + bestTurn.startingState.saveState.turn);
+                System.err
+                        .println("should go into partial rerun " + bestTurn + " " + bestTurn.startingState.saveState.turn);
                 runPartialMode = true;
                 turnsLoaded = 0;
 
@@ -137,13 +143,10 @@ public class BattleAiController {
             if (curTurn.isDone && turns.isEmpty()) {
                 runCommandMode = true;
 
-                ArrayList<Command> commands = new ArrayList<>( );
+                ArrayList<Command> commands = new ArrayList<>();
                 StateNode iterator = bestEnd;
                 while (iterator != null) {
-                    if (iterator.lastCommand != null) {
-                        commands.add(0, iterator.lastCommand);
-                    }
-                    System.err.println(iterator.lastCommand);
+                    commands.add(0, iterator.lastCommand);
                     iterator = iterator.parent;
                 }
 
@@ -179,16 +182,12 @@ public class BattleAiController {
                 TurnNode turnNode = new TurnNode(rootClone, this);
                 turns.add(turnNode);
 
-                System.err.println("Done running partial rerun will start from " + turnNode );
+                System.err.println("Done running partial rerun will start from " + turnNode);
                 runPartialMode = false;
                 curTurn = null;
                 bestTurn = null;
             }
-        }
-
-        /*
-
-        else if (runCommandMode) {
+        } else if (runCommandMode && shouldRunWhenFound) {
             boolean foundCommand = false;
             while (bestPathRunner.hasNext() && !foundCommand) {
                 Command command = bestPathRunner.next();
@@ -209,9 +208,5 @@ public class BattleAiController {
                 isDone = true;
             }
         }
-
-        */
-
-
     }
 }
