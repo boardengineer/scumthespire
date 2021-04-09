@@ -11,10 +11,17 @@ import org.apache.logging.log4j.LogManager;
 
 import java.util.Iterator;
 
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
+
 public class EndCommand implements Command {
     @Override
     public void execute() {
-        endTurn();
+        System.err.println("executing end");
+        if(shouldGoFast()) {
+            endTurn();
+        } else {
+            AbstractDungeon.overlayMenu.endTurnButton.disable(true);
+        }
     }
 
     private void endTurn() {

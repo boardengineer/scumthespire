@@ -10,6 +10,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -32,10 +33,12 @@ public class AiClient {
     }
 
     public void sendState() {
+        final SaveState state = new SaveState();
+        new SaveState(state.encode()).loadState();
+        AbstractDungeon.player.hand.refreshHandLayout();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
             try {
-                SaveState state = new SaveState();
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                 out.writeUTF(state.encode());
 
@@ -65,7 +68,6 @@ public class AiClient {
 
                             BattleAiMod.battleAiController = new BattleAiController(state, commandsFromServer);
                             BattleAiMod.readyForUpdate = true;
-
                         }
                         System.err.println("Server sent proper json message");
 

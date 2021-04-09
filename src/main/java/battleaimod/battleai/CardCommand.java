@@ -1,10 +1,10 @@
 package battleaimod.battleai;
 
-import battleaimod.BattleAiMod;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.megacrit.cardcrawl.actions.utility.NewQueueCardAction;
+import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.CardQueueItem;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
@@ -35,6 +35,8 @@ public class CardCommand implements Command {
 
     @Override
     public void execute() {
+        AbstractDungeon.player.hand.refreshHandLayout();
+        System.err.println("executing " + this + " " + AbstractDungeon.player.hand.size());
         AbstractCard card = AbstractDungeon.player.hand.group.get(cardIndex);
         AbstractMonster monster = null;
 
@@ -42,10 +44,8 @@ public class CardCommand implements Command {
             monster = AbstractDungeon.getMonsters().monsters.get(monsterIndex);
         }
 
-        AbstractDungeon.actionManager
-                .addToTop(new NewQueueCardAction(card, monster));
-        AbstractDungeon.actionManager.update();
-        BattleAiMod.readyForUpdate = true;
+        AbstractDungeon.actionManager.cardQueue.add(new CardQueueItem(card, monster));
+        AbstractDungeon.actionManager.addToBottom(new WaitAction(2F));
     }
 
     @Override

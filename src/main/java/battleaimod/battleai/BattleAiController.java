@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
+
 public class BattleAiController {
     public PriorityQueue<TurnNode> turns = new PriorityQueue<>();
     public StateNode root = null;
@@ -44,6 +46,15 @@ public class BattleAiController {
         startingState.loadState();
     }
 
+    public BattleAiController(SaveState state, boolean shouldRunWhenFound) {
+        minDamage = 5000;
+        bestEnd = null;
+        this.shouldRunWhenFound = shouldRunWhenFound;
+        startingState = state;
+        initialized = false;
+        startingState.loadState();
+    }
+
     public BattleAiController(SaveState saveState, List<Command> commands) {
         runCommandMode = true;
         shouldRunWhenFound = true;
@@ -57,6 +68,7 @@ public class BattleAiController {
     }
 
     public static boolean isInDungeon() {
+
         return CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY && AbstractDungeon
                 .isPlayerInDungeon() && AbstractDungeon.currMapNode != null;
     }
@@ -190,14 +202,21 @@ public class BattleAiController {
         } else if (runCommandMode && shouldRunWhenFound) {
             boolean foundCommand = false;
             while (bestPathRunner.hasNext() && !foundCommand) {
+                System.err.println("looking for command");
                 Command command = bestPathRunner.next();
                 if (command != null) {
+                    System.err.println("Found Command");
                     foundCommand = true;
                     command.execute();
                 } else {
                     foundCommand = true;
+                    System.err.println("loading state (twice)");
                     startingState.loadState();
+//                    startingState.loadState();
                 }
+            }
+            if(!shouldGoFast()) {
+                AbstractDungeon.player.hand.refreshHandLayout();
             }
 
             if (!bestPathRunner.hasNext()) {

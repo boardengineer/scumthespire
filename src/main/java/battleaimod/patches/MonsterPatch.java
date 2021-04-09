@@ -1,17 +1,18 @@
 package battleaimod.patches;
 
+import battleaimod.BattleAiMod;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.actions.animations.AnimateFastAttackAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateHopAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import battleaimod.BattleAiMod;
 
 
 public class MonsterPatch {
     public static boolean shouldGoFast() {
-        return true || BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.runCommandMode;
+        return BattleAiMod.goFast;
+//        return true;
     }
 
     @SpirePatch(
@@ -33,7 +34,7 @@ public class MonsterPatch {
             method = "update"
     )
     public static class SetAnimationPatch {
-        public static void Replace(SetAnimationAction _instance) {
+        public static void Prefix(SetAnimationAction _instance) {
             if (shouldGoFast()) {
                 _instance.isDone = true;
             }
@@ -46,7 +47,7 @@ public class MonsterPatch {
             method = "update"
     )
     public static class HopAnimationPatch {
-        public static void Replace(AnimateHopAction _instance) {
+        public static void Prefix(AnimateHopAction _instance) {
             if (shouldGoFast()) {
                 _instance.isDone = true;
             }
@@ -59,7 +60,7 @@ public class MonsterPatch {
             method = "update"
     )
     public static class SlowAttackAnimationPatch {
-        public static void Replace(AnimateSlowAttackAction _instance) {
+        public static void Prefix(AnimateSlowAttackAction _instance) {
             if (shouldGoFast()) {
                 _instance.isDone = true;
             }
@@ -72,7 +73,7 @@ public class MonsterPatch {
             method = "update"
     )
     public static class FastAttackAnimationPatch {
-        public static void Replace(AnimateFastAttackAction _instance) {
+        public static void Prefix(AnimateFastAttackAction _instance) {
             if (shouldGoFast()) {
                 _instance.isDone = true;
             }

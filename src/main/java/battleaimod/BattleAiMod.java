@@ -18,12 +18,14 @@ import battleaimod.savestate.SaveState;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
+import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.IntentFlashAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.animations.VFXAction;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
+import com.megacrit.cardcrawl.cards.SoulGroup;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -45,6 +47,8 @@ import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
+
 @SpireInitializer
 public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, PreUpdateSubscriber {
     public static boolean mustSendGameState = false;
@@ -56,15 +60,16 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     private static ShowPNG showPNG;
     private boolean canStep = false;
     public static SaveState saveState;
+    public static boolean goFast = false;
 
     public BattleAiMod() {
         BaseMod.subscribe(this);
-        Settings.ACTION_DUR_XFAST = 0.01F;
-        Settings.ACTION_DUR_FASTER = 0.02F;
-        Settings.ACTION_DUR_FAST = 0.025F;
-        Settings.ACTION_DUR_MED = 0.05F;
-        Settings.ACTION_DUR_LONG = .10F;
-        Settings.ACTION_DUR_XLONG = .15F;
+//        Settings.ACTION_DUR_XFAST = 0.01F;
+//        Settings.ACTION_DUR_FASTER = 0.02F;
+//        Settings.ACTION_DUR_FAST = 0.025F;
+//        Settings.ACTION_DUR_MED = 0.05F;
+//        Settings.ACTION_DUR_LONG = .10F;
+//        Settings.ACTION_DUR_XLONG = .15F;
 
         CardCrawlGame.screenShake = new ScreenShakeFast();
     }
@@ -121,6 +126,46 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     public void receivePreUpdate() {
         makeGameVeryFast();
+        if (shouldGoFast()) {
+            makeGameVeryFast();
+        } else {
+            Settings.ACTION_DUR_XFAST = 0.1F;
+            Settings.ACTION_DUR_FASTER = 0.2F;
+            Settings.ACTION_DUR_FAST = 0.25F;
+            Settings.ACTION_DUR_MED = 0.5F;
+            Settings.ACTION_DUR_LONG = 1.0F;
+            Settings.ACTION_DUR_XLONG = 1.5F;
+
+            SuperFastMode.isDeltaMultiplied = false;
+            Settings.DISABLE_EFFECTS = false;
+            SuperFastMode.isInstantLerp = false;
+        }
+
+        if (AbstractDungeon.actionManager == null || AbstractDungeon.player == null) {
+            return;
+        }
+
+        if (AbstractDungeon.actionManager.turnHasEnded
+                || AbstractDungeon.actionManager.currentAction != null
+                || !AbstractDungeon.actionManager.isEmpty()
+                || !AbstractDungeon.actionManager.cardQueue.isEmpty()) {
+            return;
+        } else {
+            try {
+//                AbstractDungeon.getCurrRoom().souls.
+                if (SoulGroup.isActive()) {
+                    return;
+                }
+            } catch (Exception e) {
+
+            }
+        }
+
+        if (readyForUpdate) {
+            readyForUpdate = false;
+            sendGameState();
+        }
+
     }
 
     public void receivePostInitialize() {
@@ -147,16 +192,18 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         if (!mustSendGameState && GameStateListener.checkForMenuStateChange()) {
             mustSendGameState = true;
         }
-        if (readyForUpdate) {
-            readyForUpdate = false;
-            sendGameState();
-        }
+
     }
 
     public void receivePostDungeonUpdate() {
         if (GameStateListener.checkForDungeonStateChange()) {
             mustSendGameState = true;
-            readyForUpdate = true;
+            if (AbstractDungeon.actionManager != null && AbstractDungeon.actionManager.phase == GameActionManager.Phase.WAITING_ON_USER) {
+                readyForUpdate = true;
+            } else {
+                System.err.println("but the action manager is doing stuff");
+            }
+
         }
         if (AbstractDungeon.getCurrRoom().isBattleOver) {
             GameStateListener.signalTurnEnd();
@@ -164,6 +211,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     }
 
     private void setUpOptionsMenu() {
+//        BaseMod.addTopPanelItem(new StartAIPanel());
+
         BaseMod.addTopPanelItem(new StartAiServerTopPanel());
         BaseMod.addTopPanelItem(new StartAiClientTopPanel());
 
@@ -345,7 +394,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         @Override
         protected void onClick() {
-            battleAiController = new BattleAiController(new SaveState());
+            battleAiController = new BattleAiController(new SaveState(), true);
 
             readyForUpdate = true;
         }
@@ -401,7 +450,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
                 }
             }
 
-            if(aiClient != null) {
+            if (aiClient != null) {
                 aiClient.sendState();
             }
         }
