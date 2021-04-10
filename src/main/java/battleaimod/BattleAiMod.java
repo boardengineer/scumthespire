@@ -1,38 +1,22 @@
 package battleaimod;
 
 import basemod.BaseMod;
-import basemod.ReflectionHacks;
 import basemod.TopPanelItem;
 import basemod.interfaces.PostDungeonUpdateSubscriber;
 import basemod.interfaces.PostInitializeSubscriber;
 import basemod.interfaces.PostUpdateSubscriber;
-import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.EndCommand;
 import battleaimod.battleai.StateNode;
 import battleaimod.fastobjects.ScreenShakeFast;
-import battleaimod.fastobjects.actions.*;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import battleaimod.savestate.SaveState;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
-import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.actions.IntentFlashAction;
-import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
-import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
-import com.megacrit.cardcrawl.actions.animations.VFXAction;
-import com.megacrit.cardcrawl.actions.common.*;
-import com.megacrit.cardcrawl.actions.utility.WaitAction;
-import com.megacrit.cardcrawl.cards.SoulGroup;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
-import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import com.megacrit.cardcrawl.vfx.*;
-import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
-import skrelpoid.superfastmode.SuperFastMode;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -41,16 +25,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
-
 @SpireInitializer
-public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, PreUpdateSubscriber {
+public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber {
     public static boolean mustSendGameState = false;
     public static boolean readyForUpdate;
     private static AiServer aiServer = null;
@@ -58,12 +38,13 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static boolean shouldStartAiFromServer = false;
     public static BattleAiController battleAiController = null;
     private static ShowPNG showPNG;
-    private boolean canStep = false;
+    private static boolean canStep = false;
     public static SaveState saveState;
     public static boolean goFast = false;
 
     public BattleAiMod() {
         BaseMod.subscribe(this);
+        BaseMod.subscribe(new SpeedController());
 //        Settings.ACTION_DUR_XFAST = 0.01F;
 //        Settings.ACTION_DUR_FASTER = 0.02F;
 //        Settings.ACTION_DUR_FAST = 0.025F;
@@ -104,7 +85,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         return resizedImage;
     }
 
-    private void sendGameState() {
+    public static void sendGameState() {
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
             battleAiController = new BattleAiController(saveState);
@@ -122,51 +103,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
                 battleAiController = null;
             }
         }
-    }
-
-    public void receivePreUpdate() {
-        clearSomeActions(AbstractDungeon.actionManager.actions);
-        clearSomeActions(AbstractDungeon.actionManager.preTurnActions);
-        if (shouldGoFast()) {
-            makeGameVeryFast();
-        } else {
-            Settings.ACTION_DUR_XFAST = 0.1F;
-            Settings.ACTION_DUR_FASTER = 0.2F;
-            Settings.ACTION_DUR_FAST = 0.25F;
-            Settings.ACTION_DUR_MED = 0.5F;
-            Settings.ACTION_DUR_LONG = 1.0F;
-            Settings.ACTION_DUR_XLONG = 1.5F;
-
-            SuperFastMode.isDeltaMultiplied = false;
-            Settings.DISABLE_EFFECTS = false;
-            SuperFastMode.isInstantLerp = false;
-        }
-
-        if (AbstractDungeon.actionManager == null || AbstractDungeon.player == null) {
-            return;
-        }
-
-        if (AbstractDungeon.actionManager.turnHasEnded
-                || AbstractDungeon.actionManager.currentAction != null
-                || !AbstractDungeon.actionManager.isEmpty()
-                || !AbstractDungeon.actionManager.cardQueue.isEmpty()) {
-            return;
-        } else {
-            try {
-//                AbstractDungeon.getCurrRoom().souls.
-                if (SoulGroup.isActive()) {
-                    return;
-                }
-            } catch (Exception e) {
-
-            }
-        }
-
-        if (readyForUpdate) {
-            readyForUpdate = false;
-            sendGameState();
-        }
-
     }
 
     public void receivePostInitialize() {
@@ -219,114 +155,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
 //        BaseMod.addTopPanelItem(new SaveStateTopPanel());
 //        BaseMod.addTopPanelItem(new LoadStateTopPanel());
-    }
-
-    private void makeGameVeryFast() {
-        Settings.ACTION_DUR_XFAST = 0.001F;
-        Settings.ACTION_DUR_FASTER = 0.002F;
-        Settings.ACTION_DUR_FAST = 0.0025F;
-        Settings.ACTION_DUR_MED = 0.005F;
-        Settings.ACTION_DUR_LONG = .01F;
-        Settings.ACTION_DUR_XLONG = .015F;
-
-        SuperFastMode.deltaMultiplier = 100000000.0F;
-        SuperFastMode.isInstantLerp = true;
-        SuperFastMode.isDeltaMultiplied = true;
-        Settings.DISABLE_EFFECTS = true;
-        Iterator<AbstractGameEffect> topLevelEffects = AbstractDungeon.topLevelEffects.iterator();
-        while (topLevelEffects.hasNext()) {
-            AbstractGameEffect effect = topLevelEffects.next();
-            effect.duration = Math.min(effect.duration, .005F);
-
-            if (effect instanceof EnemyTurnEffect || effect instanceof PlayerTurnEffect) {
-                effect.isDone = true;
-            }
-
-            if (effect instanceof CardTrailEffect) {
-                topLevelEffects.remove();
-            } else if (effect instanceof FastCardObtainEffect) {
-                // don't remove card obtain effects of they get skipped
-            } else {
-                topLevelEffects.remove();
-            }
-        }
-
-        Iterator<AbstractGameEffect> effectIterator = AbstractDungeon.effectList.iterator();
-        while (effectIterator.hasNext()) {
-            AbstractGameEffect effect = effectIterator.next();
-            if (!(effect instanceof FastCardObtainEffect || effect instanceof ShowCardAndAddToDiscardEffect)) {
-                effectIterator.remove();
-            }
-        }
-
-        clearActions(AbstractDungeon.actionManager.actions);
-        clearActions(AbstractDungeon.actionManager.preTurnActions);
-    }
-
-    private void clearActions(List<AbstractGameAction> actions) {
-        for (int i = 0; i < actions.size(); i++) {
-            AbstractGameAction action = actions.get(i);
-            if (action instanceof WaitAction || action instanceof IntentFlashAction) {
-                actions.remove(i);
-                i--;
-            } else if (action instanceof DrawCardAction) {
-                actions.remove(i);
-                actions.add(i, new DrawCardActionFast(AbstractDungeon.player, action.amount));
-            } else if (action instanceof EmptyDeckShuffleAction) {
-                actions.remove(i);
-                actions.add(i, new EmptyDeckShuffleActionFast());
-            } else if (action instanceof DiscardAction) {
-                actions.remove(i);
-                actions.add(i, new DiscardCardActionFast(AbstractDungeon.player, null, action.amount, false));
-            } else if (action instanceof DiscardAtEndOfTurnAction) {
-                actions.remove(i);
-                actions.add(i, new DiscardAtEndOfTurnActionFast());
-            } else if (action instanceof AnimateSlowAttackAction) {
-                actions.remove(i);
-                i--;
-            } else if (action instanceof ShowMoveNameAction) {
-                actions.remove(i);
-                i--;
-            } else if (action instanceof SetAnimationAction) {
-                actions.remove(i);
-                i--;
-            } else if (action instanceof VFXAction) {
-                actions.remove(i);
-                i--;
-            } else if (action instanceof GainBlockAction) {
-//                actions.remove(i);
-//                i--;
-            } else if (action instanceof RollMoveAction) {
-                AbstractMonster monster = ReflectionHacks
-                        .getPrivate(action, RollMoveAction.class, "monster");
-                actions.remove(i);
-                actions.add(i, new RollMoveActionFast(monster));
-            }
-        }
-    }
-
-    private void clearSomeActions(List<AbstractGameAction> actions) {
-        for (int i = 0; i < actions.size(); i++) {
-            AbstractGameAction action = actions.get(i);
-            if (action instanceof DrawCardAction) {
-                actions.remove(i);
-                actions.add(i, new DrawCardActionFast(AbstractDungeon.player, action.amount));
-            } else if (action instanceof EmptyDeckShuffleAction) {
-                actions.remove(i);
-                actions.add(i, new EmptyDeckShuffleActionFast());
-            } else if (action instanceof DiscardAction) {
-                actions.remove(i);
-                actions.add(i, new DiscardCardActionFast(AbstractDungeon.player, null, action.amount, false));
-            } else if (action instanceof DiscardAtEndOfTurnAction) {
-                actions.remove(i);
-                actions.add(i, new DiscardAtEndOfTurnActionFast());
-            } else if (action instanceof RollMoveAction) {
-                AbstractMonster monster = ReflectionHacks
-                        .getPrivate(action, RollMoveAction.class, "monster");
-                actions.remove(i);
-                actions.add(i, new RollMoveActionFast(monster));
-            }
-        }
     }
 
     @SuppressWarnings("serial")

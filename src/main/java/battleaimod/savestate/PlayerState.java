@@ -146,9 +146,8 @@ public class PlayerState extends CreatureState {
 
         player.drawPile.group = this.drawPile.stream().map(CardState::loadCard)
                                              .collect(Collectors.toCollection(ArrayList::new));
-        player.hand.clear();
-        this.hand.stream().map(CardState::loadCard)
-                 .forEach(card -> AbstractDungeon.player.hand.addToHand(card));
+        player.hand.group = this.hand.stream().map(CardState::loadCard)
+                                     .collect(Collectors.toCollection(ArrayList::new));
         player.discardPile.group = this.discardPile.stream().map(CardState::loadCard)
                                                    .collect(Collectors
                                                            .toCollection(ArrayList::new));
