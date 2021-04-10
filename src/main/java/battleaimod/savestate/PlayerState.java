@@ -1,5 +1,6 @@
 package battleaimod.savestate;
 
+import basemod.ReflectionHacks;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
@@ -30,6 +31,9 @@ public class PlayerState extends CreatureState {
     private final HitboxState inspectHb;
     private final int damagedThisCombat;
     private final String title;
+
+    private final boolean isDead;
+    private final boolean renderCorpse;
 
     private final ArrayList<CardState> masterDeck;
     private final ArrayList<CardState> drawPile;
@@ -74,6 +78,11 @@ public class PlayerState extends CreatureState {
         this.isEndingTurn = player.isEndingTurn;
         this.viewingRelics = player.viewingRelics;
         this.inspectMode = player.inspectMode;
+
+        this.isDead = player.isDead;
+        this.renderCorpse = ReflectionHacks
+                .getPrivate(player, AbstractPlayer.class, "renderCorpse");
+
         this.inspectHb = player.inspectHb == null ? null : new HitboxState(player.inspectHb);
         this.damagedThisCombat = player.damagedThisCombat;
 
@@ -114,6 +123,10 @@ public class PlayerState extends CreatureState {
         this.relics = Stream.of(parsed.get("relics").getAsString().split(RELIC_DELIMETER))
                             .filter(s -> !s.isEmpty()).map(RelicState::new)
                             .collect(Collectors.toCollection(ArrayList::new));
+
+        //TODO
+        this.isDead = false;
+        this.renderCorpse = false;
     }
 
     public AbstractPlayer loadPlayer() {
@@ -162,6 +175,12 @@ public class PlayerState extends CreatureState {
         player.inspectHb = this.inspectHb == null ? null : this.inspectHb.loadHitbox();
         player.damagedThisCombat = this.damagedThisCombat;
         player.title = this.title;
+
+        ReflectionHacks
+                .setPrivate(player, AbstractPlayer.class, "renderCorpse", this.renderCorpse);
+
+
+        player.update();
 
         return player;
     }
