@@ -135,16 +135,6 @@ public class TurnNode implements Comparable<TurnNode> {
 
     @Override
     public int compareTo(TurnNode otherTurn) {
-//        int playerDamageThisTurn = getPlayerDamage(this);
-//        int playerDamageOtherTurn = getPlayerDamage(otherTurn);
-//
-//        if (playerDamageThisTurn == playerDamageOtherTurn) {
-//            return getTotalMonsterHealth(this) - getTotalMonsterHealth(otherTurn);
-//        } else {
-//            return playerDamageThisTurn - playerDamageOtherTurn;
-//        }
-
-
         return getTurnScore(otherTurn) - getTurnScore(this);
     }
 

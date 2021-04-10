@@ -125,7 +125,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     }
 
     public void receivePreUpdate() {
-        makeGameVeryFast();
+        clearSomeActions(AbstractDungeon.actionManager.actions);
+        clearSomeActions(AbstractDungeon.actionManager.preTurnActions);
         if (shouldGoFast()) {
             makeGameVeryFast();
         } else {
@@ -295,6 +296,30 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             } else if (action instanceof GainBlockAction) {
 //                actions.remove(i);
 //                i--;
+            } else if (action instanceof RollMoveAction) {
+                AbstractMonster monster = ReflectionHacks
+                        .getPrivate(action, RollMoveAction.class, "monster");
+                actions.remove(i);
+                actions.add(i, new RollMoveActionFast(monster));
+            }
+        }
+    }
+
+    private void clearSomeActions(List<AbstractGameAction> actions) {
+        for (int i = 0; i < actions.size(); i++) {
+            AbstractGameAction action = actions.get(i);
+            if (action instanceof DrawCardAction) {
+                actions.remove(i);
+                actions.add(i, new DrawCardActionFast(AbstractDungeon.player, action.amount));
+            } else if (action instanceof EmptyDeckShuffleAction) {
+                actions.remove(i);
+                actions.add(i, new EmptyDeckShuffleActionFast());
+            } else if (action instanceof DiscardAction) {
+                actions.remove(i);
+                actions.add(i, new DiscardCardActionFast(AbstractDungeon.player, null, action.amount, false));
+            } else if (action instanceof DiscardAtEndOfTurnAction) {
+                actions.remove(i);
+                actions.add(i, new DiscardAtEndOfTurnActionFast());
             } else if (action instanceof RollMoveAction) {
                 AbstractMonster monster = ReflectionHacks
                         .getPrivate(action, RollMoveAction.class, "monster");

@@ -46,21 +46,21 @@ public class IroncladDeckPatch {
 //            add(new Clash());
             add(new Cleave());
             add(new Clothesline());
-//            add(new Combust());
+            add(new Combust());
 //            add(new Corruption());
 //            add(new DarkEmbrace());
-//            add(new DemonForm());
+            add(new DemonForm());
             add(new Disarm());
             add(new DoubleTap());
             add(new Dropkick());
 //            add(new DualWield());
 //            add(new Entrench());
-//            add(new Feed());
+            add(new Feed());
 //            add(new FeelNoPain());
             add(new FiendFire());
 //            add(new FireBreathing());
             add(new FlameBarrier());
-//            add(new Flex());
+            add(new Flex());
             add(new GhostlyArmor());
 
 //            add(new Headbutt());

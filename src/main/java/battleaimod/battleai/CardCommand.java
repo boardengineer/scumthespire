@@ -36,7 +36,6 @@ public class CardCommand implements Command {
     @Override
     public void execute() {
         AbstractDungeon.player.hand.refreshHandLayout();
-        System.err.println("executing " + this + " " + AbstractDungeon.player.hand.size());
         AbstractCard card = AbstractDungeon.player.hand.group.get(cardIndex);
         AbstractMonster monster = null;
 
@@ -45,7 +44,7 @@ public class CardCommand implements Command {
         }
 
         AbstractDungeon.actionManager.cardQueue.add(new CardQueueItem(card, monster));
-        AbstractDungeon.actionManager.addToBottom(new WaitAction(2F));
+        AbstractDungeon.actionManager.addToBottom(new WaitAction(.2F));
     }
 
     @Override

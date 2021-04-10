@@ -202,17 +202,13 @@ public class BattleAiController {
         } else if (runCommandMode && shouldRunWhenFound) {
             boolean foundCommand = false;
             while (bestPathRunner.hasNext() && !foundCommand) {
-                System.err.println("looking for command");
                 Command command = bestPathRunner.next();
                 if (command != null) {
-                    System.err.println("Found Command");
                     foundCommand = true;
                     command.execute();
                 } else {
                     foundCommand = true;
-                    System.err.println("loading state (twice)");
                     startingState.loadState();
-//                    startingState.loadState();
                 }
             }
             if(!shouldGoFast()) {

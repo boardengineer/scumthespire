@@ -1,15 +1,16 @@
 package battleaimod.patches;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.RollMoveActionFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.common.DrawCardAction;
 import com.megacrit.cardcrawl.actions.common.MakeTempCardInDiscardAction;
 import com.megacrit.cardcrawl.actions.common.RemoveSpecificPowerAction;
 import com.megacrit.cardcrawl.actions.common.RollMoveAction;
-import com.megacrit.cardcrawl.cards.AbstractCard;
-import com.megacrit.cardcrawl.cards.CardGroup;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
@@ -33,26 +34,15 @@ public class FastActionsPatch {
                                     .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
 
                             actionManager.currentAction = new RollMoveActionFast(monster);
+                        } else if (actionManager.currentAction instanceof DrawCardAction) {
+                            actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
                         }
+                        System.out.println(actionManager.currentAction.getClass());
                         actionManager.currentAction.update();
                     }
                     actionManager.update();
                 }
             }
-        }
-    }
-
-    @SpirePatch(
-            clz = CardGroup.class,
-            paramtypez = {AbstractCard.class},
-            method = "removeCard"
-    )
-    public static class GetNextActionSpyPatch {
-        private static final AbstractGameAction lastAction = null;
-
-        public static void Prefix(CardGroup cardGroup, AbstractCard param) {
-            System.err.println("removing " + param);
-
         }
     }
 
