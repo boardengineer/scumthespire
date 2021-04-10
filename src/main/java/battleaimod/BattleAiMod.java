@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber {
     public static boolean mustSendGameState = false;
     public static boolean readyForUpdate;
+    public static boolean forceStep = false;
     private static AiServer aiServer = null;
     private static AiClient aiClient = null;
     public static boolean shouldStartAiFromServer = false;
@@ -53,6 +54,26 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 //        Settings.ACTION_DUR_XLONG = .15F;
 
         CardCrawlGame.screenShake = new ScreenShakeFast();
+    }
+
+    public static void sendGameState() {
+        if (battleAiController == null && shouldStartAiFromServer) {
+            shouldStartAiFromServer = false;
+            battleAiController = new BattleAiController(saveState);
+        }
+        if (battleAiController != null && BattleAiController.shouldStep()) {
+//                if (canStep) {
+            if (canStep || true) {
+//                if (canStep || !battleAiController.runCommandMode) {
+                canStep = false;
+
+                battleAiController.step();
+            }
+
+            if (battleAiController.isDone) {
+                battleAiController = null;
+            }
+        }
     }
 
     public static void initialize() {
@@ -85,26 +106,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         return resizedImage;
     }
 
-    public static void sendGameState() {
-        if (battleAiController == null && shouldStartAiFromServer) {
-            shouldStartAiFromServer = false;
-            battleAiController = new BattleAiController(saveState);
-        }
-        if (battleAiController != null && BattleAiController.shouldStep()) {
-//                if (canStep) {
-            if (canStep || true) {
-//                if (canStep || !battleAiController.runCommandMode) {
-                canStep = false;
-
-                battleAiController.step();
-            }
-
-            if (battleAiController.isDone) {
-                battleAiController = null;
-            }
-        }
-    }
-
     public void receivePostInitialize() {
         setUpOptionsMenu();
 
@@ -126,6 +127,11 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     }
 
     public void receivePostUpdate() {
+        if (battleAiController == null && shouldStartAiFromServer) {
+            shouldStartAiFromServer = false;
+            battleAiController = new BattleAiController(saveState);
+            readyForUpdate = true;
+        }
         if (!mustSendGameState && GameStateListener.checkForMenuStateChange()) {
             mustSendGameState = true;
         }
@@ -249,6 +255,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         protected void onClick() {
             battleAiController = new BattleAiController(new SaveState(), true);
 
+            goFast = true;
             readyForUpdate = true;
         }
     }

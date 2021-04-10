@@ -211,7 +211,7 @@ public class BattleAiController {
                     startingState.loadState();
                 }
             }
-            if(!shouldGoFast()) {
+            if (!shouldGoFast()) {
                 AbstractDungeon.player.hand.refreshHandLayout();
             }
 

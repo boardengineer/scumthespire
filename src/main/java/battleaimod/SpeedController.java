@@ -65,7 +65,7 @@ public class SpeedController implements PreUpdateSubscriber {
             }
         }
 
-        if (BattleAiMod.readyForUpdate) {
+        if (BattleAiMod.readyForUpdate && !shouldGoFast()) {
             BattleAiMod.readyForUpdate = false;
             BattleAiMod.sendGameState();
         }
@@ -114,7 +114,7 @@ public class SpeedController implements PreUpdateSubscriber {
         clearActions(AbstractDungeon.actionManager.preTurnActions);
     }
 
-    private static  void clearActions(List<AbstractGameAction> actions) {
+    private static void clearActions(List<AbstractGameAction> actions) {
         for (int i = 0; i < actions.size(); i++) {
             AbstractGameAction action = actions.get(i);
             if (action instanceof WaitAction || action instanceof IntentFlashAction) {

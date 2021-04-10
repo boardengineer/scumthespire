@@ -14,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
+
 /**
  * Draws all the cards in one frame
  */
@@ -68,7 +70,7 @@ public class DrawCardActionFast extends AbstractGameAction {
     }
 
     public void update() {
-        if(alreadyDrawing) {
+        if (alreadyDrawing) {
             return;
         }
         if (this.clearDrawHistory) {
@@ -84,7 +86,7 @@ public class DrawCardActionFast extends AbstractGameAction {
         } else {
             int deckSize = AbstractDungeon.player.drawPile.size();
             int discardSize = AbstractDungeon.player.discardPile.size();
-            if (!SoulGroup.isActive()) {
+            if (!SoulGroup.isActive() || shouldGoFast()) {
                 if (deckSize + discardSize == 0) {
                     this.endActionWithFollowUp();
                 } else if (AbstractDungeon.player.hand.size() == 10) {

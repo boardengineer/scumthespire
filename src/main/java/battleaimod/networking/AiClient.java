@@ -68,6 +68,7 @@ public class AiClient {
 
                             BattleAiMod.battleAiController = new BattleAiController(state, commandsFromServer);
                             BattleAiMod.readyForUpdate = true;
+                            BattleAiMod.forceStep = true;
                         }
                         System.err.println("Server sent proper json message");
 

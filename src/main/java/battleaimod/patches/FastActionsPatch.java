@@ -1,6 +1,7 @@
 package battleaimod.patches;
 
 import basemod.ReflectionHacks;
+import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.RollMoveActionFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -12,35 +13,46 @@ import com.megacrit.cardcrawl.actions.common.RemoveSpecificPowerAction;
 import com.megacrit.cardcrawl.actions.common.RollMoveAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 public class FastActionsPatch {
     @SpirePatch(
-            clz = GameActionManager.class,
+            clz = AbstractRoom.class,
             paramtypez = {},
             method = "update"
     )
     public static class ForceGameActionsPatch {
-        private static final AbstractGameAction lastAction = null;
 
-        public static void Postfix(GameActionManager actionManager) {
+
+        public static void Postfix(AbstractRoom room) {
+            GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
-                        .isEmpty()) {
-                    while (actionManager.currentAction != null && !actionManager.currentAction.isDone) {
-                        if (actionManager.currentAction instanceof RollMoveAction) {
-                            AbstractMonster monster = ReflectionHacks
-                                    .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
+                        .isEmpty() || shouldStepAiController()) {
+                    while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
+                        if (shouldWaitOnActions(actionManager)) {
+                            if (actionManager.currentAction instanceof RollMoveAction) {
+                                AbstractMonster monster = ReflectionHacks
+                                        .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
 
-                            actionManager.currentAction = new RollMoveActionFast(monster);
-                        } else if (actionManager.currentAction instanceof DrawCardAction) {
-                            actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
+                                actionManager.currentAction = new RollMoveActionFast(monster);
+                            } else if (actionManager.currentAction instanceof DrawCardAction) {
+                                actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
+                            }
+                            if (actionManager.currentAction != null) {
+                                actionManager.currentAction.update();
+                            }
+                        } else if (shouldStepAiController()) {
+                            BattleAiMod.readyForUpdate = false;
+                            BattleAiMod.battleAiController.step();
                         }
-                        System.out.println(actionManager.currentAction.getClass());
-                        actionManager.currentAction.update();
+
+                        actionManager.update();
+                        AbstractDungeon.player.update();
                     }
-                    actionManager.update();
                 }
             }
         }
@@ -67,6 +79,19 @@ public class FastActionsPatch {
     }
 
     @SpirePatch(
+            clz = AbstractRoom.class,
+            paramtypez = {},
+            method = "endBattle"
+    )
+    public static class EndBattlePatch {
+        public static void Postfix(AbstractRoom _instance) {
+            if (shouldGoFast()) {
+                BattleAiMod.readyForUpdate = true;
+            }
+        }
+    }
+
+    @SpirePatch(
             clz = MakeTempCardInDiscardAction.class,
             paramtypez = {},
             method = "update"
@@ -87,5 +112,14 @@ public class FastActionsPatch {
                 _instance.isDone = true;
             }
         }
+    }
+
+    private static boolean shouldStepAiController() {
+        return BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.isDone && BattleAiMod.readyForUpdate && actionManager.phase == GameActionManager.Phase.WAITING_ON_USER;
+    }
+
+    private static boolean shouldWaitOnActions(GameActionManager actionManager) {
+        return actionManager.currentAction != null && !actionManager.currentAction.isDone || !actionManager.monsterQueue
+                .isEmpty() || !actionManager.actions.isEmpty();
     }
 }

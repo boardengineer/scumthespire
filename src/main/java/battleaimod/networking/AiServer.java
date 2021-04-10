@@ -40,11 +40,15 @@ public class AiServer {
                         BattleAiMod.goFast = true;
 
                         // let the AI start before sending out requests
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        while (BattleAiMod.battleAiController == null) {
+                            try {
+                                System.err.println("waiting for controller to init...");
+                                Thread.sleep(50);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
+                        System.err.println("Controller Initiated");
 
                         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                         while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode) {
@@ -55,6 +59,9 @@ public class AiServer {
                                 e.printStackTrace();
                             }
                         }
+
+                        System.err
+                                .println("run commmand mode started, ai controller not null " + BattleAiMod.battleAiController);
 
                         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.runCommandMode) {
                             JsonObject jsonToSend = new JsonObject();

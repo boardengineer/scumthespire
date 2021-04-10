@@ -16,7 +16,6 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 public class EndCommand implements Command {
     @Override
     public void execute() {
-        System.err.println("executing end");
         if(shouldGoFast()) {
             endTurn();
         } else {
