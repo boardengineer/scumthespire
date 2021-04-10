@@ -38,6 +38,8 @@ public class MonsterState extends CreatureState {
     private final ArrayList<Byte> moveHistory;
     private final ArrayList<DamageInfoState> damage;
 
+    private final int gremlinWizardCurrentCharge;
+
     public MonsterState(AbstractMonster monster) {
         super(monster);
 
@@ -67,6 +69,13 @@ public class MonsterState extends CreatureState {
 
         this.moveHistory = monster.moveHistory.stream().map(Byte::byteValue)
                                               .collect(Collectors.toCollection(ArrayList::new));
+
+        if (monster instanceof GremlinWizard) {
+            gremlinWizardCurrentCharge = ReflectionHacks
+                    .getPrivate(monster, GremlinWizard.class, "currentCharge");
+        } else {
+            gremlinWizardCurrentCharge = 0;
+        }
 
     }
 
@@ -103,6 +112,7 @@ public class MonsterState extends CreatureState {
                 .filter(s -> !s.isEmpty()).map(Byte::parseByte)
                 .collect(Collectors.toCollection(ArrayList::new));
 
+        this.gremlinWizardCurrentCharge = 0;
     }
 
     public AbstractMonster loadMonster() {
@@ -143,6 +153,11 @@ public class MonsterState extends CreatureState {
 //        monster.update();
         monster.createIntent();
 //        monster.updatePowers();
+
+        if (monster instanceof GremlinWizard) {
+            ReflectionHacks
+                    .setPrivate(monster, GremlinWizard.class, "currentCharge", gremlinWizardCurrentCharge);
+        }
 
         return monster;
     }

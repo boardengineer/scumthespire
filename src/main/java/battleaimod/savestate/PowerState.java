@@ -74,6 +74,8 @@ public class PowerState {
             result = new ModeShiftPower(targetAndSource, amount);
         } else if (powerId.equals("Angry")) {
             result = new AngryPower(targetAndSource, amount);
+        } else if (powerId.equals("Sharp Hide")) {
+            result = new SharpHidePower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }
