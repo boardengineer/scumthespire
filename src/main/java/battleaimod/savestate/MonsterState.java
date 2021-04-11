@@ -43,6 +43,9 @@ public class MonsterState extends CreatureState {
     private final int guardianDmgThreshold;
     private final int guardianDmgTaken;
 
+    private final int lagavulinDebuffTurnCount;
+    private final int lagavulinIdleCount;
+
     public MonsterState(AbstractMonster monster) {
         super(monster);
 
@@ -89,6 +92,16 @@ public class MonsterState extends CreatureState {
             guardianDmgThreshold = 0;
             guardianDmgTaken = 0;
         }
+
+        if (monster instanceof Lagavulin) {
+            lagavulinDebuffTurnCount = ReflectionHacks
+                    .getPrivate(monster, Lagavulin.class, "debuffTurnCount");
+            lagavulinIdleCount = ReflectionHacks
+                    .getPrivate(monster, Lagavulin.class, "idleCount");
+        } else {
+            lagavulinDebuffTurnCount = 0;
+            lagavulinIdleCount = 0;
+        }
     }
 
     public MonsterState(String jsonString) {
@@ -128,6 +141,8 @@ public class MonsterState extends CreatureState {
         this.gremlinWizardCurrentCharge = 0;
         this.guardianDmgThreshold = 0;
         this.guardianDmgTaken = 0;
+        this.lagavulinDebuffTurnCount = 0;
+        this.lagavulinIdleCount = 0;
     }
 
     public AbstractMonster loadMonster() {
@@ -179,6 +194,13 @@ public class MonsterState extends CreatureState {
                     .setPrivate(monster, TheGuardian.class, "dmgThreshold", guardianDmgThreshold);
             ReflectionHacks
                     .setPrivate(monster, TheGuardian.class, "dmgTaken", guardianDmgTaken);
+        }
+
+        if (monster instanceof Lagavulin) {
+            ReflectionHacks
+                    .setPrivate(monster, Lagavulin.class, "debuffTurnCount", lagavulinDebuffTurnCount);
+            ReflectionHacks
+                    .setPrivate(monster, Lagavulin.class, "idleCount", lagavulinIdleCount);
         }
 
         return monster;

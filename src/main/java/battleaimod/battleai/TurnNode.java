@@ -134,8 +134,8 @@ public class TurnNode implements Comparable<TurnNode> {
                 .equals("Lagavulin")) {
             // The normal algo works poorly against monsters that do single big attacks and
             // punish you for blocking
-            System.err.println("doing this");
-            return monsterDamage;
+//            System.err.println("doing this");
+//            return monsterDamage;
         }
 
         return monsterDamage - 2 * (Math.max(0, playerDamage - 6));
