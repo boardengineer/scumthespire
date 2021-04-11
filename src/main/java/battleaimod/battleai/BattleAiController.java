@@ -15,7 +15,8 @@ import java.util.PriorityQueue;
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
-    private static final int MAX_TURN_LOADS = 1_000;
+    public static String currentEncounter = null;
+    private static final int MAX_TURN_LOADS = 500;
 
     public PriorityQueue<TurnNode> turns = new PriorityQueue<>();
     public StateNode root = null;
@@ -112,21 +113,20 @@ public class BattleAiController {
             if (turnsLoaded >= MAX_TURN_LOADS && curTurn == null) {
                 System.err
                         .println("should go into partial rerun " + bestTurn + " " + bestTurn.startingState.saveState.turn);
-                runPartialMode = true;
                 turnsLoaded = 0;
 
-                ArrayList<Command> commands = new ArrayList<>();
-                StateNode iterator = bestTurn.startingState;
-                while (iterator != root) {
-                    if (iterator.lastCommand != null) {
-                        commands.add(0, iterator.lastCommand);
-                    }
-                    System.err.println(iterator.lastCommand);
-                    iterator = iterator.parent;
-                }
+                bestTurn.startingState.saveState.loadState();
+                turns = new PriorityQueue<>();
+                StateNode rootClone = new StateNode(bestTurn.startingState.parent, bestTurn.startingState.lastCommand, this);
+                rootClone.saveState = bestTurn.startingState.saveState;
+                root = rootClone;
+                TurnNode turnNode = new TurnNode(rootClone, this);
+                turns.add(turnNode);
 
-                root.saveState.loadState();
-                bestPathRunner = commands.iterator();
+                runPartialMode = false;
+                curTurn = null;
+                bestTurn = null;
+
                 return;
             }
 

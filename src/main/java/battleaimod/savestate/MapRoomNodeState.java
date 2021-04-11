@@ -7,6 +7,7 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoom;
+import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ public class MapRoomNodeState {
     private final boolean skipMonsterTurn;
 
     private final float waitTimer;
+    private final boolean isElite;
 
     public ArrayList<MonsterState> monsterData = null;
     private final AbstractRoom.RoomPhase phase;
@@ -56,6 +58,7 @@ public class MapRoomNodeState {
         this.rewardTime = room.rewardTime;
         this.skipMonsterTurn = room.skipMonsterTurn;
         this.waitTimer = AbstractRoom.waitTimer;
+        this.isElite = mapRoomNode.getRoom() instanceof MonsterRoomElite;
     }
 
     public MapRoomNodeState(String jsonString) {
@@ -81,10 +84,13 @@ public class MapRoomNodeState {
                 .collect(Collectors.toCollection(ArrayList::new));
 
         this.phase = AbstractRoom.RoomPhase.valueOf(parsed.get("phase_name").getAsString());
+
+        // TODO
+        this.isElite = false;
     }
 
     public MapRoomNode loadMapRoomNode(MapRoomNode mapRoomNode) {
-        AbstractRoom room = new MonsterRoom();
+        AbstractRoom room = isElite ? new MonsterRoomElite() : new MonsterRoom();
 
         mapRoomNode.taken = this.taken;
         mapRoomNode.highlighted = this.highlighted;

@@ -121,14 +121,22 @@ public class TurnNode implements Comparable<TurnNode> {
 
     public static int getTotalMonsterHealth(SaveState saveState) {
         return saveState.curMapNodeState.monsterData.stream()
-                                               .map(monster -> monster.currentHealth)
-                                               .reduce(Integer::sum)
-                                               .get();
+                                                    .map(monster -> monster.currentHealth)
+                                                    .reduce(Integer::sum)
+                                                    .get();
     }
 
     public static int getTurnScore(TurnNode turnNode) {
         int playerDamage = getPlayerDamage(turnNode);
         int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealth(turnNode.startingState.saveState);
+
+        if (turnNode.startingState.saveState.encounterName != null && turnNode.startingState.saveState.encounterName
+                .equals("Lagavulin")) {
+            // The normal algo works poorly against monsters that do single big attacks and
+            // punish you for blocking
+            System.err.println("doing this");
+            return monsterDamage;
+        }
 
         return monsterDamage - 2 * (Math.max(0, playerDamage - 6));
     }

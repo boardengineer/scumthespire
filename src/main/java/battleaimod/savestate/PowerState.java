@@ -80,7 +80,9 @@ public class PowerState {
             result = new EntanglePower(targetAndSource);
         } else if (powerId.equals("Pen Nib")) {
             result = new PenNibPower(targetAndSource, amount);
-        } else {
+        } else if (powerId.equals("Flame Barrier")) {
+            result = new FlameBarrierPower(targetAndSource, amount);
+        }else {
             System.err.println("missing type for power id: " + powerId);
         }
 

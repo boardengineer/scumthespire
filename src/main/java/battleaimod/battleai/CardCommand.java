@@ -11,7 +11,7 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 public class CardCommand implements Command {
     private final int cardIndex;
     private final int monsterIndex;
-    private final String displayString;
+    public final String displayString;
 
     public CardCommand(int cardIndex, int monsterIndex, String displayString) {
         this.cardIndex = cardIndex;

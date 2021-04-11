@@ -1,18 +1,20 @@
 package battleaimod.savestate;
 
+import battleaimod.BattleAiMod;
+import battleaimod.GameStateListener;
+import battleaimod.battleai.BattleAiController;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
-import battleaimod.BattleAiMod;
-import battleaimod.GameStateListener;
 
 public class SaveState {
     int floorNum;
     boolean previousScreenUp;
     boolean myTurn = false;
     public int turn;
+    public String encounterName;
 
     AbstractRoom.RoomPhase previousPhase = null;
     AbstractDungeon.CurrentScreen screen;
@@ -37,6 +39,7 @@ public class SaveState {
         previousScreenUp = GameStateListener.previousScreenUp;
         previousPhase = GameStateListener.previousPhase;
         myTurn = GameStateListener.myTurn;
+        encounterName = BattleAiController.currentEncounter;
     }
 
     public SaveState(String jsonString) {
@@ -54,6 +57,8 @@ public class SaveState {
                 .valueOf(parsed.get("screen_name").getAsString());
         this.previousScreen = AbstractDungeon.CurrentScreen
                 .valueOf(parsed.get("previous_screen_name").getAsString());
+        this.encounterName = parsed.get("encounter_name").isJsonNull() ? null : parsed
+                .get("encounter_name").getAsString();
 
         this.listState = new ListState(parsed.get("list_state").getAsString());
         this.playerState = new PlayerState(parsed.get("player_state").getAsString());
@@ -120,6 +125,7 @@ public class SaveState {
         saveStateJson.addProperty("rng_state", rngState.encode());
 
         saveStateJson.addProperty("cur_map_node_state", curMapNodeState.encode());
+        saveStateJson.addProperty("encounter_name", encounterName);
 
         return saveStateJson.toString();
     }

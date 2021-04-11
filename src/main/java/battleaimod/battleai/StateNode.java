@@ -5,6 +5,7 @@ import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
@@ -51,7 +52,9 @@ public class StateNode {
      * Does the next step and returns true iff the parent should load state
      */
     public Command step() {
-        populateCommands();
+        if(commands == null) {
+            populateCommands();
+        }
 
         if (!initialized) {
             initialized = true;
@@ -125,20 +128,20 @@ public class StateNode {
                 for (int j = 0; j < monsters.size(); j++) {
                     AbstractMonster monster = monsters.get(j);
                     if (card.canUse(player, monster)) {
-                        commands.add(0, new CardCommand(i, j, card.name));
+                        commands.add(0, new CardCommand(i, j, card.cardID));
                     }
                 }
             }
 
             if (card.target == AbstractCard.CardTarget.ALL_ENEMY || card.target == AbstractCard.CardTarget.ALL) {
                 if (card.canUse(player, null)) {
-                    commands.add(0, new CardCommand(i, card.name));
+                    commands.add(0, new CardCommand(i, card.cardID));
                 }
             }
 
             if (card.target == AbstractCard.CardTarget.SELF || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
                 if (card.canUse(player, null)) {
-                    commands.add(new CardCommand(i, card.name));
+                    commands.add(new CardCommand(i, card.cardID));
                 }
             }
 
@@ -148,6 +151,40 @@ public class StateNode {
         if (isEndCommandAvailable()) {
             commands.add(new EndCommand());
         }
+
+        commands.sort(new Comparator<Command>() {
+            @Override
+            public int compare(Command o1, Command o2) {
+                if (o2 instanceof EndCommand) {
+                    return -1;
+                } else if (o1 instanceof EndCommand) {
+                    return 1;
+                }
+
+                CardCommand cardCommand1 = (CardCommand) o1;
+                CardCommand cardCommand2 = (CardCommand) o2;
+
+                AbstractCard card1 = CardLibrary.getCard(cardCommand1.displayString);
+                AbstractCard card2 = CardLibrary.getCard(cardCommand2.displayString);
+
+                if (card1.cost == 0) {
+                    return -1;
+                } else if (card2.cost == 0) {
+                    return 1;
+                }
+
+                if(card1.type == AbstractCard.CardType.POWER) {
+                    if(card2.type == AbstractCard.CardType.POWER) {
+                        return card2.cost - card1.cost;
+                    }
+                    return -1;
+                } else if(card2.type == AbstractCard.CardType.POWER) {
+                    return 1;
+                }
+
+                return card2.cost - card1.cost;
+            }
+        });
     }
 
     public boolean isDone() {

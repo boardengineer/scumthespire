@@ -2,6 +2,7 @@ package battleaimod.patches;
 
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
+import battleaimod.battleai.BattleAiController;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.RollMoveActionFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -14,6 +15,8 @@ import com.megacrit.cardcrawl.actions.common.RollMoveAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import com.megacrit.cardcrawl.rooms.MonsterRoom;
+import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
@@ -28,6 +31,7 @@ public class FastActionsPatch {
         public static void Postfix(AbstractRoom room) {
             GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
+
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
                     while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
@@ -120,4 +124,31 @@ public class FastActionsPatch {
         return actionManager.currentAction != null && !actionManager.currentAction.isDone || !actionManager.monsterQueue
                 .isEmpty() || !actionManager.actions.isEmpty();
     }
+
+
+    @SpirePatch(
+            clz = MonsterRoom.class,
+            paramtypez = {},
+            method = "onPlayerEntry"
+    )
+    public static class SpyOnMonsterRoomPatch {
+        public static void Prefix(MonsterRoom _instance) {
+            System.err.println("Starting fight " + AbstractDungeon.monsterList.get(0));
+
+            BattleAiController.currentEncounter = AbstractDungeon.monsterList.get(0);
+        }
+    }
+
+    @SpirePatch(
+            clz = MonsterRoomElite.class,
+            paramtypez = {},
+            method = "onPlayerEntry"
+    )
+    public static class SpyOnSliteMonsterRoomPatch {
+        public static void Prefix(MonsterRoomElite _instance) {
+            System.err.println("Starting fight " + AbstractDungeon.eliteMonsterList.get(0));
+            BattleAiController.currentEncounter = AbstractDungeon.eliteMonsterList.get(0);
+        }
+    }
+
 }

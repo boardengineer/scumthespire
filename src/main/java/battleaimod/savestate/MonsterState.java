@@ -40,6 +40,9 @@ public class MonsterState extends CreatureState {
 
     private final int gremlinWizardCurrentCharge;
 
+    private final int guardianDmgThreshold;
+    private final int guardianDmgTaken;
+
     public MonsterState(AbstractMonster monster) {
         super(monster);
 
@@ -77,6 +80,15 @@ public class MonsterState extends CreatureState {
             gremlinWizardCurrentCharge = 0;
         }
 
+        if (monster instanceof TheGuardian) {
+            guardianDmgThreshold = ReflectionHacks
+                    .getPrivate(monster, TheGuardian.class, "dmgThreshold");
+            guardianDmgTaken = ReflectionHacks
+                    .getPrivate(monster, TheGuardian.class, "dmgTaken");
+        } else {
+            guardianDmgThreshold = 0;
+            guardianDmgTaken = 0;
+        }
     }
 
     public MonsterState(String jsonString) {
@@ -112,7 +124,10 @@ public class MonsterState extends CreatureState {
                 .filter(s -> !s.isEmpty()).map(Byte::parseByte)
                 .collect(Collectors.toCollection(ArrayList::new));
 
+        // TODO
         this.gremlinWizardCurrentCharge = 0;
+        this.guardianDmgThreshold = 0;
+        this.guardianDmgTaken = 0;
     }
 
     public AbstractMonster loadMonster() {
@@ -157,6 +172,13 @@ public class MonsterState extends CreatureState {
         if (monster instanceof GremlinWizard) {
             ReflectionHacks
                     .setPrivate(monster, GremlinWizard.class, "currentCharge", gremlinWizardCurrentCharge);
+        }
+
+        if (monster instanceof TheGuardian) {
+            ReflectionHacks
+                    .setPrivate(monster, TheGuardian.class, "dmgThreshold", guardianDmgThreshold);
+            ReflectionHacks
+                    .setPrivate(monster, TheGuardian.class, "dmgTaken", guardianDmgTaken);
         }
 
         return monster;
