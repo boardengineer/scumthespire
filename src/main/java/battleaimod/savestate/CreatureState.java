@@ -49,7 +49,7 @@ public class CreatureState {
     private final HitboxState hb;
     private final HitboxState healthHb;
 
-    private final ArrayList<PowerState> powers;
+    public final ArrayList<PowerState> powers;
 
     public CreatureState(AbstractCreature creature) {
         this.name = creature.name;

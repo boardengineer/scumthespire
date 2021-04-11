@@ -18,6 +18,9 @@ public class BattleAiController {
     public static String currentEncounter = null;
     private static final int MAX_TURN_LOADS = 500;
 
+    public int targetTurn;
+    public int targetTurnJump;
+
     public PriorityQueue<TurnNode> turns = new PriorityQueue<>();
     public StateNode root = null;
 
@@ -41,6 +44,16 @@ public class BattleAiController {
     private final boolean shouldRunWhenFound;
 
     public BattleAiController(SaveState state) {
+        targetTurn = 6;
+        targetTurnJump = 5;
+
+        if (state.encounterName.equals("Lagavulin")) {
+            targetTurn = 2;
+            targetTurnJump = 3;
+        } else if (state.encounterName.equals("Gremlin Nob")) {
+            targetTurn = 2;
+            targetTurnJump = 3;
+        }
         minDamage = 5000;
         bestEnd = null;
         shouldRunWhenFound = false;
@@ -111,23 +124,16 @@ public class BattleAiController {
             }
 
             if (turnsLoaded >= MAX_TURN_LOADS && curTurn == null) {
-                System.err
-                        .println("should go into partial rerun " + bestTurn + " " + bestTurn.startingState.saveState.turn);
-                turnsLoaded = 0;
-
-                bestTurn.startingState.saveState.loadState();
-                turns = new PriorityQueue<>();
-                StateNode rootClone = new StateNode(bestTurn.startingState.parent, bestTurn.startingState.lastCommand, this);
-                rootClone.saveState = bestTurn.startingState.saveState;
-                root = rootClone;
-                TurnNode turnNode = new TurnNode(rootClone, this);
-                turns.add(turnNode);
-
-                runPartialMode = false;
-                curTurn = null;
-                bestTurn = null;
-
-                return;
+                if (bestTurn != null) {
+                    turnsLoaded = 0;
+                    turns.clear();
+                    System.err.println("adding from 1");
+                    turns.add(bestTurn);
+                    targetTurn += targetTurnJump;
+                    bestTurn.startingState.saveState.loadState();
+                    bestTurn = null;
+                    return;
+                }
             }
 
             GameActionManager s;
@@ -144,64 +150,72 @@ public class BattleAiController {
                 turns.add(new TurnNode(firstStateContainer, this));
             }
 
-            while (!turns.isEmpty() && (curTurn == null || curTurn.isDone)) {
+            while (!turns
+                    .isEmpty() && (curTurn == null || (curTurn.isDone || curTurn.startingState.saveState.turn >= targetTurn))) {
                 curTurn = turns.peek();
-                System.err.println("the best turn has damage " + curTurn + " " + turns
-                        .size() + " " + (++turnsLoaded));
-                if (curTurn.isDone) {
-                    System.err.println("finished turn");
+
+                int turnNumber = curTurn.startingState.saveState.turn;
+
+                // TODO how does this jump?
+                if (turnNumber >= targetTurn) {
+                    if (bestTurn == null || curTurn.isBetterThan(bestTurn)) {
+                        bestTurn = curTurn;
+                    }
+
+                    curTurn = null;
+                    ++turnsLoaded;
                     turns.poll();
+                } else {
+                    System.err.println("the best turn has damage " + curTurn + " " + turns
+                            .size() + " " + (++turnsLoaded));
+                    if (curTurn.isDone) {
+                        System.err.println("finished turn");
+                        turns.poll();
+                    }
                 }
             }
 
-            if (curTurn.isDone && turns.isEmpty()) {
-                runCommandMode = true;
+            if (turns.isEmpty()) {
+                System.err.println("turns is empty");
+                if (curTurn != null && curTurn.isDone) {
+                    System.err.println("found end, going into rerunmode");
+                    runCommandMode = true;
 
-                ArrayList<Command> commands = new ArrayList<>();
-                StateNode iterator = bestEnd;
-                while (iterator != null) {
-                    commands.add(0, iterator.lastCommand);
-                    iterator = iterator.parent;
+                    ArrayList<Command> commands = new ArrayList<>();
+                    StateNode iterator = bestEnd;
+                    while (iterator != null) {
+                        commands.add(0, iterator.lastCommand);
+                        iterator = iterator.parent;
+                    }
+
+                    startingState.loadState();
+                    bestPathRunner = commands.iterator();
+                    return;
+
+                } else {
+                    System.err.println("not done yet");
                 }
-
-                startingState.loadState();
-                bestPathRunner = commands.iterator();
-                return;
-            } else {
+            } else if (curTurn != null) {
                 boolean reachedNewTurn = curTurn.step();
                 if (reachedNewTurn) {
                     curTurn = null;
                 }
             }
 
-        }
-        if (runPartialMode) {
-            boolean foundCommand = false;
-            while (bestPathRunner.hasNext() && !foundCommand) {
-                Command command = bestPathRunner.next();
-                if (command != null) {
-                    foundCommand = true;
-                    command.execute();
-                } else {
-                    foundCommand = true;
-                    startingState.loadState();
+            if ((curTurn == null || curTurn.isDone) && turns.isEmpty()) {
+                if (curTurn == null || TurnNode
+                        .getTotalMonsterHealth(curTurn) != 0 && bestTurn != null) {
+                    turnsLoaded = 0;
+                    turns.clear();
+                    turns.add(bestTurn);
+                    targetTurn += targetTurnJump;
+                    bestTurn.startingState.saveState.loadState();
+                    bestTurn = null;
                 }
             }
 
-            if (!bestPathRunner.hasNext()) {
-                turns = new PriorityQueue<>();
-                StateNode rootClone = new StateNode(bestTurn.startingState.parent, bestTurn.startingState.lastCommand, this);
-                rootClone.saveState = bestTurn.startingState.saveState;
-                root = rootClone;
-                TurnNode turnNode = new TurnNode(rootClone, this);
-                turns.add(turnNode);
-
-                System.err.println("Done running partial rerun will start from " + turnNode);
-                runPartialMode = false;
-                curTurn = null;
-                bestTurn = null;
-            }
-        } else if (runCommandMode && shouldRunWhenFound) {
+        }
+        if (runCommandMode && shouldRunWhenFound) {
             boolean foundCommand = false;
             while (bestPathRunner.hasNext() && !foundCommand) {
                 Command command = bestPathRunner.next();

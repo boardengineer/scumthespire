@@ -7,8 +7,8 @@ import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.powers.*;
 
 public class PowerState {
-    private final String powerId;
-    private final int amount;
+    public final String powerId;
+    public final int amount;
 
     private final int hpLoss;
 

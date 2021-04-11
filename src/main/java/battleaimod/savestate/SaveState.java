@@ -21,7 +21,7 @@ public class SaveState {
     AbstractDungeon.CurrentScreen previousScreen = null;
 
     ListState listState;
-    PlayerState playerState;
+    public PlayerState playerState;
     RngState rngState;
 
     public MapRoomNodeState curMapNodeState;
