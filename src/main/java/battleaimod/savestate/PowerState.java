@@ -76,6 +76,10 @@ public class PowerState {
             result = new AngryPower(targetAndSource, amount);
         } else if (powerId.equals("Sharp Hide")) {
             result = new SharpHidePower(targetAndSource, amount);
+        } else if (powerId.equals("Entangled")) {
+            result = new EntanglePower(targetAndSource);
+        } else if (powerId.equals("Pen Nib")) {
+            result = new PenNibPower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

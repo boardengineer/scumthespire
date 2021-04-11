@@ -25,8 +25,6 @@ public class FastActionsPatch {
             method = "update"
     )
     public static class ForceGameActionsPatch {
-
-
         public static void Postfix(AbstractRoom room) {
             GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
