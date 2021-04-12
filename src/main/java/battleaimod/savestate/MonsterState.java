@@ -7,6 +7,7 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
+import com.megacrit.cardcrawl.monsters.city.*;
 import com.megacrit.cardcrawl.monsters.exordium.*;
 
 import java.util.ArrayList;
@@ -45,6 +46,13 @@ public class MonsterState extends CreatureState {
 
     private final int lagavulinDebuffTurnCount;
     private final int lagavulinIdleCount;
+
+    private final boolean louseIsOpen;
+    private final int louseBiteDamage;
+
+    private final boolean hexaghostActivated;
+    private final boolean hexaghostBurnUpgraded;
+    private final int hexaghostOrbActiveCount;
 
     public MonsterState(AbstractMonster monster) {
         super(monster);
@@ -102,6 +110,34 @@ public class MonsterState extends CreatureState {
             lagavulinDebuffTurnCount = 0;
             lagavulinIdleCount = 0;
         }
+
+        if (monster instanceof LouseDefensive) {
+            louseIsOpen = ReflectionHacks
+                    .getPrivate(monster, LouseDefensive.class, "isOpen");
+            louseBiteDamage = ReflectionHacks
+                    .getPrivate(monster, LouseDefensive.class, "biteDamage");
+        } else if (monster instanceof LouseNormal) {
+            louseIsOpen = ReflectionHacks
+                    .getPrivate(monster, LouseNormal.class, "isOpen");
+            louseBiteDamage = ReflectionHacks
+                    .getPrivate(monster, LouseNormal.class, "biteDamage");
+        } else {
+            louseIsOpen = false;
+            louseBiteDamage = 0;
+        }
+
+        if (monster instanceof Hexaghost) {
+            hexaghostActivated = ReflectionHacks
+                    .getPrivate(monster, Hexaghost.class, "activated");
+            hexaghostBurnUpgraded = ReflectionHacks
+                    .getPrivate(monster, Hexaghost.class, "burnUpgraded");
+            hexaghostOrbActiveCount = ReflectionHacks
+                    .getPrivate(monster, Hexaghost.class, "orbActiveCount");
+        } else {
+            hexaghostActivated = false;
+            hexaghostBurnUpgraded = false;
+            hexaghostOrbActiveCount = 0;
+        }
     }
 
     public MonsterState(String jsonString) {
@@ -137,12 +173,18 @@ public class MonsterState extends CreatureState {
                 .filter(s -> !s.isEmpty()).map(Byte::parseByte)
                 .collect(Collectors.toCollection(ArrayList::new));
 
+        this.louseIsOpen = parsed.get("louse_is_open").getAsBoolean();
+        this.louseBiteDamage = parsed.get("louse_bite_damage").getAsInt();
+
         // TODO
         this.gremlinWizardCurrentCharge = 0;
         this.guardianDmgThreshold = 0;
         this.guardianDmgTaken = 0;
         this.lagavulinDebuffTurnCount = 0;
         this.lagavulinIdleCount = 0;
+        this.hexaghostActivated = false;
+        this.hexaghostBurnUpgraded = false;
+        this.hexaghostOrbActiveCount = 0;
     }
 
     public AbstractMonster loadMonster() {
@@ -201,6 +243,27 @@ public class MonsterState extends CreatureState {
                     .setPrivate(monster, Lagavulin.class, "debuffTurnCount", lagavulinDebuffTurnCount);
             ReflectionHacks
                     .setPrivate(monster, Lagavulin.class, "idleCount", lagavulinIdleCount);
+        }
+
+        if (monster instanceof LouseDefensive) {
+            ReflectionHacks
+                    .setPrivate(monster, LouseDefensive.class, "isOpen", louseIsOpen);
+            ReflectionHacks
+                    .setPrivate(monster, LouseDefensive.class, "biteDamage", louseBiteDamage);
+        } else if (monster instanceof LouseNormal) {
+            ReflectionHacks
+                    .setPrivate(monster, LouseNormal.class, "isOpen", louseIsOpen);
+            ReflectionHacks
+                    .setPrivate(monster, LouseNormal.class, "biteDamage", louseBiteDamage);
+        }
+
+        if (monster instanceof Hexaghost) {
+            ReflectionHacks
+                    .setPrivate(monster, Hexaghost.class, "activated", hexaghostActivated);
+            ReflectionHacks
+                    .setPrivate(monster, Hexaghost.class, "burnUpgraded", hexaghostBurnUpgraded);
+            ReflectionHacks
+                    .setPrivate(monster, Hexaghost.class, "orbActiveCount", hexaghostOrbActiveCount);
         }
 
         return monster;
@@ -271,6 +334,16 @@ public class MonsterState extends CreatureState {
             monster = new SpikeSlime_S(offsetX, offsetY, 0);
         } else if (id.equals("TheGuardian")) {
             monster = new TheGuardian();
+        } else if (id.equals("Chosen")) {
+            monster = new Chosen();
+        } else if (id.equals("Mugger")) {
+            monster = new Mugger(offsetX, offsetY);
+        } else if (id.equals("Shelled Parasite")) {
+            monster = new ShelledParasite();
+        } else if (id.equals("SphericGuardian")) {
+            monster = new SphericGuardian();
+        } else if (id.equals("GremlinLeader")) {
+            monster = new GremlinLeader();
         } else {
             System.err.println("couldn't find monster with id " + id);
         }
@@ -306,6 +379,9 @@ public class MonsterState extends CreatureState {
         monsterStateJson.addProperty("damage", damage.stream().map(DamageInfoState::encode)
                                                      .collect(Collectors
                                                              .joining(DAMAGE_DELIMETER)));
+
+        monsterStateJson.addProperty("louse_is_open", louseIsOpen);
+        monsterStateJson.addProperty("louse_bite_damage", louseBiteDamage);
 
         return monsterStateJson.toString();
     }

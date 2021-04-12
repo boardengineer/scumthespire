@@ -82,7 +82,19 @@ public class PowerState {
             result = new PenNibPower(targetAndSource, amount);
         } else if (powerId.equals("Flame Barrier")) {
             result = new FlameBarrierPower(targetAndSource, amount);
-        }else {
+        } else if (powerId.equals("Thorns")) {
+            result = new ThornsPower(targetAndSource, amount);
+        } else if (powerId.equals("IntangiblePlayer")) {
+            result = new IntangiblePlayerPower(targetAndSource, amount);
+        } else if (powerId.equals("Hex")) {
+            result = new HexPower(targetAndSource, amount);
+        } else if (powerId.equals("Plated Armor")) {
+            result = new PlatedArmorPower(targetAndSource, amount);
+        } else if (powerId.equals("Barricade")) {
+            result = new BarricadePower(targetAndSource);
+        } else if (powerId.equals("Minion")) {
+            result = new MinionPower(targetAndSource);
+        } else {
             System.err.println("missing type for power id: " + powerId);
         }
 

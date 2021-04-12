@@ -44,8 +44,8 @@ public class BattleAiController {
     private final boolean shouldRunWhenFound;
 
     public BattleAiController(SaveState state) {
-        targetTurn = 6;
-        targetTurnJump = 5;
+        targetTurn = 4;
+        targetTurnJump = 3;
 
         if (state.encounterName.equals("Lagavulin")) {
             targetTurn = 2;

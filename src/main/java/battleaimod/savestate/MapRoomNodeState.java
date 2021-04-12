@@ -7,6 +7,7 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoom;
+import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
 import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class MapRoomNodeState {
     private final boolean skipMonsterTurn;
 
     private final float waitTimer;
-    private final boolean isElite;
+    private final RoomType roomType;
 
     public ArrayList<MonsterState> monsterData = null;
     private final AbstractRoom.RoomPhase phase;
@@ -58,7 +59,17 @@ public class MapRoomNodeState {
         this.rewardTime = room.rewardTime;
         this.skipMonsterTurn = room.skipMonsterTurn;
         this.waitTimer = AbstractRoom.waitTimer;
-        this.isElite = mapRoomNode.getRoom() instanceof MonsterRoomElite;
+        this.roomType = getRoomType(mapRoomNode.getRoom());
+    }
+
+    private static RoomType getRoomType(AbstractRoom room) {
+        if (room instanceof MonsterRoomBoss) {
+            return RoomType.BOSS;
+        } else if (room instanceof MonsterRoomElite) {
+            return RoomType.ELITE;
+        } else {
+            return RoomType.MONSTER;
+        }
     }
 
     public MapRoomNodeState(String jsonString) {
@@ -86,11 +97,11 @@ public class MapRoomNodeState {
         this.phase = AbstractRoom.RoomPhase.valueOf(parsed.get("phase_name").getAsString());
 
         // TODO
-        this.isElite = false;
+        this.roomType = RoomType.MONSTER;
     }
 
     public MapRoomNode loadMapRoomNode(MapRoomNode mapRoomNode) {
-        AbstractRoom room = isElite ? new MonsterRoomElite() : new MonsterRoom();
+        AbstractRoom room = getRoomForType(roomType);
 
         mapRoomNode.taken = this.taken;
         mapRoomNode.highlighted = this.highlighted;
@@ -128,6 +139,17 @@ public class MapRoomNodeState {
         return mapRoomNode;
     }
 
+    private static AbstractRoom getRoomForType(RoomType roomType) {
+        switch (roomType) {
+            case BOSS:
+                return new MonsterRoomBoss();
+            case ELITE:
+                return new MonsterRoomElite();
+            default:
+                return new MonsterRoom();
+        }
+    }
+
     public String encode() {
         JsonObject mapRoomNodeStateJson = new JsonObject();
 
@@ -153,4 +175,10 @@ public class MapRoomNodeState {
         return mapRoomNodeStateJson.toString();
     }
 
+
+    private enum RoomType {
+        MONSTER,
+        ELITE,
+        BOSS
+    }
 }

@@ -16,6 +16,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoom;
+import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
 import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
@@ -144,10 +145,22 @@ public class FastActionsPatch {
             paramtypez = {},
             method = "onPlayerEntry"
     )
-    public static class SpyOnSliteMonsterRoomPatch {
+    public static class SpyOnEliteMonsterRoomPatch {
         public static void Prefix(MonsterRoomElite _instance) {
             System.err.println("Starting fight " + AbstractDungeon.eliteMonsterList.get(0));
             BattleAiController.currentEncounter = AbstractDungeon.eliteMonsterList.get(0);
+        }
+    }
+
+    @SpirePatch(
+            clz = MonsterRoomBoss.class,
+            paramtypez = {},
+            method = "onPlayerEntry"
+    )
+    public static class SpyOnBossMonsterRoomPatch {
+        public static void Prefix(MonsterRoomBoss _instance) {
+            System.err.println("Starting fight " + AbstractDungeon.bossList.get(0));
+            BattleAiController.currentEncounter = AbstractDungeon.bossList.get(0);
         }
     }
 
