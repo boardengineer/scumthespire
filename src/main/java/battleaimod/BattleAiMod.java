@@ -2,46 +2,41 @@ package battleaimod;
 
 import basemod.BaseMod;
 import basemod.TopPanelItem;
-import basemod.interfaces.PostDungeonUpdateSubscriber;
-import basemod.interfaces.PostInitializeSubscriber;
-import basemod.interfaces.PostUpdateSubscriber;
+import basemod.interfaces.*;
 import battleaimod.battleai.BattleAiController;
-import battleaimod.battleai.EndCommand;
-import battleaimod.battleai.StateNode;
 import battleaimod.fastobjects.ScreenShakeFast;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import battleaimod.savestate.SaveState;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
+import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import com.megacrit.cardcrawl.vfx.ThoughtBubble;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Stack;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 @SpireInitializer
-public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber {
+public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber {
     public static boolean mustSendGameState = false;
     public static boolean readyForUpdate;
     public static boolean forceStep = false;
     private static AiServer aiServer = null;
-    private static AiClient aiClient = null;
+    public static AiClient aiClient = null;
     public static boolean shouldStartAiFromServer = false;
     public static BattleAiController battleAiController = null;
-    private static ShowPNG showPNG;
     private static boolean canStep = false;
     public static SaveState saveState;
     public static boolean goFast = false;
+    public static boolean shouldStartClient = false;
 
     public BattleAiMod() {
         BaseMod.subscribe(this);
@@ -108,22 +103,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     public void receivePostInitialize() {
         setUpOptionsMenu();
-
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(() -> {
-            showPNG = new ShowPNG("C:/Users/pasha/out.png");
-            showPNG.setVisible(true);
-            while (true) {
-                try {
-                    if (showPNG != null) {
-                        showPNG.loadImage();
-                    }
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     public void receivePostUpdate() {
@@ -135,7 +114,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         if (!mustSendGameState && GameStateListener.checkForMenuStateChange()) {
             mustSendGameState = true;
         }
-
     }
 
     public void receivePostDungeonUpdate() {
@@ -163,70 +141,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 //        BaseMod.addTopPanelItem(new LoadStateTopPanel());
     }
 
-    @SuppressWarnings("serial")
-    static class ShowPNG extends JFrame {
-        private final String path;
-        private final JLabel label;
-
-        public ShowPNG(String path) {
-            this.path = path;
-            this.label = new JLabel();
-            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            this.setSize(500, 640);
-            this.getContentPane().add(label);
-            loadImage();
-        }
-
-        public void loadImage() {
-            try {
-                String textPath = "C:\\Users\\pasha\\test.dot";
-                if (battleAiController.root != null) {
-
-                    try {
-                        FileWriter myWriter = new FileWriter(textPath);
-
-                        String graphString = "digraph G {\n";
-                        Stack<StateNode> toVisit = new Stack<>();
-                        toVisit.add(battleAiController.root);
-                        while (!toVisit.isEmpty()) {
-                            StateNode node = toVisit.pop();
-                            toVisit.addAll(node.children.values());
-
-                            StateNode iterator = node.parent;
-                            if (iterator != null) {
-                                while (iterator.parent != null && iterator
-                                        .getLastCommand() != null && !(iterator
-                                        .getLastCommand() instanceof EndCommand)) {
-                                    iterator = iterator.parent;
-                                }
-                            }
-
-                            if (node.parent != null) {
-                                graphString +=
-                                        String.format("%d->%d[label=\"%s\"]\n", iterator.stateNumber, node.stateNumber, node.stateString);
-                            }
-                        }
-                        graphString += "}";
-
-                        myWriter.write(graphString);
-                        myWriter.close();
-                    } catch (IOException e) {
-                        System.err.println("failed to write");
-                    }
-
-
-                }
-                Runtime.getRuntime()
-                       .exec(new String[]{"dot", textPath, "-o", path, "-T", "png"});
-
-                BufferedImage bufImg = resizeImage(ImageIO
-                        .read(new File(path)), getWidth(), getHeight());
-                label.setIcon(new ImageIcon(bufImg));
-            } catch (IOException e) {
-            } catch (NullPointerException e) {
-            }
-        }
-    }
 
     public class SaveStateTopPanel extends TopPanelItem {
         public static final String ID = "yourmodname:SaveState";
@@ -327,6 +241,47 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         protected void onClick() {
             if (aiServer == null) {
                 aiServer = new AiServer();
+            }
+        }
+    }
+
+    @Override
+    public void receiveOnBattleStart(AbstractRoom abstractRoom) {
+        System.err.println("this is happening");
+        shouldStartClient = true;
+    }
+
+    @Override
+    public void receivePreUpdate() {
+        if (actionManager.actions.isEmpty() && actionManager.currentAction == null) {
+            if (shouldStartClient) {
+                shouldStartClient = false;
+                AbstractDungeon.effectList
+                        .add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, 2.0F, "Hello World", true));
+
+                actionManager.actions.add(new WaitAction(2.0F));
+                actionManager.actions.add(new AbstractGameAction() {
+                    @Override
+                    public void update() {
+                        System.err.println("The action too");
+                        AbstractDungeon.effectList
+                                .add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, 3.0F, "Here we go", true));
+
+                        if (BattleAiMod.aiClient == null) {
+                            try {
+                                BattleAiMod.aiClient = new AiClient();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        isDone = true;
+
+                        if (BattleAiMod.aiClient != null) {
+                            BattleAiMod.aiClient.sendState();
+                        }
+                    }
+                });
             }
         }
     }

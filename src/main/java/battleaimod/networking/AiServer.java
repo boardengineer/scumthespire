@@ -81,6 +81,8 @@ public class AiServer {
                             jsonToSend.addProperty("type", "COMMAND_LIST");
                             jsonToSend.add("commands", commands);
 
+                            System.err.println("Sending commands " + commands);
+
                             out.writeUTF(jsonToSend.toString());
                             BattleAiMod.battleAiController = null;
                         }

@@ -16,6 +16,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -29,7 +30,14 @@ public class AiClient {
     private final Socket socket;
 
     public AiClient() throws IOException {
-        socket = new Socket(HOST_IP, PORT);
+        socket = new Socket();
+        socket.setSoTimeout(3000);
+
+        try {
+            socket.connect(new InetSocketAddress(HOST_IP, PORT));
+        } catch (SocketTimeoutException e) {
+            socket.close();
+        }
     }
 
     public void sendState() {
@@ -66,6 +74,7 @@ public class AiClient {
                                 commandsFromServer.add(toAdd);
                             }
 
+                            System.err.println(commandsFromServer);
                             BattleAiMod.battleAiController = new BattleAiController(state, commandsFromServer);
                             BattleAiMod.readyForUpdate = true;
                             BattleAiMod.forceStep = true;

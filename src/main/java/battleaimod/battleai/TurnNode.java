@@ -155,7 +155,8 @@ public class TurnNode implements Comparable<TurnNode> {
 
         // (player damage) / (player starting health) vs (monster damage / monster total health)
 
-        return monsterDamage - 2 * Math.max(0 , playerDamage - 6);
+//        return monsterDamage - 2 * Math.max(0 , playerDamage - 6);
+        return monsterDamage - 2 * playerDamage + 3 * strength + 3 * dexterity;
     }
 
     @Override

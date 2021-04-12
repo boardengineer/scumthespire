@@ -135,9 +135,10 @@ public class FastActionsPatch {
     public static class SpyOnMonsterRoomPatch {
         public static void Prefix(MonsterRoom _instance) {
             System.err.println("Starting fight " + AbstractDungeon.monsterList.get(0));
-
             BattleAiController.currentEncounter = AbstractDungeon.monsterList.get(0);
         }
+
+
     }
 
     @SpirePatch(
@@ -163,5 +164,4 @@ public class FastActionsPatch {
             BattleAiController.currentEncounter = AbstractDungeon.bossList.get(0);
         }
     }
-
 }

@@ -176,8 +176,9 @@ public class MonsterState extends CreatureState {
         this.louseIsOpen = parsed.get("louse_is_open").getAsBoolean();
         this.louseBiteDamage = parsed.get("louse_bite_damage").getAsInt();
 
+        this.gremlinWizardCurrentCharge = parsed.get("gremlin_wizard_current_charge").getAsInt();
+
         // TODO
-        this.gremlinWizardCurrentCharge = 0;
         this.guardianDmgThreshold = 0;
         this.guardianDmgTaken = 0;
         this.lagavulinDebuffTurnCount = 0;
@@ -344,6 +345,8 @@ public class MonsterState extends CreatureState {
             monster = new SphericGuardian();
         } else if (id.equals("GremlinLeader")) {
             monster = new GremlinLeader();
+        } else if (id.equals("Byrd")) {
+            monster = new Byrd(offsetX, offsetY);
         } else {
             System.err.println("couldn't find monster with id " + id);
         }
@@ -382,6 +385,7 @@ public class MonsterState extends CreatureState {
 
         monsterStateJson.addProperty("louse_is_open", louseIsOpen);
         monsterStateJson.addProperty("louse_bite_damage", louseBiteDamage);
+        monsterStateJson.addProperty("gremlin_wizard_current_charge", gremlinWizardCurrentCharge);
 
         return monsterStateJson.toString();
     }

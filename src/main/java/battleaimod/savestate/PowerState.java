@@ -94,6 +94,12 @@ public class PowerState {
             result = new BarricadePower(targetAndSource);
         } else if (powerId.equals("Minion")) {
             result = new MinionPower(targetAndSource);
+        } else if (powerId.equals("Demon Form")) {
+            result = new DemonFormPower(targetAndSource, amount);
+        } else if (powerId.equals("Berserk")) {
+            result = new BerserkPower(targetAndSource, amount);
+        } else if (powerId.equals("Flight")) {
+            result = new FlightPower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

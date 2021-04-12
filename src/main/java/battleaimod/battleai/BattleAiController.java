@@ -16,7 +16,7 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    private static final int MAX_TURN_LOADS = 500;
+    private int maxTurnLoads = 300;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -48,6 +48,7 @@ public class BattleAiController {
         targetTurnJump = 3;
 
         if (state.encounterName.equals("Lagavulin")) {
+            maxTurnLoads = 500;
             targetTurn = 2;
             targetTurnJump = 3;
         } else if (state.encounterName.equals("Gremlin Nob")) {
@@ -123,7 +124,7 @@ public class BattleAiController {
                 return;
             }
 
-            if (turnsLoaded >= MAX_TURN_LOADS && curTurn == null) {
+            if (turnsLoaded >= maxTurnLoads && curTurn == null) {
                 if (bestTurn != null) {
                     turnsLoaded = 0;
                     turns.clear();
