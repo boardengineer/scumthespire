@@ -6,6 +6,7 @@ import com.megacrit.cardcrawl.actions.animations.AnimateFastAttackAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateHopAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
+import com.megacrit.cardcrawl.actions.common.SpawnMonsterAction;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
 
@@ -22,6 +23,19 @@ public class MonsterPatch {
     )
     public static class MonsterDeathPatch {
         public static void Postfix(AbstractMonster _instance) {
+            if (shouldGoFast()) {
+                _instance.deathTimer = .0000001F;
+            }
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractMonster.class,
+            paramtypez = {boolean.class},
+            method = "die"
+    )
+    public static class MonsterDeathWithRelicsPatch {
+        public static void Postfix(AbstractMonster _instance, boolean triggerRelics) {
             if (shouldGoFast()) {
                 _instance.deathTimer = .0000001F;
             }
@@ -62,6 +76,20 @@ public class MonsterPatch {
     public static class SlowAttackAnimationPatch {
         public static void Prefix(AnimateSlowAttackAction _instance) {
             if (shouldGoFast()) {
+                _instance.isDone = true;
+            }
+        }
+    }
+
+    @SpirePatch(
+            clz = SpawnMonsterAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class SpawnMonsterAnimationPatch {
+        public static void Prefix(SpawnMonsterAction _instance) {
+            if (shouldGoFast()) {
+                System.err.println("spawning");
                 _instance.isDone = true;
             }
         }

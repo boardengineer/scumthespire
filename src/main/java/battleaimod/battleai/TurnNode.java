@@ -59,7 +59,15 @@ public class TurnNode implements Comparable<TurnNode> {
 //                controller.bestTurn = this;
 //            }
 
-            controller.turns.add(toAdd);
+            int turnNumber = curState.saveState.turn;
+            if (turnNumber >= controller.targetTurn) {
+                if (controller.bestTurn == null || toAdd.isBetterThan(controller.bestTurn)) {
+                    controller.bestTurn = toAdd;
+                }
+            } else {
+                controller.turns.add(toAdd);
+            }
+
             turnIndex++;
 
             BattleAiMod.readyForUpdate = true;
@@ -135,13 +143,6 @@ public class TurnNode implements Comparable<TurnNode> {
         int playerDamage = getPlayerDamage(turnNode);
         int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealth(turnNode.startingState.saveState);
 
-        if (turnNode.startingState.saveState.encounterName != null && turnNode.startingState.saveState.encounterName
-                .equals("Lagavulin")) {
-            // The normal algo works poorly against monsters that do single big attacks and
-            // punish you for blocking
-//            System.err.println("doing this");
-//            return monsterDamage;
-        }
 
         int strength = 0;
         int dexterity = 0;
@@ -155,7 +156,16 @@ public class TurnNode implements Comparable<TurnNode> {
 
         // (player damage) / (player starting health) vs (monster damage / monster total health)
 
-//        return monsterDamage - 2 * Math.max(0 , playerDamage - 6);
+
+        if (turnNode.startingState.saveState.encounterName != null) {
+            String encounterName =  turnNode.startingState.saveState.encounterName;
+            if (encounterName.equals("Lagavulin")) {
+                return monsterDamage - playerDamage + 3 * strength + 3 * dexterity;
+            } else if (encounterName.equals("Hexaghost")) {
+                return monsterDamage - 4 * playerDamage + 3 * strength + 3 * dexterity;
+            }
+        }
+
         return monsterDamage - 2 * playerDamage + 3 * strength + 3 * dexterity;
     }
 

@@ -33,7 +33,7 @@ public class BattleAiController {
     public final SaveState startingState;
     private boolean initialized = false;
     public Iterator<Command> bestPathRunner;
-    private TurnNode curTurn;
+    public TurnNode curTurn;
 
     private int turnsLoaded = 0;
     public TurnNode furthestSoFar = null;
@@ -54,7 +54,16 @@ public class BattleAiController {
         } else if (state.encounterName.equals("Gremlin Nob")) {
             targetTurn = 2;
             targetTurnJump = 3;
+        } else if (state.encounterName.equals("The Guardian")) {
+            maxTurnLoads = 100;
+            targetTurn = 2;
+            targetTurnJump = 3;
+        } else if (state.encounterName.equals("Hexaghost")) {
+            maxTurnLoads = 100;
+            targetTurn = 2;
+            targetTurnJump = 3;
         }
+
         minDamage = 5000;
         bestEnd = null;
         shouldRunWhenFound = false;
@@ -126,9 +135,9 @@ public class BattleAiController {
 
             if (turnsLoaded >= maxTurnLoads && curTurn == null) {
                 if (bestTurn != null) {
+                    System.err.println("Loading for turn load threshold, best turn: " + bestTurn);
                     turnsLoaded = 0;
                     turns.clear();
-                    System.err.println("adding from 1");
                     turns.add(bestTurn);
                     targetTurn += targetTurnJump;
                     bestTurn.startingState.saveState.loadState();
@@ -178,7 +187,7 @@ public class BattleAiController {
 
             if (turns.isEmpty()) {
                 System.err.println("turns is empty");
-                if (curTurn != null && curTurn.isDone) {
+                if (curTurn != null && curTurn.isDone && bestEnd != null && bestTurn == null) {
                     System.err.println("found end, going into rerunmode");
                     runCommandMode = true;
 
@@ -203,7 +212,7 @@ public class BattleAiController {
                 }
             }
 
-            if ((curTurn == null || curTurn.isDone) && turns.isEmpty()) {
+            if ((curTurn == null || curTurn.isDone || bestTurn != null) && turns.isEmpty()) {
                 if (curTurn == null || TurnNode
                         .getTotalMonsterHealth(curTurn) != 0 && bestTurn != null) {
                     turnsLoaded = 0;

@@ -15,9 +15,7 @@ import java.util.stream.Collectors;
 public class StateNode {
     private final BattleAiController controller;
     public final StateNode parent;
-    public final HashMap<String, StateNode> children = new HashMap<>();
     final Command lastCommand;
-    public int stateNumber = -1;
     public String stateString;
 
     SaveState saveState;
@@ -52,7 +50,7 @@ public class StateNode {
      * Does the next step and returns true iff the parent should load state
      */
     public Command step() {
-        if(commands == null) {
+        if (commands == null) {
             populateCommands();
         }
 
@@ -75,7 +73,7 @@ public class StateNode {
             int damage = controller.startingHealth - saveState.getPlayerHealth();
 
             boolean isBattleOver = !shouldLookForPlay();
-            if (!isBattleOver && damage < controller.minDamage) {
+            if (!isBattleOver && damage < (controller.minDamage + 6)) {
                 commandIndex = 0;
             } else {
                 System.err
@@ -88,7 +86,6 @@ public class StateNode {
                     }
                 }
 
-                saveToParent();
                 minDamage = damage;
                 isDone = true;
                 return null;
@@ -173,12 +170,12 @@ public class StateNode {
                     return 1;
                 }
 
-                if(card1.type == AbstractCard.CardType.POWER) {
-                    if(card2.type == AbstractCard.CardType.POWER) {
+                if (card1.type == AbstractCard.CardType.POWER) {
+                    if (card2.type == AbstractCard.CardType.POWER) {
                         return card2.cost - card1.cost;
                     }
                     return -1;
-                } else if(card2.type == AbstractCard.CardType.POWER) {
+                } else if (card2.type == AbstractCard.CardType.POWER) {
                     return 1;
                 }
 
@@ -209,30 +206,6 @@ public class StateNode {
 
     public String getHandString() {
         return saveState.getPlayerHand();
-    }
-
-    public String getStateString() {
-        return String.format(" %2d / %2d ", commandIndex, commands != null ? commands.size() : 0);
-    }
-
-    private boolean saveToParent() {
-        StateNode iterator = parent == null ? this : parent;
-        ArrayList<String> commandsThisTurn = new ArrayList<>();
-        while ((iterator.lastCommand != null) && !(iterator.lastCommand instanceof EndCommand)) {
-            commandsThisTurn.add(iterator.lastCommand.toString());
-            iterator = iterator.parent;
-        }
-
-        String turnString = commandsThisTurn.stream().sorted().collect(Collectors.joining());
-        if (iterator.children.containsKey(turnString)) {
-            return true;
-        }
-
-        if (iterator != this) {
-            stateString = turnString;
-            iterator.children.put(turnString, this);
-        }
-        return false;
     }
 
     public String getTurnString() {

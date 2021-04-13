@@ -8,10 +8,7 @@ import battleaimod.fastobjects.actions.RollMoveActionFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.actions.common.DrawCardAction;
-import com.megacrit.cardcrawl.actions.common.MakeTempCardInDiscardAction;
-import com.megacrit.cardcrawl.actions.common.RemoveSpecificPowerAction;
-import com.megacrit.cardcrawl.actions.common.RollMoveAction;
+import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
@@ -75,6 +72,26 @@ public class FastActionsPatch {
         }
 
         public static void Postfix(RemoveSpecificPowerAction _instance) {
+            if (shouldGoFast()) {
+                _instance.isDone = true;
+            }
+        }
+    }
+
+    @SpirePatch(
+            clz = ApplyPowerAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class FastApplyPowerActionPatch {
+        public static void Prefix(ApplyPowerAction _instance) {
+            if (shouldGoFast()) {
+                ReflectionHacks
+                        .setPrivate(_instance, AbstractGameAction.class, "duration", .1F);
+            }
+        }
+
+        public static void Postfix(ApplyPowerAction _instance) {
             if (shouldGoFast()) {
                 _instance.isDone = true;
             }
@@ -164,4 +181,15 @@ public class FastActionsPatch {
             BattleAiController.currentEncounter = AbstractDungeon.bossList.get(0);
         }
     }
+
+//    @SpirePatch(
+//            clz = TheGuardian.class,
+//            paramtypez = {String.class},
+//            method = "takeTurn"
+//    )
+//    public static class WhatGIsUpToPath {
+//        public static void Replace(TheGuardian _instance, String stateName) {
+//            System.err.println("G wants to " + _instance.nextMove);
+//        }
+//    }
 }

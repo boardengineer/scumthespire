@@ -70,6 +70,7 @@ public class AiServer {
 
                             Iterator<Command> bestPath = BattleAiMod.battleAiController.bestPathRunner;
                             while (bestPath.hasNext()) {
+                                System.out.println("In the loop!!!!");
                                 Command nextCommand = bestPath.next();
                                 if (nextCommand != null) {
                                     commands.add(nextCommand.encode());

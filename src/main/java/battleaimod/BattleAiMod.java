@@ -248,7 +248,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     @Override
     public void receiveOnBattleStart(AbstractRoom abstractRoom) {
         System.err.println("this is happening");
-        shouldStartClient = true;
+//        shouldStartClient = true;
     }
 
     @Override

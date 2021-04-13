@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
+
 public class MonsterState extends CreatureState {
     private static final String DAMAGE_DELIMETER = ";";
     private static final String MOVE_HISTORY_DELIMETER = "&";
@@ -46,6 +48,9 @@ public class MonsterState extends CreatureState {
 
     private final int lagavulinDebuffTurnCount;
     private final int lagavulinIdleCount;
+    private final boolean lagavulinIsAsleep;
+    private final boolean lagavulinIsOut;
+    private final boolean lagavulinIsOutTriggered;
 
     private final boolean louseIsOpen;
     private final int louseBiteDamage;
@@ -102,13 +107,22 @@ public class MonsterState extends CreatureState {
         }
 
         if (monster instanceof Lagavulin) {
+            lagavulinIsAsleep = ReflectionHacks
+                    .getPrivate(monster, Lagavulin.class, "asleep");
             lagavulinDebuffTurnCount = ReflectionHacks
                     .getPrivate(monster, Lagavulin.class, "debuffTurnCount");
             lagavulinIdleCount = ReflectionHacks
                     .getPrivate(monster, Lagavulin.class, "idleCount");
+            lagavulinIsOut = ReflectionHacks
+                    .getPrivate(monster, Lagavulin.class, "isOut");
+            lagavulinIsOutTriggered = ReflectionHacks
+                    .getPrivate(monster, Lagavulin.class, "isOutTriggered");
         } else {
             lagavulinDebuffTurnCount = 0;
             lagavulinIdleCount = 0;
+            lagavulinIsAsleep = false;
+            lagavulinIsOut = false;
+            lagavulinIsOutTriggered = false;
         }
 
         if (monster instanceof LouseDefensive) {
@@ -178,14 +192,19 @@ public class MonsterState extends CreatureState {
 
         this.gremlinWizardCurrentCharge = parsed.get("gremlin_wizard_current_charge").getAsInt();
 
+        this.lagavulinDebuffTurnCount = parsed.get("lagavulin_debuff_turn_count").getAsInt();
+        this.lagavulinIdleCount = parsed.get("lagavulin_idle_count").getAsInt();
+        this.lagavulinIsAsleep = parsed.get("lagavulin_is_asleep").getAsBoolean();
+        this.lagavulinIsOut = parsed.get("lagavulin_is_out").getAsBoolean();
+        this.lagavulinIsOutTriggered = parsed.get("lagavulin_is_out_triggered").getAsBoolean();
+
+        this.hexaghostActivated = parsed.get("hexaghost_activated").getAsBoolean();
+        this.hexaghostBurnUpgraded = parsed.get("hexaghost_burn_upgraded").getAsBoolean();
+        this.hexaghostOrbActiveCount = parsed.get("hexaghost_orb_active_count").getAsInt();
+
         // TODO
         this.guardianDmgThreshold = 0;
         this.guardianDmgTaken = 0;
-        this.lagavulinDebuffTurnCount = 0;
-        this.lagavulinIdleCount = 0;
-        this.hexaghostActivated = false;
-        this.hexaghostBurnUpgraded = false;
-        this.hexaghostOrbActiveCount = 0;
     }
 
     public AbstractMonster loadMonster() {
@@ -244,6 +263,12 @@ public class MonsterState extends CreatureState {
                     .setPrivate(monster, Lagavulin.class, "debuffTurnCount", lagavulinDebuffTurnCount);
             ReflectionHacks
                     .setPrivate(monster, Lagavulin.class, "idleCount", lagavulinIdleCount);
+            ReflectionHacks
+                    .setPrivate(monster, Lagavulin.class, "asleep", lagavulinIsAsleep);
+            ReflectionHacks
+                    .setPrivate(monster, Lagavulin.class, "isOut", lagavulinIsOut);
+            ReflectionHacks
+                    .setPrivate(monster, Lagavulin.class, "isOutTriggered", lagavulinIsOutTriggered);
         }
 
         if (monster instanceof LouseDefensive) {
@@ -351,6 +376,10 @@ public class MonsterState extends CreatureState {
             System.err.println("couldn't find monster with id " + id);
         }
 
+        if (!shouldGoFast()) {
+            monster.update();
+        }
+
         return monster;
     }
 
@@ -385,7 +414,18 @@ public class MonsterState extends CreatureState {
 
         monsterStateJson.addProperty("louse_is_open", louseIsOpen);
         monsterStateJson.addProperty("louse_bite_damage", louseBiteDamage);
+
         monsterStateJson.addProperty("gremlin_wizard_current_charge", gremlinWizardCurrentCharge);
+
+        monsterStateJson.addProperty("lagavulin_is_asleep", lagavulinIsAsleep);
+        monsterStateJson.addProperty("lagavulin_is_out", lagavulinIsOut);
+        monsterStateJson.addProperty("lagavulin_idle_count", lagavulinIdleCount);
+        monsterStateJson.addProperty("lagavulin_debuff_turn_count", lagavulinDebuffTurnCount);
+        monsterStateJson.addProperty("lagavulin_is_out_triggered", lagavulinIsOutTriggered);
+
+        monsterStateJson.addProperty("hexaghost_activated", hexaghostActivated);
+        monsterStateJson.addProperty("hexaghost_burn_upgraded", hexaghostBurnUpgraded);
+        monsterStateJson.addProperty("hexaghost_orb_active_count", hexaghostOrbActiveCount);
 
         return monsterStateJson.toString();
     }
