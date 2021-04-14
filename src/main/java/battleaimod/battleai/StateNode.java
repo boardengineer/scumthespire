@@ -50,6 +50,10 @@ public class StateNode {
      * Does the next step and returns true iff the parent should load state
      */
     public Command step() {
+        if (saveState == null) {
+            saveState = new SaveState();
+        }
+
         if (commands == null) {
             populateCommands();
         }
@@ -64,10 +68,6 @@ public class StateNode {
 //                    System.err.println("deduping turn");
 //                    return null;
 //                }
-            }
-
-            if (saveState == null) {
-                saveState = new SaveState();
             }
 
             int damage = controller.startingHealth - saveState.getPlayerHealth();
@@ -146,7 +146,7 @@ public class StateNode {
         }
 
         if (isEndCommandAvailable()) {
-            commands.add(new EndCommand());
+            commands.add(new EndCommand(saveState));
         }
 
         commands.sort(new Comparator<Command>() {

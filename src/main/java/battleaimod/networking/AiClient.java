@@ -111,7 +111,7 @@ public class AiClient {
         if (type.equals("CARD")) {
             return new CardCommand(commandString);
         } else if (type.equals("END")) {
-            return new EndCommand();
+            return new EndCommand(commandString);
         }
 
         return null;

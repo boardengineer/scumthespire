@@ -1,7 +1,9 @@
 package battleaimod.battleai;
 
 import battleaimod.GameStateListener;
+import battleaimod.savestate.SaveState;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.DiscardAtEndOfTurnAction;
@@ -14,9 +16,21 @@ import java.util.Iterator;
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class EndCommand implements Command {
+    private final StateDebugInfo stateDebugInfo;
+
+    public EndCommand(SaveState saveState) {
+        stateDebugInfo = new StateDebugInfo(saveState);
+    }
+
+    public EndCommand(String jsonString) {
+        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+
+        stateDebugInfo = new StateDebugInfo(parsed.get("state_debug_info").getAsString());
+    }
+
     @Override
     public void execute() {
-        if(shouldGoFast()) {
+        if (shouldGoFast()) {
             endTurn();
         } else {
             AbstractDungeon.overlayMenu.endTurnButton.disable(true);
@@ -73,10 +87,18 @@ public class EndCommand implements Command {
     }
 
     @Override
+    public String toString() {
+        return "EndCommand{" +
+                "stateDebugInfo = " + stateDebugInfo.encode() +
+                '}';
+    }
+
+    @Override
     public String encode() {
         JsonObject endCommandJson = new JsonObject();
 
         endCommandJson.addProperty("type", "END");
+        endCommandJson.addProperty("state_debug_info", stateDebugInfo.encode());
 
         return endCommandJson.toString();
     }

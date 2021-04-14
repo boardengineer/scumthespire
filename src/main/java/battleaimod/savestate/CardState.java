@@ -82,6 +82,8 @@ public class CardState {
         result.drawScale = drawScale;
         result.targetDrawScale = targetDrawScale;
 
+        result.baseDamage = baseDamage;
+
         return result;
     }
 

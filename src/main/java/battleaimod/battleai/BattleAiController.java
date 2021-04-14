@@ -117,26 +117,6 @@ public class BattleAiController {
             return;
         }
         if (!runCommandMode && !runPartialMode) {
-            if (minDamage == 0) {
-                System.err.println("we are done");
-
-                ArrayList<Command> commands = new ArrayList<>();
-                StateNode iterator = bestEnd;
-                while (iterator != null) {
-                    if (iterator.lastCommand != null) {
-                        commands.add(0, iterator.lastCommand);
-                    }
-                    System.err.println(iterator.lastCommand);
-                    iterator = iterator.parent;
-                }
-
-                startingState.loadState();
-                bestPathRunner = commands.iterator();
-                runCommandMode = true;
-
-                return;
-            }
-
             if (turnsLoaded >= maxTurnLoads && (curTurn == null || curTurn.isDone)) {
                 if (bestTurn != null) {
                     System.err.println("Loading for turn load threshold, best turn: " + bestTurn);
