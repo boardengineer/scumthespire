@@ -9,11 +9,14 @@ import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import battleaimod.savestate.SaveState;
 import com.badlogic.gdx.graphics.Texture;
+import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
+import com.megacrit.cardcrawl.characters.CharacterManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
+import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
@@ -39,6 +42,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static boolean shouldStartClient = false;
 
     public BattleAiMod() {
+        CharacterManager desk;
         BaseMod.subscribe(this);
         BaseMod.subscribe(new SpeedController());
 //        Settings.ACTION_DUR_XFAST = 0.01F;
@@ -47,6 +51,17 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 //        Settings.ACTION_DUR_MED = 0.05F;
 //        Settings.ACTION_DUR_LONG = .10F;
 //        Settings.ACTION_DUR_XLONG = .15F;
+
+        String isServer = System.getProperty("isServer");
+        if (isServer != null) {
+            System.err.println("there's a boolean");
+            if (Boolean.parseBoolean(isServer)) {
+                Settings.isDemo = true;
+                goFast = true;
+            }
+        }
+
+        Loader load;
 
         CardCrawlGame.screenShake = new ScreenShakeFast();
     }
@@ -73,6 +88,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     public static void initialize() {
         BattleAiMod mod = new BattleAiMod();
+
     }
 
     private static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {

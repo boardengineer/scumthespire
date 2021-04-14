@@ -52,16 +52,20 @@ public class AiServer {
 
                         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                         while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode) {
-                            out.writeUTF("Ping");
+                            // Send update
+                            JsonObject jsonToSend = new JsonObject();
+
+                            jsonToSend.addProperty("type", "STATUS_UPDATE");
+                            jsonToSend.addProperty("message", String
+                                    .format("%d", BattleAiMod.battleAiController.turnsLoaded));
+                            out.writeUTF(jsonToSend.toString());
+
                             try {
-                                Thread.sleep(500);
+                                Thread.sleep(100);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
-
-                        System.err
-                                .println("run commmand mode started, ai controller not null " + BattleAiMod.battleAiController);
 
                         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.runCommandMode) {
                             JsonObject jsonToSend = new JsonObject();
@@ -70,7 +74,6 @@ public class AiServer {
 
                             Iterator<Command> bestPath = BattleAiMod.battleAiController.bestPathRunner;
                             while (bestPath.hasNext()) {
-                                System.out.println("In the loop!!!!");
                                 Command nextCommand = bestPath.next();
                                 if (nextCommand != null) {
                                     commands.add(nextCommand.encode());
@@ -79,6 +82,7 @@ public class AiServer {
                                 }
                             }
 
+                            // Send Command List
                             jsonToSend.addProperty("type", "COMMAND_LIST");
                             jsonToSend.add("commands", commands);
 

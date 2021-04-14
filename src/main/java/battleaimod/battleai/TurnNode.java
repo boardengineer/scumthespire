@@ -64,6 +64,7 @@ public class TurnNode implements Comparable<TurnNode> {
                 if (controller.bestTurn == null || toAdd.isBetterThan(controller.bestTurn)) {
                     controller.bestTurn = toAdd;
                 }
+                controller.turnsLoaded++;
             } else {
                 controller.turns.add(toAdd);
             }
@@ -88,14 +89,8 @@ public class TurnNode implements Comparable<TurnNode> {
             } else {
                 StateNode toAdd = new StateNode(curState, toExecute, controller);
                 if (toExecute instanceof EndCommand) {
-                    String dedupeString = toAdd.getTurnString();
-                    if (!completedTurns.contains(dedupeString)) {
-                        completedTurns.add(dedupeString);
-                        states.push(toAdd);
-                        toExecute.execute();
-                    } else {
-                        BattleAiMod.readyForUpdate = true;
-                    }
+                    states.push(toAdd);
+                    toExecute.execute();
                 } else {
                     states.push(toAdd);
                     toExecute.execute();

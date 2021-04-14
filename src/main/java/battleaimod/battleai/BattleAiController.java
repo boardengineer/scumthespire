@@ -35,7 +35,7 @@ public class BattleAiController {
     public Iterator<Command> bestPathRunner;
     public TurnNode curTurn;
 
-    private int turnsLoaded = 0;
+    public int turnsLoaded = 0;
     public TurnNode furthestSoFar = null;
 
     public boolean runCommandMode = false;
@@ -55,13 +55,16 @@ public class BattleAiController {
             targetTurn = 2;
             targetTurnJump = 3;
         } else if (state.encounterName.equals("The Guardian")) {
-            maxTurnLoads = 100;
+            maxTurnLoads = 300;
             targetTurn = 2;
-            targetTurnJump = 3;
+            targetTurnJump = 2;
         } else if (state.encounterName.equals("Hexaghost")) {
-            maxTurnLoads = 100;
+            maxTurnLoads = 300;
             targetTurn = 2;
-            targetTurnJump = 3;
+            targetTurnJump = 2;
+        } else if(state.encounterName.equals("Gremlin Gang")) {
+            maxTurnLoads = 300;
+            targetTurnJump = 2;
         }
 
         minDamage = 5000;
@@ -116,7 +119,6 @@ public class BattleAiController {
         if (!runCommandMode && !runPartialMode) {
             if (minDamage == 0) {
                 System.err.println("we are done");
-                runCommandMode = true;
 
                 ArrayList<Command> commands = new ArrayList<>();
                 StateNode iterator = bestEnd;
@@ -130,10 +132,12 @@ public class BattleAiController {
 
                 startingState.loadState();
                 bestPathRunner = commands.iterator();
+                runCommandMode = true;
+
                 return;
             }
 
-            if (turnsLoaded >= maxTurnLoads && curTurn == null) {
+            if (turnsLoaded >= maxTurnLoads && (curTurn == null || curTurn.isDone)) {
                 if (bestTurn != null) {
                     System.err.println("Loading for turn load threshold, best turn: " + bestTurn);
                     turnsLoaded = 0;
@@ -189,7 +193,6 @@ public class BattleAiController {
                 System.err.println("turns is empty");
                 if (curTurn != null && curTurn.isDone && bestEnd != null && bestTurn == null) {
                     System.err.println("found end, going into rerunmode");
-                    runCommandMode = true;
 
                     ArrayList<Command> commands = new ArrayList<>();
                     StateNode iterator = bestEnd;
@@ -200,6 +203,9 @@ public class BattleAiController {
 
                     startingState.loadState();
                     bestPathRunner = commands.iterator();
+
+                    runCommandMode = true;
+
                     return;
 
                 } else {

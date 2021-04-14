@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.monsters.exordium.Hexaghost;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -62,6 +63,7 @@ public class AiClient {
                         readLine = in.readUTF();
                     } catch (SocketTimeoutException e) {
                         System.err.println("Server failed to response after 5 seconds");
+                        continue;
                     }
 
                     try {
@@ -78,7 +80,12 @@ public class AiClient {
                             BattleAiMod.battleAiController = new BattleAiController(state, commandsFromServer);
                             BattleAiMod.readyForUpdate = true;
                             BattleAiMod.forceStep = true;
+                        } else if (parsed.get("type").getAsString().equals("STATUS_UPDATE")) {
+                            Hexaghost ghost;
+                            System.err
+                                    .println("Server says " + parsed.get("message").getAsString());
                         }
+
                         System.err.println("Server sent proper json message");
 
                     } catch (IllegalStateException e) {

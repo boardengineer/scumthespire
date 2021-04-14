@@ -1,6 +1,7 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.core.Settings;
@@ -11,6 +12,7 @@ import com.megacrit.cardcrawl.monsters.city.*;
 import com.megacrit.cardcrawl.monsters.exordium.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,7 +46,10 @@ public class MonsterState extends CreatureState {
     private final int gremlinWizardCurrentCharge;
 
     private final int guardianDmgThreshold;
+    private final int guardianDmgThesholdIncrease;
     private final int guardianDmgTaken;
+    private final boolean guardianIsOpen;
+    private final boolean guardianCloseUpTriggered;
 
     private final int lagavulinDebuffTurnCount;
     private final int lagavulinIdleCount;
@@ -58,6 +63,7 @@ public class MonsterState extends CreatureState {
     private final boolean hexaghostActivated;
     private final boolean hexaghostBurnUpgraded;
     private final int hexaghostOrbActiveCount;
+    private final List<Boolean> hexaghostActiveOrbs;
 
     public MonsterState(AbstractMonster monster) {
         super(monster);
@@ -99,11 +105,20 @@ public class MonsterState extends CreatureState {
         if (monster instanceof TheGuardian) {
             guardianDmgThreshold = ReflectionHacks
                     .getPrivate(monster, TheGuardian.class, "dmgThreshold");
+            guardianDmgThesholdIncrease = ReflectionHacks
+                    .getPrivate(monster, TheGuardian.class, "dmgThresholdIncrease");
             guardianDmgTaken = ReflectionHacks
                     .getPrivate(monster, TheGuardian.class, "dmgTaken");
+            guardianIsOpen = ReflectionHacks
+                    .getPrivate(monster, TheGuardian.class, "isOpen");
+            guardianCloseUpTriggered = ReflectionHacks
+                    .getPrivate(monster, TheGuardian.class, "closeUpTriggered");
         } else {
             guardianDmgThreshold = 0;
+            guardianDmgThesholdIncrease = 0;
             guardianDmgTaken = 0;
+            guardianIsOpen = false;
+            guardianCloseUpTriggered = false;
         }
 
         if (monster instanceof Lagavulin) {
@@ -147,10 +162,15 @@ public class MonsterState extends CreatureState {
                     .getPrivate(monster, Hexaghost.class, "burnUpgraded");
             hexaghostOrbActiveCount = ReflectionHacks
                     .getPrivate(monster, Hexaghost.class, "orbActiveCount");
+            ArrayList<HexaghostOrb> orbs = ReflectionHacks
+                    .getPrivate(monster, Hexaghost.class, "orbs");
+            hexaghostActiveOrbs = orbs.stream().map(orb -> orb.activated)
+                                      .collect(Collectors.toList());
         } else {
             hexaghostActivated = false;
             hexaghostBurnUpgraded = false;
             hexaghostOrbActiveCount = 0;
+            hexaghostActiveOrbs = new ArrayList<>();
         }
     }
 
@@ -201,10 +221,16 @@ public class MonsterState extends CreatureState {
         this.hexaghostActivated = parsed.get("hexaghost_activated").getAsBoolean();
         this.hexaghostBurnUpgraded = parsed.get("hexaghost_burn_upgraded").getAsBoolean();
         this.hexaghostOrbActiveCount = parsed.get("hexaghost_orb_active_count").getAsInt();
+        ArrayList<Boolean> orbs = new ArrayList<>();
+        parsed.get("hexaghost_active_orbs").getAsJsonArray()
+              .forEach(active -> orbs.add(active.getAsBoolean()));
+        this.hexaghostActiveOrbs = orbs;
 
-        // TODO
-        this.guardianDmgThreshold = 0;
-        this.guardianDmgTaken = 0;
+        this.guardianDmgThreshold = parsed.get("guardian_dmg_threshold").getAsInt();
+        this.guardianDmgThesholdIncrease = parsed.get("guardian_dmg_threshold_increase").getAsInt();
+        this.guardianDmgTaken = parsed.get("guardian_dmg_taken").getAsInt();
+        this.guardianIsOpen = parsed.get("guardian_is_open").getAsBoolean();
+        this.guardianCloseUpTriggered = parsed.get("guardian_close_up_triggered").getAsBoolean();
     }
 
     public AbstractMonster loadMonster() {
@@ -256,6 +282,12 @@ public class MonsterState extends CreatureState {
                     .setPrivate(monster, TheGuardian.class, "dmgThreshold", guardianDmgThreshold);
             ReflectionHacks
                     .setPrivate(monster, TheGuardian.class, "dmgTaken", guardianDmgTaken);
+            ReflectionHacks
+                    .setPrivate(monster, TheGuardian.class, "dmgTaken", guardianDmgThesholdIncrease);
+            ReflectionHacks
+                    .setPrivate(monster, TheGuardian.class, "isOpen", guardianIsOpen);
+            ReflectionHacks
+                    .setPrivate(monster, TheGuardian.class, "closeUpTriggered", guardianCloseUpTriggered);
         }
 
         if (monster instanceof Lagavulin) {
@@ -290,6 +322,13 @@ public class MonsterState extends CreatureState {
                     .setPrivate(monster, Hexaghost.class, "burnUpgraded", hexaghostBurnUpgraded);
             ReflectionHacks
                     .setPrivate(monster, Hexaghost.class, "orbActiveCount", hexaghostOrbActiveCount);
+            ArrayList<HexaghostOrb> orbs = ReflectionHacks
+                    .getPrivate(monster, Hexaghost.class, "orbs");
+            for (int i = 0; i < hexaghostActiveOrbs.size(); i++) {
+                if (hexaghostActiveOrbs.get(i)) {
+                    orbs.get(i).activate(0, 0);
+                }
+            }
         }
 
         return monster;
@@ -372,7 +411,9 @@ public class MonsterState extends CreatureState {
             monster = new GremlinLeader();
         } else if (id.equals("Byrd")) {
             monster = new Byrd(offsetX, offsetY);
-        } else {
+        } else if (id.equals("SnakePlant")) {
+            monster = new SnakePlant(offsetX, offsetY);
+        }else {
             System.err.println("couldn't find monster with id " + id);
         }
 
@@ -426,6 +467,16 @@ public class MonsterState extends CreatureState {
         monsterStateJson.addProperty("hexaghost_activated", hexaghostActivated);
         monsterStateJson.addProperty("hexaghost_burn_upgraded", hexaghostBurnUpgraded);
         monsterStateJson.addProperty("hexaghost_orb_active_count", hexaghostOrbActiveCount);
+        JsonArray orbArray = new JsonArray();
+        hexaghostActiveOrbs.forEach(isActive -> orbArray.add(isActive));
+        monsterStateJson.add("hexaghost_active_orbs", orbArray);
+
+        monsterStateJson.addProperty("guardian_dmg_threshold", guardianDmgThreshold);
+        monsterStateJson
+                .addProperty("guardian_dmg_threshold_increase", guardianDmgThesholdIncrease);
+        monsterStateJson.addProperty("guardian_dmg_taken", guardianDmgTaken);
+        monsterStateJson.addProperty("guardian_is_open", guardianIsOpen);
+        monsterStateJson.addProperty("guardian_close_up_triggered", guardianCloseUpTriggered);
 
         return monsterStateJson.toString();
     }

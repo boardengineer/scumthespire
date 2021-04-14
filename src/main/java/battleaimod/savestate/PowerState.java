@@ -100,6 +100,8 @@ public class PowerState {
             result = new BerserkPower(targetAndSource, amount);
         } else if (powerId.equals("Flight")) {
             result = new FlightPower(targetAndSource, amount);
+        } else if (powerId.equals("Malleable")) {
+            result = new MalleablePower(targetAndSource);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

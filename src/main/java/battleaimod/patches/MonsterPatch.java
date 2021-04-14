@@ -43,6 +43,19 @@ public class MonsterPatch {
     }
 
     @SpirePatch(
+            clz = AbstractMonster.class,
+            paramtypez = {},
+            method = "onBossVictoryLogic"
+    )
+    public static class BossFastDeathPatch {
+        public static void Postfix(AbstractMonster _instance) {
+            if (shouldGoFast()) {
+                _instance.deathTimer = .0000001F;
+            }
+        }
+    }
+
+    @SpirePatch(
             clz = SetAnimationAction.class,
             paramtypez = {},
             method = "update"
