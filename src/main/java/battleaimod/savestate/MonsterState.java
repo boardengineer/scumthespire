@@ -65,6 +65,8 @@ public class MonsterState extends CreatureState {
     private final int hexaghostOrbActiveCount;
     private final List<Boolean> hexaghostActiveOrbs;
 
+    private final boolean shelledParasiteFirstMove;
+
     public MonsterState(AbstractMonster monster) {
         super(monster);
 
@@ -172,6 +174,13 @@ public class MonsterState extends CreatureState {
             hexaghostOrbActiveCount = 0;
             hexaghostActiveOrbs = new ArrayList<>();
         }
+
+        if (monster instanceof ShelledParasite) {
+            shelledParasiteFirstMove = ReflectionHacks
+                    .getPrivate(monster, ShelledParasite.class, "firstMove");
+        } else {
+            shelledParasiteFirstMove = false;
+        }
     }
 
     public MonsterState(String jsonString) {
@@ -231,6 +240,8 @@ public class MonsterState extends CreatureState {
         this.guardianDmgTaken = parsed.get("guardian_dmg_taken").getAsInt();
         this.guardianIsOpen = parsed.get("guardian_is_open").getAsBoolean();
         this.guardianCloseUpTriggered = parsed.get("guardian_close_up_triggered").getAsBoolean();
+
+        this.shelledParasiteFirstMove = parsed.get("shelled_parasite_first_move").getAsBoolean();
     }
 
     public AbstractMonster loadMonster() {
@@ -331,6 +342,11 @@ public class MonsterState extends CreatureState {
             }
         }
 
+        if (monster instanceof ShelledParasite) {
+            ReflectionHacks
+                    .setPrivate(monster, ShelledParasite.class, "firstMove", shelledParasiteFirstMove);
+        }
+
         return monster;
     }
 
@@ -413,7 +429,9 @@ public class MonsterState extends CreatureState {
             monster = new Byrd(offsetX, offsetY);
         } else if (id.equals("SnakePlant")) {
             monster = new SnakePlant(offsetX, offsetY);
-        }else {
+        } else if (id.equals("BookOfStabbing")) {
+            monster = new BookOfStabbing();
+        } else {
             System.err.println("couldn't find monster with id " + id);
         }
 
@@ -477,6 +495,8 @@ public class MonsterState extends CreatureState {
         monsterStateJson.addProperty("guardian_dmg_taken", guardianDmgTaken);
         monsterStateJson.addProperty("guardian_is_open", guardianIsOpen);
         monsterStateJson.addProperty("guardian_close_up_triggered", guardianCloseUpTriggered);
+
+        monsterStateJson.addProperty("shelled_parasite_first_move", shelledParasiteFirstMove);
 
         return monsterStateJson.toString();
     }

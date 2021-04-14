@@ -80,7 +80,7 @@ public class StateNode {
                         .printf("Found terminal state on init: damage this combat:%s; best damage: %s\n", damage, controller.minDamage);
 
                 if (isBattleOver) {
-                    if (damage < controller.minDamage) {
+                    if (damage < controller.minDamage && saveState.getPlayerHealth() >= 1) {
                         controller.minDamage = damage;
                         controller.bestEnd = this;
                     }

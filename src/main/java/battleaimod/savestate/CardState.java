@@ -8,6 +8,7 @@ import com.megacrit.cardcrawl.helpers.CardLibrary;
 public class CardState {
     private final String cardId;
     private final boolean upgraded;
+    private final int baseDamage;
 
     // Everything works without these, there is just s wonky 'draw' animation that can be avoided
     // by setting all the physical properies right away
@@ -26,6 +27,7 @@ public class CardState {
     public CardState(AbstractCard card) {
         this.cardId = card.cardID;
         this.upgraded = card.upgraded;
+        this.baseDamage = card.baseDamage;
 
         this.current_x = card.current_x;
         this.current_y = card.current_y;
@@ -45,6 +47,7 @@ public class CardState {
 
         this.cardId = parsed.get("card_id").getAsString();
         this.upgraded = parsed.get("upgraded").getAsBoolean();
+        this.baseDamage = parsed.get("base_damage").getAsInt();
 
         // TODO
         this.current_x = 0;
@@ -89,9 +92,9 @@ public class CardState {
     public String encode() {
         JsonObject cardStateJson = new JsonObject();
 
-
         cardStateJson.addProperty("card_id", cardId);
         cardStateJson.addProperty("upgraded", upgraded);
+        cardStateJson.addProperty("base_damage", baseDamage);
 
         return cardStateJson.toString();
     }

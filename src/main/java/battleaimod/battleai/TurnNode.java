@@ -60,13 +60,15 @@ public class TurnNode implements Comparable<TurnNode> {
 //            }
 
             int turnNumber = curState.saveState.turn;
-            if (turnNumber >= controller.targetTurn) {
-                if (controller.bestTurn == null || toAdd.isBetterThan(controller.bestTurn)) {
-                    controller.bestTurn = toAdd;
+            if (curState.saveState.getPlayerHealth() >= 1) {
+                if (turnNumber >= controller.targetTurn) {
+                    if (controller.bestTurn == null || toAdd.isBetterThan(controller.bestTurn)) {
+                        controller.bestTurn = toAdd;
+                    }
+                    controller.turnsLoaded++;
+                } else {
+                    controller.turns.add(toAdd);
                 }
-                controller.turnsLoaded++;
-            } else {
-                controller.turns.add(toAdd);
             }
 
             turnIndex++;
@@ -153,7 +155,7 @@ public class TurnNode implements Comparable<TurnNode> {
 
 
         if (turnNode.startingState.saveState.encounterName != null) {
-            String encounterName =  turnNode.startingState.saveState.encounterName;
+            String encounterName = turnNode.startingState.saveState.encounterName;
             if (encounterName.equals("Lagavulin")) {
                 return monsterDamage - playerDamage + 3 * strength + 3 * dexterity;
             } else if (encounterName.equals("Hexaghost")) {

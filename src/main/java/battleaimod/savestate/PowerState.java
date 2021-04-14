@@ -102,6 +102,10 @@ public class PowerState {
             result = new FlightPower(targetAndSource, amount);
         } else if (powerId.equals("Malleable")) {
             result = new MalleablePower(targetAndSource);
+        } else if (powerId.equals("Next Turn Block")) {
+            result = new NextTurnBlockPower(targetAndSource, amount);
+        } else if (powerId.equals("Painful Stabs")) {
+            result = new PainfulStabsPower(targetAndSource);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }
