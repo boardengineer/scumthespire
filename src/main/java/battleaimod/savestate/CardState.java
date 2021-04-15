@@ -22,8 +22,7 @@ public class CardState {
     private final float targetDrawScale;
 
 
-//    private final HitboxState hb;
-
+    // private final HitboxState hb;
     public CardState(AbstractCard card) {
         this.cardId = card.cardID;
         this.upgraded = card.upgraded;

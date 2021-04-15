@@ -11,7 +11,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.monsters.exordium.Hexaghost;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -77,13 +76,12 @@ public class AiClient {
                             }
 
                             System.err.println(commandsFromServer);
-                            BattleAiMod.battleAiController = new BattleAiController(state, commandsFromServer);
+                            BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer);
                             BattleAiMod.readyForUpdate = true;
                             BattleAiMod.forceStep = true;
                         } else if (parsed.get("type").getAsString().equals("STATUS_UPDATE")) {
-                            Hexaghost ghost;
-                            System.err
-                                    .println("Server says " + parsed.get("message").getAsString());
+//                            AbstractDungeon.effectList
+//                                    .add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, 2.0F, parsed.get("message").getAsString(), true));
                         }
 
                         System.err.println("Server sent proper json message");

@@ -7,6 +7,8 @@ import com.megacrit.cardcrawl.actions.animations.AnimateHopAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.SpawnMonsterAction;
+import com.megacrit.cardcrawl.cards.DamageInfo;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
 
@@ -28,6 +30,38 @@ public class MonsterPatch {
             }
         }
     }
+
+    @SpirePatch(
+            clz = AbstractPlayer.class,
+            paramtypez = {DamageInfo.class},
+            method = "damage"
+    )
+    public static class WhatGIsUpToPath {
+        public static void Postfix(AbstractPlayer _instance, DamageInfo damage) {
+            if (_instance.isPlayer) {
+                System.err.println("Player is taking " + damage.output);
+            }
+        }
+    }
+
+//    @SpirePatch(
+//            clz = AbstractCreature.class,
+//            paramtypez = {int.class},
+//            method = "addBlock"
+//    )
+//    public static class AddBlockPatch {
+//        public static void Prefix(AbstractCreature _instance, int blockAmount) {
+//            if(!_instance.isPlayer) {
+//                System.err.println("monster blocking for " + blockAmount);
+//            }
+//        }
+//
+//        public static void Postfix(AbstractCreature _instance, int blockAmount) {
+//            if(!_instance.isPlayer) {
+//                System.err.println("now monster has " + _instance.currentBlock);
+//            }
+//        }
+//    }
 
     @SpirePatch(
             clz = AbstractMonster.class,
@@ -102,7 +136,6 @@ public class MonsterPatch {
     public static class SpawnMonsterAnimationPatch {
         public static void Prefix(SpawnMonsterAction _instance) {
             if (shouldGoFast()) {
-                System.err.println("spawning");
                 _instance.isDone = true;
             }
         }

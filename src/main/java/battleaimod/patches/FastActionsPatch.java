@@ -134,6 +134,29 @@ public class FastActionsPatch {
         }
     }
 
+    @SpirePatch(
+            clz = GainBlockAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class GainBlockActionFastPatch {
+        public static void Prefix(GainBlockAction _instance) {
+            if (shouldGoFast()) {
+                ReflectionHacks
+                        .setPrivate(_instance, AbstractGameAction.class, "duration", .001F);
+
+                ReflectionHacks
+                        .setPrivate(_instance, AbstractGameAction.class, "startDuration", .001F);
+            }
+        }
+
+        public static void Postfix(GainBlockAction _instance) {
+            if (shouldGoFast()) {
+                _instance.isDone = true;
+            }
+        }
+    }
+
     private static boolean shouldStepAiController() {
         return BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.isDone && BattleAiMod.readyForUpdate && actionManager.phase == GameActionManager.Phase.WAITING_ON_USER;
     }
@@ -181,15 +204,4 @@ public class FastActionsPatch {
             BattleAiController.currentEncounter = AbstractDungeon.bossList.get(0);
         }
     }
-
-//    @SpirePatch(
-//            clz = TheGuardian.class,
-//            paramtypez = {String.class},
-//            method = "takeTurn"
-//    )
-//    public static class WhatGIsUpToPath {
-//        public static void Replace(TheGuardian _instance, String stateName) {
-//            System.err.println("G wants to " + _instance.nextMove);
-//        }
-//    }
 }

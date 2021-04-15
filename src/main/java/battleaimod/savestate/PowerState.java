@@ -12,6 +12,8 @@ public class PowerState {
 
     private final int hpLoss;
 
+    private final boolean ritualSkipFirst;
+
     public PowerState(AbstractPower power) {
         this.powerId = power.ID;
         this.amount = power.amount;
@@ -22,6 +24,13 @@ public class PowerState {
         } else {
             this.hpLoss = 0;
         }
+
+        if (power instanceof RitualPower) {
+            ritualSkipFirst = ReflectionHacks
+                    .getPrivate(power, RitualPower.class, "skipFirst");
+        } else {
+            ritualSkipFirst = false;
+        }
     }
 
     public PowerState(String jsonString) {
@@ -29,6 +38,8 @@ public class PowerState {
 
         this.powerId = parsed.get("power_id").getAsString();
         this.amount = parsed.get("amount").getAsInt();
+
+        this.ritualSkipFirst = parsed.get("ritual_skip_first").getAsBoolean();
 
         // TODO
         this.hpLoss = 0;
@@ -42,6 +53,10 @@ public class PowerState {
             result = new VulnerablePower(targetAndSource, amount, false);
         } else if (powerId.equals("Ritual")) {
             result = new RitualPower(targetAndSource, amount, false);
+
+            ReflectionHacks
+                    .setPrivate(result, RitualPower.class, "skipFirst", ritualSkipFirst);
+
         } else if (powerId.equals("Weakened")) {
             result = new WeakPower(targetAndSource, amount, false);
         } else if (powerId.equals("Frail")) {
@@ -106,6 +121,14 @@ public class PowerState {
             result = new NextTurnBlockPower(targetAndSource, amount);
         } else if (powerId.equals("Painful Stabs")) {
             result = new PainfulStabsPower(targetAndSource);
+        } else if (powerId.equals("Fire Breathing")) {
+            result = new FireBreathingPower(targetAndSource, amount);
+        } else if (powerId.equals("Corruption")) {
+            result = new CorruptionPower(targetAndSource);
+        } else if (powerId.equals("Buffer")) {
+            result = new BufferPower(targetAndSource, amount);
+        } else if (powerId.equals("Rupture")) {
+            result = new RupturePower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }
@@ -118,6 +141,8 @@ public class PowerState {
 
         powerStateJson.addProperty("power_id", powerId);
         powerStateJson.addProperty("amount", amount);
+
+        powerStateJson.addProperty("ritual_skip_first", ritualSkipFirst);
 
         return powerStateJson.toString();
     }

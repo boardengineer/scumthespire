@@ -27,6 +27,7 @@ public class BattleAiController {
     public int minDamage = 5000;
     public StateNode bestEnd = null;
     public TurnNode bestTurn = null;
+    public TurnNode backupTun = null;
 
     public int startingHealth;
     public boolean isDone = false;
@@ -47,7 +48,8 @@ public class BattleAiController {
         targetTurn = 4;
         targetTurnJump = 3;
 
-        if (state.encounterName.equals("Lagavulin")) {
+        if (state.encounterName == null) {
+        } else if (state.encounterName.equals("Lagavulin")) {
             maxTurnLoads = 500;
             targetTurn = 2;
             targetTurnJump = 3;
@@ -62,7 +64,7 @@ public class BattleAiController {
             maxTurnLoads = 300;
             targetTurn = 2;
             targetTurnJump = 2;
-        } else if(state.encounterName.equals("Gremlin Gang")) {
+        } else if (state.encounterName.equals("Gremlin Gang")) {
             maxTurnLoads = 300;
             targetTurnJump = 2;
         }
@@ -126,6 +128,16 @@ public class BattleAiController {
                     targetTurn += targetTurnJump;
                     bestTurn.startingState.saveState.loadState();
                     bestTurn = null;
+                    backupTun = null;
+                    return;
+                } else if (turnsLoaded >= maxTurnLoads * 3 && backupTun != null) {
+                    System.err.println("Loading from backup: " + backupTun);
+                    turnsLoaded = 0;
+                    turns.clear();
+                    turns.add(backupTun);
+                    backupTun.startingState.saveState.loadState();
+                    bestTurn = null;
+                    backupTun = null;
                     return;
                 }
             }
@@ -171,7 +183,7 @@ public class BattleAiController {
 
             if (turns.isEmpty()) {
                 System.err.println("turns is empty");
-                if (curTurn != null && curTurn.isDone && bestEnd != null && bestTurn == null) {
+                if (curTurn != null && curTurn.isDone && bestEnd != null && (bestTurn == null || minDamage <= 0)) {
                     System.err.println("found end, going into rerunmode");
 
                     ArrayList<Command> commands = new ArrayList<>();
@@ -207,6 +219,7 @@ public class BattleAiController {
                     targetTurn += targetTurnJump;
                     bestTurn.startingState.saveState.loadState();
                     bestTurn = null;
+                    backupTun = null;
                 }
             }
 

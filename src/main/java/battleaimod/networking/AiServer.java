@@ -61,7 +61,7 @@ public class AiServer {
                             out.writeUTF(jsonToSend.toString());
 
                             try {
-                                Thread.sleep(100);
+                                Thread.sleep(400);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }

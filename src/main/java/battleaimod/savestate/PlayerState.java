@@ -195,16 +195,25 @@ public class PlayerState extends CreatureState {
     }
 
     public int getNumSlimes() {
-        long numSlimes = discardPile.stream().filter(card -> card.getName().equals("Slimed"))
+        return getNumInstance("Slimed");
+    }
+
+    public int getNumBurns() {
+        return getNumInstance("Burn");
+    }
+
+
+    public int getNumInstance(String cardId) {
+        long numInstances = discardPile.stream().filter(card -> card.getName().equals(cardId))
                                     .count();
 
-        numSlimes += hand.stream().filter(card -> card.getName().equals("Slimed"))
+        numInstances += hand.stream().filter(card -> card.getName().equals(cardId))
                          .count();
 
-        numSlimes += drawPile.stream().filter(card -> card.getName().equals("Slimed"))
+        numInstances += drawPile.stream().filter(card -> card.getName().equals(cardId))
                              .count();
 
-        return (int) numSlimes;
+        return (int) numInstances;
     }
 
     public String encode() {
@@ -239,7 +248,7 @@ public class PlayerState extends CreatureState {
         return playerStateJson.toString();
     }
 
-    private static String encodeCardList(ArrayList<CardState> cardList) {
+    public static String encodeCardList(ArrayList<CardState> cardList) {
         return cardList.stream().map(CardState::encode).collect(Collectors.joining(CARD_DELIMETER));
     }
 

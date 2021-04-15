@@ -146,7 +146,7 @@ public class StateNode {
         }
 
         if (isEndCommandAvailable()) {
-            commands.add(new EndCommand(saveState));
+            commands.add(new EndCommand());
         }
 
         commands.sort(new Comparator<Command>() {

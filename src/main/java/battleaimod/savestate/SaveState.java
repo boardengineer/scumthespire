@@ -108,6 +108,10 @@ public class SaveState {
         return playerState.getNumSlimes();
     }
 
+    public int getNumBurns() {
+        return playerState.getNumBurns();
+    }
+
     public String encode() {
         JsonObject saveStateJson = new JsonObject();
 

@@ -54,6 +54,8 @@ public class TurnNode implements Comparable<TurnNode> {
                 curState.saveState = new SaveState();
             }
 
+            ((EndCommand) curState.lastCommand).stateDebugInfo = new StateDebugInfo(curState.saveState);
+
 //            if (controller.bestTurn == null || controller.bestTurn.startingState.saveState.turn < curState.saveState.turn || (controller.bestTurn.startingState.saveState.turn == curState.saveState.turn && this
 //                    .isBetterThan(controller.bestTurn))) {
 //                controller.bestTurn = this;
@@ -67,6 +69,10 @@ public class TurnNode implements Comparable<TurnNode> {
                     }
                     controller.turnsLoaded++;
                 } else {
+                    if (controller.backupTun == null || (toAdd
+                            .isBetterThan(controller.backupTun)) && controller.backupTun.startingState.saveState.turn <= toAdd.startingState.saveState.turn) {
+                        controller.backupTun = toAdd;
+                    }
                     controller.turns.add(toAdd);
                 }
             }

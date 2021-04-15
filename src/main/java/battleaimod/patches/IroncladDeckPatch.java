@@ -1,6 +1,7 @@
 package battleaimod.patches;
 
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.red.*;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 
@@ -20,7 +21,11 @@ public class IroncladDeckPatch {
 
             // Necessary for Unlocks
             add(new Evolve());
-            add(new Exhume());
+
+            AbstractCard fakeExhume = new Inflame();
+            fakeExhume.cardID = "Exhume";
+
+            add(fakeExhume);
             add(new Havoc());
             add(new HeavyBlade());
             add(new Immolate());
@@ -31,7 +36,7 @@ public class IroncladDeckPatch {
 
 
             add(new Anger());
-            add(new Armaments());
+//            add(new Armaments());
             add(new Barricade());
             add(new Bash());
             add(new BattleTrance());
@@ -39,26 +44,26 @@ public class IroncladDeckPatch {
 //            add(new BloodForBlood());
 //            add(new Bloodletting());
             add(new Bludgeon());
-//            add(new BodySlam());
-//            add(new Brutality());
+            add(new BodySlam());
+            add(new Brutality());
 //            add(new BurningPact());
             add(new Carnage());
-//            add(new Clash());
+            add(new Clash());
             add(new Cleave());
             add(new Clothesline());
             add(new Combust());
-//            add(new Corruption());
-//            add(new DarkEmbrace());
+            add(new Corruption());
+            add(new DarkEmbrace());
             add(new DemonForm());
             add(new Disarm());
             add(new DoubleTap());
             add(new Dropkick());
 //            add(new DualWield());
-//            add(new Entrench());
+            add(new Entrench());
             add(new Feed());
-//            add(new FeelNoPain());
+            add(new FeelNoPain());
             add(new FiendFire());
-//            add(new FireBreathing());
+            add(new FireBreathing());
             add(new FlameBarrier());
             add(new Flex());
             add(new GhostlyArmor());
@@ -66,9 +71,9 @@ public class IroncladDeckPatch {
 //            add(new Headbutt());
             add(new Hemokinesis());
             add(new Impervious());
-//            add(new InfernalBlade());
+            add(new InfernalBlade());
             add(new Inflame());
-//            add(new Intimidate());
+            add(new Intimidate());
             add(new IronWave());
             add(new Juggernaut());
             add(new Metallicize());
@@ -77,13 +82,13 @@ public class IroncladDeckPatch {
             add(new PommelStrike());
             add(new PowerThrough());
             add(new Pummel());
-//            add(new Rage());
+            add(new Rage());
             add(new Rampage());
             add(new Reaper());
             add(new RecklessCharge());
-//            add(new Rupture());
+            add(new Rupture());
             add(new SearingBlow());
-//            add(new SecondWind());
+            add(new SecondWind());
             add(new SeeingRed());
             add(new SeverSoul());
             add(new Shockwave());

@@ -67,6 +67,8 @@ public class MonsterState extends CreatureState {
 
     private final boolean shelledParasiteFirstMove;
 
+    private final boolean cultistFirstMove;
+
     public MonsterState(AbstractMonster monster) {
         super(monster);
 
@@ -181,6 +183,14 @@ public class MonsterState extends CreatureState {
         } else {
             shelledParasiteFirstMove = false;
         }
+
+        if (monster instanceof Cultist) {
+            cultistFirstMove = ReflectionHacks
+                    .getPrivate(monster, Cultist.class, "firstMove");
+        } else {
+            cultistFirstMove = false;
+        }
+
     }
 
     public MonsterState(String jsonString) {
@@ -242,6 +252,8 @@ public class MonsterState extends CreatureState {
         this.guardianCloseUpTriggered = parsed.get("guardian_close_up_triggered").getAsBoolean();
 
         this.shelledParasiteFirstMove = parsed.get("shelled_parasite_first_move").getAsBoolean();
+
+        this.cultistFirstMove = parsed.get("cultist_first_move").getAsBoolean();
     }
 
     public AbstractMonster loadMonster() {
@@ -294,7 +306,7 @@ public class MonsterState extends CreatureState {
             ReflectionHacks
                     .setPrivate(monster, TheGuardian.class, "dmgTaken", guardianDmgTaken);
             ReflectionHacks
-                    .setPrivate(monster, TheGuardian.class, "dmgTaken", guardianDmgThesholdIncrease);
+                    .setPrivate(monster, TheGuardian.class, "dmgThresholdIncrease", guardianDmgThesholdIncrease);
             ReflectionHacks
                     .setPrivate(monster, TheGuardian.class, "isOpen", guardianIsOpen);
             ReflectionHacks
@@ -347,6 +359,11 @@ public class MonsterState extends CreatureState {
                     .setPrivate(monster, ShelledParasite.class, "firstMove", shelledParasiteFirstMove);
         }
 
+        if (monster instanceof Cultist) {
+            ReflectionHacks
+                    .setPrivate(monster, Cultist.class, "firstMove", cultistFirstMove);
+        }
+
         return monster;
     }
 
@@ -365,10 +382,6 @@ public class MonsterState extends CreatureState {
             monster = new ApologySlime();
         } else if (id.equals("Cultist")) {
             monster = new Cultist(offsetX, offsetY, false);
-            if (intent != AbstractMonster.Intent.BUFF) {
-                // clear the firstMove boolean by rolling a move
-                monster.rollMove();
-            }
         } else if (id.equals("FungiBeast")) {
             monster = new FungiBeast(offsetX, offsetY);
         } else if (id.equals("GremlinFat")) {
@@ -431,6 +444,14 @@ public class MonsterState extends CreatureState {
             monster = new SnakePlant(offsetX, offsetY);
         } else if (id.equals("BookOfStabbing")) {
             monster = new BookOfStabbing();
+        } else if (id.equals("BanditChild")) {
+            monster = new BanditPointy(offsetX, offsetY);
+        } else if (id.equals("BanditLeader")) {
+            monster = new BanditLeader(offsetX, offsetY);
+        } else if (id.equals("BanditBear")) {
+            monster = new BanditBear(offsetX, offsetY);
+        } else if (id.equals("SlaverBoss")) {
+            monster = new Taskmaster(offsetX, offsetY);
         } else {
             System.err.println("couldn't find monster with id " + id);
         }
@@ -497,6 +518,8 @@ public class MonsterState extends CreatureState {
         monsterStateJson.addProperty("guardian_close_up_triggered", guardianCloseUpTriggered);
 
         monsterStateJson.addProperty("shelled_parasite_first_move", shelledParasiteFirstMove);
+
+        monsterStateJson.addProperty("cultist_first_move", cultistFirstMove);
 
         return monsterStateJson.toString();
     }
