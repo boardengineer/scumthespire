@@ -7,8 +7,6 @@ import com.megacrit.cardcrawl.actions.animations.AnimateHopAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.SpawnMonsterAction;
-import com.megacrit.cardcrawl.cards.DamageInfo;
-import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
 
@@ -31,18 +29,18 @@ public class MonsterPatch {
         }
     }
 
-    @SpirePatch(
-            clz = AbstractPlayer.class,
-            paramtypez = {DamageInfo.class},
-            method = "damage"
-    )
-    public static class WhatGIsUpToPath {
-        public static void Postfix(AbstractPlayer _instance, DamageInfo damage) {
-            if (_instance.isPlayer) {
-                System.err.println("Player is taking " + damage.output);
-            }
-        }
-    }
+//    @SpirePatch(
+//            clz = AbstractPlayer.class,
+//            paramtypez = {DamageInfo.class},
+//            method = "damage"
+//    )
+//    public static class WhatGIsUpToPath {
+//        public static void Postfix(AbstractPlayer _instance, DamageInfo damage) {
+//            if (_instance.isPlayer) {
+//                System.err.println("Player is taking " + damage.output);
+//            }
+//        }
+//    }
 
 //    @SpirePatch(
 //            clz = AbstractCreature.class,

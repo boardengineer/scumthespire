@@ -8,6 +8,7 @@ import battleaimod.fastobjects.actions.RollMoveActionFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
@@ -29,7 +30,6 @@ public class FastActionsPatch {
         public static void Postfix(AbstractRoom room) {
             GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
-
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
                     while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
@@ -41,6 +41,8 @@ public class FastActionsPatch {
                                 actionManager.currentAction = new RollMoveActionFast(monster);
                             } else if (actionManager.currentAction instanceof DrawCardAction) {
                                 actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
+                            } else if (actionManager.currentAction instanceof SetAnimationAction) {
+                                actionManager.currentAction = null;
                             }
                             if (actionManager.currentAction != null) {
                                 actionManager.currentAction.update();

@@ -3,6 +3,7 @@ package battleaimod.battleai;
 import battleaimod.BattleAiMod;
 import battleaimod.savestate.PowerState;
 import battleaimod.savestate.SaveState;
+import com.megacrit.cardcrawl.relics.BottledLightning;
 
 import java.util.HashSet;
 import java.util.Stack;
@@ -69,9 +70,9 @@ public class TurnNode implements Comparable<TurnNode> {
                     }
                     controller.turnsLoaded++;
                 } else {
-                    if (controller.backupTun == null || (toAdd
-                            .isBetterThan(controller.backupTun)) && controller.backupTun.startingState.saveState.turn <= toAdd.startingState.saveState.turn) {
-                        controller.backupTun = toAdd;
+                    if (controller.backupTurn == null || (toAdd
+                            .isBetterThan(controller.backupTurn)) && controller.backupTurn.startingState.saveState.turn <= toAdd.startingState.saveState.turn) {
+                        controller.backupTurn = toAdd;
                     }
                     controller.turns.add(toAdd);
                 }
@@ -88,6 +89,7 @@ public class TurnNode implements Comparable<TurnNode> {
                 states.peek().saveState.loadState();
             }
         } else {
+            BottledLightning g;
             Command toExecute = curState.step();
             if (toExecute == null) {
                 states.pop();
@@ -166,6 +168,8 @@ public class TurnNode implements Comparable<TurnNode> {
                 return monsterDamage - playerDamage + 3 * strength + 3 * dexterity;
             } else if (encounterName.equals("Hexaghost")) {
                 return monsterDamage - 4 * playerDamage + 3 * strength + 3 * dexterity;
+            } else if (encounterName.equals("Champ")) {
+                return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity;
             }
         }
 

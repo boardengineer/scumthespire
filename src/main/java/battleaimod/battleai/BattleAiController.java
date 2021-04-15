@@ -5,6 +5,7 @@ import battleaimod.savestate.SaveState;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.monsters.city.BronzeAutomaton;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class BattleAiController {
     public int minDamage = 5000;
     public StateNode bestEnd = null;
     public TurnNode bestTurn = null;
-    public TurnNode backupTun = null;
+    public TurnNode backupTurn = null;
 
     public int startingHealth;
     public boolean isDone = false;
@@ -47,6 +48,7 @@ public class BattleAiController {
     public BattleAiController(SaveState state) {
         targetTurn = 4;
         targetTurnJump = 3;
+        BronzeAutomaton b;
 
         if (state.encounterName == null) {
         } else if (state.encounterName.equals("Lagavulin")) {
@@ -66,6 +68,10 @@ public class BattleAiController {
             targetTurnJump = 2;
         } else if (state.encounterName.equals("Gremlin Gang")) {
             maxTurnLoads = 300;
+            targetTurnJump = 2;
+        } else if (state.encounterName.equals("Champ")) {
+            maxTurnLoads = 300;
+            targetTurn = 2;
             targetTurnJump = 2;
         }
 
@@ -128,16 +134,17 @@ public class BattleAiController {
                     targetTurn += targetTurnJump;
                     bestTurn.startingState.saveState.loadState();
                     bestTurn = null;
-                    backupTun = null;
+                    backupTurn = null;
                     return;
-                } else if (turnsLoaded >= maxTurnLoads * 3 && backupTun != null) {
-                    System.err.println("Loading from backup: " + backupTun);
+                } else if (turnsLoaded >= maxTurnLoads * 3 && backupTurn != null) {
+                    System.err.println("Loading from backup: " + backupTurn);
                     turnsLoaded = 0;
                     turns.clear();
-                    turns.add(backupTun);
-                    backupTun.startingState.saveState.loadState();
+
+                    turns.add(new TurnNode(backupTurn.startingState, this));
+                    backupTurn.startingState.saveState.loadState();
                     bestTurn = null;
-                    backupTun = null;
+                    backupTurn = null;
                     return;
                 }
             }
@@ -213,13 +220,15 @@ public class BattleAiController {
             if ((curTurn == null || curTurn.isDone || bestTurn != null) && turns.isEmpty()) {
                 if (curTurn == null || TurnNode
                         .getTotalMonsterHealth(curTurn) != 0 && bestTurn != null) {
+                    System.err
+                            .println("Loading for turn completion threshold, best turn: " + bestTurn);
                     turnsLoaded = 0;
                     turns.clear();
                     turns.add(bestTurn);
                     targetTurn += targetTurnJump;
                     bestTurn.startingState.saveState.loadState();
                     bestTurn = null;
-                    backupTun = null;
+                    backupTurn = null;
                 }
             }
 

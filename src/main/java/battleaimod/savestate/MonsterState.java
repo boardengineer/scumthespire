@@ -8,6 +8,8 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
+import com.megacrit.cardcrawl.monsters.beyond.Darkling;
+import com.megacrit.cardcrawl.monsters.beyond.OrbWalker;
 import com.megacrit.cardcrawl.monsters.city.*;
 import com.megacrit.cardcrawl.monsters.exordium.*;
 
@@ -68,6 +70,23 @@ public class MonsterState extends CreatureState {
     private final boolean shelledParasiteFirstMove;
 
     private final boolean cultistFirstMove;
+
+    private final boolean sphericGuardianFirstMove;
+    private final boolean sphericGuardianSecondMove;
+
+    private final boolean sneckoFirstTurn;
+
+    private final int champNumTurns;
+    private final int champForgeTimes;
+    private final int champForgeThreshold;
+    private final boolean champThresholdReached;
+    private final boolean champFirstTurn;
+
+    private final int automatonNumTurns;
+    private final boolean automatonFirstTurn;
+
+    private final int bronzeOrbCount;
+    private final boolean bronzeOrbUsedStasis;
 
     public MonsterState(AbstractMonster monster) {
         super(monster);
@@ -191,6 +210,61 @@ public class MonsterState extends CreatureState {
             cultistFirstMove = false;
         }
 
+        if (monster instanceof SphericGuardian) {
+            sphericGuardianFirstMove = ReflectionHacks
+                    .getPrivate(monster, SphericGuardian.class, "firstMove");
+            sphericGuardianSecondMove = ReflectionHacks
+                    .getPrivate(monster, SphericGuardian.class, "secondMove");
+        } else {
+            sphericGuardianFirstMove = false;
+            sphericGuardianSecondMove = false;
+        }
+
+        if (monster instanceof Snecko) {
+            sneckoFirstTurn = ReflectionHacks
+                    .getPrivate(monster, Snecko.class, "firstTurn");
+        } else {
+            sneckoFirstTurn = true;
+        }
+
+        if (monster instanceof Champ) {
+            champNumTurns = ReflectionHacks
+                    .getPrivate(monster, Champ.class, "numTurns");
+            champForgeTimes = ReflectionHacks
+                    .getPrivate(monster, Champ.class, "forgeTimes");
+            champForgeThreshold = ReflectionHacks
+                    .getPrivate(monster, Champ.class, "forgeThreshold");
+            champThresholdReached = ReflectionHacks
+                    .getPrivate(monster, Champ.class, "thresholdReached");
+            champFirstTurn = ReflectionHacks
+                    .getPrivate(monster, Champ.class, "firstTurn");
+        } else {
+            champNumTurns = 0;
+            champForgeTimes = 0;
+            champForgeThreshold = 0;
+            champThresholdReached = false;
+            champFirstTurn = false;
+        }
+
+        if (monster instanceof BronzeAutomaton) {
+            automatonNumTurns = ReflectionHacks
+                    .getPrivate(monster, BronzeAutomaton.class, "numTurns");
+            automatonFirstTurn = ReflectionHacks
+                    .getPrivate(monster, BronzeAutomaton.class, "firstTurn");
+        } else {
+            automatonNumTurns = 0;
+            automatonFirstTurn = false;
+        }
+
+        if (monster instanceof BronzeOrb) {
+            bronzeOrbCount = ReflectionHacks
+                    .getPrivate(monster, BronzeOrb.class, "count");
+            bronzeOrbUsedStasis = ReflectionHacks
+                    .getPrivate(monster, BronzeOrb.class, "usedStasis");
+        } else {
+            bronzeOrbCount = 0;
+            bronzeOrbUsedStasis = false;
+        }
     }
 
     public MonsterState(String jsonString) {
@@ -254,6 +328,23 @@ public class MonsterState extends CreatureState {
         this.shelledParasiteFirstMove = parsed.get("shelled_parasite_first_move").getAsBoolean();
 
         this.cultistFirstMove = parsed.get("cultist_first_move").getAsBoolean();
+
+        this.sphericGuardianFirstMove = parsed.get("spheric_guardian_first_move").getAsBoolean();
+        this.sphericGuardianSecondMove = parsed.get("spheric_guardian_second_move").getAsBoolean();
+
+        this.sneckoFirstTurn = parsed.get("snecko_first_turn").getAsBoolean();
+
+        this.champNumTurns = parsed.get("champ_num_turns").getAsInt();
+        this.champForgeTimes = parsed.get("champ_forge_times").getAsInt();
+        this.champForgeThreshold = parsed.get("champ_forge_threshold").getAsInt();
+        this.champThresholdReached = parsed.get("champ_threshold_reached").getAsBoolean();
+        this.champFirstTurn = parsed.get("champ_first_turn").getAsBoolean();
+
+        this.automatonNumTurns = parsed.get("automaton_num_turns").getAsInt();
+        this.automatonFirstTurn = parsed.get("automaton_first_turn").getAsBoolean();
+
+        this.bronzeOrbCount = parsed.get("bronze_orb_count").getAsInt();
+        this.bronzeOrbUsedStasis = parsed.get("bronze_orb_used_stasis").getAsBoolean();
     }
 
     public AbstractMonster loadMonster() {
@@ -364,6 +455,42 @@ public class MonsterState extends CreatureState {
                     .setPrivate(monster, Cultist.class, "firstMove", cultistFirstMove);
         }
 
+        if (monster instanceof SphericGuardian) {
+            ReflectionHacks
+                    .setPrivate(monster, SphericGuardian.class, "firstMove", sphericGuardianFirstMove);
+            ReflectionHacks
+                    .setPrivate(monster, SphericGuardian.class, "secondMove", sphericGuardianSecondMove);
+        }
+
+        if (monster instanceof Snecko) {
+            ReflectionHacks
+                    .setPrivate(monster, Snecko.class, "firstTurn", sneckoFirstTurn);
+        }
+
+        if (monster instanceof Champ) {
+            ReflectionHacks
+                    .setPrivate(monster, Champ.class, "numTurns", champNumTurns);
+            ReflectionHacks
+                    .setPrivate(monster, Champ.class, "forgeTimes", champForgeTimes);
+            ReflectionHacks
+                    .setPrivate(monster, Champ.class, "forgeThreshold", champForgeThreshold);
+            ReflectionHacks
+                    .setPrivate(monster, Champ.class, "thresholdReached", champThresholdReached);
+            ReflectionHacks
+                    .setPrivate(monster, Champ.class, "firstTurn", champFirstTurn);
+        }
+
+        if (monster instanceof BronzeAutomaton) {
+            ReflectionHacks
+                    .setPrivate(monster, BronzeAutomaton.class, "numTurns", automatonNumTurns);
+            ReflectionHacks
+                    .setPrivate(monster, BronzeAutomaton.class, "firstTurn", automatonFirstTurn);
+        }
+
+        if (monster instanceof BronzeOrb) {
+            ReflectionHacks.setPrivate(monster, BronzeOrb.class, "usedStasis", bronzeOrbUsedStasis);
+        }
+
         return monster;
     }
 
@@ -452,6 +579,22 @@ public class MonsterState extends CreatureState {
             monster = new BanditBear(offsetX, offsetY);
         } else if (id.equals("SlaverBoss")) {
             monster = new Taskmaster(offsetX, offsetY);
+        } else if (id.equals("Centurion")) {
+            monster = new Centurion(offsetX, offsetY);
+        } else if (id.equals("Healer")) {
+            monster = new Healer(offsetX, offsetY);
+        } else if (id.equals("Snecko")) {
+            monster = new Snecko();
+        } else if (id.equals("Champ")) {
+            monster = new Champ();
+        } else if (id.equals("Orb Walker")) {
+            monster = new OrbWalker(offsetX, offsetY);
+        } else if (id.equals("Darkling")) {
+            monster = new Darkling(offsetX, offsetY);
+        } else if (id.equals("BronzeAutomaton")) {
+            monster = new BronzeAutomaton();
+        } else if (id.equals("BronzeOrb")) {
+            monster = new BronzeOrb(offsetX, offsetY, bronzeOrbCount);
         } else {
             System.err.println("couldn't find monster with id " + id);
         }
@@ -520,6 +663,23 @@ public class MonsterState extends CreatureState {
         monsterStateJson.addProperty("shelled_parasite_first_move", shelledParasiteFirstMove);
 
         monsterStateJson.addProperty("cultist_first_move", cultistFirstMove);
+
+        monsterStateJson.addProperty("spheric_guardian_first_move", sphericGuardianFirstMove);
+        monsterStateJson.addProperty("spheric_guardian_second_move", sphericGuardianSecondMove);
+
+        monsterStateJson.addProperty("snecko_first_turn", sneckoFirstTurn);
+
+        monsterStateJson.addProperty("champ_num_turns", champNumTurns);
+        monsterStateJson.addProperty("champ_forge_times", champForgeTimes);
+        monsterStateJson.addProperty("champ_forge_threshold", champForgeThreshold);
+        monsterStateJson.addProperty("champ_threshold_reached", champThresholdReached);
+        monsterStateJson.addProperty("champ_first_turn", champFirstTurn);
+
+        monsterStateJson.addProperty("automaton_num_turns", automatonNumTurns);
+        monsterStateJson.addProperty("automaton_first_turn", automatonFirstTurn);
+
+        monsterStateJson.addProperty("bronze_orb_count", bronzeOrbCount);
+        monsterStateJson.addProperty("bronze_orb_used_stasis", bronzeOrbUsedStasis);
 
         return monsterStateJson.toString();
     }

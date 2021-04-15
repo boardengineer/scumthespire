@@ -1,8 +1,10 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.powers.*;
 
@@ -13,6 +15,8 @@ public class PowerState {
     private final int hpLoss;
 
     private final boolean ritualSkipFirst;
+
+    private final CardState stasisCard;
 
     public PowerState(AbstractPower power) {
         this.powerId = power.ID;
@@ -31,6 +35,14 @@ public class PowerState {
         } else {
             ritualSkipFirst = false;
         }
+
+        if (power instanceof StasisPower) {
+            AbstractCard card = ReflectionHacks
+                    .getPrivate(power, StasisPower.class, "card");
+            stasisCard = new CardState(card);
+        } else {
+            stasisCard = null;
+        }
     }
 
     public PowerState(String jsonString) {
@@ -40,6 +52,13 @@ public class PowerState {
         this.amount = parsed.get("amount").getAsInt();
 
         this.ritualSkipFirst = parsed.get("ritual_skip_first").getAsBoolean();
+
+        JsonElement cardEle = parsed.get("stasis_card");
+        if (cardEle.isJsonNull()) {
+            stasisCard = null;
+        } else {
+            this.stasisCard = new CardState(cardEle.getAsString());
+        }
 
         // TODO
         this.hpLoss = 0;
@@ -129,6 +148,16 @@ public class PowerState {
             result = new BufferPower(targetAndSource, amount);
         } else if (powerId.equals("Rupture")) {
             result = new RupturePower(targetAndSource, amount);
+        } else if (powerId.equals("Confusion")) {
+            result = new ConfusionPower(targetAndSource);
+        } else if (powerId.equals("Regeneration")) {
+            result = new RegenPower(targetAndSource, amount);
+        } else if (powerId.equals("Generic Strength Up Power")) {
+            result = new GenericStrengthUpPower(targetAndSource, "", amount);
+        } else if (powerId.equals("Life Link")) {
+            result = new RegrowPower(targetAndSource);
+        } else if (powerId.equals("Stasis")) {
+            result = new StasisPower(targetAndSource, stasisCard.loadCard());
         } else {
             System.err.println("missing type for power id: " + powerId);
         }
@@ -143,6 +172,7 @@ public class PowerState {
         powerStateJson.addProperty("amount", amount);
 
         powerStateJson.addProperty("ritual_skip_first", ritualSkipFirst);
+        powerStateJson.addProperty("stasis_card", stasisCard == null ? null : stasisCard.encode());
 
         return powerStateJson.toString();
     }

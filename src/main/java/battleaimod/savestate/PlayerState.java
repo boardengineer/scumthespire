@@ -156,8 +156,10 @@ public class PlayerState extends CreatureState {
                                                            .toCollection(ArrayList::new));
         player.limbo.group = this.limbo.stream().map(CardState::loadCard)
                                        .collect(Collectors.toCollection(ArrayList::new));
+
         player.relics = this.relics.stream().map(RelicState::loadRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
+
         AbstractDungeon.topPanel.adjustRelicHbs();
         for (int i = 0; i < player.relics.size(); i++) {
             player.relics.get(i).instantObtain(player, i, false);

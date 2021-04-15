@@ -9,6 +9,13 @@ public class CardState {
     private final String cardId;
     private final boolean upgraded;
     private final int baseDamage;
+    private final int cost;
+    private final int costForTurn;
+    private final String name;
+
+    private final boolean inBottleTornado;
+    private final boolean inBottleLightning;
+    private final boolean inBottleFlame;
 
     // Everything works without these, there is just s wonky 'draw' animation that can be avoided
     // by setting all the physical properies right away
@@ -27,6 +34,12 @@ public class CardState {
         this.cardId = card.cardID;
         this.upgraded = card.upgraded;
         this.baseDamage = card.baseDamage;
+        this.cost = card.cost;
+        this.costForTurn = card.costForTurn;
+
+        this.inBottleFlame = card.inBottleFlame;
+        this.inBottleTornado = card.inBottleTornado;
+        this.inBottleLightning = card.inBottleLightning;
 
         this.current_x = card.current_x;
         this.current_y = card.current_y;
@@ -39,6 +52,7 @@ public class CardState {
 
         this.drawScale = card.drawScale;
         this.targetDrawScale = card.targetDrawScale;
+        this.name = card.name;
     }
 
     public CardState(String jsonString) {
@@ -47,6 +61,14 @@ public class CardState {
         this.cardId = parsed.get("card_id").getAsString();
         this.upgraded = parsed.get("upgraded").getAsBoolean();
         this.baseDamage = parsed.get("base_damage").getAsInt();
+        this.cost = parsed.get("cost").getAsInt();
+        this.costForTurn = parsed.get("cost_for_turn").getAsInt();
+
+        this.inBottleLightning = parsed.get("in_bottle_lightning").getAsBoolean();
+        this.inBottleTornado = parsed.get("in_bottle_tornado").getAsBoolean();
+        this.inBottleFlame = parsed.get("in_bottle_flame").getAsBoolean();
+
+        this.name = parsed.get("name").getAsString();
 
         // TODO
         this.current_x = 0;
@@ -82,6 +104,13 @@ public class CardState {
         result.targetDrawScale = targetDrawScale;
 
         result.baseDamage = baseDamage;
+        result.cost = cost;
+        result.costForTurn = costForTurn;
+
+        result.inBottleLightning = inBottleLightning;
+        result.inBottleFlame = inBottleFlame;
+        result.inBottleTornado = inBottleTornado;
+        result.name = name;
 
         return result;
     }
@@ -96,6 +125,12 @@ public class CardState {
         cardStateJson.addProperty("card_id", cardId);
         cardStateJson.addProperty("upgraded", upgraded);
         cardStateJson.addProperty("base_damage", baseDamage);
+        cardStateJson.addProperty("cost", cost);
+        cardStateJson.addProperty("cost_for_turn", costForTurn);
+        cardStateJson.addProperty("in_bottle_lightning", inBottleLightning);
+        cardStateJson.addProperty("in_bottle_flame", inBottleFlame);
+        cardStateJson.addProperty("in_bottle_tornado", inBottleTornado);
+        cardStateJson.addProperty("name", name);
 
         return cardStateJson.toString();
     }
