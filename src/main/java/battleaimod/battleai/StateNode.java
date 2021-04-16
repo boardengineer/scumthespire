@@ -61,15 +61,6 @@ public class StateNode {
         if (!initialized) {
             initialized = true;
 
-            // This will be a problem when we win on the enemy turn
-            // Start of turn
-            if (lastCommand == null || lastCommand instanceof EndCommand) {
-//                if (saveToParent()) {
-//                    System.err.println("deduping turn");
-//                    return null;
-//                }
-            }
-
             int damage = controller.startingHealth - saveState.getPlayerHealth();
 
             boolean isBattleOver = !shouldLookForPlay();
@@ -83,6 +74,10 @@ public class StateNode {
                     if (damage < controller.minDamage && saveState.getPlayerHealth() >= 1) {
                         controller.minDamage = damage;
                         controller.bestEnd = this;
+                    } else {
+                        if (controller.deathNode == null) {
+                            controller.deathNode = this;
+                        }
                     }
                 }
 

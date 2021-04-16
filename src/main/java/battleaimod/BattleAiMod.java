@@ -9,7 +9,6 @@ import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import battleaimod.savestate.SaveState;
 import com.badlogic.gdx.graphics.Texture;
-import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
@@ -31,7 +30,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static boolean mustSendGameState = false;
     public static boolean readyForUpdate;
     public static boolean forceStep = false;
-    private static AiServer aiServer = null;
+    public static AiServer aiServer = null;
     public static AiClient aiClient = null;
     public static boolean shouldStartAiFromServer = false;
     public static BattleAiController battleAiController = null;
@@ -59,8 +58,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             }
         }
 
-        Loader load;
-
         CardCrawlGame.screenShake = new ScreenShakeFast();
     }
 
@@ -86,7 +83,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     public static void initialize() {
         BattleAiMod mod = new BattleAiMod();
-
     }
 
     private static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {

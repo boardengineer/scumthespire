@@ -18,6 +18,8 @@ public class EndCommand implements Command {
 
     @Override
     public void execute() {
+//        System.err.println("executing end");
+
         AbstractDungeon.overlayMenu.endTurnButton.disable(true);
     }
 

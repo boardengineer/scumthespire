@@ -4,6 +4,7 @@ import basemod.ReflectionHacks;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
@@ -87,6 +88,11 @@ public class MonsterState extends CreatureState {
 
     private final int bronzeOrbCount;
     private final boolean bronzeOrbUsedStasis;
+
+    private final boolean chosenFirstTurn;
+    private final boolean chosenUsedHex;
+
+    private final int bookOfStabbingStabCount;
 
     public MonsterState(AbstractMonster monster) {
         super(monster);
@@ -265,6 +271,23 @@ public class MonsterState extends CreatureState {
             bronzeOrbCount = 0;
             bronzeOrbUsedStasis = false;
         }
+
+        if (monster instanceof Chosen) {
+            chosenFirstTurn = ReflectionHacks
+                    .getPrivate(monster, Chosen.class, "firstTurn");
+            chosenUsedHex = ReflectionHacks
+                    .getPrivate(monster, Chosen.class, "usedHex");
+        } else {
+            chosenFirstTurn = false;
+            chosenUsedHex = false;
+        }
+
+        if (monster instanceof BookOfStabbing) {
+            bookOfStabbingStabCount = ReflectionHacks
+                    .getPrivate(monster, BookOfStabbing.class, "stabCount");
+        } else {
+            bookOfStabbingStabCount = 0;
+        }
     }
 
     public MonsterState(String jsonString) {
@@ -345,6 +368,11 @@ public class MonsterState extends CreatureState {
 
         this.bronzeOrbCount = parsed.get("bronze_orb_count").getAsInt();
         this.bronzeOrbUsedStasis = parsed.get("bronze_orb_used_stasis").getAsBoolean();
+
+        this.chosenUsedHex = parsed.get("chosen_used_hex").getAsBoolean();
+        this.chosenFirstTurn = parsed.get("chosen_first_turn").getAsBoolean();
+
+        this.bookOfStabbingStabCount = parsed.get("book_of_stabbing_stab_count").getAsInt();
     }
 
     public AbstractMonster loadMonster() {
@@ -381,9 +409,16 @@ public class MonsterState extends CreatureState {
 
 //        monster.tint = new TintEffect();
 //        monster.healthBarUpdatedEvent();
-//        monster.showHealthBar();
-//        monster.update();
+        monster.showHealthBar();
         monster.createIntent();
+
+        if(!shouldGoFast() && monster.currentBlock > 0) {
+            ReflectionHacks
+                    .setPrivate(monster, AbstractCreature.class, "blockAnimTimer", 0.7F);
+            ReflectionHacks
+                    .setPrivate(monster, AbstractCreature.class, "blockTextColor", 0.0F);
+        }
+
 //        monster.updatePowers();
 
         if (monster instanceof GremlinWizard) {
@@ -489,6 +524,16 @@ public class MonsterState extends CreatureState {
 
         if (monster instanceof BronzeOrb) {
             ReflectionHacks.setPrivate(monster, BronzeOrb.class, "usedStasis", bronzeOrbUsedStasis);
+        }
+
+        if (monster instanceof Chosen) {
+            ReflectionHacks.setPrivate(monster, Chosen.class, "usedHex", chosenUsedHex);
+            ReflectionHacks.setPrivate(monster, Chosen.class, "firstTurn", chosenFirstTurn);
+        }
+
+        if (monster instanceof BookOfStabbing) {
+            ReflectionHacks
+                    .setPrivate(monster, BookOfStabbing.class, "stabCount", bookOfStabbingStabCount);
         }
 
         return monster;
@@ -680,6 +725,11 @@ public class MonsterState extends CreatureState {
 
         monsterStateJson.addProperty("bronze_orb_count", bronzeOrbCount);
         monsterStateJson.addProperty("bronze_orb_used_stasis", bronzeOrbUsedStasis);
+
+        monsterStateJson.addProperty("chosen_used_hex", chosenUsedHex);
+        monsterStateJson.addProperty("chosen_first_turn", chosenFirstTurn);
+
+        monsterStateJson.addProperty("book_of_stabbing_stab_count", bookOfStabbingStabCount);
 
         return monsterStateJson.toString();
     }

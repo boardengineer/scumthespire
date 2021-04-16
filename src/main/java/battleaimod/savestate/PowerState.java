@@ -158,6 +158,12 @@ public class PowerState {
             result = new RegrowPower(targetAndSource);
         } else if (powerId.equals("Stasis")) {
             result = new StasisPower(targetAndSource, stasisCard.loadCard());
+        } else if (powerId.equals("Dark Embrace")) {
+            result = new DarkEmbracePower(targetAndSource, amount);
+        } else if (powerId.equals("Feel No Pain")) {
+            result = new FeelNoPainPower(targetAndSource, amount);
+        } else if (powerId.equals("Juggernaut")) {
+            result = new JuggernautPower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

@@ -4,10 +4,7 @@ import basemod.ReflectionHacks;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.helpers.RelicLibrary;
-import com.megacrit.cardcrawl.relics.AbstractRelic;
-import com.megacrit.cardcrawl.relics.Necronomicon;
-import com.megacrit.cardcrawl.relics.Orichalcum;
-import com.megacrit.cardcrawl.relics.RedSkull;
+import com.megacrit.cardcrawl.relics.*;
 
 public class RelicState {
     private final String relicId;
@@ -19,6 +16,8 @@ public class RelicState {
     private final boolean necronomiconActivated;
 
     private final boolean redSkullIsActive;
+
+    private final boolean lanternFirstTurn;
 
     public RelicState(AbstractRelic relic) {
         this.relicId = relic.relicId;
@@ -44,6 +43,13 @@ public class RelicState {
         } else {
             this.redSkullIsActive = false;
         }
+
+        if (relic instanceof Lantern) {
+            this.lanternFirstTurn = ReflectionHacks
+                    .getPrivate(relic, Lantern.class, "firstTurn");
+        } else {
+            this.lanternFirstTurn = false;
+        }
     }
 
     public RelicState(String jsonString) {
@@ -58,6 +64,8 @@ public class RelicState {
         this.necronomiconActivated = parsed.get("necronomicon_activated").getAsBoolean();
 
         this.redSkullIsActive = parsed.get("red_skull_is_active").getAsBoolean();
+
+        this.lanternFirstTurn = parsed.get("lantern_first_turn").getAsBoolean();
     }
 
     public AbstractRelic loadRelic() {
@@ -79,6 +87,11 @@ public class RelicState {
                     .setPrivate(result, RedSkull.class, "isActive", redSkullIsActive);
         }
 
+        if (result instanceof Lantern) {
+            ReflectionHacks
+                    .setPrivate(result, Lantern.class, "firstTurn", lanternFirstTurn);
+        }
+
         return result;
     }
 
@@ -93,6 +106,8 @@ public class RelicState {
         relicStateJson.addProperty("necronomicon_activated", necronomiconActivated);
 
         relicStateJson.addProperty("red_skull_is_active", redSkullIsActive);
+
+        relicStateJson.addProperty("lantern_first_turn", lanternFirstTurn);
 
         return relicStateJson.toString();
     }

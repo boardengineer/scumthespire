@@ -94,10 +94,12 @@ public class SpeedController implements PreUpdateSubscriber {
             }
 
             if (effect instanceof CardTrailEffect) {
+                effect.dispose();
                 topLevelEffects.remove();
             } else if (effect instanceof FastCardObtainEffect) {
                 // don't remove card obtain effects of they get skipped
             } else {
+                effect.dispose();
                 topLevelEffects.remove();
             }
         }
@@ -106,6 +108,7 @@ public class SpeedController implements PreUpdateSubscriber {
         while (effectIterator.hasNext()) {
             AbstractGameEffect effect = effectIterator.next();
             if (!(effect instanceof FastCardObtainEffect || effect instanceof ShowCardAndAddToDiscardEffect)) {
+                effect.dispose();
                 effectIterator.remove();
             }
         }

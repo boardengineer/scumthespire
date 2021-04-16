@@ -93,7 +93,8 @@ public class AiClient {
 
                 System.err.println("Received done");
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("Server disconnected; clearing client for reset.");
+                BattleAiMod.aiClient = null;
             }
         });
     }

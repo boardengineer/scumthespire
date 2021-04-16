@@ -68,9 +68,14 @@ public class SaveState {
     }
 
     public void loadState() {
+
         GameActionManager.turn = this.turn;
+
+//        long point1 = System.currentTimeMillis();
+
         AbstractDungeon.player = playerState.loadPlayer();
 
+//        long point2 = System.currentTimeMillis();
         curMapNodeState.loadMapRoomNode(AbstractDungeon.currMapNode);
         AbstractDungeon.screen = screen;
 
@@ -94,6 +99,11 @@ public class SaveState {
         GameStateListener.previousPhase = previousPhase;
         GameStateListener.myTurn = myTurn;
         GameStateListener.externalChange = true;
+
+//        System.err
+//                .printf("load time: %d\tpart 1:%d\tpart2:%d\n", System
+//                        .currentTimeMillis() - point1, point2 - point1, System
+//                        .currentTimeMillis() - point2);
     }
 
     public int getPlayerHealth() {

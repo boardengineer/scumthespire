@@ -12,6 +12,7 @@ import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.relics.BottledFlame;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
@@ -204,6 +205,18 @@ public class FastActionsPatch {
         public static void Prefix(MonsterRoomBoss _instance) {
             System.err.println("Starting fight " + AbstractDungeon.bossList.get(0));
             BattleAiController.currentEncounter = AbstractDungeon.bossList.get(0);
+        }
+    }
+
+    // TODO this is a hack to fix an NPE
+    @SpirePatch(
+            clz = BottledFlame.class,
+            paramtypez = {},
+            method = "setDescriptionAfterLoading"
+    )
+    public static class FixDescriptionNPE {
+        public static void Replace(BottledFlame _instance) {
+
         }
     }
 }

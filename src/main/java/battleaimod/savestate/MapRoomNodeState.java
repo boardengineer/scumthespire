@@ -119,6 +119,7 @@ public class MapRoomNodeState {
         room.skipMonsterTurn = this.skipMonsterTurn;
         AbstractRoom.waitTimer = this.waitTimer;
 
+        mapRoomNode.getRoom().dispose();
         if (monsterData != null) {
             room.monsters = new MonsterGroup(monsterData.stream().map(MonsterState::loadMonster)
                                                         .toArray(AbstractMonster[]::new));

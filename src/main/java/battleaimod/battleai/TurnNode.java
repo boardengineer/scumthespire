@@ -3,15 +3,12 @@ package battleaimod.battleai;
 import battleaimod.BattleAiMod;
 import battleaimod.savestate.PowerState;
 import battleaimod.savestate.SaveState;
-import com.megacrit.cardcrawl.relics.BottledLightning;
 
-import java.util.HashSet;
 import java.util.Stack;
 
 public class TurnNode implements Comparable<TurnNode> {
     private final BattleAiController controller;
     public Stack<StateNode> states;
-    private final HashSet<String> completedTurns = new HashSet<>();
     public boolean runningCommands = false;
     public boolean isDone = false;
 
@@ -45,11 +42,18 @@ public class TurnNode implements Comparable<TurnNode> {
         if (!runningCommands) {
             runningCommands = true;
             curState.saveState.loadState();
+            return false;
         }
 
         if (curState != startingState && curState.lastCommand instanceof EndCommand) {
+            controller.turnsLoaded++;
             TurnNode toAdd = new TurnNode(curState, controller);
             states.pop();
+
+            while (!states.isEmpty() && states.peek().isDone()) {
+                states.pop();
+            }
+
             runningCommands = false;
             if (curState.saveState == null) {
                 curState.saveState = new SaveState();
@@ -68,12 +72,13 @@ public class TurnNode implements Comparable<TurnNode> {
                     if (controller.bestTurn == null || toAdd.isBetterThan(controller.bestTurn)) {
                         controller.bestTurn = toAdd;
                     }
-                    controller.turnsLoaded++;
+
                 } else {
                     if (controller.backupTurn == null || (toAdd
                             .isBetterThan(controller.backupTurn)) && controller.backupTurn.startingState.saveState.turn <= toAdd.startingState.saveState.turn) {
                         controller.backupTurn = toAdd;
                     }
+                    System.err.println("adding " + toAdd);
                     controller.turns.add(toAdd);
                 }
             }
@@ -89,7 +94,6 @@ public class TurnNode implements Comparable<TurnNode> {
                 states.peek().saveState.loadState();
             }
         } else {
-            BottledLightning g;
             Command toExecute = curState.step();
             if (toExecute == null) {
                 states.pop();
@@ -97,6 +101,7 @@ public class TurnNode implements Comparable<TurnNode> {
                     states.peek().saveState.loadState();
                 }
             } else {
+//                System.err.println("adding node for " + toExecute);
                 StateNode toAdd = new StateNode(curState, toExecute, controller);
                 if (toExecute instanceof EndCommand) {
                     states.push(toAdd);
@@ -169,6 +174,8 @@ public class TurnNode implements Comparable<TurnNode> {
             } else if (encounterName.equals("Hexaghost")) {
                 return monsterDamage - 4 * playerDamage + 3 * strength + 3 * dexterity;
             } else if (encounterName.equals("Champ")) {
+                return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity;
+            } else if (encounterName.equals("The Guardian")) {
                 return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity;
             }
         }

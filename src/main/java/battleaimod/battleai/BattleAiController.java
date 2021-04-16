@@ -27,6 +27,10 @@ public class BattleAiController {
 
     public int minDamage = 5000;
     public StateNode bestEnd = null;
+
+    // If it doesn't work out just send back a path to kill the players o the game doesn't get
+    // stuck.
+    public StateNode deathNode = null;
     public TurnNode bestTurn = null;
     public TurnNode backupTurn = null;
 
@@ -38,6 +42,7 @@ public class BattleAiController {
     public TurnNode curTurn;
 
     public int turnsLoaded = 0;
+    private int totalSteps = 0;
     public TurnNode furthestSoFar = null;
 
     public boolean runCommandMode = false;
@@ -130,19 +135,22 @@ public class BattleAiController {
                     System.err.println("Loading for turn load threshold, best turn: " + bestTurn);
                     turnsLoaded = 0;
                     turns.clear();
-                    turns.add(bestTurn);
+                    TurnNode toAdd = makeResetCopy(bestTurn);
+                    turns.add(toAdd);
                     targetTurn += targetTurnJump;
-                    bestTurn.startingState.saveState.loadState();
+                    toAdd.startingState.saveState.loadState();
                     bestTurn = null;
                     backupTurn = null;
                     return;
-                } else if (turnsLoaded >= maxTurnLoads * 3 && backupTurn != null) {
+                } else if (turnsLoaded >= maxTurnLoads * 1.5 && backupTurn != null) {
                     System.err.println("Loading from backup: " + backupTurn);
                     turnsLoaded = 0;
                     turns.clear();
 
-                    turns.add(new TurnNode(backupTurn.startingState, this));
-                    backupTurn.startingState.saveState.loadState();
+                    TurnNode toAdd = makeResetCopy(backupTurn);
+
+                    turns.add(toAdd);
+                    toAdd.startingState.saveState.loadState();
                     bestTurn = null;
                     backupTurn = null;
                     return;
@@ -169,7 +177,6 @@ public class BattleAiController {
 
                 int turnNumber = curTurn.startingState.saveState.turn;
 
-                // TODO how does this jump?
                 if (turnNumber >= targetTurn) {
                     if (bestTurn == null || curTurn.isBetterThan(bestTurn)) {
                         bestTurn = curTurn;
@@ -180,7 +187,7 @@ public class BattleAiController {
                     turns.poll();
                 } else {
                     System.err.println("the best turn has damage " + curTurn + " " + turns
-                            .size() + " " + (++turnsLoaded));
+                            .size() + " " + (turnsLoaded));
                     if (curTurn.isDone) {
                         System.err.println("finished turn");
                         turns.poll();
@@ -232,6 +239,25 @@ public class BattleAiController {
                 }
             }
 
+            if (deathNode != null && turns
+                    .isEmpty() && bestTurn == null && (curTurn == null || curTurn.isDone)) {
+                System.err.println("Sending back death turn");
+
+                ArrayList<Command> commands = new ArrayList<>();
+                StateNode iterator = deathNode;
+                while (iterator != null) {
+                    commands.add(0, iterator.lastCommand);
+                    iterator = iterator.parent;
+                }
+
+                startingState.loadState();
+                bestPathRunner = commands.iterator();
+
+                runCommandMode = true;
+
+                return;
+            }
+
         }
         if (runCommandMode && shouldRunWhenFound) {
             boolean foundCommand = false;
@@ -257,5 +283,11 @@ public class BattleAiController {
                 isDone = true;
             }
         }
+    }
+
+    private TurnNode makeResetCopy(TurnNode node) {
+        StateNode stateNode = new StateNode(node.startingState.parent, node.startingState.lastCommand, this);
+        stateNode.saveState = node.startingState.saveState;
+        return new TurnNode(stateNode, this);
     }
 }

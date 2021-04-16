@@ -25,6 +25,8 @@ public class MonsterPatch {
         public static void Postfix(AbstractMonster _instance) {
             if (shouldGoFast()) {
                 _instance.deathTimer = .0000001F;
+                _instance.isDead = true;
+                _instance.dispose();
             }
         }
     }
@@ -70,6 +72,8 @@ public class MonsterPatch {
         public static void Postfix(AbstractMonster _instance, boolean triggerRelics) {
             if (shouldGoFast()) {
                 _instance.deathTimer = .0000001F;
+                _instance.isDead = true;
+                _instance.dispose();
             }
         }
     }
