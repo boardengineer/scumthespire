@@ -18,6 +18,8 @@ public class PowerState {
 
     private final CardState stasisCard;
 
+    private final int malleableBasePower;
+
     public PowerState(AbstractPower power) {
         this.powerId = power.ID;
         this.amount = power.amount;
@@ -43,6 +45,13 @@ public class PowerState {
         } else {
             stasisCard = null;
         }
+
+        if (power instanceof MalleablePower) {
+            malleableBasePower = ReflectionHacks
+                    .getPrivate(power, MalleablePower.class, "basePower");
+        } else {
+            malleableBasePower = 0;
+        }
     }
 
     public PowerState(String jsonString) {
@@ -60,6 +69,8 @@ public class PowerState {
             this.stasisCard = new CardState(cardEle.getAsString());
         }
 
+        this.malleableBasePower = parsed.get("malleable_base_power").getAsInt();
+
         // TODO
         this.hpLoss = 0;
     }
@@ -72,10 +83,8 @@ public class PowerState {
             result = new VulnerablePower(targetAndSource, amount, false);
         } else if (powerId.equals("Ritual")) {
             result = new RitualPower(targetAndSource, amount, false);
-
             ReflectionHacks
                     .setPrivate(result, RitualPower.class, "skipFirst", ritualSkipFirst);
-
         } else if (powerId.equals("Weakened")) {
             result = new WeakPower(targetAndSource, amount, false);
         } else if (powerId.equals("Frail")) {
@@ -164,6 +173,10 @@ public class PowerState {
             result = new FeelNoPainPower(targetAndSource, amount);
         } else if (powerId.equals("Juggernaut")) {
             result = new JuggernautPower(targetAndSource, amount);
+        } else if (powerId.equals("DuplicationPower")) {
+            result = new DuplicationPower(targetAndSource, amount);
+        } else if (powerId.equals("Rage")) {
+            result = new RagePower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }
@@ -179,6 +192,7 @@ public class PowerState {
 
         powerStateJson.addProperty("ritual_skip_first", ritualSkipFirst);
         powerStateJson.addProperty("stasis_card", stasisCard == null ? null : stasisCard.encode());
+        powerStateJson.addProperty("malleable_base_power", malleableBasePower);
 
         return powerStateJson.toString();
     }

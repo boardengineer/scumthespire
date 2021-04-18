@@ -68,7 +68,6 @@ public class SaveState {
     }
 
     public void loadState() {
-
         GameActionManager.turn = this.turn;
 
 //        long point1 = System.currentTimeMillis();

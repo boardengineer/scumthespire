@@ -1,16 +1,20 @@
 package battleaimod.savestate;
 
+import basemod.ReflectionHacks;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
+import com.megacrit.cardcrawl.monsters.city.TheCollector;
+import com.megacrit.cardcrawl.monsters.city.TorchHead;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
 import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -125,6 +129,22 @@ public class MapRoomNodeState {
                                                         .toArray(AbstractMonster[]::new));
         } else {
             room.monsters = null;
+        }
+
+        for (AbstractMonster monster : room.monsters.monsters) {
+            if (monster instanceof TheCollector) {
+                int key = 1;
+                HashMap<Integer, AbstractMonster> collectorMinions = new HashMap<>();
+
+                for (AbstractMonster possibleMinion : room.monsters.monsters) {
+                    if (possibleMinion instanceof TorchHead) {
+                        collectorMinions.put(key++, possibleMinion);
+                    }
+                }
+
+                ReflectionHacks
+                        .setPrivate(monster, TheCollector.class, "enemySlots", collectorMinions);
+            }
         }
 
         if (room.phase == AbstractRoom.RoomPhase.COMBAT) {

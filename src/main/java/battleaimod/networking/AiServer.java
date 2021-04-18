@@ -1,7 +1,10 @@
 package battleaimod.networking;
 
 import battleaimod.BattleAiMod;
+import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.Command;
+import battleaimod.battleai.StateNode;
+import battleaimod.battleai.TurnNode;
 import battleaimod.savestate.SaveState;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -48,6 +51,7 @@ public class AiServer {
                                 e.printStackTrace();
                             }
                         }
+
                         System.err.println("Controller Initiated");
 
                         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -55,13 +59,19 @@ public class AiServer {
                             // Send update
                             JsonObject jsonToSend = new JsonObject();
 
+                            TurnNode committedTurn = BattleAiMod.battleAiController.committedTurn;
+                            if (committedTurn != null) {
+                                JsonArray currentCommands = commandsForStateNode(committedTurn.startingState);
+                                jsonToSend.add("commands", currentCommands);
+                            }
+
                             jsonToSend.addProperty("type", "STATUS_UPDATE");
                             jsonToSend.addProperty("message", String
-                                    .format("%d", BattleAiMod.battleAiController.turnsLoaded));
+                                    .format("%d / %d", BattleAiMod.battleAiController.turnsLoaded, BattleAiMod.battleAiController.maxTurnLoads));
                             out.writeUTF(jsonToSend.toString());
 
                             try {
-                                Thread.sleep(400);
+                                Thread.sleep(BattleAiMod.MESSAGE_TIME_MILLIS);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -86,7 +96,7 @@ public class AiServer {
                             jsonToSend.addProperty("type", "COMMAND_LIST");
                             jsonToSend.add("commands", commands);
 
-                            System.err.println("Sending commands " + commands);
+                            System.err.println(BattleAiMod.battleAiController.bestPath);
 
                             out.writeUTF(jsonToSend.toString());
                             BattleAiMod.battleAiController = null;
@@ -103,5 +113,21 @@ public class AiServer {
                 BattleAiMod.aiServer = null;
             }
         });
+    }
+
+    public static JsonArray commandsForStateNode(StateNode stateNode) {
+        JsonArray commands = new JsonArray();
+
+        Iterator<Command> bestPath = BattleAiController.commandsToGetToNode(stateNode).iterator();
+        while (bestPath.hasNext()) {
+            Command nextCommand = bestPath.next();
+            if (nextCommand != null) {
+                commands.add(nextCommand.encode());
+            } else {
+                commands.add(JsonNull.INSTANCE);
+            }
+        }
+
+        return commands;
     }
 }

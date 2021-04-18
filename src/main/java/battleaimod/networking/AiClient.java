@@ -49,6 +49,7 @@ public class AiClient {
             try {
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                 out.writeUTF(state.encode());
+                BattleAiMod.battleAiController = null;
 
                 DataInputStream in = new DataInputStream(new BufferedInputStream(socket
                         .getInputStream()));
@@ -61,13 +62,18 @@ public class AiClient {
                     try {
                         readLine = in.readUTF();
                     } catch (SocketTimeoutException e) {
-                        System.err.println("Server failed to response after 5 seconds");
+                        System.err.println("Server failed to respond after 5 seconds");
                         continue;
                     }
 
                     try {
                         JsonObject parsed = new JsonParser().parse(readLine).getAsJsonObject();
+
+                        System.err.println("Server sent proper json message");
+
                         if (parsed.get("type").getAsString().equals("COMMAND_LIST")) {
+                            System.err.println("Received final commands");
+
                             ArrayList<Command> commandsFromServer = new ArrayList<>();
                             JsonArray jsonCommands = parsed.get("commands").getAsJsonArray();
                             for (JsonElement jsonCommand : jsonCommands) {
@@ -76,15 +82,42 @@ public class AiClient {
                             }
 
                             System.err.println(commandsFromServer);
-                            BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer);
-                            BattleAiMod.readyForUpdate = true;
-                            BattleAiMod.forceStep = true;
+
+                            if (BattleAiMod.battleAiController == null) {
+                                BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, true);
+                                BattleAiMod.readyForUpdate = true;
+                                BattleAiMod.forceStep = true;
+                            } else {
+                                BattleAiMod.battleAiController
+                                        .updateBestPath(commandsFromServer, true);
+                            }
                         } else if (parsed.get("type").getAsString().equals("STATUS_UPDATE")) {
+                            String message = parsed.get("message").getAsString();
+                            System.err.println(message);
+
+                            if (parsed.has("commands")) {
+                                ArrayList<Command> commandsFromServer = new ArrayList<>();
+                                JsonArray jsonCommands = parsed.get("commands").getAsJsonArray();
+                                for (JsonElement jsonCommand : jsonCommands) {
+                                    Command toAdd = toCommand(jsonCommand);
+                                    commandsFromServer.add(toAdd);
+                                }
+
+                                if (BattleAiMod.battleAiController == null) {
+                                    BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, false);
+                                    BattleAiMod.readyForUpdate = true;
+                                    BattleAiMod.forceStep = true;
+                                } else {
+                                    BattleAiMod.battleAiController
+                                            .updateBestPath(commandsFromServer, false);
+                                }
+                                System.err.println("current commands: " + commandsFromServer);
+                            }
+
+                            BattleAiMod.steveMessage = message;
 //                            AbstractDungeon.effectList
 //                                    .add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, 2.0F, parsed.get("message").getAsString(), true));
                         }
-
-                        System.err.println("Server sent proper json message");
 
                     } catch (IllegalStateException e) {
                         // Not a json string
@@ -95,6 +128,7 @@ public class AiClient {
             } catch (IOException e) {
                 System.err.println("Server disconnected; clearing client for reset.");
                 BattleAiMod.aiClient = null;
+                BattleAiMod.battleAiController = null;
             }
         });
     }

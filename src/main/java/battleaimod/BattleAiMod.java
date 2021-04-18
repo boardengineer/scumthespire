@@ -1,6 +1,7 @@
 package battleaimod;
 
 import basemod.BaseMod;
+import basemod.ReflectionHacks;
 import basemod.TopPanelItem;
 import basemod.interfaces.*;
 import battleaimod.battleai.BattleAiController;
@@ -9,7 +10,9 @@ import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import battleaimod.savestate.SaveState;
 import com.badlogic.gdx.graphics.Texture;
+import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
+import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
@@ -27,6 +30,10 @@ import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 @SpireInitializer
 public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber {
+    public final static long MESSAGE_TIME_MILLIS = 1500L;
+
+    public static String steveMessage = null;
+
     public static boolean mustSendGameState = false;
     public static boolean readyForUpdate;
     public static boolean forceStep = false;
@@ -39,9 +46,15 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
 
+
     public BattleAiMod() {
         BaseMod.subscribe(this);
         BaseMod.subscribe(new SpeedController());
+
+        // Shut off the MTS console window, It increasingly slows things down
+        ModSelectWindow window = ReflectionHacks.getPrivateStatic(Loader.class, "ex");
+        window.removeAll();
+
 //        Settings.ACTION_DUR_XFAST = 0.01F;
 //        Settings.ACTION_DUR_FASTER = 0.02F;
 //        Settings.ACTION_DUR_FAST = 0.025F;
@@ -116,6 +129,14 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     }
 
     public void receivePostUpdate() {
+        if (steveMessage != null) {
+            String messageToDisplay = steveMessage + " NL #gtest #r" + steveMessage;
+            steveMessage = null;
+
+            AbstractDungeon.effectList
+                    .add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, (float) MESSAGE_TIME_MILLIS / 1000.F, messageToDisplay, true));
+
+        }
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
             battleAiController = new BattleAiController(saveState);

@@ -1,11 +1,11 @@
 package battleaimod.battleai;
 
+import battleaimod.BattleAiMod;
 import battleaimod.ChoiceScreenUtils;
 import battleaimod.savestate.SaveState;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.monsters.city.BronzeAutomaton;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    private int maxTurnLoads = 300;
+    public int maxTurnLoads = 100;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -31,6 +31,11 @@ public class BattleAiController {
     // If it doesn't work out just send back a path to kill the players o the game doesn't get
     // stuck.
     public StateNode deathNode = null;
+
+    // The state the AI is currentl processing from
+    public TurnNode committedTurn = null;
+
+    // The target turn that will be loaded if/when the max turn loads is hit
     public TurnNode bestTurn = null;
     public TurnNode backupTurn = null;
 
@@ -38,12 +43,19 @@ public class BattleAiController {
     public boolean isDone = false;
     public final SaveState startingState;
     private boolean initialized = false;
+
+    public List<Command> bestPath;
+    private List<Command> queuedPath;
+
     public Iterator<Command> bestPathRunner;
     public TurnNode curTurn;
 
     public int turnsLoaded = 0;
-    private int totalSteps = 0;
+    private final int totalSteps = 0;
     public TurnNode furthestSoFar = null;
+
+    boolean isComplete = true;
+    boolean wouldComplete = true;
 
     public boolean runCommandMode = false;
     public boolean runPartialMode = false;
@@ -53,29 +65,24 @@ public class BattleAiController {
     public BattleAiController(SaveState state) {
         targetTurn = 4;
         targetTurnJump = 3;
-        BronzeAutomaton b;
 
         if (state.encounterName == null) {
         } else if (state.encounterName.equals("Lagavulin")) {
-            maxTurnLoads = 500;
+            maxTurnLoads = 200;
             targetTurn = 2;
             targetTurnJump = 3;
         } else if (state.encounterName.equals("Gremlin Nob")) {
             targetTurn = 2;
             targetTurnJump = 3;
         } else if (state.encounterName.equals("The Guardian")) {
-            maxTurnLoads = 300;
             targetTurn = 2;
             targetTurnJump = 2;
         } else if (state.encounterName.equals("Hexaghost")) {
-            maxTurnLoads = 300;
             targetTurn = 2;
             targetTurnJump = 2;
         } else if (state.encounterName.equals("Gremlin Gang")) {
-            maxTurnLoads = 300;
             targetTurnJump = 2;
         } else if (state.encounterName.equals("Champ")) {
-            maxTurnLoads = 300;
             targetTurn = 2;
             targetTurnJump = 2;
         }
@@ -100,8 +107,38 @@ public class BattleAiController {
     public BattleAiController(SaveState saveState, List<Command> commands) {
         runCommandMode = true;
         shouldRunWhenFound = true;
+        bestPath = commands;
         bestPathRunner = commands.iterator();
         startingState = saveState;
+    }
+
+    public BattleAiController(SaveState saveState, List<Command> commands, boolean isComplete) {
+        runCommandMode = true;
+        this.isComplete = isComplete;
+        shouldRunWhenFound = true;
+        bestPath = commands;
+        bestPathRunner = commands.iterator();
+        startingState = saveState;
+    }
+
+    public void updateBestPath(List<Command> commands, boolean wouldComplete) {
+        queuedPath = commands;
+        if (!bestPathRunner.hasNext()) {
+            Iterator<Command> oldPath = bestPath.iterator();
+            Iterator<Command> newPath = commands.iterator();
+
+            while (oldPath.hasNext()) {
+                oldPath.next();
+                newPath.next();
+            }
+
+            bestPathRunner = newPath;
+            this.isComplete = wouldComplete;
+            bestPath = queuedPath;
+        }
+
+        this.wouldComplete = wouldComplete;
+        this.runCommandMode = true;
     }
 
     public static boolean shouldStep() {
@@ -126,12 +163,22 @@ public class BattleAiController {
     }
 
     public void step() {
+        if (!shouldGoFast()) {
+            System.err.println("step");
+        }
         if (isDone) {
             return;
         }
         if (!runCommandMode && !runPartialMode) {
             if (turnsLoaded >= maxTurnLoads && (curTurn == null || curTurn.isDone)) {
-                if (bestTurn != null) {
+                if (bestEnd != null) {
+                    System.err.println("Found end at turn treshold, going into rerun");
+                    runCommandMode = true;
+                    startingState.loadState();
+                    bestPath = commandsToGetToNode(bestEnd);
+                    bestPathRunner = bestPath.iterator();
+                    return;
+                } else if (bestTurn != null) {
                     System.err.println("Loading for turn load threshold, best turn: " + bestTurn);
                     turnsLoaded = 0;
                     turns.clear();
@@ -139,20 +186,31 @@ public class BattleAiController {
                     turns.add(toAdd);
                     targetTurn += targetTurnJump;
                     toAdd.startingState.saveState.loadState();
+                    committedTurn = toAdd;
                     bestTurn = null;
                     backupTurn = null;
+
+                    // TODO this is here to prevent playback errors
+                    bestEnd = null;
+                    minDamage = 5000;
+
+
                     return;
                 } else if (turnsLoaded >= maxTurnLoads * 1.5 && backupTurn != null) {
                     System.err.println("Loading from backup: " + backupTurn);
                     turnsLoaded = 0;
                     turns.clear();
-
                     TurnNode toAdd = makeResetCopy(backupTurn);
-
+                    committedTurn = toAdd;
                     turns.add(toAdd);
                     toAdd.startingState.saveState.loadState();
                     bestTurn = null;
                     backupTurn = null;
+
+                    // TODO this is here to prevent playback errors
+                    bestEnd = null;
+                    minDamage = 5000;
+
                     return;
                 }
             }
@@ -199,21 +257,11 @@ public class BattleAiController {
                 System.err.println("turns is empty");
                 if (curTurn != null && curTurn.isDone && bestEnd != null && (bestTurn == null || minDamage <= 0)) {
                     System.err.println("found end, going into rerunmode");
-
-                    ArrayList<Command> commands = new ArrayList<>();
-                    StateNode iterator = bestEnd;
-                    while (iterator != null) {
-                        commands.add(0, iterator.lastCommand);
-                        iterator = iterator.parent;
-                    }
-
                     startingState.loadState();
-                    bestPathRunner = commands.iterator();
-
+                    bestPath = commandsToGetToNode(bestEnd);
+                    bestPathRunner = bestPath.iterator();
                     runCommandMode = true;
-
                     return;
-
                 } else {
                     System.err.println("not done yet");
                 }
@@ -234,6 +282,7 @@ public class BattleAiController {
                     turns.add(bestTurn);
                     targetTurn += targetTurnJump;
                     bestTurn.startingState.saveState.loadState();
+                    committedTurn = bestTurn;
                     bestTurn = null;
                     backupTurn = null;
                 }
@@ -242,19 +291,10 @@ public class BattleAiController {
             if (deathNode != null && turns
                     .isEmpty() && bestTurn == null && (curTurn == null || curTurn.isDone)) {
                 System.err.println("Sending back death turn");
-
-                ArrayList<Command> commands = new ArrayList<>();
-                StateNode iterator = deathNode;
-                while (iterator != null) {
-                    commands.add(0, iterator.lastCommand);
-                    iterator = iterator.parent;
-                }
-
                 startingState.loadState();
-                bestPathRunner = commands.iterator();
-
+                bestPath = commandsToGetToNode(deathNode);
+                bestPathRunner = bestPath.iterator();
                 runCommandMode = true;
-
                 return;
             }
 
@@ -276,11 +316,30 @@ public class BattleAiController {
             }
 
             if (!bestPathRunner.hasNext()) {
+                System.err.println("no more commands to run");
                 turns = new PriorityQueue<>();
                 root = null;
                 minDamage = 5000;
                 bestEnd = null;
-                isDone = true;
+                BattleAiMod.readyForUpdate = true;
+
+                if (isComplete) {
+                    isDone = true;
+                    runCommandMode = false;
+                } else if (queuedPath != null && queuedPath.size() > bestPath.size()) {
+                    System.err.println("Enqueueing path...");
+                    Iterator<Command> oldPath = bestPath.iterator();
+                    Iterator<Command> newPath = queuedPath.iterator();
+
+                    while (oldPath.hasNext()) {
+                        oldPath.next();
+                        newPath.next();
+                    }
+
+                    bestPathRunner = newPath;
+                    this.isComplete = wouldComplete;
+                    bestPath = queuedPath;
+                }
             }
         }
     }
@@ -289,5 +348,16 @@ public class BattleAiController {
         StateNode stateNode = new StateNode(node.startingState.parent, node.startingState.lastCommand, this);
         stateNode.saveState = node.startingState.saveState;
         return new TurnNode(stateNode, this);
+    }
+
+    public static List<Command> commandsToGetToNode(StateNode endNode) {
+        ArrayList<Command> commands = new ArrayList<>();
+        StateNode iterator = endNode;
+        while (iterator != null) {
+            commands.add(0, iterator.lastCommand);
+            iterator = iterator.parent;
+        }
+
+        return commands;
     }
 }

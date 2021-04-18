@@ -94,6 +94,16 @@ public class MonsterState extends CreatureState {
 
     private final int bookOfStabbingStabCount;
 
+    private final int collectorTurnsTaken;
+    private final boolean collectorUltUsed;
+    private final boolean collectorInitialSpawn;
+
+    private final int muggerSlashCount;
+    private final int muggerStolenGold;
+
+    private final int looterSlashCount;
+    private final int looterStolenGold;
+
     public MonsterState(AbstractMonster monster) {
         super(monster);
 
@@ -288,6 +298,39 @@ public class MonsterState extends CreatureState {
         } else {
             bookOfStabbingStabCount = 0;
         }
+
+        if (monster instanceof TheCollector) {
+            collectorInitialSpawn = ReflectionHacks
+                    .getPrivate(monster, TheCollector.class, "initialSpawn");
+            collectorTurnsTaken = ReflectionHacks
+                    .getPrivate(monster, TheCollector.class, "turnsTaken");
+            collectorUltUsed = ReflectionHacks
+                    .getPrivate(monster, TheCollector.class, "ultUsed");
+        } else {
+            collectorInitialSpawn = false;
+            collectorTurnsTaken = 0;
+            collectorUltUsed = false;
+        }
+
+        if (monster instanceof Mugger) {
+            muggerSlashCount = ReflectionHacks
+                    .getPrivate(monster, Mugger.class, "slashCount");
+            muggerStolenGold = ReflectionHacks
+                    .getPrivate(monster, Mugger.class, "stolenGold");
+        } else {
+            muggerSlashCount = 0;
+            muggerStolenGold = 0;
+        }
+
+        if (monster instanceof Looter) {
+            looterSlashCount = ReflectionHacks
+                    .getPrivate(monster, Looter.class, "slashCount");
+            looterStolenGold = ReflectionHacks
+                    .getPrivate(monster, Looter.class, "stolenGold");
+        } else {
+            looterSlashCount = 0;
+            looterStolenGold = 0;
+        }
     }
 
     public MonsterState(String jsonString) {
@@ -373,6 +416,16 @@ public class MonsterState extends CreatureState {
         this.chosenFirstTurn = parsed.get("chosen_first_turn").getAsBoolean();
 
         this.bookOfStabbingStabCount = parsed.get("book_of_stabbing_stab_count").getAsInt();
+
+        this.collectorUltUsed = parsed.get("collector_ult_used").getAsBoolean();
+        this.collectorTurnsTaken = parsed.get("collector_turns_taken").getAsInt();
+        this.collectorInitialSpawn = parsed.get("collector_initial_spawn").getAsBoolean();
+
+        this.muggerSlashCount = parsed.get("mugger_slash_count").getAsInt();
+        this.muggerStolenGold = parsed.get("mugger_stolen_gold").getAsInt();
+
+        this.looterSlashCount = parsed.get("looter_slash_count").getAsInt();
+        this.looterStolenGold = parsed.get("looter_stolen_gold").getAsInt();
     }
 
     public AbstractMonster loadMonster() {
@@ -412,7 +465,7 @@ public class MonsterState extends CreatureState {
         monster.showHealthBar();
         monster.createIntent();
 
-        if(!shouldGoFast() && monster.currentBlock > 0) {
+        if (!shouldGoFast() && monster.currentBlock > 0) {
             ReflectionHacks
                     .setPrivate(monster, AbstractCreature.class, "blockAnimTimer", 0.7F);
             ReflectionHacks
@@ -536,6 +589,29 @@ public class MonsterState extends CreatureState {
                     .setPrivate(monster, BookOfStabbing.class, "stabCount", bookOfStabbingStabCount);
         }
 
+        if (monster instanceof TheCollector) {
+            ReflectionHacks
+                    .setPrivate(monster, TheCollector.class, "initialSpawn", collectorInitialSpawn);
+            ReflectionHacks
+                    .setPrivate(monster, TheCollector.class, "turnsTaken", collectorTurnsTaken);
+            ReflectionHacks
+                    .setPrivate(monster, TheCollector.class, "ultUsed", collectorUltUsed);
+        }
+
+        if (monster instanceof Mugger) {
+            ReflectionHacks
+                    .setPrivate(monster, Mugger.class, "slashCount", muggerSlashCount);
+            ReflectionHacks
+                    .setPrivate(monster, Mugger.class, "stolenGold", muggerStolenGold);
+        }
+
+        if (monster instanceof Looter) {
+            ReflectionHacks
+                    .setPrivate(monster, Looter.class, "slashCount", looterSlashCount);
+            ReflectionHacks
+                    .setPrivate(monster, Looter.class, "stolenGold", looterStolenGold);
+        }
+
         return monster;
     }
 
@@ -640,6 +716,10 @@ public class MonsterState extends CreatureState {
             monster = new BronzeAutomaton();
         } else if (id.equals("BronzeOrb")) {
             monster = new BronzeOrb(offsetX, offsetY, bronzeOrbCount);
+        } else if (id.equals("TheCollector")) {
+            monster = new TheCollector();
+        } else if (id.equals("TorchHead")) {
+            monster = new TorchHead(offsetX, offsetY);
         } else {
             System.err.println("couldn't find monster with id " + id);
         }
@@ -730,6 +810,16 @@ public class MonsterState extends CreatureState {
         monsterStateJson.addProperty("chosen_first_turn", chosenFirstTurn);
 
         monsterStateJson.addProperty("book_of_stabbing_stab_count", bookOfStabbingStabCount);
+
+        monsterStateJson.addProperty("collector_initial_spawn", collectorInitialSpawn);
+        monsterStateJson.addProperty("collector_turns_taken", collectorTurnsTaken);
+        monsterStateJson.addProperty("collector_ult_used", collectorUltUsed);
+
+        monsterStateJson.addProperty("mugger_slash_count", muggerSlashCount);
+        monsterStateJson.addProperty("mugger_stolen_gold", muggerStolenGold);
+
+        monsterStateJson.addProperty("looter_slash_count", looterSlashCount);
+        monsterStateJson.addProperty("looter_stolen_gold", looterStolenGold);
 
         return monsterStateJson.toString();
     }

@@ -19,6 +19,8 @@ public class RelicState {
 
     private final boolean lanternFirstTurn;
 
+    private final boolean centennialPuzzleUsedThisCombat;
+
     public RelicState(AbstractRelic relic) {
         this.relicId = relic.relicId;
         this.counter = relic.counter;
@@ -50,6 +52,13 @@ public class RelicState {
         } else {
             this.lanternFirstTurn = false;
         }
+
+        if (relic instanceof CentennialPuzzle) {
+            this.centennialPuzzleUsedThisCombat = ReflectionHacks
+                    .getPrivate(relic, CentennialPuzzle.class, "usedThisCombat");
+        } else {
+            this.centennialPuzzleUsedThisCombat = false;
+        }
     }
 
     public RelicState(String jsonString) {
@@ -66,6 +75,9 @@ public class RelicState {
         this.redSkullIsActive = parsed.get("red_skull_is_active").getAsBoolean();
 
         this.lanternFirstTurn = parsed.get("lantern_first_turn").getAsBoolean();
+
+        this.centennialPuzzleUsedThisCombat = parsed.get("centennial_puzzle_used_this_combat")
+                                                    .getAsBoolean();
     }
 
     public AbstractRelic loadRelic() {
@@ -92,6 +104,11 @@ public class RelicState {
                     .setPrivate(result, Lantern.class, "firstTurn", lanternFirstTurn);
         }
 
+        if (result instanceof CentennialPuzzle) {
+            ReflectionHacks
+                    .setPrivate(result, CentennialPuzzle.class, "usedThisCombat", centennialPuzzleUsedThisCombat);
+        }
+
         return result;
     }
 
@@ -108,6 +125,9 @@ public class RelicState {
         relicStateJson.addProperty("red_skull_is_active", redSkullIsActive);
 
         relicStateJson.addProperty("lantern_first_turn", lanternFirstTurn);
+
+        relicStateJson
+                .addProperty("centennial_puzzle_used_this_combat", centennialPuzzleUsedThisCombat);
 
         return relicStateJson.toString();
     }
