@@ -25,9 +25,7 @@ public class EndCommand implements Command {
 
     @Override
     public String toString() {
-        return "EndCommand{" +
-                "stateDebugInfo = " + (stateDebugInfo == null ? "" : stateDebugInfo.encode()) +
-                '}';
+        return "EndCommand";
     }
 
     @Override

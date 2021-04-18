@@ -8,10 +8,9 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
@@ -61,6 +60,8 @@ public class BattleAiController {
     public boolean runPartialMode = false;
 
     private final boolean shouldRunWhenFound;
+
+    private TurnNode rootTurn = null;
 
     public BattleAiController(SaveState state) {
         targetTurn = 4;
@@ -173,6 +174,10 @@ public class BattleAiController {
             if (turnsLoaded >= maxTurnLoads && (curTurn == null || curTurn.isDone)) {
                 if (bestEnd != null) {
                     System.err.println("Found end at turn treshold, going into rerun");
+
+                    // uncomment to get tree files
+                    // showTree();
+
                     runCommandMode = true;
                     startingState.loadState();
                     bestPath = commandsToGetToNode(bestEnd);
@@ -219,6 +224,7 @@ public class BattleAiController {
             long currentTime = System.nanoTime();
 
             if (!initialized) {
+                TurnNode.nodeIndex = 0;
                 initialized = true;
                 runCommandMode = false;
                 StateNode firstStateContainer = new StateNode(null, null, this);
@@ -226,7 +232,8 @@ public class BattleAiController {
                 root = firstStateContainer;
                 firstStateContainer.saveState = startingState;
                 turns = new PriorityQueue<>();
-                turns.add(new TurnNode(firstStateContainer, this));
+                this.rootTurn = new TurnNode(firstStateContainer, this, null);
+                turns.add(rootTurn);
             }
 
             while (!turns
@@ -260,6 +267,10 @@ public class BattleAiController {
                     startingState.loadState();
                     bestPath = commandsToGetToNode(bestEnd);
                     bestPathRunner = bestPath.iterator();
+
+                    // uncomment for tree files
+                    //showTree();
+
                     runCommandMode = true;
                     return;
                 } else {
@@ -347,7 +358,7 @@ public class BattleAiController {
     private TurnNode makeResetCopy(TurnNode node) {
         StateNode stateNode = new StateNode(node.startingState.parent, node.startingState.lastCommand, this);
         stateNode.saveState = node.startingState.saveState;
-        return new TurnNode(stateNode, this);
+        return new TurnNode(stateNode, this, node.parent);
     }
 
     public static List<Command> commandsToGetToNode(StateNode endNode) {
@@ -359,5 +370,50 @@ public class BattleAiController {
         }
 
         return commands;
+    }
+
+    private void showTree() {
+        try {
+            FileWriter writer = new FileWriter("out.dot");
+
+            writer.write("digraph battleTurns {\n");
+            TurnNode start = rootTurn;
+            LinkedList<TurnNode> bfs = new LinkedList<>();
+            bfs.add(start);
+            while (!bfs.isEmpty()) {
+                TurnNode node = bfs.pollFirst();
+
+                int playerDamage = TurnNode.getPlayerDamage(node);
+                int monsterHealth = TurnNode.getTotalMonsterHealth(node);
+
+                String nodeLabel = String
+                        .format("player damage:%d monster health:%d", playerDamage, monsterHealth);
+
+                writer.write(String.format("%s [label=\"%s\"]\n", node.turnLabel, nodeLabel));
+                node.children.forEach(child -> {
+                    try {
+                        ArrayList<Command> commands = new ArrayList<>();
+                        StateNode iterator = child.startingState;
+                        while (iterator != node.startingState) {
+                            commands.add(0, iterator.lastCommand);
+                            iterator = iterator.parent;
+                        }
+                        writer.write(String
+                                .format("%s->%s [label=\"%s\"]\n", node.turnLabel, child.turnLabel, commands));
+                    } catch (IOException e) {
+                        System.err.println("writing failed");
+                        e.printStackTrace();
+                    }
+                    bfs.add(child);
+                });
+            }
+
+            writer.write("}\n");
+            writer.close();
+
+        } catch (IOException e) {
+            System.err.println("file writing failed");
+            e.printStackTrace();
+        }
     }
 }

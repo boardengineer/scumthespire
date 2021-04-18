@@ -62,15 +62,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 //        Settings.ACTION_DUR_LONG = .10F;
 //        Settings.ACTION_DUR_XLONG = .15F;
 
-        String isServer = System.getProperty("isServer");
-        if (isServer != null) {
-            System.err.println("there's a boolean");
-            if (Boolean.parseBoolean(isServer)) {
-                Settings.isDemo = true;
-                goFast = true;
-            }
-        }
-
         CardCrawlGame.screenShake = new ScreenShakeFast();
     }
 
@@ -125,12 +116,32 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     }
 
     public void receivePostInitialize() {
+        String isServerFlag = System.getProperty("isServer");
+        boolean isServer = false;
+
+
+        if (isServerFlag != null) {
+            if (Boolean.parseBoolean(isServerFlag)) {
+                isServer = true;
+
+            }
+        }
+
+        if (isServer) {
+            Settings.MASTER_VOLUME = 0;
+            Settings.isDemo = true;
+            goFast = true;
+        } else {
+            Settings.MASTER_VOLUME = .50F;
+        }
+
+        CardCrawlGame.sound.update();
         setUpOptionsMenu();
     }
 
     public void receivePostUpdate() {
         if (steveMessage != null) {
-            String messageToDisplay = steveMessage + " NL #gtest #r" + steveMessage;
+            String messageToDisplay = " Processing... NL " + steveMessage;
             steveMessage = null;
 
             AbstractDungeon.effectList

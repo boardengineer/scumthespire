@@ -177,6 +177,8 @@ public class PowerState {
             result = new DuplicationPower(targetAndSource, amount);
         } else if (powerId.equals("Rage")) {
             result = new RagePower(targetAndSource, amount);
+        } else if (powerId.equals("DexLoss")) {
+            result = new LoseDexterityPower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

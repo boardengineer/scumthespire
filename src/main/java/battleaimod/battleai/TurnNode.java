@@ -4,10 +4,13 @@ import battleaimod.BattleAiMod;
 import battleaimod.savestate.PowerState;
 import battleaimod.savestate.SaveState;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class TurnNode implements Comparable<TurnNode> {
     private final BattleAiController controller;
+    public final int turnLabel;
     public Stack<StateNode> states;
     public boolean runningCommands = false;
     public boolean isDone = false;
@@ -16,9 +19,22 @@ public class TurnNode implements Comparable<TurnNode> {
     private boolean initialized = false;
     int turnIndex = 0;
 
-    public TurnNode(StateNode statenode, BattleAiController controller) {
+    public List<TurnNode> children;
+    public TurnNode parent;
+
+    static int nodeIndex = 0;
+
+
+    public TurnNode(StateNode statenode, BattleAiController controller, TurnNode parent) {
         startingState = statenode;
         this.controller = controller;
+        this.parent = parent;
+        this.turnLabel = nodeIndex++;
+        children = new ArrayList<>();
+
+        if (parent != null) {
+            parent.children.add(this);
+        }
     }
 
     public boolean step() {
@@ -47,7 +63,7 @@ public class TurnNode implements Comparable<TurnNode> {
 
         if (curState != startingState && curState.lastCommand instanceof EndCommand) {
             controller.turnsLoaded++;
-            TurnNode toAdd = new TurnNode(curState, controller);
+            TurnNode toAdd = new TurnNode(curState, controller, this);
             states.pop();
 
             while (!states.isEmpty() && states.peek().isDone()) {
