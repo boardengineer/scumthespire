@@ -132,7 +132,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             Settings.isDemo = true;
             goFast = true;
         } else {
-            Settings.MASTER_VOLUME = .50F;
+            Settings.MASTER_VOLUME = .0F;
         }
 
         CardCrawlGame.sound.update();

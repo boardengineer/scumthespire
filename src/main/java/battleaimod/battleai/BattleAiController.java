@@ -16,7 +16,7 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    public int maxTurnLoads = 100;
+    public int maxTurnLoads = 500;
 
     public int targetTurn;
     public int targetTurnJump;

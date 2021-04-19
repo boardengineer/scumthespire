@@ -23,12 +23,12 @@ import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 public class FastActionsPatch {
     @SpirePatch(
-            clz = AbstractRoom.class,
+            clz = AbstractDungeon.class,
             paramtypez = {},
             method = "update"
     )
     public static class ForceGameActionsPatch {
-        public static void Postfix(AbstractRoom room) {
+        public static void Postfix(AbstractDungeon dungeon) {
             GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
@@ -44,6 +44,8 @@ public class FastActionsPatch {
                                 actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
                             } else if (actionManager.currentAction instanceof SetAnimationAction) {
                                 actionManager.currentAction = null;
+                            } else if (actionManager.currentAction instanceof ShowMoveNameAction) {
+                                actionManager.currentAction = null;
                             }
                             if (actionManager.currentAction != null) {
                                 actionManager.currentAction.update();
@@ -53,8 +55,7 @@ public class FastActionsPatch {
                             BattleAiMod.battleAiController.step();
                         }
 
-                        actionManager.update();
-                        AbstractDungeon.player.update();
+                        AbstractDungeon.getCurrRoom().update();
                     }
                 }
             }
