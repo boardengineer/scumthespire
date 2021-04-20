@@ -8,6 +8,7 @@ import battleaimod.battleai.BattleAiController;
 import battleaimod.fastobjects.ScreenShakeFast;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
+import battleaimod.savestate.Monster;
 import battleaimod.savestate.SaveState;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
@@ -25,6 +26,7 @@ import com.megacrit.cardcrawl.vfx.ThoughtBubble;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
 
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
@@ -46,6 +48,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
 
+    public static HashMap<String, Monster> monsterByIdmap;
 
     public BattleAiMod() {
         BaseMod.subscribe(this);
@@ -87,6 +90,10 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     public static void initialize() {
         BattleAiMod mod = new BattleAiMod();
+        monsterByIdmap = new HashMap<>();
+        for (Monster monster : Monster.values()) {
+            monsterByIdmap.put(monster.monsterId, monster);
+        }
     }
 
     private static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {

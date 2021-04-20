@@ -76,8 +76,20 @@ public class SaveState {
 
         AbstractDungeon.player = playerState.loadPlayer();
 
-//        long point2 = System.currentTimeMillis();
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.playerLoadTime += (System
+                    .currentTimeMillis() - loadStartTime);
+        }
+
+        long point2 = System.currentTimeMillis();
         curMapNodeState.loadMapRoomNode(AbstractDungeon.currMapNode);
+
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.roomLoadTime += (System
+                    .currentTimeMillis() - point2);
+        }
+
         AbstractDungeon.screen = screen;
 
         AbstractDungeon.isScreenUp = false;
@@ -104,6 +116,7 @@ public class SaveState {
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.loadstateTime += (System
                     .currentTimeMillis() - loadStartTime);
+
         }
 
 //        System.err

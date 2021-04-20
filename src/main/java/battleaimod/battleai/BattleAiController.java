@@ -16,7 +16,7 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    public int maxTurnLoads = 100;
+    public int maxTurnLoads = 500;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -68,6 +68,11 @@ public class BattleAiController {
     public long stepTime;
     public long updateTime;
     public long loadstateTime;
+
+    public long playerLoadTime;
+    public long roomLoadTime;
+
+    public long monsterLoadTime;
 
     public BattleAiController(SaveState state) {
         targetTurn = 4;
@@ -247,6 +252,8 @@ public class BattleAiController {
                 stepTime = 0;
                 updateTime = 0;
                 loadstateTime = 0;
+                playerLoadTime = 0;
+                roomLoadTime = 0;
             }
 
             while (!turns
@@ -433,7 +440,7 @@ public class BattleAiController {
 
     public void printRuntimeStats() {
         System.err
-                .printf("Total runtime: %d\taction time: %d\tstep time: %d\tupdate time:%d load time:%d\n", System
-                        .currentTimeMillis() - controllerStartTime, actionTime, stepTime, updateTime, loadstateTime);
+                .printf("Total runtime: %d\taction time: %d\tstep time: %d\tupdate time:%d load time:%d\tplayer load:%d\troom load:%d\n", System
+                        .currentTimeMillis() - controllerStartTime, actionTime, stepTime, updateTime, loadstateTime, playerLoadTime, roomLoadTime);
     }
 }

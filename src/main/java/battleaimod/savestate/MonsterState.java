@@ -56,7 +56,7 @@ public class MonsterState extends CreatureState {
 
     private final int lagavulinDebuffTurnCount;
     private final int lagavulinIdleCount;
-    private final boolean lagavulinIsAsleep;
+    protected final boolean lagavulinIsAsleep;
     private final boolean lagavulinIsOut;
     private final boolean lagavulinIsOutTriggered;
 
@@ -86,7 +86,7 @@ public class MonsterState extends CreatureState {
     private final int automatonNumTurns;
     private final boolean automatonFirstTurn;
 
-    private final int bronzeOrbCount;
+    protected final int bronzeOrbCount;
     private final boolean bronzeOrbUsedStasis;
 
     private final boolean chosenFirstTurn;
@@ -101,8 +101,10 @@ public class MonsterState extends CreatureState {
     private final int muggerSlashCount;
     private final int muggerStolenGold;
 
-    private final int looterSlashCount;
-    private final int looterStolenGold;
+    protected final float offsetX;
+    protected final float offsetY;
+
+    public int monsterTypeNumber;
 
     public MonsterState(AbstractMonster monster) {
         super(monster);
@@ -322,15 +324,8 @@ public class MonsterState extends CreatureState {
             muggerStolenGold = 0;
         }
 
-        if (monster instanceof Looter) {
-            looterSlashCount = ReflectionHacks
-                    .getPrivate(monster, Looter.class, "slashCount");
-            looterStolenGold = ReflectionHacks
-                    .getPrivate(monster, Looter.class, "stolenGold");
-        } else {
-            looterSlashCount = 0;
-            looterStolenGold = 0;
-        }
+        offsetX = (drawX - (float) Settings.WIDTH * 0.75F) / Settings.xScale;
+        offsetY = (drawY - AbstractDungeon.floorY) / Settings.yScale;
     }
 
     public MonsterState(String jsonString) {
@@ -424,14 +419,20 @@ public class MonsterState extends CreatureState {
         this.muggerSlashCount = parsed.get("mugger_slash_count").getAsInt();
         this.muggerStolenGold = parsed.get("mugger_stolen_gold").getAsInt();
 
-        this.looterSlashCount = parsed.get("looter_slash_count").getAsInt();
-        this.looterStolenGold = parsed.get("looter_stolen_gold").getAsInt();
+        offsetX = (drawX - (float) Settings.WIDTH * 0.75F) / Settings.xScale;
+        offsetY = (drawY - AbstractDungeon.floorY) / Settings.yScale;
     }
 
     public AbstractMonster loadMonster() {
         AbstractMonster monster = getMonsterFromId();
-        super.loadCreature(monster);
 
+        populateSharedFields(monster);
+
+        return monster;
+    }
+
+    public void populateSharedFields(AbstractMonster monster) {
+        super.loadCreature(monster);
         monster.init();
 
         monster.deathTimer = this.deathTimer;
@@ -604,18 +605,10 @@ public class MonsterState extends CreatureState {
             ReflectionHacks
                     .setPrivate(monster, Mugger.class, "stolenGold", muggerStolenGold);
         }
-
-        if (monster instanceof Looter) {
-            ReflectionHacks
-                    .setPrivate(monster, Looter.class, "slashCount", looterSlashCount);
-            ReflectionHacks
-                    .setPrivate(monster, Looter.class, "stolenGold", looterStolenGold);
-        }
-
-        return monster;
     }
 
     private AbstractMonster getMonsterFromId() {
+        System.err.println("this is still happening, why?");
         float offsetX = (drawX - (float) Settings.WIDTH * 0.75F) / Settings.xScale;
         float offsetY = (drawY - AbstractDungeon.floorY) / Settings.yScale;
 
@@ -817,9 +810,6 @@ public class MonsterState extends CreatureState {
 
         monsterStateJson.addProperty("mugger_slash_count", muggerSlashCount);
         monsterStateJson.addProperty("mugger_stolen_gold", muggerStolenGold);
-
-        monsterStateJson.addProperty("looter_slash_count", looterSlashCount);
-        monsterStateJson.addProperty("looter_stolen_gold", looterStolenGold);
 
         return monsterStateJson.toString();
     }

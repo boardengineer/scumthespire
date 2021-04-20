@@ -1,6 +1,7 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
+import battleaimod.BattleAiMod;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.map.MapRoomNode;
@@ -50,7 +51,9 @@ public class MapRoomNodeState {
         // rooms that haven't been entered have null Monster groups
         if (room.monsters != null) {
             this.monsterData = room.monsters.monsters.stream()
-                                                     .map(monster -> new MonsterState(monster))
+                                                     .map(monster -> BattleAiMod.monsterByIdmap
+                                                             .get(monster.id).factory
+                                                             .apply(monster))
                                                      .collect(Collectors
                                                              .toCollection(ArrayList::new));
         }
