@@ -31,14 +31,18 @@ public class FastActionsPatch {
         public static void Postfix(AbstractDungeon dungeon) {
             GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
+
+                // TODO this is going to have consequences
+                actionManager.cardsPlayedThisCombat.clear();
+
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
                     while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
+                        long startTime = System.currentTimeMillis();
                         if (shouldWaitOnActions(actionManager)) {
                             if (actionManager.currentAction instanceof RollMoveAction) {
                                 AbstractMonster monster = ReflectionHacks
                                         .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
-
                                 actionManager.currentAction = new RollMoveActionFast(monster);
                             } else if (actionManager.currentAction instanceof DrawCardAction) {
                                 actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
@@ -49,14 +53,27 @@ public class FastActionsPatch {
                             }
                             if (actionManager.currentAction != null) {
                                 actionManager.currentAction.update();
+                                if (BattleAiMod.battleAiController != null) {
+                                    BattleAiMod.battleAiController.actionTime += (System
+                                            .currentTimeMillis() - startTime);
+                                }
                             }
                         } else if (shouldStepAiController()) {
                             BattleAiMod.readyForUpdate = false;
                             BattleAiMod.battleAiController.step();
+                            BattleAiMod.battleAiController.stepTime += (System
+                                    .currentTimeMillis() - startTime);
                         }
 
+                        long preUpdateTime = System.currentTimeMillis();
                         AbstractDungeon.getCurrRoom().update();
+                        if (BattleAiMod.battleAiController != null) {
+                            BattleAiMod.battleAiController.updateTime += (System
+                                    .currentTimeMillis() - preUpdateTime);
+                        }
                     }
+
+                    System.err.println("exiting loop");
                 }
             }
         }

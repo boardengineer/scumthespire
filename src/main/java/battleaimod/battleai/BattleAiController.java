@@ -16,7 +16,7 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    public int maxTurnLoads = 500;
+    public int maxTurnLoads = 100;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -62,6 +62,12 @@ public class BattleAiController {
     private final boolean shouldRunWhenFound;
 
     private TurnNode rootTurn = null;
+
+    public long controllerStartTime;
+    public long actionTime;
+    public long stepTime;
+    public long updateTime;
+    public long loadstateTime;
 
     public BattleAiController(SaveState state) {
         targetTurn = 4;
@@ -177,6 +183,7 @@ public class BattleAiController {
 
                     // uncomment to get tree files
                     // showTree();
+                    printRuntimeStats();
 
                     runCommandMode = true;
                     startingState.loadState();
@@ -234,6 +241,12 @@ public class BattleAiController {
                 turns = new PriorityQueue<>();
                 this.rootTurn = new TurnNode(firstStateContainer, this, null);
                 turns.add(rootTurn);
+
+                controllerStartTime = System.currentTimeMillis();
+                actionTime = 0;
+                stepTime = 0;
+                updateTime = 0;
+                loadstateTime = 0;
             }
 
             while (!turns
@@ -251,8 +264,8 @@ public class BattleAiController {
                     ++turnsLoaded;
                     turns.poll();
                 } else {
-                    System.err.println("the best turn has damage " + curTurn + " " + turns
-                            .size() + " " + (turnsLoaded));
+//                    System.err.println("the best turn has damage " + curTurn + " " + turns
+//                            .size() + " " + (turnsLoaded));
                     if (curTurn.isDone) {
                         System.err.println("finished turn");
                         turns.poll();
@@ -270,6 +283,7 @@ public class BattleAiController {
 
                     // uncomment for tree files
                     //showTree();
+                    printRuntimeStats();
 
                     runCommandMode = true;
                     return;
@@ -415,5 +429,11 @@ public class BattleAiController {
             System.err.println("file writing failed");
             e.printStackTrace();
         }
+    }
+
+    public void printRuntimeStats() {
+        System.err
+                .printf("Total runtime: %d\taction time: %d\tstep time: %d\tupdate time:%d load time:%d\n", System
+                        .currentTimeMillis() - controllerStartTime, actionTime, stepTime, updateTime, loadstateTime);
     }
 }

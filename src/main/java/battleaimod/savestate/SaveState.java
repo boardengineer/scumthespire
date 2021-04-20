@@ -68,6 +68,8 @@ public class SaveState {
     }
 
     public void loadState() {
+        long loadStartTime = System.currentTimeMillis();
+
         GameActionManager.turn = this.turn;
 
 //        long point1 = System.currentTimeMillis();
@@ -98,6 +100,11 @@ public class SaveState {
         GameStateListener.previousPhase = previousPhase;
         GameStateListener.myTurn = myTurn;
         GameStateListener.externalChange = true;
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.loadstateTime += (System
+                    .currentTimeMillis() - loadStartTime);
+        }
 
 //        System.err
 //                .printf("load time: %d\tpart 1:%d\tpart2:%d\n", System

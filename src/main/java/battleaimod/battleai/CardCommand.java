@@ -1,5 +1,6 @@
 package battleaimod.battleai;
 
+import battleaimod.BattleAiMod;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
@@ -47,6 +48,7 @@ public class CardCommand implements Command {
 
         AbstractDungeon.actionManager.cardQueue.add(new CardQueueItem(card, monster));
         AbstractDungeon.actionManager.addToBottom(new WaitAction(.2F));
+        BattleAiMod.readyForUpdate = true;
     }
 
     @Override
