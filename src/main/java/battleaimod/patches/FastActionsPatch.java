@@ -266,23 +266,12 @@ public class FastActionsPatch {
     )
     public static class NoSoundDrawPatch {
         public static void Replace(AbstractPlayer _instance) {
-
-
-            long loadStartTime = System.currentTimeMillis();
-
             if (_instance.hand.size() == 10) {
                 _instance.createHandIsFullDialog();
             } else {
                 _instance.draw(1);
                 _instance.onCardDrawOrDiscard();
             }
-
-
-            if (BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.loadstateTime += (System
-                        .currentTimeMillis() - loadStartTime);
-            }
-
         }
     }
 
@@ -296,7 +285,6 @@ public class FastActionsPatch {
         private static final Logger logger = LogManager.getLogger(AbstractPlayer.class.getName());
 
         public static void Replace(AbstractPlayer _instance, int numCards) {
-            long loadStartTime = System.currentTimeMillis();
             for (int i = 0; i < numCards; ++i) {
                 if (_instance.drawPile.isEmpty()) {
                     logger.info("ERROR: How did this happen? No cards in draw pile?? Player.java");
@@ -325,10 +313,6 @@ public class FastActionsPatch {
                         r.onCardDraw(c);
                     }
                 }
-            }
-            if (BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.playerLoadTime += (System
-                        .currentTimeMillis() - loadStartTime);
             }
         }
     }

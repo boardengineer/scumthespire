@@ -94,7 +94,7 @@ public class TurnNode implements Comparable<TurnNode> {
                             .isBetterThan(controller.backupTurn)) && controller.backupTurn.startingState.saveState.turn <= toAdd.startingState.saveState.turn) {
                         controller.backupTurn = toAdd;
                     }
-                    System.err.println("adding " + toAdd);
+//                    System.err.println("adding " + toAdd);
                     controller.turns.add(toAdd);
                 }
             }

@@ -72,9 +72,6 @@ public class SaveState {
         long loadStartTime = System.currentTimeMillis();
 
         GameActionManager.turn = this.turn;
-
-//        long point1 = System.currentTimeMillis();
-
         AbstractDungeon.player = playerState.loadPlayer();
 
         long point2 = System.currentTimeMillis();
@@ -111,10 +108,12 @@ public class SaveState {
         GameStateListener.myTurn = myTurn;
         GameStateListener.externalChange = true;
 
-//        System.err
-//                .printf("load time: %d\tpart 1:%d\tpart2:%d\n", System
-//                        .currentTimeMillis() - point1, point2 - point1, System
-//                        .currentTimeMillis() - point2);
+
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.loadstateTime += (System
+                    .currentTimeMillis() - loadStartTime);
+        }
     }
 
     public int getPlayerHealth() {

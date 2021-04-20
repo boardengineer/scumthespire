@@ -82,6 +82,7 @@ public class RelicState {
 
     public AbstractRelic loadRelic() {
         AbstractRelic result = RelicLibrary.getRelic(relicId).makeCopy();
+
         result.counter = counter;
         result.grayscale = grayscale;
 

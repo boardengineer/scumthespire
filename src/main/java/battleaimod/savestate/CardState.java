@@ -1,5 +1,6 @@
 package battleaimod.savestate;
 
+import battleaimod.BattleAiMod;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.cards.AbstractCard;
@@ -85,7 +86,14 @@ public class CardState {
     }
 
     public AbstractCard loadCard() {
+        long loadStartTime = System.currentTimeMillis();
+
         AbstractCard result = CardLibrary.getCard(cardId).makeCopy();
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.playerLoadTime += (System
+                    .currentTimeMillis() - loadStartTime);
+        }
 
         if (upgraded) {
             result.upgrade();
@@ -111,6 +119,7 @@ public class CardState {
         result.inBottleFlame = inBottleFlame;
         result.inBottleTornado = inBottleTornado;
         result.name = name;
+
 
         return result;
     }

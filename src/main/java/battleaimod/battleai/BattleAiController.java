@@ -276,7 +276,7 @@ public class BattleAiController {
 //                    System.err.println("the best turn has damage " + curTurn + " " + turns
 //                            .size() + " " + (turnsLoaded));
                     if (curTurn.isDone) {
-                        System.err.println("finished turn");
+//                        System.err.println("finished turn");
                         turns.poll();
                     }
                 }

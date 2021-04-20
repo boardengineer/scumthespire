@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
+
 public class PlayerState extends CreatureState {
     private static final String CARD_DELIMETER = ";;;";
     private static final String RELIC_DELIMETER = "!;!";
@@ -160,9 +162,11 @@ public class PlayerState extends CreatureState {
         player.relics = this.relics.stream().map(RelicState::loadRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
 
-        AbstractDungeon.topPanel.adjustRelicHbs();
-        for (int i = 0; i < player.relics.size(); i++) {
-            player.relics.get(i).instantObtain(player, i, false);
+        if (!shouldGoFast()) {
+            AbstractDungeon.topPanel.adjustRelicHbs();
+            for (int i = 0; i < player.relics.size(); i++) {
+                player.relics.get(i).instantObtain(player, i, false);
+            }
         }
 
         player.energy.energy = this.energyManagerEnergy;
@@ -182,6 +186,7 @@ public class PlayerState extends CreatureState {
 
 
         player.update();
+
 
         return player;
     }
@@ -207,13 +212,13 @@ public class PlayerState extends CreatureState {
 
     public int getNumInstance(String cardId) {
         long numInstances = discardPile.stream().filter(card -> card.getName().equals(cardId))
-                                    .count();
+                                       .count();
 
         numInstances += hand.stream().filter(card -> card.getName().equals(cardId))
-                         .count();
+                            .count();
 
         numInstances += drawPile.stream().filter(card -> card.getName().equals(cardId))
-                             .count();
+                                .count();
 
         return (int) numInstances;
     }
