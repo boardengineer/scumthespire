@@ -273,17 +273,14 @@ public class FastActionsPatch {
             if (_instance.hand.size() == 10) {
                 _instance.createHandIsFullDialog();
             } else {
-
                 _instance.draw(1);
                 _instance.onCardDrawOrDiscard();
-
             }
 
 
             if (BattleAiMod.battleAiController != null) {
                 BattleAiMod.battleAiController.loadstateTime += (System
                         .currentTimeMillis() - loadStartTime);
-
             }
 
         }
