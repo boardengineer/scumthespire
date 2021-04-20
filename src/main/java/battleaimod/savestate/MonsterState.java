@@ -1,7 +1,6 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.core.AbstractCreature;
@@ -15,7 +14,6 @@ import com.megacrit.cardcrawl.monsters.city.*;
 import com.megacrit.cardcrawl.monsters.exordium.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,61 +43,6 @@ public class MonsterState extends CreatureState {
 
     private final ArrayList<Byte> moveHistory;
     private final ArrayList<DamageInfoState> damage;
-
-    private final int gremlinWizardCurrentCharge;
-
-    private final int guardianDmgThreshold;
-    private final int guardianDmgThesholdIncrease;
-    private final int guardianDmgTaken;
-    private final boolean guardianIsOpen;
-    private final boolean guardianCloseUpTriggered;
-
-    private final int lagavulinDebuffTurnCount;
-    private final int lagavulinIdleCount;
-    protected final boolean lagavulinIsAsleep;
-    private final boolean lagavulinIsOut;
-    private final boolean lagavulinIsOutTriggered;
-
-    private final boolean louseIsOpen;
-    private final int louseBiteDamage;
-
-    private final boolean hexaghostActivated;
-    private final boolean hexaghostBurnUpgraded;
-    private final int hexaghostOrbActiveCount;
-    private final List<Boolean> hexaghostActiveOrbs;
-
-    private final boolean shelledParasiteFirstMove;
-
-    private final boolean cultistFirstMove;
-
-    private final boolean sphericGuardianFirstMove;
-    private final boolean sphericGuardianSecondMove;
-
-    private final boolean sneckoFirstTurn;
-
-    private final int champNumTurns;
-    private final int champForgeTimes;
-    private final int champForgeThreshold;
-    private final boolean champThresholdReached;
-    private final boolean champFirstTurn;
-
-    private final int automatonNumTurns;
-    private final boolean automatonFirstTurn;
-
-    protected final int bronzeOrbCount;
-    private final boolean bronzeOrbUsedStasis;
-
-    private final boolean chosenFirstTurn;
-    private final boolean chosenUsedHex;
-
-    private final int bookOfStabbingStabCount;
-
-    private final int collectorTurnsTaken;
-    private final boolean collectorUltUsed;
-    private final boolean collectorInitialSpawn;
-
-    private final int muggerSlashCount;
-    private final int muggerStolenGold;
 
     protected final float offsetX;
     protected final float offsetY;
@@ -135,194 +78,6 @@ public class MonsterState extends CreatureState {
 
         this.moveHistory = monster.moveHistory.stream().map(Byte::byteValue)
                                               .collect(Collectors.toCollection(ArrayList::new));
-
-        if (monster instanceof GremlinWizard) {
-            gremlinWizardCurrentCharge = ReflectionHacks
-                    .getPrivate(monster, GremlinWizard.class, "currentCharge");
-        } else {
-            gremlinWizardCurrentCharge = 0;
-        }
-
-        if (monster instanceof TheGuardian) {
-            guardianDmgThreshold = ReflectionHacks
-                    .getPrivate(monster, TheGuardian.class, "dmgThreshold");
-            guardianDmgThesholdIncrease = ReflectionHacks
-                    .getPrivate(monster, TheGuardian.class, "dmgThresholdIncrease");
-            guardianDmgTaken = ReflectionHacks
-                    .getPrivate(monster, TheGuardian.class, "dmgTaken");
-            guardianIsOpen = ReflectionHacks
-                    .getPrivate(monster, TheGuardian.class, "isOpen");
-            guardianCloseUpTriggered = ReflectionHacks
-                    .getPrivate(monster, TheGuardian.class, "closeUpTriggered");
-        } else {
-            guardianDmgThreshold = 0;
-            guardianDmgThesholdIncrease = 0;
-            guardianDmgTaken = 0;
-            guardianIsOpen = false;
-            guardianCloseUpTriggered = false;
-        }
-
-        if (monster instanceof Lagavulin) {
-            lagavulinIsAsleep = ReflectionHacks
-                    .getPrivate(monster, Lagavulin.class, "asleep");
-            lagavulinDebuffTurnCount = ReflectionHacks
-                    .getPrivate(monster, Lagavulin.class, "debuffTurnCount");
-            lagavulinIdleCount = ReflectionHacks
-                    .getPrivate(monster, Lagavulin.class, "idleCount");
-            lagavulinIsOut = ReflectionHacks
-                    .getPrivate(monster, Lagavulin.class, "isOut");
-            lagavulinIsOutTriggered = ReflectionHacks
-                    .getPrivate(monster, Lagavulin.class, "isOutTriggered");
-        } else {
-            lagavulinDebuffTurnCount = 0;
-            lagavulinIdleCount = 0;
-            lagavulinIsAsleep = false;
-            lagavulinIsOut = false;
-            lagavulinIsOutTriggered = false;
-        }
-
-        if (monster instanceof LouseDefensive) {
-            louseIsOpen = ReflectionHacks
-                    .getPrivate(monster, LouseDefensive.class, "isOpen");
-            louseBiteDamage = ReflectionHacks
-                    .getPrivate(monster, LouseDefensive.class, "biteDamage");
-        } else if (monster instanceof LouseNormal) {
-            louseIsOpen = ReflectionHacks
-                    .getPrivate(monster, LouseNormal.class, "isOpen");
-            louseBiteDamage = ReflectionHacks
-                    .getPrivate(monster, LouseNormal.class, "biteDamage");
-        } else {
-            louseIsOpen = false;
-            louseBiteDamage = 0;
-        }
-
-        if (monster instanceof Hexaghost) {
-            hexaghostActivated = ReflectionHacks
-                    .getPrivate(monster, Hexaghost.class, "activated");
-            hexaghostBurnUpgraded = ReflectionHacks
-                    .getPrivate(monster, Hexaghost.class, "burnUpgraded");
-            hexaghostOrbActiveCount = ReflectionHacks
-                    .getPrivate(monster, Hexaghost.class, "orbActiveCount");
-            ArrayList<HexaghostOrb> orbs = ReflectionHacks
-                    .getPrivate(monster, Hexaghost.class, "orbs");
-            hexaghostActiveOrbs = orbs.stream().map(orb -> orb.activated)
-                                      .collect(Collectors.toList());
-        } else {
-            hexaghostActivated = false;
-            hexaghostBurnUpgraded = false;
-            hexaghostOrbActiveCount = 0;
-            hexaghostActiveOrbs = new ArrayList<>();
-        }
-
-        if (monster instanceof ShelledParasite) {
-            shelledParasiteFirstMove = ReflectionHacks
-                    .getPrivate(monster, ShelledParasite.class, "firstMove");
-        } else {
-            shelledParasiteFirstMove = false;
-        }
-
-        if (monster instanceof Cultist) {
-            cultistFirstMove = ReflectionHacks
-                    .getPrivate(monster, Cultist.class, "firstMove");
-        } else {
-            cultistFirstMove = false;
-        }
-
-        if (monster instanceof SphericGuardian) {
-            sphericGuardianFirstMove = ReflectionHacks
-                    .getPrivate(monster, SphericGuardian.class, "firstMove");
-            sphericGuardianSecondMove = ReflectionHacks
-                    .getPrivate(monster, SphericGuardian.class, "secondMove");
-        } else {
-            sphericGuardianFirstMove = false;
-            sphericGuardianSecondMove = false;
-        }
-
-        if (monster instanceof Snecko) {
-            sneckoFirstTurn = ReflectionHacks
-                    .getPrivate(monster, Snecko.class, "firstTurn");
-        } else {
-            sneckoFirstTurn = true;
-        }
-
-        if (monster instanceof Champ) {
-            champNumTurns = ReflectionHacks
-                    .getPrivate(monster, Champ.class, "numTurns");
-            champForgeTimes = ReflectionHacks
-                    .getPrivate(monster, Champ.class, "forgeTimes");
-            champForgeThreshold = ReflectionHacks
-                    .getPrivate(monster, Champ.class, "forgeThreshold");
-            champThresholdReached = ReflectionHacks
-                    .getPrivate(monster, Champ.class, "thresholdReached");
-            champFirstTurn = ReflectionHacks
-                    .getPrivate(monster, Champ.class, "firstTurn");
-        } else {
-            champNumTurns = 0;
-            champForgeTimes = 0;
-            champForgeThreshold = 0;
-            champThresholdReached = false;
-            champFirstTurn = false;
-        }
-
-        if (monster instanceof BronzeAutomaton) {
-            automatonNumTurns = ReflectionHacks
-                    .getPrivate(monster, BronzeAutomaton.class, "numTurns");
-            automatonFirstTurn = ReflectionHacks
-                    .getPrivate(monster, BronzeAutomaton.class, "firstTurn");
-        } else {
-            automatonNumTurns = 0;
-            automatonFirstTurn = false;
-        }
-
-        if (monster instanceof BronzeOrb) {
-            bronzeOrbCount = ReflectionHacks
-                    .getPrivate(monster, BronzeOrb.class, "count");
-            bronzeOrbUsedStasis = ReflectionHacks
-                    .getPrivate(monster, BronzeOrb.class, "usedStasis");
-        } else {
-            bronzeOrbCount = 0;
-            bronzeOrbUsedStasis = false;
-        }
-
-        if (monster instanceof Chosen) {
-            chosenFirstTurn = ReflectionHacks
-                    .getPrivate(monster, Chosen.class, "firstTurn");
-            chosenUsedHex = ReflectionHacks
-                    .getPrivate(monster, Chosen.class, "usedHex");
-        } else {
-            chosenFirstTurn = false;
-            chosenUsedHex = false;
-        }
-
-        if (monster instanceof BookOfStabbing) {
-            bookOfStabbingStabCount = ReflectionHacks
-                    .getPrivate(monster, BookOfStabbing.class, "stabCount");
-        } else {
-            bookOfStabbingStabCount = 0;
-        }
-
-        if (monster instanceof TheCollector) {
-            collectorInitialSpawn = ReflectionHacks
-                    .getPrivate(monster, TheCollector.class, "initialSpawn");
-            collectorTurnsTaken = ReflectionHacks
-                    .getPrivate(monster, TheCollector.class, "turnsTaken");
-            collectorUltUsed = ReflectionHacks
-                    .getPrivate(monster, TheCollector.class, "ultUsed");
-        } else {
-            collectorInitialSpawn = false;
-            collectorTurnsTaken = 0;
-            collectorUltUsed = false;
-        }
-
-        if (monster instanceof Mugger) {
-            muggerSlashCount = ReflectionHacks
-                    .getPrivate(monster, Mugger.class, "slashCount");
-            muggerStolenGold = ReflectionHacks
-                    .getPrivate(monster, Mugger.class, "stolenGold");
-        } else {
-            muggerSlashCount = 0;
-            muggerStolenGold = 0;
-        }
 
         offsetX = (drawX - (float) Settings.WIDTH * 0.75F) / Settings.xScale;
         offsetY = (drawY - AbstractDungeon.floorY) / Settings.yScale;
@@ -360,64 +115,6 @@ public class MonsterState extends CreatureState {
                 .of(parsed.get("move_history").getAsString().split(MOVE_HISTORY_DELIMETER))
                 .filter(s -> !s.isEmpty()).map(Byte::parseByte)
                 .collect(Collectors.toCollection(ArrayList::new));
-
-        this.louseIsOpen = parsed.get("louse_is_open").getAsBoolean();
-        this.louseBiteDamage = parsed.get("louse_bite_damage").getAsInt();
-
-        this.gremlinWizardCurrentCharge = parsed.get("gremlin_wizard_current_charge").getAsInt();
-
-        this.lagavulinDebuffTurnCount = parsed.get("lagavulin_debuff_turn_count").getAsInt();
-        this.lagavulinIdleCount = parsed.get("lagavulin_idle_count").getAsInt();
-        this.lagavulinIsAsleep = parsed.get("lagavulin_is_asleep").getAsBoolean();
-        this.lagavulinIsOut = parsed.get("lagavulin_is_out").getAsBoolean();
-        this.lagavulinIsOutTriggered = parsed.get("lagavulin_is_out_triggered").getAsBoolean();
-
-        this.hexaghostActivated = parsed.get("hexaghost_activated").getAsBoolean();
-        this.hexaghostBurnUpgraded = parsed.get("hexaghost_burn_upgraded").getAsBoolean();
-        this.hexaghostOrbActiveCount = parsed.get("hexaghost_orb_active_count").getAsInt();
-        ArrayList<Boolean> orbs = new ArrayList<>();
-        parsed.get("hexaghost_active_orbs").getAsJsonArray()
-              .forEach(active -> orbs.add(active.getAsBoolean()));
-        this.hexaghostActiveOrbs = orbs;
-
-        this.guardianDmgThreshold = parsed.get("guardian_dmg_threshold").getAsInt();
-        this.guardianDmgThesholdIncrease = parsed.get("guardian_dmg_threshold_increase").getAsInt();
-        this.guardianDmgTaken = parsed.get("guardian_dmg_taken").getAsInt();
-        this.guardianIsOpen = parsed.get("guardian_is_open").getAsBoolean();
-        this.guardianCloseUpTriggered = parsed.get("guardian_close_up_triggered").getAsBoolean();
-
-        this.shelledParasiteFirstMove = parsed.get("shelled_parasite_first_move").getAsBoolean();
-
-        this.cultistFirstMove = parsed.get("cultist_first_move").getAsBoolean();
-
-        this.sphericGuardianFirstMove = parsed.get("spheric_guardian_first_move").getAsBoolean();
-        this.sphericGuardianSecondMove = parsed.get("spheric_guardian_second_move").getAsBoolean();
-
-        this.sneckoFirstTurn = parsed.get("snecko_first_turn").getAsBoolean();
-
-        this.champNumTurns = parsed.get("champ_num_turns").getAsInt();
-        this.champForgeTimes = parsed.get("champ_forge_times").getAsInt();
-        this.champForgeThreshold = parsed.get("champ_forge_threshold").getAsInt();
-        this.champThresholdReached = parsed.get("champ_threshold_reached").getAsBoolean();
-        this.champFirstTurn = parsed.get("champ_first_turn").getAsBoolean();
-
-        this.automatonNumTurns = parsed.get("automaton_num_turns").getAsInt();
-        this.automatonFirstTurn = parsed.get("automaton_first_turn").getAsBoolean();
-
-        this.bronzeOrbCount = parsed.get("bronze_orb_count").getAsInt();
-        this.bronzeOrbUsedStasis = parsed.get("bronze_orb_used_stasis").getAsBoolean();
-
-        this.chosenUsedHex = parsed.get("chosen_used_hex").getAsBoolean();
-        this.chosenFirstTurn = parsed.get("chosen_first_turn").getAsBoolean();
-
-        this.bookOfStabbingStabCount = parsed.get("book_of_stabbing_stab_count").getAsInt();
-
-        this.collectorUltUsed = parsed.get("collector_ult_used").getAsBoolean();
-        this.collectorTurnsTaken = parsed.get("collector_turns_taken").getAsInt();
-        this.collectorInitialSpawn = parsed.get("collector_initial_spawn").getAsBoolean();
-
-        this.muggerSlashCount = parsed.get("mugger_slash_count").getAsInt();
-        this.muggerStolenGold = parsed.get("mugger_stolen_gold").getAsInt();
 
         offsetX = (drawX - (float) Settings.WIDTH * 0.75F) / Settings.xScale;
         offsetY = (drawY - AbstractDungeon.floorY) / Settings.yScale;
@@ -460,150 +157,16 @@ public class MonsterState extends CreatureState {
         monster.intentOffsetX = this.intentOffsetX;
         monster.moveName = this.moveName;
 
-
-//        monster.tint = new TintEffect();
-//        monster.healthBarUpdatedEvent();
-        monster.showHealthBar();
-        monster.createIntent();
+        if(!shouldGoFast()) {
+            monster.showHealthBar();
+            monster.createIntent();
+        }
 
         if (!shouldGoFast() && monster.currentBlock > 0) {
             ReflectionHacks
                     .setPrivate(monster, AbstractCreature.class, "blockAnimTimer", 0.7F);
             ReflectionHacks
                     .setPrivate(monster, AbstractCreature.class, "blockTextColor", 0.0F);
-        }
-
-//        monster.updatePowers();
-
-        if (monster instanceof GremlinWizard) {
-            ReflectionHacks
-                    .setPrivate(monster, GremlinWizard.class, "currentCharge", gremlinWizardCurrentCharge);
-        }
-
-        if (monster instanceof TheGuardian) {
-            ReflectionHacks
-                    .setPrivate(monster, TheGuardian.class, "dmgThreshold", guardianDmgThreshold);
-            ReflectionHacks
-                    .setPrivate(monster, TheGuardian.class, "dmgTaken", guardianDmgTaken);
-            ReflectionHacks
-                    .setPrivate(monster, TheGuardian.class, "dmgThresholdIncrease", guardianDmgThesholdIncrease);
-            ReflectionHacks
-                    .setPrivate(monster, TheGuardian.class, "isOpen", guardianIsOpen);
-            ReflectionHacks
-                    .setPrivate(monster, TheGuardian.class, "closeUpTriggered", guardianCloseUpTriggered);
-        }
-
-        if (monster instanceof Lagavulin) {
-            ReflectionHacks
-                    .setPrivate(monster, Lagavulin.class, "debuffTurnCount", lagavulinDebuffTurnCount);
-            ReflectionHacks
-                    .setPrivate(monster, Lagavulin.class, "idleCount", lagavulinIdleCount);
-            ReflectionHacks
-                    .setPrivate(monster, Lagavulin.class, "asleep", lagavulinIsAsleep);
-            ReflectionHacks
-                    .setPrivate(monster, Lagavulin.class, "isOut", lagavulinIsOut);
-            ReflectionHacks
-                    .setPrivate(monster, Lagavulin.class, "isOutTriggered", lagavulinIsOutTriggered);
-        }
-
-        if (monster instanceof LouseDefensive) {
-            ReflectionHacks
-                    .setPrivate(monster, LouseDefensive.class, "isOpen", louseIsOpen);
-            ReflectionHacks
-                    .setPrivate(monster, LouseDefensive.class, "biteDamage", louseBiteDamage);
-        } else if (monster instanceof LouseNormal) {
-            ReflectionHacks
-                    .setPrivate(monster, LouseNormal.class, "isOpen", louseIsOpen);
-            ReflectionHacks
-                    .setPrivate(monster, LouseNormal.class, "biteDamage", louseBiteDamage);
-        }
-
-        if (monster instanceof Hexaghost) {
-            ReflectionHacks
-                    .setPrivate(monster, Hexaghost.class, "activated", hexaghostActivated);
-            ReflectionHacks
-                    .setPrivate(monster, Hexaghost.class, "burnUpgraded", hexaghostBurnUpgraded);
-            ReflectionHacks
-                    .setPrivate(monster, Hexaghost.class, "orbActiveCount", hexaghostOrbActiveCount);
-            ArrayList<HexaghostOrb> orbs = ReflectionHacks
-                    .getPrivate(monster, Hexaghost.class, "orbs");
-            for (int i = 0; i < hexaghostActiveOrbs.size(); i++) {
-                if (hexaghostActiveOrbs.get(i)) {
-                    orbs.get(i).activate(0, 0);
-                }
-            }
-        }
-
-        if (monster instanceof ShelledParasite) {
-            ReflectionHacks
-                    .setPrivate(monster, ShelledParasite.class, "firstMove", shelledParasiteFirstMove);
-        }
-
-        if (monster instanceof Cultist) {
-            ReflectionHacks
-                    .setPrivate(monster, Cultist.class, "firstMove", cultistFirstMove);
-        }
-
-        if (monster instanceof SphericGuardian) {
-            ReflectionHacks
-                    .setPrivate(monster, SphericGuardian.class, "firstMove", sphericGuardianFirstMove);
-            ReflectionHacks
-                    .setPrivate(monster, SphericGuardian.class, "secondMove", sphericGuardianSecondMove);
-        }
-
-        if (monster instanceof Snecko) {
-            ReflectionHacks
-                    .setPrivate(monster, Snecko.class, "firstTurn", sneckoFirstTurn);
-        }
-
-        if (monster instanceof Champ) {
-            ReflectionHacks
-                    .setPrivate(monster, Champ.class, "numTurns", champNumTurns);
-            ReflectionHacks
-                    .setPrivate(monster, Champ.class, "forgeTimes", champForgeTimes);
-            ReflectionHacks
-                    .setPrivate(monster, Champ.class, "forgeThreshold", champForgeThreshold);
-            ReflectionHacks
-                    .setPrivate(monster, Champ.class, "thresholdReached", champThresholdReached);
-            ReflectionHacks
-                    .setPrivate(monster, Champ.class, "firstTurn", champFirstTurn);
-        }
-
-        if (monster instanceof BronzeAutomaton) {
-            ReflectionHacks
-                    .setPrivate(monster, BronzeAutomaton.class, "numTurns", automatonNumTurns);
-            ReflectionHacks
-                    .setPrivate(monster, BronzeAutomaton.class, "firstTurn", automatonFirstTurn);
-        }
-
-        if (monster instanceof BronzeOrb) {
-            ReflectionHacks.setPrivate(monster, BronzeOrb.class, "usedStasis", bronzeOrbUsedStasis);
-        }
-
-        if (monster instanceof Chosen) {
-            ReflectionHacks.setPrivate(monster, Chosen.class, "usedHex", chosenUsedHex);
-            ReflectionHacks.setPrivate(monster, Chosen.class, "firstTurn", chosenFirstTurn);
-        }
-
-        if (monster instanceof BookOfStabbing) {
-            ReflectionHacks
-                    .setPrivate(monster, BookOfStabbing.class, "stabCount", bookOfStabbingStabCount);
-        }
-
-        if (monster instanceof TheCollector) {
-            ReflectionHacks
-                    .setPrivate(monster, TheCollector.class, "initialSpawn", collectorInitialSpawn);
-            ReflectionHacks
-                    .setPrivate(monster, TheCollector.class, "turnsTaken", collectorTurnsTaken);
-            ReflectionHacks
-                    .setPrivate(monster, TheCollector.class, "ultUsed", collectorUltUsed);
-        }
-
-        if (monster instanceof Mugger) {
-            ReflectionHacks
-                    .setPrivate(monster, Mugger.class, "slashCount", muggerSlashCount);
-            ReflectionHacks
-                    .setPrivate(monster, Mugger.class, "stolenGold", muggerStolenGold);
         }
     }
 
@@ -708,7 +271,7 @@ public class MonsterState extends CreatureState {
         } else if (id.equals("BronzeAutomaton")) {
             monster = new BronzeAutomaton();
         } else if (id.equals("BronzeOrb")) {
-            monster = new BronzeOrb(offsetX, offsetY, bronzeOrbCount);
+            monster = new BronzeOrb(offsetX, offsetY, 0);
         } else if (id.equals("TheCollector")) {
             monster = new TheCollector();
         } else if (id.equals("TorchHead")) {
@@ -752,64 +315,6 @@ public class MonsterState extends CreatureState {
         monsterStateJson.addProperty("damage", damage.stream().map(DamageInfoState::encode)
                                                      .collect(Collectors
                                                              .joining(DAMAGE_DELIMETER)));
-
-        monsterStateJson.addProperty("louse_is_open", louseIsOpen);
-        monsterStateJson.addProperty("louse_bite_damage", louseBiteDamage);
-
-        monsterStateJson.addProperty("gremlin_wizard_current_charge", gremlinWizardCurrentCharge);
-
-        monsterStateJson.addProperty("lagavulin_is_asleep", lagavulinIsAsleep);
-        monsterStateJson.addProperty("lagavulin_is_out", lagavulinIsOut);
-        monsterStateJson.addProperty("lagavulin_idle_count", lagavulinIdleCount);
-        monsterStateJson.addProperty("lagavulin_debuff_turn_count", lagavulinDebuffTurnCount);
-        monsterStateJson.addProperty("lagavulin_is_out_triggered", lagavulinIsOutTriggered);
-
-        monsterStateJson.addProperty("hexaghost_activated", hexaghostActivated);
-        monsterStateJson.addProperty("hexaghost_burn_upgraded", hexaghostBurnUpgraded);
-        monsterStateJson.addProperty("hexaghost_orb_active_count", hexaghostOrbActiveCount);
-        JsonArray orbArray = new JsonArray();
-        hexaghostActiveOrbs.forEach(isActive -> orbArray.add(isActive));
-        monsterStateJson.add("hexaghost_active_orbs", orbArray);
-
-        monsterStateJson.addProperty("guardian_dmg_threshold", guardianDmgThreshold);
-        monsterStateJson
-                .addProperty("guardian_dmg_threshold_increase", guardianDmgThesholdIncrease);
-        monsterStateJson.addProperty("guardian_dmg_taken", guardianDmgTaken);
-        monsterStateJson.addProperty("guardian_is_open", guardianIsOpen);
-        monsterStateJson.addProperty("guardian_close_up_triggered", guardianCloseUpTriggered);
-
-        monsterStateJson.addProperty("shelled_parasite_first_move", shelledParasiteFirstMove);
-
-        monsterStateJson.addProperty("cultist_first_move", cultistFirstMove);
-
-        monsterStateJson.addProperty("spheric_guardian_first_move", sphericGuardianFirstMove);
-        monsterStateJson.addProperty("spheric_guardian_second_move", sphericGuardianSecondMove);
-
-        monsterStateJson.addProperty("snecko_first_turn", sneckoFirstTurn);
-
-        monsterStateJson.addProperty("champ_num_turns", champNumTurns);
-        monsterStateJson.addProperty("champ_forge_times", champForgeTimes);
-        monsterStateJson.addProperty("champ_forge_threshold", champForgeThreshold);
-        monsterStateJson.addProperty("champ_threshold_reached", champThresholdReached);
-        monsterStateJson.addProperty("champ_first_turn", champFirstTurn);
-
-        monsterStateJson.addProperty("automaton_num_turns", automatonNumTurns);
-        monsterStateJson.addProperty("automaton_first_turn", automatonFirstTurn);
-
-        monsterStateJson.addProperty("bronze_orb_count", bronzeOrbCount);
-        monsterStateJson.addProperty("bronze_orb_used_stasis", bronzeOrbUsedStasis);
-
-        monsterStateJson.addProperty("chosen_used_hex", chosenUsedHex);
-        monsterStateJson.addProperty("chosen_first_turn", chosenFirstTurn);
-
-        monsterStateJson.addProperty("book_of_stabbing_stab_count", bookOfStabbingStabCount);
-
-        monsterStateJson.addProperty("collector_initial_spawn", collectorInitialSpawn);
-        monsterStateJson.addProperty("collector_turns_taken", collectorTurnsTaken);
-        monsterStateJson.addProperty("collector_ult_used", collectorUltUsed);
-
-        monsterStateJson.addProperty("mugger_slash_count", muggerSlashCount);
-        monsterStateJson.addProperty("mugger_stolen_gold", muggerStolenGold);
 
         return monsterStateJson.toString();
     }

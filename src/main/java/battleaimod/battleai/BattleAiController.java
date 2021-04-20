@@ -68,6 +68,7 @@ public class BattleAiController {
     public long stepTime;
     public long updateTime;
     public long loadstateTime;
+    public HashMap<Class, Long> actionClassTimes;
 
     public long playerLoadTime;
     public long roomLoadTime;
@@ -254,6 +255,7 @@ public class BattleAiController {
                 loadstateTime = 0;
                 playerLoadTime = 0;
                 roomLoadTime = 0;
+                actionClassTimes = new HashMap<>();
             }
 
             while (!turns
@@ -442,5 +444,6 @@ public class BattleAiController {
         System.err
                 .printf("Total runtime: %d\taction time: %d\tstep time: %d\tupdate time:%d load time:%d\tplayer load:%d\troom load:%d\n", System
                         .currentTimeMillis() - controllerStartTime, actionTime, stepTime, updateTime, loadstateTime, playerLoadTime, roomLoadTime);
+        System.err.println(actionClassTimes);
     }
 }

@@ -91,6 +91,8 @@ public class CreatureState {
     }
 
     public CreatureState(String jsonString) {
+        long loadStartTime = System.currentTimeMillis();
+
         JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
 
         this.name = parsed.get("name").getAsString();

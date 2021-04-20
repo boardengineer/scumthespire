@@ -6,6 +6,7 @@ import battleaimod.battleai.BattleAiController;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.characters.Ironclad;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
@@ -76,11 +77,6 @@ public class SaveState {
 
         AbstractDungeon.player = playerState.loadPlayer();
 
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.playerLoadTime += (System
-                    .currentTimeMillis() - loadStartTime);
-        }
-
         long point2 = System.currentTimeMillis();
         curMapNodeState.loadMapRoomNode(AbstractDungeon.currMapNode);
 
@@ -94,6 +90,8 @@ public class SaveState {
 
         AbstractDungeon.isScreenUp = false;
         listState.loadLists();
+
+        Ironclad ic;
 
         AbstractDungeon.dungeonMapScreen.close();
 
@@ -112,12 +110,6 @@ public class SaveState {
         GameStateListener.previousPhase = previousPhase;
         GameStateListener.myTurn = myTurn;
         GameStateListener.externalChange = true;
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.loadstateTime += (System
-                    .currentTimeMillis() - loadStartTime);
-
-        }
 
 //        System.err
 //                .printf("load time: %d\tpart 1:%d\tpart2:%d\n", System

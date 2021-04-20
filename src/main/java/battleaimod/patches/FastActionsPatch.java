@@ -10,13 +10,23 @@ import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.*;
+import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.CardGroup;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.powers.AbstractPower;
+import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.relics.BottledFlame;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
 import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.Iterator;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
@@ -31,13 +41,13 @@ public class FastActionsPatch {
         public static void Postfix(AbstractDungeon dungeon) {
             GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
-
-                // TODO this is going to have consequences
-                actionManager.cardsPlayedThisCombat.clear();
-
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
                     while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
+
+                        // TODO this is going to have consequences
+                        actionManager.cardsPlayedThisCombat.clear();
+
                         long startTime = System.currentTimeMillis();
                         if (shouldWaitOnActions(actionManager)) {
                             if (actionManager.currentAction instanceof RollMoveAction) {
@@ -52,10 +62,21 @@ public class FastActionsPatch {
                                 actionManager.currentAction = null;
                             }
                             if (actionManager.currentAction != null) {
+                                Class actionClass = actionManager.currentAction.getClass();
                                 actionManager.currentAction.update();
                                 if (BattleAiMod.battleAiController != null) {
-                                    BattleAiMod.battleAiController.actionTime += (System
+                                    long timeThisAction = (System
                                             .currentTimeMillis() - startTime);
+                                    BattleAiMod.battleAiController.actionTime += timeThisAction;
+                                    HashMap<Class, Long> actionClassTimes = BattleAiMod.battleAiController.actionClassTimes;
+                                    if (actionClassTimes != null) {
+                                        if (actionClassTimes.containsKey(actionClass)) {
+                                            actionClassTimes.put(actionClass, actionClassTimes
+                                                    .get(actionClass) + timeThisAction);
+                                        } else {
+                                            actionClassTimes.put(actionClass, timeThisAction);
+                                        }
+                                    }
                                 }
                             }
                         } else if (shouldStepAiController()) {
@@ -235,6 +256,83 @@ public class FastActionsPatch {
     public static class FixDescriptionNPE {
         public static void Replace(BottledFlame _instance) {
 
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractPlayer.class,
+            paramtypez = {},
+            method = "draw"
+    )
+    public static class NoSoundDrawPatch {
+        public static void Replace(AbstractPlayer _instance) {
+
+
+            long loadStartTime = System.currentTimeMillis();
+
+            if (_instance.hand.size() == 10) {
+                _instance.createHandIsFullDialog();
+            } else {
+
+                _instance.draw(1);
+                _instance.onCardDrawOrDiscard();
+
+            }
+
+
+            if (BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.loadstateTime += (System
+                        .currentTimeMillis() - loadStartTime);
+
+            }
+
+        }
+    }
+
+    // THIS IS VOODOO, DON'T TOUCH IT
+    @SpirePatch(
+            clz = AbstractPlayer.class,
+            paramtypez = {int.class},
+            method = "draw"
+    )
+    public static class NoSoundDrawPatch2 {
+        private static final Logger logger = LogManager.getLogger(AbstractPlayer.class.getName());
+
+        public static void Replace(AbstractPlayer _instance, int numCards) {
+            long loadStartTime = System.currentTimeMillis();
+            for (int i = 0; i < numCards; ++i) {
+                if (_instance.drawPile.isEmpty()) {
+                    logger.info("ERROR: How did this happen? No cards in draw pile?? Player.java");
+                } else {
+                    AbstractCard c = _instance.drawPile.getTopCard();
+                    c.current_x = CardGroup.DRAW_PILE_X;
+                    c.current_y = CardGroup.DRAW_PILE_Y;
+                    c.setAngle(0.0F, true);
+                    c.lighten(false);
+                    c.drawScale = 0.12F;
+                    c.targetDrawScale = 0.75F;
+                    c.triggerWhenDrawn();
+                    _instance.hand.addToHand(c);
+                    _instance.drawPile.removeTopCard();
+                    Iterator var4 = _instance.powers.iterator();
+
+                    while (var4.hasNext()) {
+                        AbstractPower p = (AbstractPower) var4.next();
+                        p.onCardDraw(c);
+                    }
+
+                    var4 = _instance.relics.iterator();
+
+                    while (var4.hasNext()) {
+                        AbstractRelic r = (AbstractRelic) var4.next();
+                        r.onCardDraw(c);
+                    }
+                }
+            }
+            if (BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.playerLoadTime += (System
+                        .currentTimeMillis() - loadStartTime);
+            }
         }
     }
 }

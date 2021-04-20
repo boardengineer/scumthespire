@@ -20,7 +20,7 @@ public enum Monster {
     GREMLIN_WIZARD("GremlinWizard", monster -> new GremlinWizardState(monster), json -> new GremlinWizardState(json)),
     HEXAGHOST("Hexaghost", monster -> new HexaghostState(monster), json -> new HexaghostState(json)),
     JAWWORM("JawWorm", monster -> new JawWormState(monster), json -> new JawWormState(json)),
-    LAGAVULIN("Lagavulin", monster -> new LagaVulinState(monster), json -> new LagaVulinState(json)),
+    LAGAVULIN("Lagavulin", monster -> new LagavulinState(monster), json -> new LagavulinState(json)),
     LOOTER("Looter", monster -> new LooterState(monster), json -> new LooterState(json)),
     FUZZY_LOUSE_DEFENSIVE("FuzzyLouseDefensive", monster -> new LouseDefensiveState(monster), json -> new LouseDefensiveState(json)),
     FUZZY_LOUSE_NORMAL("FuzzyLouseNormal", monster -> new LouseNormalState(monster), json -> new LouseNormalState(json)),
