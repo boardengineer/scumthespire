@@ -21,7 +21,6 @@ import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.blights.AbstractBlight;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
-import com.megacrit.cardcrawl.cards.CardQueueItem;
 import com.megacrit.cardcrawl.cards.tempCards.Shiv;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.AbstractCreature;
@@ -36,7 +35,6 @@ import com.megacrit.cardcrawl.helpers.TipTracker;
 import com.megacrit.cardcrawl.helpers.input.DevInputActionSet;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
-import com.megacrit.cardcrawl.monsters.MonsterQueueItem;
 import com.megacrit.cardcrawl.powers.AbstractPower;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.relics.BottledFlame;
@@ -66,6 +64,20 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 public class FastActionsPatch {
+    static long updateStartTime = 0;
+
+    @SpirePatch(
+            clz = AbstractDungeon.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class StartSpyingPatch {
+        public static void Prefix(AbstractDungeon dungeon) {
+
+        }
+    }
+
+
     @SpirePatch(
             clz = AbstractDungeon.class,
             paramtypez = {},
@@ -73,11 +85,14 @@ public class FastActionsPatch {
     )
     public static class ForceGameActionsPatch {
         public static void Postfix(AbstractDungeon dungeon) {
+            long updateStartTime = System.currentTimeMillis();
+
             GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
                     while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
+                        long startTime = System.currentTimeMillis();
 
                         AbstractDungeon.topLevelEffects.clear();
                         AbstractDungeon.effectList.clear();
@@ -85,7 +100,6 @@ public class FastActionsPatch {
                         actionManager.cardsPlayedThisCombat.clear();
 
 
-                        long startTime = System.currentTimeMillis();
                         if (shouldWaitOnActions(actionManager)) {
                             if (actionManager.currentAction instanceof RollMoveAction) {
                                 AbstractMonster monster = ReflectionHacks
@@ -104,7 +118,8 @@ public class FastActionsPatch {
                                 if (BattleAiMod.battleAiController != null) {
                                     long timeThisAction = (System
                                             .currentTimeMillis() - startTime);
-                                    BattleAiMod.battleAiController.actionTime += timeThisAction;
+                                    BattleAiMod.battleAiController
+                                            .addRuntime("Actions", timeThisAction);
                                     HashMap<Class, Long> actionClassTimes = BattleAiMod.battleAiController.actionClassTimes;
                                     if (actionClassTimes != null) {
                                         if (actionClassTimes.containsKey(actionClass)) {
@@ -117,14 +132,21 @@ public class FastActionsPatch {
                                 }
                             }
                         } else if (shouldStepAiController()) {
+                            long stepStartTime = System.currentTimeMillis();
+
                             BattleAiMod.readyForUpdate = false;
                             BattleAiMod.battleAiController.step();
-                            BattleAiMod.battleAiController.stepTime += (System
-                                    .currentTimeMillis() - startTime);
+
+                            BattleAiMod.battleAiController.addRuntime("Step", System
+                                    .currentTimeMillis() - stepStartTime);
                         }
 
-//                        AbstractDungeon.getCurrRoom().update();
+                        long startRoomUpdate = System.currentTimeMillis();
                         roomUpdate();
+                        if (BattleAiMod.battleAiController != null) {
+                            BattleAiMod.battleAiController.addRuntime("Room Update", System
+                                    .currentTimeMillis() - startRoomUpdate);
+                        }
 
                         if (AbstractDungeon.player.currentHealth <= 0) {
                             if (actionManager.currentAction instanceof DamageAction) {
@@ -132,9 +154,13 @@ public class FastActionsPatch {
                             }
                             break;
                         }
-                    }
 
-                    System.err.println("exiting loop");
+                        if (BattleAiMod.battleAiController != null) {
+                            BattleAiMod.battleAiController.addRuntime("Update Loop Total", System
+                                    .currentTimeMillis() - startTime);
+                        }
+                    }
+                    System.err.println("exiting loop " + AbstractDungeon.topLevelEffects.size());
                 }
             }
         }
@@ -414,32 +440,26 @@ public class FastActionsPatch {
     static void roomUpdate() {
         AbstractDungeon.getCurrRoom().monsters.update();
         if (!(AbstractDungeon.getCurrRoom().waitTimer > 0.0F)) {
+            long startTopCondition = System.currentTimeMillis();
 
             if (Settings.isDebug && DevInputActionSet.drawCard.isJustPressed()) {
                 AbstractDungeon.actionManager
                         .addToTop(new DrawCardAction(AbstractDungeon.player, 1));
             }
 
+            long midTopCondition = System.currentTimeMillis();
 
             if (!AbstractDungeon.isScreenUp) {
 //                System.err.println("updating room " + actionManager.cardsPlayedThisCombat
 //                        .size() + " " + actionManager.cardsPlayedThisTurn.size());
 
                 ActionManageUpdate();
-
-                long preUpdateTime = System.currentTimeMillis();
-
                 if (!AbstractDungeon.getCurrRoom().monsters
                         .areMonstersBasicallyDead() && AbstractDungeon.player.currentHealth > 0) {
                     AbstractDungeon.player.updateInput();
                 }
-
-
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController.updateTime += (System
-                            .currentTimeMillis() - preUpdateTime);
-                }
             }
+
 
 
             if (!AbstractDungeon.screen.equals(AbstractDungeon.CurrentScreen.HAND_SELECT)) {
@@ -450,6 +470,13 @@ public class FastActionsPatch {
                 AbstractDungeon.getCurrRoom().endTurn();
             }
 
+
+            if (BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.addRuntime("Top Condition", System
+                        .currentTimeMillis() - startTopCondition);
+                BattleAiMod.battleAiController.addRuntime("Mid Top Condition", System
+                        .currentTimeMillis() - midTopCondition);
+            }
 
         } else {
             if (AbstractDungeon.actionManager.currentAction == null && AbstractDungeon.actionManager
@@ -598,7 +625,8 @@ public class FastActionsPatch {
     }
 
     public static void ActionManageUpdate() {
-        switch(AbstractDungeon.actionManager.phase) {
+        long localManagerUpdateStart = System.currentTimeMillis();
+        switch (AbstractDungeon.actionManager.phase) {
             case WAITING_ON_USER:
                 ActionManagerNextAction();
                 break;
@@ -609,7 +637,8 @@ public class FastActionsPatch {
                     AbstractDungeon.actionManager.previousAction = AbstractDungeon.actionManager.currentAction;
                     AbstractDungeon.actionManager.currentAction = null;
                     ActionManagerNextAction();
-                    if (AbstractDungeon.actionManager.currentAction == null && AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !actionManager.usingCard) {
+                    if (AbstractDungeon.actionManager.currentAction == null && AbstractDungeon
+                            .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !actionManager.usingCard) {
                         AbstractDungeon.actionManager.phase = GameActionManager.Phase.WAITING_ON_USER;
                         AbstractDungeon.player.hand.refreshHandLayout();
                         AbstractDungeon.actionManager.hasControl = false;
@@ -621,50 +650,68 @@ public class FastActionsPatch {
             default:
         }
 
+        if(BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Local Manager Update", System.currentTimeMillis() - localManagerUpdateStart);
+        }
+
     }
 
 
     public static void ActionManagerNextAction() {
+        long localManagerNextAction = System.currentTimeMillis();
         if (!AbstractDungeon.actionManager.actions.isEmpty()) {
-            AbstractDungeon.actionManager.currentAction = (AbstractGameAction)AbstractDungeon.actionManager.actions.remove(0);
+            AbstractDungeon.actionManager.currentAction = AbstractDungeon.actionManager.actions
+                    .remove(0);
             AbstractDungeon.actionManager.phase = GameActionManager.Phase.EXECUTING_ACTIONS;
             AbstractDungeon.actionManager.hasControl = true;
         } else if (!AbstractDungeon.actionManager.preTurnActions.isEmpty()) {
-            AbstractDungeon.actionManager.currentAction = (AbstractGameAction)AbstractDungeon.actionManager.preTurnActions.remove(0);
+            AbstractDungeon.actionManager.currentAction = AbstractDungeon.actionManager.preTurnActions
+                    .remove(0);
             AbstractDungeon.actionManager.phase = GameActionManager.Phase.EXECUTING_ACTIONS;
             AbstractDungeon.actionManager.hasControl = true;
         } else if (!AbstractDungeon.actionManager.cardQueue.isEmpty()) {
+            long startCardStuff = System.currentTimeMillis();
+
             AbstractDungeon.actionManager.usingCard = true;
-            AbstractCard c = ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card;
+            AbstractCard c = AbstractDungeon.actionManager.cardQueue.get(0).card;
             if (c == null) {
                 callEndOfTurnActions();
             } else if (c.equals(AbstractDungeon.actionManager.lastCard)) {
                 AbstractDungeon.actionManager.lastCard = null;
             }
 
-            if (AbstractDungeon.actionManager.cardQueue.size() == 1 && ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).isEndTurnAutoPlay) {
+            if (AbstractDungeon.actionManager.cardQueue
+                    .size() == 1 && AbstractDungeon.actionManager.cardQueue
+                    .get(0).isEndTurnAutoPlay) {
                 AbstractRelic top = AbstractDungeon.player.getRelic("Unceasing Top");
                 if (top != null) {
-                    ((UnceasingTop)top).disableUntilTurnEnds();
+                    ((UnceasingTop) top).disableUntilTurnEnds();
                 }
             }
 
             boolean canPlayCard = false;
             if (c != null) {
-                c.isInAutoplay = ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).autoplayCard;
+                c.isInAutoplay = AbstractDungeon.actionManager.cardQueue
+                        .get(0).autoplayCard;
             }
 
-            if (c != null && ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).randomTarget) {
-                ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster = AbstractDungeon.getMonsters().getRandomMonster((AbstractMonster)null, true, AbstractDungeon.cardRandomRng);
+            if (c != null && AbstractDungeon.actionManager.cardQueue
+                    .get(0).randomTarget) {
+                AbstractDungeon.actionManager.cardQueue
+                        .get(0).monster = AbstractDungeon.getMonsters()
+                                                         .getRandomMonster(null, true, AbstractDungeon.cardRandomRng);
             }
 
             Iterator i;
             AbstractCard card;
-            if (((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card == null || !c.canUse(AbstractDungeon.player, ((CardQueueItem)actionManager.cardQueue.get(0)).monster) && !((CardQueueItem)actionManager.cardQueue.get(0)).card.dontTriggerOnUseCard) {
+            if (AbstractDungeon.actionManager.cardQueue.get(0).card == null || !c
+                    .canUse(AbstractDungeon.player, actionManager.cardQueue
+                            .get(0).monster) && !actionManager.cardQueue
+                    .get(0).card.dontTriggerOnUseCard) {
                 i = AbstractDungeon.player.limbo.group.iterator();
 
-                while(i.hasNext()) {
-                    card = (AbstractCard)i.next();
+                while (i.hasNext()) {
+                    card = (AbstractCard) i.next();
                     if (card == c) {
                         c.fadingOut = true;
                         AbstractDungeon.effectList.add(new ExhaustCardEffect(c));
@@ -673,7 +720,8 @@ public class FastActionsPatch {
                 }
 
                 if (c != null) {
-                    AbstractDungeon.effectList.add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, 3.0F, c.cantUseMessage, true));
+                    AbstractDungeon.effectList
+                            .add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, 3.0F, c.cantUseMessage, true));
                 }
             } else {
                 canPlayCard = true;
@@ -681,88 +729,116 @@ public class FastActionsPatch {
                     c.freeToPlayOnce = true;
                 }
 
-                ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.energyOnUse = ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).energyOnUse;
+                AbstractDungeon.actionManager.cardQueue
+                        .get(0).card.energyOnUse = AbstractDungeon.actionManager.cardQueue
+                        .get(0).energyOnUse;
                 if (c.isInAutoplay) {
-                    ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.ignoreEnergyOnUse = true;
+                    AbstractDungeon.actionManager.cardQueue
+                            .get(0).card.ignoreEnergyOnUse = true;
                 } else {
-                    ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.ignoreEnergyOnUse = ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).ignoreEnergyTotal;
+                    AbstractDungeon.actionManager.cardQueue
+                            .get(0).card.ignoreEnergyOnUse = AbstractDungeon.actionManager.cardQueue
+                            .get(0).ignoreEnergyTotal;
                 }
 
-                if (!((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.dontTriggerOnUseCard) {
+                if (!AbstractDungeon.actionManager.cardQueue
+                        .get(0).card.dontTriggerOnUseCard) {
                     i = AbstractDungeon.player.powers.iterator();
 
-                    while(i.hasNext()) {
-                        AbstractPower p = (AbstractPower)i.next();
-                        p.onPlayCard(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card, ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster);
+                    while (i.hasNext()) {
+                        AbstractPower p = (AbstractPower) i.next();
+                        p.onPlayCard(AbstractDungeon.actionManager.cardQueue
+                                .get(0).card, AbstractDungeon.actionManager.cardQueue
+                                .get(0).monster);
                     }
 
                     i = AbstractDungeon.getMonsters().monsters.iterator();
 
-                    while(i.hasNext()) {
-                        AbstractMonster m = (AbstractMonster)i.next();
+                    while (i.hasNext()) {
+                        AbstractMonster m = (AbstractMonster) i.next();
                         Iterator var5 = m.powers.iterator();
 
-                        while(var5.hasNext()) {
-                            AbstractPower p = (AbstractPower)var5.next();
-                            p.onPlayCard(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card, ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster);
+                        while (var5.hasNext()) {
+                            AbstractPower p = (AbstractPower) var5.next();
+                            p.onPlayCard(AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card, AbstractDungeon.actionManager.cardQueue
+                                    .get(0).monster);
                         }
                     }
 
                     i = AbstractDungeon.player.relics.iterator();
 
-                    while(i.hasNext()) {
-                        AbstractRelic r = (AbstractRelic)i.next();
-                        r.onPlayCard(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card, ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster);
+                    while (i.hasNext()) {
+                        AbstractRelic r = (AbstractRelic) i.next();
+                        r.onPlayCard(AbstractDungeon.actionManager.cardQueue
+                                .get(0).card, AbstractDungeon.actionManager.cardQueue
+                                .get(0).monster);
                     }
 
-                    AbstractDungeon.player.stance.onPlayCard(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card);
+                    AbstractDungeon.player.stance
+                            .onPlayCard(AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card);
                     i = AbstractDungeon.player.blights.iterator();
 
-                    while(i.hasNext()) {
-                        AbstractBlight b = (AbstractBlight)i.next();
-                        b.onPlayCard(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card, ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster);
+                    while (i.hasNext()) {
+                        AbstractBlight b = (AbstractBlight) i.next();
+                        b.onPlayCard(AbstractDungeon.actionManager.cardQueue
+                                .get(0).card, AbstractDungeon.actionManager.cardQueue
+                                .get(0).monster);
                     }
 
                     i = AbstractDungeon.player.hand.group.iterator();
 
-                    while(i.hasNext()) {
-                        card = (AbstractCard)i.next();
-                        card.onPlayCard(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card, ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster);
+                    while (i.hasNext()) {
+                        card = (AbstractCard) i.next();
+                        card.onPlayCard(AbstractDungeon.actionManager.cardQueue
+                                .get(0).card, AbstractDungeon.actionManager.cardQueue
+                                .get(0).monster);
                     }
 
                     i = AbstractDungeon.player.discardPile.group.iterator();
 
-                    while(i.hasNext()) {
-                        card = (AbstractCard)i.next();
-                        card.onPlayCard(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card, ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster);
+                    while (i.hasNext()) {
+                        card = (AbstractCard) i.next();
+                        card.onPlayCard(AbstractDungeon.actionManager.cardQueue
+                                .get(0).card, AbstractDungeon.actionManager.cardQueue
+                                .get(0).monster);
                     }
 
                     i = AbstractDungeon.player.drawPile.group.iterator();
 
-                    while(i.hasNext()) {
-                        card = (AbstractCard)i.next();
-                        card.onPlayCard(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card, ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster);
+                    while (i.hasNext()) {
+                        card = (AbstractCard) i.next();
+                        card.onPlayCard(AbstractDungeon.actionManager.cardQueue
+                                .get(0).card, AbstractDungeon.actionManager.cardQueue
+                                .get(0).monster);
                     }
 
                     ++AbstractDungeon.player.cardsPlayedThisTurn;
-                    AbstractDungeon.actionManager.cardsPlayedThisTurn.add(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card);
-                    AbstractDungeon.actionManager.cardsPlayedThisCombat.add(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card);
+                    AbstractDungeon.actionManager.cardsPlayedThisTurn
+                            .add(AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card);
+                    AbstractDungeon.actionManager.cardsPlayedThisCombat
+                            .add(AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card);
                 }
 
                 if (AbstractDungeon.actionManager.cardsPlayedThisTurn.size() == 25) {
                     UnlockTracker.unlockAchievement("INFINITY");
                 }
 
-                if (AbstractDungeon.actionManager.cardsPlayedThisTurn.size() >= 20 && !CardCrawlGame.combo) {
+                if (AbstractDungeon.actionManager.cardsPlayedThisTurn
+                        .size() >= 20 && !CardCrawlGame.combo) {
                     CardCrawlGame.combo = true;
                 }
 
-                if (((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card instanceof Shiv) {
+                if (AbstractDungeon.actionManager.cardQueue
+                        .get(0).card instanceof Shiv) {
                     int shivCount = 0;
                     Iterator var15 = AbstractDungeon.actionManager.cardsPlayedThisTurn.iterator();
 
-                    while(var15.hasNext()) {
-                        AbstractCard card2 = (AbstractCard)var15.next();
+                    while (var15.hasNext()) {
+                        AbstractCard card2 = (AbstractCard) var15.next();
                         if (card2 instanceof Shiv) {
                             ++shivCount;
                             if (shivCount == 10) {
@@ -773,27 +849,49 @@ public class FastActionsPatch {
                     }
                 }
 
-                if (((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card != null) {
-                    if (((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.target != AbstractCard.CardTarget.ENEMY || ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster != null && !((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster.isDeadOrEscaped()) {
-                        AbstractDungeon.player.useCard(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card, ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster, ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).energyOnUse);
+                if (AbstractDungeon.actionManager.cardQueue.get(0).card != null) {
+                    if (AbstractDungeon.actionManager.cardQueue
+                            .get(0).card.target != AbstractCard.CardTarget.ENEMY || AbstractDungeon.actionManager.cardQueue
+                            .get(0).monster != null && !AbstractDungeon.actionManager.cardQueue
+                            .get(0).monster.isDeadOrEscaped()) {
+                        AbstractDungeon.player
+                                .useCard(AbstractDungeon.actionManager.cardQueue
+                                        .get(0).card, AbstractDungeon.actionManager.cardQueue
+                                        .get(0).monster, AbstractDungeon.actionManager.cardQueue
+                                        .get(0).energyOnUse);
                     } else {
                         i = AbstractDungeon.player.limbo.group.iterator();
 
-                        while(i.hasNext()) {
-                            card = (AbstractCard)i.next();
-                            if (card == ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card) {
-                                ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.fadingOut = true;
-                                AbstractDungeon.effectList.add(new ExhaustCardEffect(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card));
+                        while (i.hasNext()) {
+                            card = (AbstractCard) i.next();
+                            if (card == AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card) {
+                                AbstractDungeon.actionManager.cardQueue
+                                        .get(0).card.fadingOut = true;
+                                AbstractDungeon.effectList
+                                        .add(new ExhaustCardEffect(AbstractDungeon.actionManager.cardQueue
+                                                .get(0).card));
                                 i.remove();
                             }
                         }
 
-                        if (((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).monster == null) {
-                            ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.drawScale = ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.targetDrawScale;
-                            ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.angle = ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.targetAngle;
-                            ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.current_x = ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.target_x;
-                            ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.current_y = ((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card.target_y;
-                            AbstractDungeon.effectList.add(new ExhaustCardEffect(((CardQueueItem)AbstractDungeon.actionManager.cardQueue.get(0)).card));
+                        if (AbstractDungeon.actionManager.cardQueue
+                                .get(0).monster == null) {
+                            AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card.drawScale = AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card.targetDrawScale;
+                            AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card.angle = AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card.targetAngle;
+                            AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card.current_x = AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card.target_x;
+                            AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card.current_y = AbstractDungeon.actionManager.cardQueue
+                                    .get(0).card.target_y;
+                            AbstractDungeon.effectList
+                                    .add(new ExhaustCardEffect(AbstractDungeon.actionManager.cardQueue
+                                            .get(0).card));
                         }
                     }
                 }
@@ -804,20 +902,37 @@ public class FastActionsPatch {
                 c.dontTriggerOnUseCard = true;
                 AbstractDungeon.actionManager.addToBottom(new UseCardAction(c));
             }
+
+            if(BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.addRuntime("Local Action Manager Card Stuff", System
+                        .currentTimeMillis() - startCardStuff);
+            }
+
         } else if (!AbstractDungeon.actionManager.monsterAttacksQueued) {
+            long startMonsterQueuedStuff = System.currentTimeMillis();
+
             AbstractDungeon.actionManager.monsterAttacksQueued = true;
             if (!AbstractDungeon.getCurrRoom().skipMonsterTurn) {
                 AbstractDungeon.getCurrRoom().monsters.queueMonsters();
             }
+
+            if(BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.addRuntime("Local Action Manager Monster Queued Stuff", System
+                        .currentTimeMillis() - startMonsterQueuedStuff);
+            }
         } else if (!AbstractDungeon.actionManager.monsterQueue.isEmpty()) {
-            AbstractMonster m = ((MonsterQueueItem)AbstractDungeon.actionManager.monsterQueue.get(0)).monster;
+            long startOtherMonsterQueuedStuff = System.currentTimeMillis();
+
+            AbstractMonster m = AbstractDungeon.actionManager.monsterQueue
+                    .get(0).monster;
             if (!m.isDeadOrEscaped() || m.halfDead) {
                 if (m.intent != AbstractMonster.Intent.NONE) {
                     AbstractDungeon.actionManager.addToBottom(new ShowMoveNameAction(m));
                     AbstractDungeon.actionManager.addToBottom(new IntentFlashAction(m));
                 }
 
-                if (!(Boolean) TipTracker.tips.get("INTENT_TIP") && AbstractDungeon.player.currentBlock == 0 && (m.intent == AbstractMonster.Intent.ATTACK || m.intent == AbstractMonster.Intent.ATTACK_DEBUFF || m.intent == AbstractMonster.Intent.ATTACK_BUFF || m.intent == AbstractMonster.Intent.ATTACK_DEFEND)) {
+                if (!(Boolean) TipTracker.tips
+                        .get("INTENT_TIP") && AbstractDungeon.player.currentBlock == 0 && (m.intent == AbstractMonster.Intent.ATTACK || m.intent == AbstractMonster.Intent.ATTACK_DEBUFF || m.intent == AbstractMonster.Intent.ATTACK_BUFF || m.intent == AbstractMonster.Intent.ATTACK_DEFEND)) {
                     if (AbstractDungeon.floorNum <= 5) {
                         ++TipTracker.blockCounter;
                     } else {
@@ -825,7 +940,14 @@ public class FastActionsPatch {
                     }
                 }
 
+                long monsterTurnStart = System.currentTimeMillis();
+
                 m.takeTurn();
+                if (BattleAiMod.battleAiController != null) {
+                    BattleAiMod.battleAiController.addRuntime("Monster Turn", System
+                            .currentTimeMillis() - monsterTurnStart);
+                }
+
                 m.applyTurnPowers();
             }
 
@@ -833,7 +955,15 @@ public class FastActionsPatch {
             if (AbstractDungeon.actionManager.monsterQueue.isEmpty()) {
                 AbstractDungeon.actionManager.addToBottom(new WaitAction(1.5F));
             }
-        } else if (AbstractDungeon.actionManager.turnHasEnded && !AbstractDungeon.getMonsters().areMonstersBasicallyDead()) {
+
+            if(BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.addRuntime("Local Action Manager Other Monster Queued Stuff", System
+                        .currentTimeMillis() - startOtherMonsterQueuedStuff);
+            }
+        } else if (AbstractDungeon.actionManager.turnHasEnded && !AbstractDungeon.getMonsters()
+                                                                                 .areMonstersBasicallyDead()) {
+            long startEOTStuff = System.currentTimeMillis();
+
             if (!AbstractDungeon.getCurrRoom().skipMonsterTurn) {
                 AbstractDungeon.getCurrRoom().monsters.applyEndOfTurnPowers();
             }
@@ -854,13 +984,14 @@ public class FastActionsPatch {
             AbstractDungeon.player.applyStartOfTurnCards();
             AbstractDungeon.player.applyStartOfTurnPowers();
             AbstractDungeon.player.applyStartOfTurnOrbs();
-            ++AbstractDungeon.actionManager.turn;
+            ++GameActionManager.turn;
             AbstractDungeon.getCurrRoom().skipMonsterTurn = false;
             AbstractDungeon.actionManager.turnHasEnded = false;
-            AbstractDungeon.actionManager.totalDiscardedThisTurn = 0;
+            GameActionManager.totalDiscardedThisTurn = 0;
             AbstractDungeon.actionManager.cardsPlayedThisTurn.clear();
-            AbstractDungeon.actionManager.damageReceivedThisTurn = 0;
-            if (!AbstractDungeon.player.hasPower("Barricade") && !AbstractDungeon.player.hasPower("Blur")) {
+            GameActionManager.damageReceivedThisTurn = 0;
+            if (!AbstractDungeon.player.hasPower("Barricade") && !AbstractDungeon.player
+                    .hasPower("Blur")) {
                 if (!AbstractDungeon.player.hasRelic("Calipers")) {
                     AbstractDungeon.player.loseBlock();
                 } else {
@@ -869,27 +1000,42 @@ public class FastActionsPatch {
             }
 
             if (!AbstractDungeon.getCurrRoom().isBattleOver) {
-                AbstractDungeon.actionManager.addToBottom(new DrawCardAction((AbstractCreature)null, AbstractDungeon.player.gameHandSize, true));
+                AbstractDungeon.actionManager
+                        .addToBottom(new DrawCardAction(null, AbstractDungeon.player.gameHandSize, true));
                 AbstractDungeon.player.applyStartOfTurnPostDrawRelics();
                 AbstractDungeon.player.applyStartOfTurnPostDrawPowers();
                 AbstractDungeon.actionManager.addToBottom(new EnableEndTurnButtonAction());
             }
+
+            if(BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.addRuntime("Local Action Manager EOT Stuff", System
+                        .currentTimeMillis() - startEOTStuff);
+            }
         }
 
+        if(BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Local Manager Next Action", System.currentTimeMillis() - localManagerNextAction);
+        }
     }
 
     private static void callEndOfTurnActions() {
+        long localManagerCallEOT = System.currentTimeMillis();
+
         AbstractDungeon.getCurrRoom().applyEndOfTurnRelics();
         AbstractDungeon.getCurrRoom().applyEndOfTurnPreCardPowers();
         actionManager.addToBottom(new TriggerEndOfTurnOrbsAction());
         Iterator var1 = AbstractDungeon.player.hand.group.iterator();
 
-        while(var1.hasNext()) {
-            AbstractCard c = (AbstractCard)var1.next();
+        while (var1.hasNext()) {
+            AbstractCard c = (AbstractCard) var1.next();
             c.triggerOnEndOfTurnForPlayingCard();
         }
 
         AbstractDungeon.player.stance.onEndOfTurn();
+
+        if(BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Local Manager Call EOT", System.currentTimeMillis() - localManagerCallEOT);
+        }
     }
 
     @SpirePatch(

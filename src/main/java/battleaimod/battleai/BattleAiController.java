@@ -11,6 +11,7 @@ import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
@@ -69,6 +70,8 @@ public class BattleAiController {
     public long updateTime;
     public long loadstateTime;
     public HashMap<Class, Long> actionClassTimes;
+
+    public HashMap<String, Long> runTimes;
 
     public long playerLoadTime;
     public long roomLoadTime;
@@ -256,6 +259,7 @@ public class BattleAiController {
                 playerLoadTime = 0;
                 roomLoadTime = 0;
                 actionClassTimes = new HashMap<>();
+                runTimes = new HashMap<>();
             }
 
             while (!turns
@@ -445,5 +449,17 @@ public class BattleAiController {
                 .printf("Total runtime: %d\taction time: %d\tstep time: %d\tupdate time:%d load time:%d\tplayer load:%d\troom load:%d\n", System
                         .currentTimeMillis() - controllerStartTime, actionTime, stepTime, updateTime, loadstateTime, playerLoadTime, roomLoadTime);
         System.err.println(actionClassTimes);
+        System.err.println("-------------------------------------------------------------------");
+        System.err.println(runTimes.entrySet().stream().map(entry -> entry.toString())
+                                   .collect(Collectors.joining("\n")));
+        System.err.println("-------------------------------------------------------------------");
+    }
+
+    public void addRuntime(String name, long amount) {
+        if (!runTimes.containsKey(name)) {
+            runTimes.put(name, amount);
+        } else {
+            runTimes.put(name, amount + runTimes.get(name));
+        }
     }
 }
