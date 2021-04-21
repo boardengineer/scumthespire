@@ -1,12 +1,18 @@
 package battleaimod.savestate.monsters;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.SphericGuardian;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class SphericGuardianState extends MonsterState {
     private final boolean firstMove;
@@ -57,5 +63,21 @@ public class SphericGuardianState extends MonsterState {
         monsterStateJson.addProperty("second_move", secondMove);
 
         return monsterStateJson.toString();
+    }
+
+    @SpirePatch(
+            clz = SphericGuardian.class,
+            paramtypez = {float.class, float.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoAnimationsPatch {
+        @SpireInsertPatch(loc = 54)
+        public static SpireReturn SphericGuardian(SphericGuardian _instance, float x, float y) {
+            if (shouldGoFast()) {
+                _instance.state = new AnimationStateFast();
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
     }
 }

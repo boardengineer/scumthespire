@@ -127,10 +127,6 @@ public class FastActionsPatch {
                         roomUpdate();
 
                         if (AbstractDungeon.player.currentHealth <= 0) {
-                            DeathScreen ds;
-                            System.err
-                                    .printf("%s %s %s %s\n", shouldStepAiController(), actionManager.phase, actionManager.currentAction, actionManager.actions);
-
                             if (actionManager.currentAction instanceof DamageAction) {
                                 actionManager.update();
                             }

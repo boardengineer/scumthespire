@@ -1,12 +1,20 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.exordium;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.AnimationStateDataFast;
+import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.TheGuardian;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class TheGuardianState extends MonsterState {
     private final int dmgThreshold;
@@ -78,5 +86,25 @@ public class TheGuardianState extends MonsterState {
         monsterStateJson.addProperty("close_up_triggered", closeUpTriggered);
 
         return monsterStateJson.toString();
+    }
+
+    @SpirePatch(
+            clz = TheGuardian.class,
+            paramtypez = {},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoAnimationsPatch {
+        @SpireInsertPatch(loc = 100)
+        public static SpireReturn TheGuardian(TheGuardian _instance) {
+            if (shouldGoFast()) {
+                _instance.state = new AnimationStateFast();
+
+                ReflectionHacks
+                        .setPrivate(_instance, AbstractCreature.class, "stateData", new AnimationStateDataFast());
+
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
     }
 }

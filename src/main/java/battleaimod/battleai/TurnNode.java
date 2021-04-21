@@ -161,7 +161,15 @@ public class TurnNode implements Comparable<TurnNode> {
 
     public static int getTotalMonsterHealth(SaveState saveState) {
         return saveState.curMapNodeState.monsterData.stream()
-                                                    .map(monster -> monster.currentHealth)
+                                                    .map(monster -> {
+                                                        if (monster.powers.stream()
+                                                                          .filter(power -> power.powerId
+                                                                                  .equals("Barricade"))
+                                                                          .findAny().isPresent()) {
+                                                            return monster.currentHealth + monster.currentBlock;
+                                                        }
+                                                        return monster.currentHealth;
+                                                    })
                                                     .reduce(Integer::sum)
                                                     .get();
     }

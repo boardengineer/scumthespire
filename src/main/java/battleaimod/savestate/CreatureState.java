@@ -38,7 +38,7 @@ public class CreatureState {
     private final float hb_h;
     public final int currentHealth;
     private final int maxHealth;
-    private final int currentBlock;
+    public final int currentBlock;
     private final float hbAlpha;
 
     private final float animX;

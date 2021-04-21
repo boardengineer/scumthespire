@@ -35,8 +35,6 @@ public class LagavulinState extends MonsterState {
         isOutTriggered = ReflectionHacks
                 .getPrivate(monster, Lagavulin.class, "isOutTriggered");
 
-        System.err.println(isOutTriggered);
-
         monsterTypeNumber = Monster.LAGAVULIN.ordinal();
     }
 
