@@ -6,6 +6,8 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 
+import java.util.UUID;
+
 public class CardState {
     private final String cardId;
     private final boolean upgraded;
@@ -28,6 +30,8 @@ public class CardState {
     private final float targetAngle;
     private final float drawScale;
     private final float targetDrawScale;
+
+    private final UUID uuid;
 
 
     // private final HitboxState hb;
@@ -54,6 +58,7 @@ public class CardState {
         this.drawScale = card.drawScale;
         this.targetDrawScale = card.targetDrawScale;
         this.name = card.name;
+        this.uuid = card.uuid;
     }
 
     public CardState(String jsonString) {
@@ -70,6 +75,7 @@ public class CardState {
         this.inBottleFlame = parsed.get("in_bottle_flame").getAsBoolean();
 
         this.name = parsed.get("name").getAsString();
+        this.uuid = UUID.fromString(parsed.get("uuid").getAsString());
 
         // TODO
         this.current_x = 0;
@@ -120,6 +126,7 @@ public class CardState {
         result.inBottleTornado = inBottleTornado;
         result.name = name;
 
+        result.uuid = uuid;
 
         return result;
     }
@@ -140,6 +147,7 @@ public class CardState {
         cardStateJson.addProperty("in_bottle_flame", inBottleFlame);
         cardStateJson.addProperty("in_bottle_tornado", inBottleTornado);
         cardStateJson.addProperty("name", name);
+        cardStateJson.addProperty("uuid", uuid.toString());
 
         return cardStateJson.toString();
     }

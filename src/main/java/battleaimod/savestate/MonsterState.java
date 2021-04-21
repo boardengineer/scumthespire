@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.ModHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 import com.megacrit.cardcrawl.monsters.beyond.Darkling;
@@ -157,7 +158,7 @@ public class MonsterState extends CreatureState {
         monster.intentOffsetX = this.intentOffsetX;
         monster.moveName = this.moveName;
 
-        if(!shouldGoFast()) {
+        if (!shouldGoFast()) {
             monster.showHealthBar();
             monster.createIntent();
         }
@@ -209,7 +210,7 @@ public class MonsterState extends CreatureState {
                 System.err.println(e);
             }
         } else if (id.equals("Lagavulin")) {
-            monster = new Lagavulin(false);
+            monster = new Lagavulin(true);
         } else if (id.equals("Looter")) {
             monster = new Looter(offsetX, offsetY);
         } else if (id.equals("FuzzyLouseDefensive")) {
@@ -317,5 +318,20 @@ public class MonsterState extends CreatureState {
                                                              .joining(DAMAGE_DELIMETER)));
 
         return monsterStateJson.toString();
+    }
+
+    // static copy of AbstractMonster.setHp
+    public static void setHp(AbstractMonster monster, int minHp, int maxHp) {
+        monster.currentHealth = AbstractDungeon.monsterHpRng.random(minHp, maxHp);
+        if (Settings.isEndless && AbstractDungeon.player.hasBlight("ToughEnemies")) {
+            float mod = AbstractDungeon.player.getBlight("ToughEnemies").effectFloat();
+            monster.currentHealth = (int) ((float) monster.currentHealth * mod);
+        }
+
+        if (ModHelper.isModEnabled("MonsterHunter")) {
+            monster.currentHealth = (int) ((float) monster.currentHealth * 1.5F);
+        }
+
+        monster.maxHealth = monster.currentHealth;
     }
 }

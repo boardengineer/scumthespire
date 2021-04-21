@@ -2,6 +2,8 @@ package battleaimod.fastobjects.actions;
 
 import com.badlogic.gdx.graphics.Color;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
+import com.megacrit.cardcrawl.actions.common.DamageAction;
+import com.megacrit.cardcrawl.actions.common.ModifyDamageAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.core.AbstractCreature;
@@ -23,6 +25,7 @@ public class DamageActionFast extends AbstractGameAction {
         this.goldAmount = 0;
         this.skipWait = false;
         this.muteSfx = false;
+        DamageAction d;
         this.info = info;
         this.setValues(target, info);
         this.actionType = ActionType.DAMAGE;
@@ -46,6 +49,8 @@ public class DamageActionFast extends AbstractGameAction {
                     this.stealGold();
                 }
             }
+
+            ModifyDamageAction mda;
 
             this.tickDuration();
             if (this.isDone) {

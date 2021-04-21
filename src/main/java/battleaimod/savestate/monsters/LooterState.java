@@ -1,12 +1,18 @@
 package battleaimod.savestate.monsters;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Looter;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class LooterState extends MonsterState {
     private final int slashCount;
@@ -56,5 +62,21 @@ public class LooterState extends MonsterState {
         monsterStateJson.addProperty("stolen_gold", stolenGold);
 
         return monsterStateJson.toString();
+    }
+
+    @SpirePatch(
+            clz = Looter.class,
+            paramtypez = {float.class, float.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoAnimationsPatch {
+        @SpireInsertPatch(loc = 73)
+        public static SpireReturn Looter(Looter _instance, float x, float y) {
+            if (shouldGoFast()) {
+                _instance.state = new AnimationStateFast();
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
     }
 }

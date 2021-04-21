@@ -1,12 +1,18 @@
 package battleaimod.savestate.monsters;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class LagavulinState extends MonsterState {
     private final int debuffTurnCount;
@@ -28,6 +34,8 @@ public class LagavulinState extends MonsterState {
                 .getPrivate(monster, Lagavulin.class, "isOut");
         isOutTriggered = ReflectionHacks
                 .getPrivate(monster, Lagavulin.class, "isOutTriggered");
+
+        System.err.println(isOutTriggered);
 
         monsterTypeNumber = Monster.LAGAVULIN.ordinal();
     }
@@ -77,5 +85,28 @@ public class LagavulinState extends MonsterState {
         monsterStateJson.addProperty("is_out_triggered", isOutTriggered);
 
         return monsterStateJson.toString();
+    }
+
+    @SpirePatch(
+            clz = Lagavulin.class,
+            paramtypez = {boolean.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class YetNoAnimationsPatch {
+
+        @SpireInsertPatch(loc = 76)
+        public static SpireReturn Lagavulin(Lagavulin _instance, boolean setAsleep) {
+            if (shouldGoFast()) {
+                if (!setAsleep) {
+                    ReflectionHacks
+                            .setPrivate(_instance, Lagavulin.class, "isOut", true);
+                    ReflectionHacks
+                            .setPrivate(_instance, Lagavulin.class, "isOutTriggered", true);
+                }
+                _instance.state = new AnimationStateFast();
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
     }
 }

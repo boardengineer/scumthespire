@@ -6,15 +6,18 @@ import battleaimod.battleai.BattleAiController;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.RollMoveActionFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
+import com.megacrit.cardcrawl.cards.red.Rampage;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.powers.AbstractPower;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.relics.BottledFlame;
@@ -22,6 +25,7 @@ import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
 import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
+import com.megacrit.cardcrawl.screens.DeathScreen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,6 +52,7 @@ public class FastActionsPatch {
                         // TODO this is going to have consequences
                         actionManager.cardsPlayedThisCombat.clear();
 
+
                         long startTime = System.currentTimeMillis();
                         if (shouldWaitOnActions(actionManager)) {
                             if (actionManager.currentAction instanceof RollMoveAction) {
@@ -62,6 +67,7 @@ public class FastActionsPatch {
                                 actionManager.currentAction = null;
                             }
                             if (actionManager.currentAction != null) {
+                                Rampage r;
                                 Class actionClass = actionManager.currentAction.getClass();
                                 actionManager.currentAction.update();
                                 if (BattleAiMod.battleAiController != null) {
@@ -88,6 +94,18 @@ public class FastActionsPatch {
 
                         long preUpdateTime = System.currentTimeMillis();
                         AbstractDungeon.getCurrRoom().update();
+
+                        if (AbstractDungeon.player.currentHealth <= 0) {
+                            DeathScreen ds;
+                            System.err
+                                    .printf("%s %s %s %s\n", shouldStepAiController(), actionManager.phase, actionManager.currentAction, actionManager.actions);
+
+                            if (actionManager.currentAction instanceof DamageAction) {
+                                actionManager.update();
+                            }
+                            break;
+                        }
+
                         if (BattleAiMod.battleAiController != null) {
                             BattleAiMod.battleAiController.updateTime += (System
                                     .currentTimeMillis() - preUpdateTime);
@@ -272,6 +290,20 @@ public class FastActionsPatch {
                 _instance.draw(1);
                 _instance.onCardDrawOrDiscard();
             }
+        }
+    }
+
+    @SpirePatch(
+            clz = DeathScreen.class,
+            paramtypez = {MonsterGroup.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class DisableDeathScreenpatch {
+        public static SpireReturn Prefix(DeathScreen _instance, MonsterGroup monsterGroup) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
         }
     }
 
