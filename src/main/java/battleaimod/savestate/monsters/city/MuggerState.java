@@ -1,12 +1,18 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.city;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.Mugger;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class MuggerState extends MonsterState {
 
@@ -56,5 +62,21 @@ public class MuggerState extends MonsterState {
         monsterStateJson.addProperty("stolen_gold", stolenGold);
 
         return monsterStateJson.toString();
+    }
+
+    @SpirePatch(
+            clz = Mugger.class,
+            paramtypez = {float.class, float.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoAnimationsPatch {
+        @SpireInsertPatch(loc = 70)
+        public static SpireReturn Mugger(Mugger _instance, float x, float y) {
+            if (shouldGoFast()) {
+                _instance.state = new AnimationStateFast();
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
     }
 }

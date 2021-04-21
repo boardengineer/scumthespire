@@ -1,4 +1,4 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.city;
 
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;

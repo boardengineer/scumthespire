@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
+import com.megacrit.cardcrawl.relics.GremlinHorn;
 import com.megacrit.cardcrawl.vfx.RelicAboveCreatureEffect;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
@@ -49,6 +51,34 @@ public class RelicPatches {
     )
     public static class DisableRenderAboveCreaturePatch {
         public static SpireReturn Prefix(RelicAboveCreatureEffect _instance, SpriteBatch sprites) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractRelic.class,
+            paramtypez = {},
+            method = "initializeTips"
+    )
+    public static class FastRelicInitializeTipsPatch {
+        public static SpireReturn Prefix(AbstractRelic _instance) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = GremlinHorn.class,
+            paramtypez = {AbstractPlayer.PlayerClass.class},
+            method = "updateDescription"
+    )
+    public static class GremlinHornPatch {
+        public static SpireReturn Prefix(GremlinHorn _instance, AbstractPlayer.PlayerClass c) {
             if (shouldGoFast()) {
                 return SpireReturn.Return(null);
             }

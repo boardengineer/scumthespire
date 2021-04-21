@@ -67,8 +67,8 @@ public class StateNode {
             if (!isBattleOver && damage < (controller.minDamage + 6)) {
                 commandIndex = 0;
             } else {
-                System.err
-                        .printf("Found terminal state on init: damage this combat:%s; best damage: %s\n", damage, controller.minDamage);
+//                System.err
+//                        .printf("Found terminal state on init: damage this combat:%s; best damage: %s\n", damage, controller.minDamage);
 
                 if (isBattleOver) {
                     if (damage < controller.minDamage && saveState.getPlayerHealth() >= 1) {

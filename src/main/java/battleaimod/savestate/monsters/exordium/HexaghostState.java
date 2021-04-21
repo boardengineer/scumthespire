@@ -1,18 +1,24 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.exordium;
 
 import basemod.ReflectionHacks;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Hexaghost;
+import com.megacrit.cardcrawl.monsters.exordium.HexaghostBody;
 import com.megacrit.cardcrawl.monsters.exordium.HexaghostOrb;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class HexaghostState extends MonsterState {
     private final boolean activated;
@@ -88,5 +94,75 @@ public class HexaghostState extends MonsterState {
         monsterStateJson.add("active_orbs", orbArray);
 
         return monsterStateJson.toString();
+    }
+
+    @SpirePatch(
+            clz = HexaghostBody.class,
+            paramtypez = {AbstractMonster.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoBodyCreationAnimationsPatch {
+        public static SpireReturn Prefix(HexaghostBody _instance, AbstractMonster monster) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = HexaghostBody.class,
+            paramtypez = {SpriteBatch.class},
+            method = "render"
+    )
+    public static class NoRenderBodyPatch {
+        public static SpireReturn Prefix(HexaghostBody _instance, SpriteBatch sb) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = HexaghostBody.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class NoUpdateBodyPatch {
+        public static SpireReturn Prefix(HexaghostBody _instance) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = HexaghostBody.class,
+            paramtypez = {},
+            method = "dispose"
+    )
+    public static class NoDisposeBodyPatch {
+        public static SpireReturn Prefix(HexaghostBody _instance) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = Hexaghost.class,
+            paramtypez = {},
+            method = "createOrbs"
+    )
+    public static class NoOrbPatch {
+        public static SpireReturn Prefix(Hexaghost _instance) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
     }
 }

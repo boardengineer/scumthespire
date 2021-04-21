@@ -159,9 +159,6 @@ public class MapRoomNodeState {
             }
         }
 
-
-
-
         mapRoomNode.room = room;
         return mapRoomNode;
     }

@@ -1,6 +1,7 @@
 package battleaimod.savestate;
 
 import battleaimod.savestate.monsters.*;
+import battleaimod.savestate.monsters.city.*;
 import battleaimod.savestate.monsters.exordium.*;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 

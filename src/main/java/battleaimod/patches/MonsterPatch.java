@@ -1,12 +1,15 @@
 package battleaimod.patches;
 
 import battleaimod.BattleAiMod;
+import battleaimod.fastobjects.AnimationStateFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.animations.AnimateFastAttackAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateHopAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.SpawnMonsterAction;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
 
@@ -144,6 +147,26 @@ public class MonsterPatch {
     }
 
     @SpirePatch(
+            clz = AbstractMonster.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class NoUpdateMonstersPatch {
+        public static SpireReturn Prefix(AbstractMonster _instance) {
+//            if (shouldGoFast()) {
+//                if(_instance.isDying) {
+//                    _instance.isDead = true;
+//                    _instance.dispose();
+//                    _instance.powers.clear();
+//                }
+//
+//                return SpireReturn.Return(null);
+//            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
             clz = AnimateFastAttackAction.class,
             paramtypez = {},
             method = "update"
@@ -153,6 +176,31 @@ public class MonsterPatch {
             if (shouldGoFast()) {
                 _instance.isDone = true;
             }
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractMonster.class,
+            paramtypez = {},
+            method = "updateEscapeAnimation"
+    )
+    public static class NoAnimationsPatch {
+        public static SpireReturn Prefix(AbstractMonster _instance) {
+            if (shouldGoFast()) {
+                if (_instance.escapeTimer != 0) {
+                    _instance.escaped = true;
+                    _instance.escapeTimer = -.5F;
+                    if (AbstractDungeon.getMonsters().areMonstersDead() && !AbstractDungeon
+                            .getCurrRoom().isBattleOver && !AbstractDungeon
+                            .getCurrRoom().cannotLose) {
+                        AbstractDungeon.getCurrRoom().endBattle();
+                    }
+                }
+
+                _instance.state = new AnimationStateFast();
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
         }
     }
 }

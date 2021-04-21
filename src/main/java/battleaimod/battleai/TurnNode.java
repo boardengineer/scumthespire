@@ -116,6 +116,7 @@ public class TurnNode implements Comparable<TurnNode> {
                 if (!states.isEmpty()) {
                     states.peek().saveState.loadState();
                 }
+                BattleAiMod.readyForUpdate = true;
             } else {
 //                System.err.println("adding node for " + toExecute);
                 StateNode toAdd = new StateNode(curState, toExecute, controller);
