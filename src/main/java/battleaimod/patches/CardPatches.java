@@ -10,6 +10,8 @@ import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 
+import java.util.UUID;
+
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class CardPatches {
@@ -23,6 +25,7 @@ public class CardPatches {
         @SpireInsertPatch(loc = 391)
         public static SpireReturn Insert(AbstractCard _instance, String id, String name, String imgUrl, int cost, String rawDescription, AbstractCard.CardType type, AbstractCard.CardColor color, AbstractCard.CardRarity rarity, AbstractCard.CardTarget target, DamageInfo.DamageType dType) {
             if (shouldGoFast()) {
+                _instance.uuid = UUID.randomUUID();
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

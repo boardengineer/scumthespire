@@ -10,6 +10,8 @@ import com.megacrit.cardcrawl.relics.AncientTeaSet;
 import com.megacrit.cardcrawl.relics.GremlinHorn;
 import com.megacrit.cardcrawl.vfx.RelicAboveCreatureEffect;
 
+import java.util.ArrayList;
+
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class RelicPatches {
@@ -67,6 +69,7 @@ public class RelicPatches {
     public static class FastRelicInitializeTipsPatch {
         public static SpireReturn Prefix(AbstractRelic _instance) {
             if (shouldGoFast()) {
+                _instance.tips = new ArrayList<>();
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
