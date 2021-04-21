@@ -1,4 +1,4 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.exordium;
 
 import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
@@ -7,39 +7,38 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import com.megacrit.cardcrawl.monsters.exordium.JawWorm;
+import com.megacrit.cardcrawl.monsters.exordium.SpikeSlime_M;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
-public class JawWormState extends MonsterState {
-    public JawWormState(AbstractMonster monster) {
+public class SpikeSlime_MState extends MonsterState {
+    public SpikeSlime_MState(AbstractMonster monster) {
         super(monster);
 
-        monsterTypeNumber = Monster.JAWWORM.ordinal();
+        monsterTypeNumber = Monster.SPIKE_SLIME_M.ordinal();
     }
 
-    public JawWormState(String jsonString) {
+    public SpikeSlime_MState(String jsonString) {
         super(jsonString);
 
-        monsterTypeNumber = Monster.JAWWORM.ordinal();
+        monsterTypeNumber = Monster.SPIKE_SLIME_M.ordinal();
     }
 
     @Override
     public AbstractMonster loadMonster() {
-        JawWorm result = new JawWorm(offsetX, offsetY);
+        SpikeSlime_M result = new SpikeSlime_M(offsetX, offsetY);
         populateSharedFields(result);
         return result;
     }
 
     @SpirePatch(
-            clz = JawWorm.class,
-            paramtypez = {float.class, float.class, boolean.class},
+            clz = SpikeSlime_M.class,
+            paramtypez = {float.class, float.class, int.class, int.class},
             method = SpirePatch.CONSTRUCTOR
     )
-    public static class YetNoAnimationsPatch {
-
-        @SpireInsertPatch(loc = 95)
-        public static SpireReturn JawWorm(JawWorm _instance, float x, float y, boolean hard) {
+    public static class NoAnimationsPatch {
+        @SpireInsertPatch(loc = 62)
+        public static SpireReturn SpikeSlime_M(SpikeSlime_M _instance, float x, float y, int poisonAmount, int newHealth) {
             if (shouldGoFast()) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);

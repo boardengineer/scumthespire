@@ -1,4 +1,4 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.exordium;
 
 import basemod.ReflectionHacks;
 import battleaimod.savestate.Monster;

@@ -1,4 +1,4 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.exordium;
 
 import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
@@ -6,41 +6,53 @@ import battleaimod.savestate.MonsterState;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
+import com.megacrit.cardcrawl.cards.DamageInfo;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import com.megacrit.cardcrawl.monsters.exordium.SlaverBlue;
+import com.megacrit.cardcrawl.monsters.exordium.FungiBeast;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
-public class SlaverBlueState extends MonsterState {
-    public SlaverBlueState(AbstractMonster monster) {
+public class FungiBeastState extends MonsterState {
+    public FungiBeastState(AbstractMonster monster) {
         super(monster);
 
-        monsterTypeNumber = Monster.SLAVER_BLUE.ordinal();
+        monsterTypeNumber = Monster.FUNGI_BEAST.ordinal();
     }
 
-    public SlaverBlueState(String jsonString) {
+    public FungiBeastState(String jsonString) {
         super(jsonString);
 
-        monsterTypeNumber = Monster.SLAVER_BLUE.ordinal();
+        monsterTypeNumber = Monster.FUNGI_BEAST.ordinal();
     }
 
     @Override
     public AbstractMonster loadMonster() {
-        SlaverBlue result = new SlaverBlue(offsetX, offsetY);
+        FungiBeast result = new FungiBeast(offsetX, offsetY);
         populateSharedFields(result);
         return result;
     }
 
     @SpirePatch(
-            clz = SlaverBlue.class,
+            clz = FungiBeast.class,
             paramtypez = {float.class, float.class},
             method = SpirePatch.CONSTRUCTOR
     )
     public static class NoAnimationsPatch {
-        @SpireInsertPatch(loc = 56)
-        public static SpireReturn SlaverBlue(SlaverBlue _instance, float x, float y) {
+
+        @SpireInsertPatch(loc = 57)
+        public static SpireReturn FungiBeast(FungiBeast _instance, float x, float y) {
+            int biteDamage;
+            if (AbstractDungeon.ascensionLevel >= 2) {
+                biteDamage = 6;
+            } else {
+                biteDamage = 6;
+            }
+
             if (shouldGoFast()) {
                 _instance.state = new AnimationStateFast();
+                _instance.damage.add(new DamageInfo(_instance, biteDamage));
+
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

@@ -5,6 +5,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
+import com.megacrit.cardcrawl.vfx.RelicAboveCreatureEffect;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
@@ -34,6 +35,20 @@ public class RelicPatches {
     public static class FastRelicConstructorPatch {
         @SpireInsertPatch(loc = 127)
         public static SpireReturn Insert(AbstractRelic _instance, String setId, String imgName, AbstractRelic.RelicTier tier, AbstractRelic.LandingSound sfx) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = RelicAboveCreatureEffect.class,
+            paramtypez = {SpriteBatch.class},
+            method = "render"
+    )
+    public static class DisableRenderAboveCreaturePatch {
+        public static SpireReturn Prefix(RelicAboveCreatureEffect _instance, SpriteBatch sprites) {
             if (shouldGoFast()) {
                 return SpireReturn.Return(null);
             }

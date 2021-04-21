@@ -1,4 +1,4 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.exordium;
 
 import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
@@ -7,38 +7,39 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import com.megacrit.cardcrawl.monsters.exordium.SlimeBoss;
+import com.megacrit.cardcrawl.monsters.exordium.JawWorm;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
-public class SlimeBossState extends MonsterState {
-    public SlimeBossState(AbstractMonster monster) {
+public class JawWormState extends MonsterState {
+    public JawWormState(AbstractMonster monster) {
         super(monster);
 
-        monsterTypeNumber = Monster.SLIME_BOSS.ordinal();
+        monsterTypeNumber = Monster.JAWWORM.ordinal();
     }
 
-    public SlimeBossState(String jsonString) {
+    public JawWormState(String jsonString) {
         super(jsonString);
 
-        monsterTypeNumber = Monster.SLIME_BOSS.ordinal();
+        monsterTypeNumber = Monster.JAWWORM.ordinal();
     }
 
     @Override
     public AbstractMonster loadMonster() {
-        SlimeBoss result = new SlimeBoss();
+        JawWorm result = new JawWorm(offsetX, offsetY);
         populateSharedFields(result);
         return result;
     }
 
     @SpirePatch(
-            clz = SlimeBoss.class,
-            paramtypez = {},
+            clz = JawWorm.class,
+            paramtypez = {float.class, float.class, boolean.class},
             method = SpirePatch.CONSTRUCTOR
     )
-    public static class NoAnimationsPatch {
-        @SpireInsertPatch(loc = 90)
-        public static SpireReturn SlimeBoss(SlimeBoss _instance) {
+    public static class YetNoAnimationsPatch {
+
+        @SpireInsertPatch(loc = 95)
+        public static SpireReturn JawWorm(JawWorm _instance, float x, float y, boolean hard) {
             if (shouldGoFast()) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);

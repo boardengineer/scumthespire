@@ -1,4 +1,4 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.exordium;
 
 import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
@@ -7,38 +7,38 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import com.megacrit.cardcrawl.monsters.exordium.SlimeBoss;
+import com.megacrit.cardcrawl.monsters.exordium.AcidSlime_S;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
-public class SlimeBossState extends MonsterState {
-    public SlimeBossState(AbstractMonster monster) {
+public class AcidSlime_SState extends MonsterState {
+    public AcidSlime_SState(AbstractMonster monster) {
         super(monster);
 
-        monsterTypeNumber = Monster.SLIME_BOSS.ordinal();
+        monsterTypeNumber = Monster.ACID_SLIME_S.ordinal();
     }
 
-    public SlimeBossState(String jsonString) {
+    public AcidSlime_SState(String jsonString) {
         super(jsonString);
 
-        monsterTypeNumber = Monster.SLIME_BOSS.ordinal();
+        monsterTypeNumber = Monster.ACID_SLIME_S.ordinal();
     }
 
     @Override
     public AbstractMonster loadMonster() {
-        SlimeBoss result = new SlimeBoss();
+        AcidSlime_S result = new AcidSlime_S(offsetX, offsetY, 0);
         populateSharedFields(result);
         return result;
     }
 
     @SpirePatch(
-            clz = SlimeBoss.class,
-            paramtypez = {},
+            clz = AcidSlime_S.class,
+            paramtypez = {float.class, float.class, int.class},
             method = SpirePatch.CONSTRUCTOR
     )
     public static class NoAnimationsPatch {
-        @SpireInsertPatch(loc = 90)
-        public static SpireReturn SlimeBoss(SlimeBoss _instance) {
+        @SpireInsertPatch(loc = 51)
+        public static SpireReturn AcidSlime_S(AcidSlime_S _instance, float x, float y, int poisonAmount) {
             if (shouldGoFast()) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);

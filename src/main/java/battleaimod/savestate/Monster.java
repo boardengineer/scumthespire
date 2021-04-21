@@ -1,6 +1,7 @@
 package battleaimod.savestate;
 
 import battleaimod.savestate.monsters.*;
+import battleaimod.savestate.monsters.exordium.*;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
 import java.util.function.Function;
@@ -11,7 +12,7 @@ public enum Monster {
     ACID_SLIME_S("AcidSlime_S", monster -> new AcidSlime_SState(monster), json -> new AcidSlime_SState(json)),
     APOLOGY_SLIME("Apology Slime", monster -> new ApologySlimeState(monster), json -> new ApologySlimeState(json)),
     CULTIST("Cultist", monster -> new CultistState(monster), json -> new CultistState(json)),
-    FUNGI_BEST("FungiBeast", monster -> new FungiBeastState(monster), json -> new FungiBeastState(json)),
+    FUNGI_BEAST("FungiBeast", monster -> new FungiBeastState(monster), json -> new FungiBeastState(json)),
     GREMLIN_FAT("GremlinFat", monster -> new GremlinFatState(monster), json -> new GremlinFatState(json)),
     GREMLIN_NOB("GremlinNob", monster -> new GremlinNobState(monster), json -> new GremlinNobState(json)),
     GREMLIN_THIEF("GremlinThief", monster -> new GremlinThiefState(monster), json -> new GremlinThiefState(json)),
