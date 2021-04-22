@@ -1,12 +1,20 @@
 package battleaimod.savestate.monsters;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.cards.DamageInfo;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.Snecko;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class SneckoState extends MonsterState {
     private final boolean firstTurn;
@@ -49,5 +57,46 @@ public class SneckoState extends MonsterState {
         monsterStateJson.addProperty("first_turn", firstTurn);
 
         return monsterStateJson.toString();
+    }
+
+    @SpirePatch(
+            clz = Snecko.class,
+            paramtypez = {float.class, float.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoAnimationsPatch {
+        @SpireInsertPatch(loc = 53)
+        public static SpireReturn Snecko(Snecko _instance) {
+            if (shouldGoFast()) {
+                int biteDmg;
+                int tailDmg;
+
+                if (AbstractDungeon.ascensionLevel >= 7) {
+                    MonsterState.setHp(_instance, 120, 125);
+                } else {
+                    MonsterState.setHp(_instance, 114, 120);
+                }
+
+                if (AbstractDungeon.ascensionLevel >= 2) {
+                    biteDmg = 18;
+                    tailDmg = 10;
+                } else {
+                    biteDmg = 15;
+                    tailDmg = 8;
+                }
+
+                _instance.damage.add(new DamageInfo(_instance, biteDmg));
+                _instance.damage.add(new DamageInfo(_instance, tailDmg));
+
+                ReflectionHacks
+                        .setPrivate(_instance, Snecko.class, "biteDmg", biteDmg);
+                ReflectionHacks
+                        .setPrivate(_instance, Snecko.class, "tailDmg", tailDmg);
+
+                _instance.state = new AnimationStateFast();
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
     }
 }
