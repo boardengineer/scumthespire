@@ -1,12 +1,21 @@
 package battleaimod.savestate.monsters;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.cards.DamageInfo;
+import com.megacrit.cardcrawl.core.Settings;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.BookOfStabbing;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BookOfStabbingState extends MonsterState {
     private final int stabCount;
@@ -48,5 +57,46 @@ public class BookOfStabbingState extends MonsterState {
         monsterStateJson.addProperty("stab_count", stabCount);
 
         return monsterStateJson.toString();
+    }
+
+    @SpirePatch(
+            clz = BookOfStabbing.class,
+            paramtypez = {},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoAnimationsPatch {
+        @SpireInsertPatch(loc = 39 )
+        public static SpireReturn BookOfStabbing(BookOfStabbing _instance) {
+            if (shouldGoFast()) {
+                int stabDmg;
+                int bigStabDmg;
+                _instance.type = AbstractMonster.EnemyType.ELITE;
+                _instance.dialogX = -70.0F * Settings.scale;
+                _instance.dialogY = 50.0F * Settings.scale;
+                if (AbstractDungeon.ascensionLevel >= 8) {
+                    MonsterState.setHp(_instance, 168, 172);
+                } else {
+                    MonsterState.setHp(_instance, 160, 164);
+                }
+                if (AbstractDungeon.ascensionLevel >= 3) {
+                    stabDmg = 7;
+                    bigStabDmg = 24;
+                } else {
+                    stabDmg = 6;
+                    bigStabDmg = 21;
+                }
+                _instance.damage.add(new DamageInfo(_instance, stabDmg));
+                _instance.damage.add(new DamageInfo(_instance, bigStabDmg));
+
+                ReflectionHacks
+                        .setPrivate(_instance, BookOfStabbing.class, "stabDmg", stabDmg);
+                ReflectionHacks
+                        .setPrivate(_instance, BookOfStabbing.class, "bigStabDmg", bigStabDmg);
+
+                _instance.state = new AnimationStateFast();
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
     }
 }
