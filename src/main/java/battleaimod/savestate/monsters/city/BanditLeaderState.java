@@ -1,4 +1,4 @@
-package battleaimod.savestate.monsters.exordium;
+package battleaimod.savestate.monsters.city;
 
 import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
@@ -7,38 +7,38 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import com.megacrit.cardcrawl.monsters.exordium.GremlinFat;
+import com.megacrit.cardcrawl.monsters.city.BanditLeader;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
-public class GremlinFatState extends MonsterState {
-    public GremlinFatState(AbstractMonster monster) {
+public class BanditLeaderState extends MonsterState {
+    public BanditLeaderState(AbstractMonster monster) {
         super(monster);
 
-        monsterTypeNumber = Monster.GREMLIN_FAT.ordinal();
+        monsterTypeNumber = Monster.BANDIT_LEADER.ordinal();
     }
 
-    public GremlinFatState(String jsonString) {
+    public BanditLeaderState(String jsonString) {
         super(jsonString);
 
-        monsterTypeNumber = Monster.GREMLIN_FAT.ordinal();
+        monsterTypeNumber = Monster.BANDIT_LEADER.ordinal();
     }
 
     @Override
     public AbstractMonster loadMonster() {
-        GremlinFat result = new GremlinFat(offsetX, offsetY);
+        BanditLeader result = new BanditLeader(offsetX, offsetY);
         populateSharedFields(result);
         return result;
     }
 
     @SpirePatch(
-            clz = GremlinFat.class,
+            clz = BanditLeader.class,
             paramtypez = {float.class, float.class},
             method = SpirePatch.CONSTRUCTOR
     )
     public static class NoAnimationsPatch {
-        @SpireInsertPatch(loc = 56)
-        public static SpireReturn GremlinFat(GremlinFat _instance, float x, float y) {
+        @SpireInsertPatch(loc = 66)
+        public static SpireReturn BanditLeader(BanditLeader _instance, float x, float y) {
             if (shouldGoFast()) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
