@@ -1,4 +1,4 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.city;
 
 import basemod.ReflectionHacks;
 import battleaimod.fastobjects.AnimationStateFast;

@@ -1,12 +1,18 @@
-package battleaimod.savestate.monsters;
+package battleaimod.savestate.monsters.city;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.TheCollector;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class TheCollectorState extends MonsterState {
     private final int turnsTaken;
@@ -63,5 +69,36 @@ public class TheCollectorState extends MonsterState {
         monsterStateJson.addProperty("ult_used", utUsed);
 
         return monsterStateJson.toString();
+    }
+
+    @SpirePatch(
+            clz = TheCollector.class,
+            paramtypez = {},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoAnimationsPatch {
+        @SpireInsertPatch(loc = 98)
+        public static SpireReturn TheCollector(TheCollector _instance) {
+            if (shouldGoFast()) {
+                _instance.state = new AnimationStateFast();
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = TheCollector.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class NoUpdateAnimationsPatch {
+        @SpireInsertPatch(loc = 236)
+        public static SpireReturn TheCollector(TheCollector _instance) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
     }
 }

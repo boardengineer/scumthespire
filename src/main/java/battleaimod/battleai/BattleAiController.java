@@ -17,7 +17,7 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    public int maxTurnLoads = 1500;
+    public int maxTurnLoads = 2000;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -82,26 +82,26 @@ public class BattleAiController {
         targetTurn = 4;
         targetTurnJump = 3;
 
-        if (state.encounterName == null) {
-        } else if (state.encounterName.equals("Lagavulin")) {
-            maxTurnLoads = 200;
-            targetTurn = 2;
-            targetTurnJump = 3;
-        } else if (state.encounterName.equals("Gremlin Nob")) {
-            targetTurn = 2;
-            targetTurnJump = 3;
-        } else if (state.encounterName.equals("The Guardian")) {
-            targetTurn = 2;
-            targetTurnJump = 2;
-        } else if (state.encounterName.equals("Hexaghost")) {
-            targetTurn = 2;
-            targetTurnJump = 2;
-        } else if (state.encounterName.equals("Gremlin Gang")) {
-            targetTurnJump = 2;
-        } else if (state.encounterName.equals("Champ")) {
-            targetTurn = 2;
-            targetTurnJump = 2;
-        }
+//        if (state.encounterName == null) {
+//        } else if (state.encounterName.equals("Lagavulin")) {
+//            maxTurnLoads = 200;
+//            targetTurn = 2;
+//            targetTurnJump = 3;
+//        } else if (state.encounterName.equals("Gremlin Nob")) {
+//            targetTurn = 2;
+//            targetTurnJump = 3;
+//        } else if (state.encounterName.equals("The Guardian")) {
+//            targetTurn = 2;
+//            targetTurnJump = 2;
+//        } else if (state.encounterName.equals("Hexaghost")) {
+//            targetTurn = 2;
+//            targetTurnJump = 2;
+//        } else if (state.encounterName.equals("Gremlin Gang")) {
+//            targetTurnJump = 2;
+//        } else if (state.encounterName.equals("Champ")) {
+//            targetTurn = 2;
+//            targetTurnJump = 2;
+//        }
 
         minDamage = 5000;
         bestEnd = null;
