@@ -448,7 +448,14 @@ public class BattleAiController {
         System.err
                 .printf("Total runtime: %d\taction time: %d\tstep time: %d\tupdate time:%d load time:%d\tplayer load:%d\troom load:%d\n", System
                         .currentTimeMillis() - controllerStartTime, actionTime, stepTime, updateTime, loadstateTime, playerLoadTime, roomLoadTime);
-        System.err.println(actionClassTimes);
+        System.err.println(actionClassTimes.entrySet().stream()
+                                           .filter(entry -> entry.getValue() > 100)
+                                           .sorted((e1, e2) -> (int) (e2.getValue() - e1.getValue()))
+                                           .map(entry -> String
+                                                   .format("%s = %s", entry.getKey()
+                                                                           .getSimpleName(), entry
+                                                           .getValue()))
+                                           .collect(Collectors.joining("\n")));
         System.err.println("-------------------------------------------------------------------");
         System.err.println(runTimes.entrySet().stream().map(entry -> entry.toString())
                                    .collect(Collectors.joining("\n")));

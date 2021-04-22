@@ -5,10 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
-import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.animations.VFXAction;
-import com.megacrit.cardcrawl.actions.common.DamageAction;
-import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.cards.status.Dazed;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
@@ -146,34 +143,6 @@ public class FXPatches {
         public static SpireReturn Prefix(ShockWaveEffect _instance, SpriteBatch sb) {
             if (shouldGoFast()) {
                 return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = DamageAction.class,
-            paramtypez = {AbstractCreature.class, DamageInfo.class, AbstractGameAction.AttackEffect.class},
-            method = SpirePatch.CONSTRUCTOR
-    )
-    public static class SpyOnDmgFxConstructorPatch {
-        static long startConstructor = 0;
-
-        public static SpireReturn Prefix(DamageAction _instance, AbstractCreature source, DamageInfo info, AbstractGameAction.AttackEffect effect) {
-            if (shouldGoFast()) {
-                startConstructor = System.currentTimeMillis();
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(DamageAction _instance, AbstractCreature source, DamageInfo info, AbstractGameAction.AttackEffect effect) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController.addRuntime("Damage Action Constructor ", System
-                            .currentTimeMillis() - startConstructor);
-                }
-                return SpireReturn.Continue();
             }
             return SpireReturn.Continue();
         }

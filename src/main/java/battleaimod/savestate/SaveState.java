@@ -6,9 +6,10 @@ import battleaimod.battleai.BattleAiController;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.characters.Ironclad;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class SaveState {
     int floorNum;
@@ -77,7 +78,6 @@ public class SaveState {
         long point2 = System.currentTimeMillis();
         curMapNodeState.loadMapRoomNode(AbstractDungeon.currMapNode);
 
-
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.roomLoadTime += (System
                     .currentTimeMillis() - point2);
@@ -88,8 +88,6 @@ public class SaveState {
         AbstractDungeon.isScreenUp = false;
         listState.loadLists();
 
-        Ironclad ic;
-
         AbstractDungeon.dungeonMapScreen.close();
 
         AbstractDungeon.screen = AbstractDungeon.CurrentScreen.NONE;
@@ -98,7 +96,15 @@ public class SaveState {
 
         BattleAiMod.readyForUpdate = true;
 
-        CombatRewardScreenState.loadCombatRewardScreen();
+        long startLoadCombatReward = System.currentTimeMillis();
+
+        if(!shouldGoFast()) {
+            CombatRewardScreenState.loadCombatRewardScreen();
+        }
+        if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.runTimes != null) {
+            BattleAiMod.battleAiController.addRuntime("Combat Reward Load Time", System
+                    .currentTimeMillis() - startLoadCombatReward);
+        }
 
         rngState.loadRng();
 
@@ -109,10 +115,13 @@ public class SaveState {
         GameStateListener.externalChange = true;
 
 
-
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.loadstateTime += (System
                     .currentTimeMillis() - loadStartTime);
+            if (BattleAiMod.battleAiController.runTimes != null) {
+                BattleAiMod.battleAiController.addRuntime("Total Load Time", System
+                        .currentTimeMillis() - loadStartTime);
+            }
         }
     }
 

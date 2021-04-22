@@ -979,11 +979,19 @@ public class FastActionsPatch {
                 AbstractDungeon.player.hand.applyPowers();
             }
 
+            long startStartOfTurn = System.currentTimeMillis();
+
             AbstractDungeon.player.applyStartOfTurnRelics();
             AbstractDungeon.player.applyStartOfTurnPreDrawCards();
             AbstractDungeon.player.applyStartOfTurnCards();
             AbstractDungeon.player.applyStartOfTurnPowers();
             AbstractDungeon.player.applyStartOfTurnOrbs();
+
+            if(BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.addRuntime("EOT Stuff SOT", System
+                        .currentTimeMillis() - startStartOfTurn);
+            }
+
             ++GameActionManager.turn;
             AbstractDungeon.getCurrRoom().skipMonsterTurn = false;
             AbstractDungeon.actionManager.turnHasEnded = false;
@@ -999,17 +1007,36 @@ public class FastActionsPatch {
                 }
             }
 
+            long startLastPart = System.currentTimeMillis();
+
             if (!AbstractDungeon.getCurrRoom().isBattleOver) {
+                long checkpoint1 = System.currentTimeMillis();
                 AbstractDungeon.actionManager
                         .addToBottom(new DrawCardAction(null, AbstractDungeon.player.gameHandSize, true));
+
+                long checkpoint2 = System.currentTimeMillis();
                 AbstractDungeon.player.applyStartOfTurnPostDrawRelics();
+                long checkpoint3 = System.currentTimeMillis();
+
                 AbstractDungeon.player.applyStartOfTurnPostDrawPowers();
+                long checkpoint4 = System.currentTimeMillis();
+
                 AbstractDungeon.actionManager.addToBottom(new EnableEndTurnButtonAction());
+                long checkpoint5 = System.currentTimeMillis();
+
+                if(BattleAiMod.battleAiController != null) {
+                    BattleAiMod.battleAiController.addRuntime("EOT part1", checkpoint2 - checkpoint1);
+                    BattleAiMod.battleAiController.addRuntime("EOT part2", checkpoint3 - checkpoint2);
+                    BattleAiMod.battleAiController.addRuntime("EOT part3", checkpoint4 - checkpoint3);
+                    BattleAiMod.battleAiController.addRuntime("EOT part4", checkpoint5 - checkpoint4);
+                }
             }
 
             if(BattleAiMod.battleAiController != null) {
                 BattleAiMod.battleAiController.addRuntime("Local Action Manager EOT Stuff", System
                         .currentTimeMillis() - startEOTStuff);
+                BattleAiMod.battleAiController.addRuntime("EOT Stuff end part", System
+                        .currentTimeMillis() - startLastPart);
             }
         }
 

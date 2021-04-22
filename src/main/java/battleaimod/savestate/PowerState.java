@@ -20,6 +20,8 @@ public class PowerState {
 
     private final int malleableBasePower;
 
+    private final int flightStoredAmount;
+
     public PowerState(AbstractPower power) {
         this.powerId = power.ID;
         this.amount = power.amount;
@@ -52,6 +54,12 @@ public class PowerState {
         } else {
             malleableBasePower = 0;
         }
+
+        if(power instanceof FlightPower) {
+            flightStoredAmount = ReflectionHacks.getPrivate(power, FlightPower.class, "storedAmount");
+        } else {
+            flightStoredAmount = 0;
+        }
     }
 
     public PowerState(String jsonString) {
@@ -70,6 +78,8 @@ public class PowerState {
         }
 
         this.malleableBasePower = parsed.get("malleable_base_power").getAsInt();
+
+        this.flightStoredAmount = parsed.get("flight_stored_amount").getAsInt();
 
         // TODO
         this.hpLoss = 0;
@@ -143,6 +153,8 @@ public class PowerState {
             result = new BerserkPower(targetAndSource, amount);
         } else if (powerId.equals("Flight")) {
             result = new FlightPower(targetAndSource, amount);
+            ReflectionHacks
+                    .setPrivate(result, FlightPower.class, "storedAmount", flightStoredAmount);
         } else if (powerId.equals("Malleable")) {
             result = new MalleablePower(targetAndSource);
         } else if (powerId.equals("Next Turn Block")) {
@@ -195,6 +207,7 @@ public class PowerState {
         powerStateJson.addProperty("ritual_skip_first", ritualSkipFirst);
         powerStateJson.addProperty("stasis_card", stasisCard == null ? null : stasisCard.encode());
         powerStateJson.addProperty("malleable_base_power", malleableBasePower);
+        powerStateJson.addProperty("flight_stored_amount", flightStoredAmount);
 
         return powerStateJson.toString();
     }

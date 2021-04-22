@@ -15,7 +15,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <SlayTheSpire.version>11-30-2020</SlayTheSpire.version>
         <ModTheSpire.version>3.18.1</ModTheSpire.version>
-        <BaseMod.version>5.27.0</BaseMod.version>
+        <BaseMod.version>5.32.0</BaseMod.version>
     </properties>
 
     <dependencies>
@@ -41,8 +41,8 @@
             <systemPath>${basedir}/../_ModTheSpire/mods/SuperFastMode.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.evacipated.cardcrawl</groupId>
-            <artifactId>BaseMod</artifactId>
+            <groupId>basemod</groupId>
+            <artifactId>BaseMod-root</artifactId>
             <version>${BaseMod.version}</version>
             <scope>system</scope>
             <systemPath>${basedir}/../_ModTheSpire/mods/BaseMod.jar</systemPath>

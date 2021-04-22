@@ -1,5 +1,6 @@
 package battleaimod.patches;
 
+import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.AnimationStateFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -11,6 +12,7 @@ import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.SpawnMonsterAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 
 
 public class MonsterPatch {
@@ -176,6 +178,24 @@ public class MonsterPatch {
             if (shouldGoFast()) {
                 _instance.isDone = true;
             }
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractMonster.class,
+            paramtypez = {},
+            method = "createIntent"
+    )
+    public static class NoShowInetntPatch {
+        public static SpireReturn Prefix(AbstractMonster _instance) {
+            if (shouldGoFast()) {
+
+                EnemyMoveInfo move = ReflectionHacks
+                        .getPrivate(_instance, AbstractMonster.class, "move");
+                _instance.nextMove = move.nextMove;
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
         }
     }
 

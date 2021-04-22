@@ -16,7 +16,13 @@ public class StateDebugInfo {
                                                              .map(monster -> monster.currentHealth)
                                                              .reduce(Integer::sum)
                                                              .get();
-        numBurns = saveState.getNumBurns();
+        numBurns = saveState.curMapNodeState.monsterData.stream()
+                                                        .flatMap(monster -> monster.powers
+                                                                .stream())
+                                                        .filter(power -> power.powerId
+                                                                .equals("Flight"))
+                                                        .map(power -> power.amount)
+                                                        .reduce(Integer::sum).orElse(0);
     }
 
     public StateDebugInfo(String jsonString) {
