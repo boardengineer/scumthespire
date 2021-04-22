@@ -137,8 +137,8 @@ public class FastActionsPatch {
                             BattleAiMod.readyForUpdate = false;
                             BattleAiMod.battleAiController.step();
 
-                            BattleAiMod.battleAiController.addRuntime("Step", System
-                                    .currentTimeMillis() - stepStartTime);
+//                            BattleAiMod.battleAiController.addRuntime("Step", System
+//                                    .currentTimeMillis() - stepStartTime);
                         }
 
                         long startRoomUpdate = System.currentTimeMillis();
@@ -152,15 +152,19 @@ public class FastActionsPatch {
                             if (actionManager.currentAction instanceof DamageAction) {
                                 actionManager.update();
                             }
-                            break;
+//                            break;
                         }
 
                         if (BattleAiMod.battleAiController != null) {
                             BattleAiMod.battleAiController.addRuntime("Update Loop Total", System
                                     .currentTimeMillis() - startTime);
                         }
+
+                        if(actionManager.phase == GameActionManager.Phase.WAITING_ON_USER && actionManager.currentAction == null) {
+                            BattleAiMod.readyForUpdate = true;
+                        }
                     }
-                    System.err.println("exiting loop " + AbstractDungeon.topLevelEffects.size());
+                    System.err.println("exiting loop " + actionManager.currentAction + " " + actionManager.phase);
                 }
             }
         }
@@ -270,8 +274,8 @@ public class FastActionsPatch {
     }
 
     private static boolean shouldWaitOnActions(GameActionManager actionManager) {
-        return actionManager.currentAction != null && !actionManager.currentAction.isDone || !actionManager.monsterQueue
-                .isEmpty() || !actionManager.actions.isEmpty();
+        return actionManager.currentAction != null || !actionManager.monsterQueue
+                .isEmpty() || !actionManager.actions.isEmpty() || actionManager.usingCard;
     }
 
 
@@ -349,6 +353,7 @@ public class FastActionsPatch {
     public static class DisableDeathScreenpatch {
         public static SpireReturn Prefix(DeathScreen _instance, MonsterGroup monsterGroup) {
             if (shouldGoFast()) {
+                BattleAiMod.readyForUpdate = true;
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
@@ -364,6 +369,20 @@ public class FastActionsPatch {
         public static SpireReturn Prefix(StrikeEffect _instance, AbstractCreature target, float x, float y, int number) {
             if (shouldGoFast()) {
                 _instance.isDone = true;
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractRoom.class,
+            paramtypez = {},
+            method = "addPotionToRewards"
+    )
+    public static class PotionRemovePatch {
+        public static SpireReturn Prefix(AbstractRoom _instance) {
+            if (shouldGoFast()) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
@@ -472,10 +491,10 @@ public class FastActionsPatch {
 
 
             if (BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.addRuntime("Top Condition", System
-                        .currentTimeMillis() - startTopCondition);
-                BattleAiMod.battleAiController.addRuntime("Mid Top Condition", System
-                        .currentTimeMillis() - midTopCondition);
+//                BattleAiMod.battleAiController.addRuntime("Top Condition", System
+//                        .currentTimeMillis() - startTopCondition);
+//                BattleAiMod.battleAiController.addRuntime("Mid Top Condition", System
+//                        .currentTimeMillis() - midTopCondition);
             }
 
         } else {
@@ -1025,10 +1044,10 @@ public class FastActionsPatch {
                 long checkpoint5 = System.currentTimeMillis();
 
                 if(BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController.addRuntime("EOT part1", checkpoint2 - checkpoint1);
-                    BattleAiMod.battleAiController.addRuntime("EOT part2", checkpoint3 - checkpoint2);
-                    BattleAiMod.battleAiController.addRuntime("EOT part3", checkpoint4 - checkpoint3);
-                    BattleAiMod.battleAiController.addRuntime("EOT part4", checkpoint5 - checkpoint4);
+//                    BattleAiMod.battleAiController.addRuntime("EOT part1", checkpoint2 - checkpoint1);
+//                    BattleAiMod.battleAiController.addRuntime("EOT part2", checkpoint3 - checkpoint2);
+//                    BattleAiMod.battleAiController.addRuntime("EOT part3", checkpoint4 - checkpoint3);
+//                    BattleAiMod.battleAiController.addRuntime("EOT part4", checkpoint5 - checkpoint4);
                 }
             }
 

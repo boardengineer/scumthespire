@@ -273,6 +273,7 @@ public class BattleAiController {
                         bestTurn = curTurn;
                     }
 
+                    addRuntime("turnsLoaded", 1);
                     curTurn = null;
                     ++turnsLoaded;
                     turns.poll();

@@ -63,7 +63,6 @@ public class DrawCardActionFast extends AbstractGameAction {
     }
 
     public void update() {
-
         if (alreadyDrawing) {
             return;
         }

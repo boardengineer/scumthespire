@@ -63,6 +63,7 @@ public class TurnNode implements Comparable<TurnNode> {
 
         if (curState != startingState && curState.lastCommand instanceof EndCommand) {
             controller.turnsLoaded++;
+            controller.addRuntime("turnsLoaded", 1);
             TurnNode toAdd = new TurnNode(curState, controller, this);
             states.pop();
 

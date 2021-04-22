@@ -18,4 +18,9 @@ public class AnimationStateFast extends AnimationState {
     public TrackEntry addAnimation(int trackIndex, String animationName, boolean loop, float delay) {
         return null;
     }
+
+    @Override
+    public TrackEntry getCurrent(int trackIndex) {
+        return new TrackEntry();
+    }
 }

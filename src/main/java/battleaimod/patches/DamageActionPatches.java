@@ -70,32 +70,4 @@ public class DamageActionPatches {
             return SpireReturn.Continue();
         }
     }
-
-    @SpirePatch(
-            clz = FlashAtkImgEffect.class,
-            paramtypez = {float.class, float.class, AbstractGameAction.AttackEffect.class, boolean.class},
-            method = SpirePatch.CONSTRUCTOR
-    )
-    public static class SpyOnFlashFxConstructorPatch {
-        static long startConstructor = 0;
-
-        public static SpireReturn Prefix(FlashAtkImgEffect _instance, float x, float y, AbstractGameAction.AttackEffect effect, boolean mute) {
-            if (shouldGoFast()) {
-                startConstructor = System.currentTimeMillis();
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(FlashAtkImgEffect _instance, float x, float y, AbstractGameAction.AttackEffect effect, boolean mute) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController.addRuntime("FlashAtkImgEffect Constructor ", System
-                            .currentTimeMillis() - startConstructor);
-                }
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-    }
 }

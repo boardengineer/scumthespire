@@ -80,37 +80,6 @@ public class IroncladPatches {
     }
 
     @SpirePatch(
-            clz = AbstractCreature.class,
-            paramtypez = {DamageInfo.class, int.class},
-            method = "decrementBlock"
-    )
-    public static class SpyOnPlayerDamageToBLockffectPatch {
-        static long decrementBlockStartEffect = 0;
-
-        @SpireInsertPatch(loc = 165)
-        public static void Prefix(AbstractCreature _instance, DamageInfo info, int damageAmount) {
-            if (shouldGoFast()) {
-                decrementBlockStartEffect = System.nanoTime();
-            }
-        }
-
-        @SpireInsertPatch(loc = 199)
-        public static void Postfix(AbstractCreature _instance, DamageInfo info, int damageAmount) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    if (_instance instanceof Ironclad) {
-                        BattleAiMod.battleAiController
-                                .addRuntime("Creature Decrement Block", System
-                                        .nanoTime() - decrementBlockStartEffect);
-                        BattleAiMod.battleAiController
-                                .addRuntime("decrement block instance count", 1);
-                    }
-                }
-            }
-        }
-    }
-
-    @SpirePatch(
             clz = BlockedWordEffect.class,
             paramtypez = {AbstractCreature.class, float.class, float.class, String.class},
             method = SpirePatch.CONSTRUCTOR
@@ -177,9 +146,9 @@ public class IroncladPatches {
         public static void Postfix(BlockImpactLineEffect _instance, float x, float y) {
             if (shouldGoFast()) {
                 if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController
-                            .addRuntime("BlockImpactLineEffect Constructor", System
-                                    .currentTimeMillis() - startEffect);
+//                    BattleAiMod.battleAiController
+//                            .addRuntime("BlockImpactLineEffect Constructor", System
+//                                    .currentTimeMillis() - startEffect);
                 }
             }
         }
