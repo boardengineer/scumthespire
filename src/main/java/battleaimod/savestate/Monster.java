@@ -1,9 +1,7 @@
 package battleaimod.savestate;
 
 import battleaimod.savestate.monsters.*;
-import battleaimod.savestate.monsters.beyond.ExploderState;
-import battleaimod.savestate.monsters.beyond.RepulsorState;
-import battleaimod.savestate.monsters.beyond.SpikerState;
+import battleaimod.savestate.monsters.beyond.*;
 import battleaimod.savestate.monsters.city.*;
 import battleaimod.savestate.monsters.exordium.*;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
@@ -54,7 +52,6 @@ public enum Monster {
     SNECKO("Snecko", monster -> new SneckoState(monster), json -> new SneckoState(json)),
     CHAMP("Champ", monster -> new ChampState(monster), json -> new ChampState(json)),
     ORG_WALKER("Orb Walker", monster -> new OrbWalkerState(monster), json -> new OrbWalkerState(json)),
-    DARKLING("Darkling", monster -> new DarklinkState(monster), json -> new DarklinkState(json)),
     BRONZE_AUTOMATON("BronzeAutomaton", monster -> new BronzeAutomatonState(monster), json -> new BronzeAutomatonState(json)),
     BRONZE_ORB("BronzeOrb", monster -> new BronzeOrbState(monster), json -> new BronzeOrbState(json)),
     THE_COLLECTOR("TheCollector", monster -> new TheCollectorState(monster), json -> new TheCollectorState(json)),
@@ -63,7 +60,8 @@ public enum Monster {
     // Beyond
     EXPLODER("Exploder", monster -> new ExploderState(monster), json -> new ExploderState(json)),
     REPULSOR("Repulsor", monster -> new RepulsorState(monster), json -> new RepulsorState(json)),
-    SPIKER("Spiker", monster -> new SpikerState(monster), json -> new SpikerState(json))
+    SPIKER("Spiker", monster -> new SpikerState(monster), json -> new SpikerState(json)),
+    DARKLING("Darkling", monster -> new DarklinkState(monster), json -> new DarklinkState(json))
 
 
     ;

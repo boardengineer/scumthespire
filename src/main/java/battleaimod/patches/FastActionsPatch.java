@@ -165,7 +165,7 @@ public class FastActionsPatch {
                             BattleAiMod.readyForUpdate = true;
                         }
                     }
-                    System.err.println("exiting loop " + actionManager.currentAction + " " + actionManager.phase);
+                    System.err.println("exiting loop " + actionManager.currentAction + " " + actionManager.phase+ " " + actionManager);
                 }
             }
         }
@@ -313,7 +313,7 @@ public class FastActionsPatch {
     }
 
     private static boolean shouldStepAiController() {
-        return BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.isDone && BattleAiMod.readyForUpdate && actionManager.phase == GameActionManager.Phase.WAITING_ON_USER;
+        return BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.isDone && BattleAiMod.readyForUpdate && actionManager.phase == GameActionManager.Phase.WAITING_ON_USER && !BattleAiMod.battleAiController.runCommandMode;
     }
 
     private static boolean shouldWaitOnActions(GameActionManager actionManager) {

@@ -47,7 +47,11 @@ public class CardCommand implements Command {
         }
 
         AbstractDungeon.actionManager.cardQueue.add(new CardQueueItem(card, monster));
-        AbstractDungeon.actionManager.addToBottom(new WaitAction(.2F));
+
+//        if (!shouldGoFast()) {
+            AbstractDungeon.actionManager.addToBottom(new WaitAction(.2F));
+//        }
+
         BattleAiMod.readyForUpdate = true;
     }
 

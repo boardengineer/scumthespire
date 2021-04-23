@@ -6,6 +6,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.common.ReducePowerAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.AbstractCreature;
@@ -55,6 +56,20 @@ public class CardPatches {
     )
     public static class NoUpdateTransparencyPatch {
         public static SpireReturn Prefix(AbstractCard _instance) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = CardGroup.class,
+            paramtypez = {},
+            method = "glowCheck"
+    )
+    public static class NoGlowCheckPatch {
+        public static SpireReturn Prefix(CardGroup _instance) {
             if (shouldGoFast()) {
                 return SpireReturn.Return(null);
             }
