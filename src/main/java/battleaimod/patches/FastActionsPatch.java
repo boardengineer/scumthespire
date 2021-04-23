@@ -18,6 +18,7 @@ import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.defect.TriggerEndOfTurnOrbsAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
+import com.megacrit.cardcrawl.audio.MusicMaster;
 import com.megacrit.cardcrawl.blights.AbstractBlight;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
@@ -92,6 +93,7 @@ public class FastActionsPatch {
             if (shouldGoFast()) {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
+                    System.err.println("Strting Loop " + actionManager.phase);
                     while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
                         long startTime = System.currentTimeMillis();
 
@@ -161,11 +163,12 @@ public class FastActionsPatch {
                                     .currentTimeMillis() - startTime);
                         }
 
-                        if(actionManager.phase == GameActionManager.Phase.WAITING_ON_USER && actionManager.currentAction == null) {
+                        if (actionManager.phase == GameActionManager.Phase.WAITING_ON_USER && actionManager.currentAction == null) {
                             BattleAiMod.readyForUpdate = true;
                         }
                     }
-                    System.err.println("exiting loop " + actionManager.currentAction + " " + actionManager.phase+ " " + actionManager);
+                    System.err
+                            .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase);
                 }
             }
         }
@@ -317,8 +320,8 @@ public class FastActionsPatch {
     }
 
     private static boolean shouldWaitOnActions(GameActionManager actionManager) {
-        return actionManager.currentAction != null || !actionManager.monsterQueue
-                .isEmpty() || !actionManager.actions.isEmpty() || actionManager.usingCard;
+        return (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode) && (actionManager.currentAction != null || !actionManager.monsterQueue
+                .isEmpty() || !actionManager.actions.isEmpty() || actionManager.usingCard);
     }
 
 
@@ -523,7 +526,6 @@ public class FastActionsPatch {
             }
 
 
-
             if (!AbstractDungeon.screen.equals(AbstractDungeon.CurrentScreen.HAND_SELECT)) {
                 AbstractDungeon.player.combatUpdate();
             }
@@ -712,8 +714,9 @@ public class FastActionsPatch {
             default:
         }
 
-        if(BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Local Manager Update", System.currentTimeMillis() - localManagerUpdateStart);
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Local Manager Update", System
+                    .currentTimeMillis() - localManagerUpdateStart);
         }
 
     }
@@ -965,7 +968,7 @@ public class FastActionsPatch {
                 AbstractDungeon.actionManager.addToBottom(new UseCardAction(c));
             }
 
-            if(BattleAiMod.battleAiController != null) {
+            if (BattleAiMod.battleAiController != null) {
                 BattleAiMod.battleAiController.addRuntime("Local Action Manager Card Stuff", System
                         .currentTimeMillis() - startCardStuff);
             }
@@ -978,9 +981,10 @@ public class FastActionsPatch {
                 AbstractDungeon.getCurrRoom().monsters.queueMonsters();
             }
 
-            if(BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.addRuntime("Local Action Manager Monster Queued Stuff", System
-                        .currentTimeMillis() - startMonsterQueuedStuff);
+            if (BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController
+                        .addRuntime("Local Action Manager Monster Queued Stuff", System
+                                .currentTimeMillis() - startMonsterQueuedStuff);
             }
         } else if (!AbstractDungeon.actionManager.monsterQueue.isEmpty()) {
             long startOtherMonsterQueuedStuff = System.currentTimeMillis();
@@ -1018,9 +1022,10 @@ public class FastActionsPatch {
                 AbstractDungeon.actionManager.addToBottom(new WaitAction(1.5F));
             }
 
-            if(BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.addRuntime("Local Action Manager Other Monster Queued Stuff", System
-                        .currentTimeMillis() - startOtherMonsterQueuedStuff);
+            if (BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController
+                        .addRuntime("Local Action Manager Other Monster Queued Stuff", System
+                                .currentTimeMillis() - startOtherMonsterQueuedStuff);
             }
         } else if (AbstractDungeon.actionManager.turnHasEnded && !AbstractDungeon.getMonsters()
                                                                                  .areMonstersBasicallyDead()) {
@@ -1049,7 +1054,7 @@ public class FastActionsPatch {
             AbstractDungeon.player.applyStartOfTurnPowers();
             AbstractDungeon.player.applyStartOfTurnOrbs();
 
-            if(BattleAiMod.battleAiController != null) {
+            if (BattleAiMod.battleAiController != null) {
                 BattleAiMod.battleAiController.addRuntime("EOT Stuff SOT", System
                         .currentTimeMillis() - startStartOfTurn);
             }
@@ -1086,7 +1091,7 @@ public class FastActionsPatch {
                 AbstractDungeon.actionManager.addToBottom(new EnableEndTurnButtonAction());
                 long checkpoint5 = System.currentTimeMillis();
 
-                if(BattleAiMod.battleAiController != null) {
+                if (BattleAiMod.battleAiController != null) {
 //                    BattleAiMod.battleAiController.addRuntime("EOT part1", checkpoint2 - checkpoint1);
 //                    BattleAiMod.battleAiController.addRuntime("EOT part2", checkpoint3 - checkpoint2);
 //                    BattleAiMod.battleAiController.addRuntime("EOT part3", checkpoint4 - checkpoint3);
@@ -1094,7 +1099,7 @@ public class FastActionsPatch {
                 }
             }
 
-            if(BattleAiMod.battleAiController != null) {
+            if (BattleAiMod.battleAiController != null) {
                 BattleAiMod.battleAiController.addRuntime("Local Action Manager EOT Stuff", System
                         .currentTimeMillis() - startEOTStuff);
                 BattleAiMod.battleAiController.addRuntime("EOT Stuff end part", System
@@ -1102,8 +1107,9 @@ public class FastActionsPatch {
             }
         }
 
-        if(BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Local Manager Next Action", System.currentTimeMillis() - localManagerNextAction);
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Local Manager Next Action", System
+                    .currentTimeMillis() - localManagerNextAction);
         }
     }
 
@@ -1122,8 +1128,9 @@ public class FastActionsPatch {
 
         AbstractDungeon.player.stance.onEndOfTurn();
 
-        if(BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Local Manager Call EOT", System.currentTimeMillis() - localManagerCallEOT);
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Local Manager Call EOT", System
+                    .currentTimeMillis() - localManagerCallEOT);
         }
     }
 
@@ -1148,6 +1155,62 @@ public class FastActionsPatch {
     )
     public static class NoUnlockTrackerPatch {
         public static SpireReturn Prefix(String cardName) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = UnlockTracker.class,
+            paramtypez = {String.class},
+            method = "hardUnlock"
+    )
+    public static class NoHardUnlockTrackerPatch {
+        public static SpireReturn Prefix(String cardName) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = MusicMaster.class,
+            paramtypez = {String.class},
+            method = "playTempBGM"
+    )
+    public static class NoPlayMusicPatch {
+        public static SpireReturn Prefix(MusicMaster _instance, String key) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = MusicMaster.class,
+            paramtypez = {String.class},
+            method = "playTempBgmInstantly"
+    )
+    public static class NoPlayMusicPatc2 {
+        public static SpireReturn Prefix(MusicMaster _instance, String key) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = MusicMaster.class,
+            paramtypez = {String.class, boolean.class},
+            method = "playTempBgmInstantly"
+    )
+    public static class NoPlayMusicPatch3 {
+        public static SpireReturn Prefix(MusicMaster _instance, String key, boolean loop) {
             if (shouldGoFast()) {
                 return SpireReturn.Return(null);
             }

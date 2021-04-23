@@ -3,10 +3,14 @@ package battleaimod.savestate.monsters;
 import basemod.ReflectionHacks;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.badlogic.gdx.graphics.Texture;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.BronzeOrb;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BronzeOrbState extends MonsterState {
     protected final int count;
@@ -53,5 +57,22 @@ public class BronzeOrbState extends MonsterState {
         monsterStateJson.addProperty("used_stasis", usedStasis);
 
         return monsterStateJson.toString();
+    }
+
+    @SpirePatch(
+            clz = BronzeOrb.class,
+            paramtypez = {float.class, float.class, int.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoImgPatch {
+        public static void Postfix(BronzeOrb _instance, float x, float y, int count) {
+            if (shouldGoFast()) {
+                Texture img = ReflectionHacks.getPrivate(_instance, AbstractMonster.class, "img");
+                ReflectionHacks.setPrivate(_instance, AbstractMonster.class, "img", null);
+                if (img != null) {
+                    img.dispose();
+                }
+            }
+        }
     }
 }

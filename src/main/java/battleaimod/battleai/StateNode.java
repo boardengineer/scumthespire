@@ -131,7 +131,7 @@ public class StateNode {
                 }
             }
 
-            if (card.target == AbstractCard.CardTarget.SELF || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
+            if (card.target == AbstractCard.CardTarget.SELF || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY || card.target == AbstractCard.CardTarget.NONE) {
                 if (card.canUse(player, null)) {
                     commands.add(new CardCommand(i, card.cardID));
                 }

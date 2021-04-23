@@ -179,6 +179,9 @@ public class BattleAiController {
     }
 
     public void step() {
+        if (runCommandMode) {
+            System.err.println("running after run command mode");
+        }
         if (!shouldGoFast()) {
             System.err.println("step");
         }
@@ -451,7 +454,8 @@ public class BattleAiController {
                         .currentTimeMillis() - controllerStartTime, actionTime, stepTime, updateTime, loadstateTime, playerLoadTime, roomLoadTime);
         System.err.println(actionClassTimes.entrySet().stream()
                                            .filter(entry -> entry.getValue() > 100)
-                                           .sorted((e1, e2) -> (int) (e2.getValue() - e1.getValue()))
+                                           .sorted((e1, e2) -> (int) (e2.getValue() - e1
+                                                   .getValue()))
                                            .map(entry -> String
                                                    .format("%s = %s", entry.getKey()
                                                                            .getSimpleName(), entry
