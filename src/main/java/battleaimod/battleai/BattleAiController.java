@@ -17,7 +17,7 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    public int maxTurnLoads = 2000;
+    public int maxTurnLoads = 10000;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -79,8 +79,8 @@ public class BattleAiController {
     public long monsterLoadTime;
 
     public BattleAiController(SaveState state) {
-        targetTurn = 4;
-        targetTurnJump = 3;
+        targetTurn = 7;
+        targetTurnJump = 4;
 
 //        if (state.encounterName == null) {
 //        } else if (state.encounterName.equals("Lagavulin")) {

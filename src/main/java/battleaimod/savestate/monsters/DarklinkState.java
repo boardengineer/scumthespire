@@ -21,7 +21,9 @@ public class DarklinkState extends MonsterState {
     @Override
     public AbstractMonster loadMonster() {
         Darkling result = new Darkling(offsetX, offsetY);
+
         populateSharedFields(result);
+
         return result;
     }
 }

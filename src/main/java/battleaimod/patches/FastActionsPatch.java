@@ -30,6 +30,7 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.daily.mods.Careless;
 import com.megacrit.cardcrawl.daily.mods.ControlledChaos;
 import com.megacrit.cardcrawl.dungeons.*;
+import com.megacrit.cardcrawl.helpers.File;
 import com.megacrit.cardcrawl.helpers.ModHelper;
 import com.megacrit.cardcrawl.helpers.TipTracker;
 import com.megacrit.cardcrawl.helpers.input.DevInputActionSet;
@@ -220,6 +221,48 @@ public class FastActionsPatch {
             if (shouldGoFast()) {
                 BattleAiMod.readyForUpdate = true;
             }
+        }
+    }
+
+    @SpirePatch(
+            clz = SaveFile.class,
+            paramtypez = {SaveFile.SaveType.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoMakeSavePatch {
+        public static SpireReturn Prefix(SaveFile _instance, SaveFile.SaveType type) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = SaveAndContinue.class,
+            paramtypez = {SaveFile.class},
+            method = "save"
+    )
+    public static class NoSavingPatch {
+        public static SpireReturn Prefix(SaveFile save) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = File.class,
+            paramtypez = {},
+            method = "save"
+    )
+    public static class NoSavingOnOtherThreadPatch {
+        public static SpireReturn Prefix(File _instance) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
         }
     }
 
@@ -1097,4 +1140,20 @@ public class FastActionsPatch {
             return SpireReturn.Continue();
         }
     }
+
+    @SpirePatch(
+            clz = UnlockTracker.class,
+            paramtypez = {String.class},
+            method = "markCardAsSeen"
+    )
+    public static class NoUnlockTrackerPatch {
+        public static SpireReturn Prefix(String cardName) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+
 }

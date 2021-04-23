@@ -55,8 +55,9 @@ public class PowerState {
             malleableBasePower = 0;
         }
 
-        if(power instanceof FlightPower) {
-            flightStoredAmount = ReflectionHacks.getPrivate(power, FlightPower.class, "storedAmount");
+        if (power instanceof FlightPower) {
+            flightStoredAmount = ReflectionHacks
+                    .getPrivate(power, FlightPower.class, "storedAmount");
         } else {
             flightStoredAmount = 0;
         }
@@ -191,6 +192,12 @@ public class PowerState {
             result = new RagePower(targetAndSource, amount);
         } else if (powerId.equals("DexLoss")) {
             result = new LoseDexterityPower(targetAndSource, amount);
+        } else if (powerId.equals("Sadistic")) {
+            result = new SadisticPower(targetAndSource, amount);
+        } else if (powerId.equals("Brutality")) {
+            result = new BrutalityPower(targetAndSource, amount);
+        } else if (powerId.equals("Explosive")) {
+            result = new ExplosivePower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

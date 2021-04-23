@@ -98,7 +98,7 @@ public class MapRoomNodeState {
 
         this.monsterData = Stream
                 .of(parsed.get("monster_data").getAsString().split(MONSTER_DELIMETER))
-                .filter(s -> !s.isEmpty()).map(MonsterState::new)
+                .filter(s -> !s.isEmpty()).map(s -> lookUpAndCreateMonsterState(s))
                 .collect(Collectors.toCollection(ArrayList::new));
 
         this.phase = AbstractRoom.RoomPhase.valueOf(parsed.get("phase_name").getAsString());
@@ -204,5 +204,18 @@ public class MapRoomNodeState {
         MONSTER,
         ELITE,
         BOSS
+    }
+
+    private static MonsterState lookUpAndCreateMonsterState(String jsonString) {
+        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+        JsonObject moreParsed = new JsonParser().parse(parsed.get("creature").getAsString())
+                                                .getAsJsonObject();
+
+        String id = moreParsed.get("id").getAsString();
+        if (!BattleAiMod.monsterByIdmap.containsKey(id)) {
+            throw new IllegalStateException("Missing json factory for " + id);
+        }
+
+        return BattleAiMod.monsterByIdmap.get(id).jsonFactory.apply(jsonString);
     }
 }

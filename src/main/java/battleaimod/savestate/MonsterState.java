@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
-public class MonsterState extends CreatureState {
+public abstract class MonsterState extends CreatureState {
     private static final String DAMAGE_DELIMETER = ";";
     private static final String MOVE_HISTORY_DELIMETER = "&";
 

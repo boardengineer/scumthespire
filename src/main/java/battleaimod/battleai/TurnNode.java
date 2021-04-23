@@ -206,7 +206,7 @@ public class TurnNode implements Comparable<TurnNode> {
             }
         }
 
-        return monsterDamage - 2 * playerDamage + 3 * strength + 3 * dexterity;
+        return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity;
     }
 
     @Override

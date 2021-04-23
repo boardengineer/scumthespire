@@ -1,6 +1,7 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.NoLoggerMummifiedHand;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.helpers.RelicLibrary;
@@ -81,7 +82,13 @@ public class RelicState {
     }
 
     public AbstractRelic loadRelic() {
-        AbstractRelic result = RelicLibrary.getRelic(relicId).makeCopy();
+        AbstractRelic result;
+
+        if (relicId.equals("Mummified Hand")) {
+            result = new NoLoggerMummifiedHand();
+        } else {
+            result = RelicLibrary.getRelic(relicId).makeCopy();
+        }
 
         result.counter = counter;
         result.grayscale = grayscale;

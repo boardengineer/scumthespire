@@ -36,6 +36,7 @@ public class AiClient {
         try {
             socket.connect(new InetSocketAddress(HOST_IP, PORT));
         } catch (SocketTimeoutException e) {
+            System.err.println("Failed on connet timeout");
             socket.close();
         }
     }

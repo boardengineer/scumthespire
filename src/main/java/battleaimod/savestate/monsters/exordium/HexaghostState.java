@@ -3,12 +3,15 @@ package battleaimod.savestate.monsters.exordium;
 import basemod.ReflectionHacks;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.MonsterState;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Disposable;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Hexaghost;
 import com.megacrit.cardcrawl.monsters.exordium.HexaghostBody;
@@ -107,6 +110,42 @@ public class HexaghostState extends MonsterState {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = ImageMaster.class,
+            paramtypez = {String.class},
+            method = "loadImage"
+    )
+    public static class NoHexaghostImagesPatch {
+        public static SpireReturn Prefix(String imgUrl) {
+            if (shouldGoFast()) {
+                if (imgUrl.equals(Hexaghost.IMAGE)) {
+                    return SpireReturn.Return(null);
+                }
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = Hexaghost.class,
+            paramtypez = {},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoDisposeBodyCreationAnimationsPatch {
+        public static void Postfix(Hexaghost _instance) {
+            if (shouldGoFast()) {
+                Texture img = ReflectionHacks.getPrivate(_instance, AbstractMonster.class, "img");
+                ReflectionHacks.setPrivate(_instance, AbstractMonster.class, "img", null);
+                if (img != null) {
+                    img.dispose();
+                }
+                List<Disposable> disposables = ReflectionHacks
+                        .getPrivate(_instance, AbstractMonster.class, "disposables");
+                disposables.clear();
+            }
         }
     }
 
