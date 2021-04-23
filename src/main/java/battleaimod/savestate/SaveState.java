@@ -1,12 +1,15 @@
 package battleaimod.savestate;
 
+import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import battleaimod.GameStateListener;
 import battleaimod.battleai.BattleAiController;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.powers.ConstrictedPower;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
@@ -83,6 +86,15 @@ public class SaveState {
                     .currentTimeMillis() - point2);
         }
 
+        for (int i = 0; i < playerState.powers.size(); i++) {
+            if (playerState.powers.get(i).powerId.equals("Constricted")) {
+                AbstractCreature source = AbstractDungeon.getMonsters().monsters
+                        .get(playerState.powers.get(i).constrictedSourceIndex);
+                ReflectionHacks.setPrivate(AbstractDungeon.player.powers
+                        .get(i), ConstrictedPower.class, "source", source);
+            }
+        }
+
         AbstractDungeon.screen = screen;
 
         AbstractDungeon.isScreenUp = false;
@@ -98,7 +110,7 @@ public class SaveState {
 
         long startLoadCombatReward = System.currentTimeMillis();
 
-        if(!shouldGoFast()) {
+        if (!shouldGoFast()) {
             CombatRewardScreenState.loadCombatRewardScreen();
         }
         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.runTimes != null) {

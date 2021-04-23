@@ -66,8 +66,11 @@ public enum Monster {
     NEMESIS("Nemesis", monster -> new NemesisState(monster), json -> new NemesisState(json)),
     GIANT_HEAD("GiantHead", monster -> new GiantHeadState(monster), json -> new GiantHeadState(json)),
     MAW("Maw", monster -> new MawState(monster), json -> new MawState(json)),
-    AWAKENED_ONE("AwakenedOne", monster -> new AwakenedOneState(monster), json -> new AwakenedOneState(json))
-
+    AWAKENED_ONE("AwakenedOne", monster -> new AwakenedOneState(monster), json -> new AwakenedOneState(json)),
+    WRITHING_MASS("WrithingMass", monster -> new SpireGrowthState(monster), json -> new SpireGrowthState(json)),
+    SPIRE_GROWTH("Serpent",monster -> new SpireGrowthState(monster), json -> new SpireGrowthState(json)),
+    DONU("Donu", monster -> new DonuState(monster), json -> new DonuState(json)),
+    DECA("Deca", monster -> new DecaState(monster), json -> new DecaState(json))
     ;
 
     public final String monsterId;

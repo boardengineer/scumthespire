@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.core.AbstractCreature;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.powers.*;
 
@@ -22,6 +23,8 @@ public class PowerState {
     private final int malleableBasePower;
 
     private final int flightStoredAmount;
+
+    public final int constrictedSourceIndex;
 
     public PowerState(AbstractPower power) {
         this.powerId = power.ID;
@@ -62,6 +65,22 @@ public class PowerState {
         } else {
             flightStoredAmount = 0;
         }
+
+        if (power instanceof ConstrictedPower) {
+            AbstractCreature source = ReflectionHacks.getPrivate(power, ConstrictedPower.class, "source");
+
+            int foundIndex = 0;
+            for(int i = 0; i < AbstractDungeon.getMonsters().monsters.size(); i++) {
+                if(source == AbstractDungeon.getMonsters().monsters.get(i)) {
+                    foundIndex = i;
+                    break;
+                }
+            }
+
+            constrictedSourceIndex = foundIndex;
+        } else {
+            constrictedSourceIndex = 0;
+        }
     }
 
     public PowerState(String jsonString) {
@@ -82,6 +101,8 @@ public class PowerState {
         this.malleableBasePower = parsed.get("malleable_base_power").getAsInt();
 
         this.flightStoredAmount = parsed.get("flight_stored_amount").getAsInt();
+
+        this.constrictedSourceIndex = parsed.get("constricted_source_index").getAsInt();
 
         // TODO
         this.hpLoss = 0;
@@ -215,6 +236,10 @@ public class PowerState {
             result = new CuriosityPower(targetAndSource, amount);
         } else if (powerId.equals("Unawakened")) {
             result = new UnawakenedPower(targetAndSource);
+        } else if (powerId.equals("Compulsive")) {
+            result = new ReactivePower(targetAndSource);
+        } else if (powerId.equals("Constricted")) {
+            result = new ConstrictedPower(targetAndSource, null, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }
@@ -232,6 +257,7 @@ public class PowerState {
         powerStateJson.addProperty("stasis_card", stasisCard == null ? null : stasisCard.encode());
         powerStateJson.addProperty("malleable_base_power", malleableBasePower);
         powerStateJson.addProperty("flight_stored_amount", flightStoredAmount);
+        powerStateJson.addProperty("constricted_source_index", constrictedSourceIndex);
 
         return powerStateJson.toString();
     }
