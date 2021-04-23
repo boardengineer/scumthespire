@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.core.AbstractCreature;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.powers.*;
 
 public class PowerState {
@@ -198,6 +199,22 @@ public class PowerState {
             result = new BrutalityPower(targetAndSource, amount);
         } else if (powerId.equals("Explosive")) {
             result = new ExplosivePower(targetAndSource, amount);
+        } else if (powerId.equals("Fading")) {
+            result = new FadingPower(targetAndSource, amount);
+        } else if (powerId.equals("Shifting")) {
+            result = new ShiftingPower(targetAndSource);
+        } else if (powerId.equals("Shackled")) {
+            result = new GainStrengthPower(targetAndSource, amount);
+        } else if (powerId.equals("Intangible")) {
+            result = new IntangiblePower(targetAndSource, amount);
+        } else if (powerId.equals("Slow")) {
+            result = new SlowPower(targetAndSource, amount);
+        } else if (powerId.equals("Regenerate")) {
+            result = new RegenerateMonsterPower((AbstractMonster) targetAndSource, amount);
+        } else if (powerId.equals("Curiosity")) {
+            result = new CuriosityPower(targetAndSource, amount);
+        } else if (powerId.equals("Unawakened")) {
+            result = new UnawakenedPower(targetAndSource);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

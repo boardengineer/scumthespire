@@ -193,18 +193,12 @@ public class TurnNode implements Comparable<TurnNode> {
         // (player damage) / (player starting health) vs (monster damage / monster total health)
 
 
-        if (turnNode.startingState.saveState.encounterName != null) {
-            String encounterName = turnNode.startingState.saveState.encounterName;
-            if (encounterName.equals("Lagavulin")) {
-                return monsterDamage - playerDamage + 3 * strength + 3 * dexterity;
-            } else if (encounterName.equals("Hexaghost")) {
-                return monsterDamage - 4 * playerDamage + 3 * strength + 3 * dexterity;
-            } else if (encounterName.equals("Champ")) {
-                return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity;
-            } else if (encounterName.equals("The Guardian")) {
-                return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity;
-            }
-        }
+//        if (turnNode.startingState.saveState.encounterName != null) {
+//            String encounterName = turnNode.startingState.saveState.encounterName;
+//            if (encounterName.equals("Lagavulin")) {
+//                return monsterDamage - playerDamage + 3 * strength + 3 * dexterity;
+//            }
+//        }
 
         return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity;
     }
