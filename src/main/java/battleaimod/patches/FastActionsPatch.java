@@ -50,22 +50,61 @@ import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.screens.CombatRewardScreen;
 import com.megacrit.cardcrawl.screens.DeathScreen;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
-import com.megacrit.cardcrawl.vfx.GameSavedEffect;
-import com.megacrit.cardcrawl.vfx.ThoughtBubble;
+import com.megacrit.cardcrawl.vfx.*;
 import com.megacrit.cardcrawl.vfx.cardManip.ExhaustCardEffect;
+import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
+import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDrawPileEffect;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
-import com.megacrit.cardcrawl.vfx.combat.BattleStartEffect;
-import com.megacrit.cardcrawl.vfx.combat.StrikeEffect;
+import com.megacrit.cardcrawl.vfx.combat.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 public class FastActionsPatch {
+    private static final Set<Class> BAD_EFFECTS = new HashSet<Class>() {{
+        add(StrikeEffect.class);
+        add(FlashAtkImgEffect.class);
+        add(RefreshEnergyEffect.class);
+        add(HbBlockBrokenEffect.class);
+        add(BlockImpactLineEffect.class);
+        add(BlockedWordEffect.class);
+        add(FlashIntentEffect.class);
+        add(PowerExpireTextEffect.class);
+        add(FlashPowerEffect.class);
+        add(PowerDebuffEffect.class);
+        add(PowerBuffEffect.class);
+        add(ExhaustCardEffect.class);
+        add(DeckPoofParticle.class);
+        add(HealNumberEffect.class);
+        add(GameSavedEffect.class);
+        add(DeckPoofEffect.class);
+        add(HealEffect.class);
+        add(HealVerticalLineEffect.class);
+        add(PlayerTurnEffect.class);
+        add(EnemyTurnEffect.class);
+        add(CardPoofParticle.class);
+        add(TextAboveCreatureEffect.class);
+        add(SpeechTextEffect.class);
+        add(SpeechBubble.class);
+        add(BorderFlashEffect.class);
+        add(RelicAboveCreatureEffect.class);
+
+        // Important stuff happens during construction so we don't have to update, just remove
+        add(ShowCardAndAddToDiscardEffect.class);
+        add(ShowCardAndAddToDrawPileEffect.class);
+
+        add(CardPoofEffect.class);
+    }};
+
+
+    private static final Set<Class> GOOD_EFFECTS = new HashSet<Class>() {{
+
+    }};
+
     static long updateStartTime = 0;
 
     @SpirePatch(
@@ -88,17 +127,61 @@ public class FastActionsPatch {
     public static class ForceGameActionsPatch {
         public static void Postfix(AbstractDungeon dungeon) {
             long updateStartTime = System.currentTimeMillis();
-
             GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
-                    System.err.println("Strting Loop " + actionManager.phase);
                     while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
                         long startTime = System.currentTimeMillis();
 
-                        AbstractDungeon.topLevelEffects.clear();
-                        AbstractDungeon.effectList.clear();
+                        clearEffects(AbstractDungeon.topLevelEffects);
+                        clearEffects(AbstractDungeon.effectList);
+                        clearEffects(AbstractDungeon.effectsQueue);
+
+//
+//                        AbstractDungeon.effectList.clear();
+//                        AbstractDungeon.effectsQueue.clear();
+//                        AbstractDungeon.topLevelEffects.clear();
+
+//                        AbstractDungeon.topLevelEffects.clear();
+//                        AbstractDungeon.effectList.clear();
+//                        while (!AbstractDungeon.effectList.isEmpty()) {
+//                            Iterator<AbstractGameEffect> effects = AbstractDungeon.effectList
+//                                    .iterator();
+//                            while (effects.hasNext()) {
+//                                AbstractGameEffect effect = effects.next();
+//                                effect.update();
+//                                if (effect.isDone) {
+//                                    effects.remove();
+//                                }
+//                            }
+//                        }
+
+//                        while (!AbstractDungeon.topLevelEffects.isEmpty()) {
+//                            Iterator<AbstractGameEffect> effects = AbstractDungeon.topLevelEffects
+//                                    .iterator();
+//                            while (effects.hasNext()) {
+//                                AbstractGameEffect effect = effects.next();
+//                                effect.update();
+//                                if (effect.isDone) {
+//                                    effects.remove();
+//                                }
+//                            }
+//                        }
+
+//                        AbstractDungeon.effectsQueue.clear();
+//                        while (!AbstractDungeon.effectsQueue.isEmpty()) {
+//                            Iterator<AbstractGameEffect> effects = AbstractDungeon.effectsQueue
+//                                    .iterator();
+//                            while (effects.hasNext()) {
+//                                AbstractGameEffect effect = effects.next();
+//                                effect.update();
+//                                if (effect.isDone) {
+//                                    effects.remove();
+//                                }
+//                            }
+//                        }
+
                         // TODO this is going to have consequences
                         actionManager.cardsPlayedThisCombat.clear();
 
@@ -118,7 +201,7 @@ public class FastActionsPatch {
                             if (actionManager.currentAction != null) {
                                 Class actionClass = actionManager.currentAction.getClass();
                                 actionManager.currentAction.update();
-                                if (BattleAiMod.battleAiController != null) {
+                                if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.actionClassTimes != null) {
                                     long timeThisAction = (System
                                             .currentTimeMillis() - startTime);
                                     BattleAiMod.battleAiController
@@ -145,7 +228,9 @@ public class FastActionsPatch {
                         }
 
                         long startRoomUpdate = System.currentTimeMillis();
+
                         roomUpdate();
+
                         if (BattleAiMod.battleAiController != null) {
                             BattleAiMod.battleAiController.addRuntime("Room Update", System
                                     .currentTimeMillis() - startRoomUpdate);
@@ -167,8 +252,15 @@ public class FastActionsPatch {
                             BattleAiMod.readyForUpdate = true;
                         }
                     }
+
+//                    AbstractDungeon.effectList.clear();
+//                    AbstractDungeon.effectsQueue.clear();
+//                    AbstractDungeon.topLevelEffects.clear();
+
                     System.err
-                            .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase);
+                            .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
+                                    .size() + " " + AbstractDungeon.topLevelEffects
+                                    .size() + " " + AbstractDungeon.effectsQueue.size());
                 }
             }
         }
@@ -696,6 +788,9 @@ public class FastActionsPatch {
                 break;
             case EXECUTING_ACTIONS:
                 if (AbstractDungeon.actionManager.currentAction != null && !AbstractDungeon.actionManager.currentAction.isDone) {
+                    if (actionManager.currentAction instanceof DrawCardAction) {
+                        actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
+                    }
                     AbstractDungeon.actionManager.currentAction.update();
                 } else {
                     AbstractDungeon.actionManager.previousAction = AbstractDungeon.actionManager.currentAction;
@@ -1218,5 +1313,16 @@ public class FastActionsPatch {
         }
     }
 
+    private static void clearEffects(ArrayList<AbstractGameEffect> effects) {
+        Iterator<AbstractGameEffect> iterator = effects.iterator();
+        while (iterator.hasNext()) {
+            Class effectClass = iterator.next().getClass();
+            if (BAD_EFFECTS.contains(effectClass)) {
+                iterator.remove();
+            } else if(!GOOD_EFFECTS.contains(effectClass)) {
+                System.err.println("Allowing unknown effect " + effectClass);
+            }
+        }
+    }
 
 }

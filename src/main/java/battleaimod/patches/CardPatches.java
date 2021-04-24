@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
-import com.megacrit.cardcrawl.actions.common.ReducePowerAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
@@ -113,7 +112,6 @@ public class CardPatches {
     public static class NoUpdateColorPatch {
         public static SpireReturn Prefix(AbstractCard _instance) {
             if (shouldGoFast()) {
-                ReducePowerAction action;
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
@@ -128,7 +126,20 @@ public class CardPatches {
     public static class NoFadeOutPatch {
         public static SpireReturn Prefix(AbstractCard _instance) {
             if (shouldGoFast()) {
-                ReducePowerAction action;
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractCard.class,
+            paramtypez = {boolean.class},
+            method = "darken"
+    )
+    public static class NoDarkenPatch {
+        public static SpireReturn Prefix(AbstractCard _instance, boolean immediate) {
+            if (shouldGoFast()) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

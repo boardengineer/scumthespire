@@ -47,6 +47,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static SaveState saveState;
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
+    public static long logCounter = 0;
 
     public static HashMap<String, Monster> monsterByIdmap;
 
@@ -147,6 +148,9 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     }
 
     public void receivePostUpdate() {
+        if (++BattleAiMod.logCounter % 300 == 0) {
+            System.err.println(BattleAiMod.logCounter);
+        }
         if (steveMessage != null) {
             String messageToDisplay = " Processing... NL " + steveMessage;
             steveMessage = null;
