@@ -61,7 +61,6 @@ public class SpeedController implements PreUpdateSubscriber {
                     return;
                 }
             } catch (Exception e) {
-                System.err.println("Failed at point 1");
             }
         }
 

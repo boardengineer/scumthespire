@@ -153,6 +153,7 @@ public class PlayerState extends CreatureState {
         player.discardPile.group = this.discardPile.stream().map(CardState::loadCard)
                                                    .collect(Collectors
                                                            .toCollection(ArrayList::new));
+
         player.exhaustPile.group = this.exhaustPile.stream().map(CardState::loadCard)
                                                    .collect(Collectors
                                                            .toCollection(ArrayList::new));
@@ -186,7 +187,6 @@ public class PlayerState extends CreatureState {
 
 
         player.update();
-
 
         return player;
     }

@@ -11,9 +11,19 @@ public class EndCommand implements Command {
     }
 
     public EndCommand(String jsonString) {
-        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+        System.err.println("Here 1");
+        try {
+            System.err.println("Here 2");
+            JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
 
-        stateDebugInfo = new StateDebugInfo(parsed.get("state_debug_info").getAsString());
+            System.err.println("Here 3");
+            if (parsed.has("state_debug_info"))
+                stateDebugInfo = new StateDebugInfo(parsed.get("state_debug_info").getAsString());
+        } catch (Exception e) {
+            System.err.println("Exception");
+            // still return a plain End Command
+        }
+
     }
 
     @Override
@@ -25,7 +35,7 @@ public class EndCommand implements Command {
 
     @Override
     public String toString() {
-        return "EndCommand " + stateDebugInfo.encode();
+        return "EndCommand  ";
     }
 
     @Override

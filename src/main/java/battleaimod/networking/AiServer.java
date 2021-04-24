@@ -84,10 +84,12 @@ public class AiServer {
                             }
                         }
 
+                        System.err.println("BattleAI finished");
+
                         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.runCommandMode) {
                             JsonObject jsonToSend = new JsonObject();
-
                             JsonArray commands = new JsonArray();
+
 
                             Iterator<Command> bestPath = BattleAiMod.battleAiController.bestPathRunner;
                             while (bestPath.hasNext()) {
@@ -99,14 +101,22 @@ public class AiServer {
                                 }
                             }
 
+
                             // Send Command List
                             jsonToSend.addProperty("type", "COMMAND_LIST");
                             jsonToSend.add("commands", commands);
 
-                            System.err.println(BattleAiMod.battleAiController.bestPath);
+                            try {
+                                System.err.println(BattleAiMod.battleAiController.bestPath);
+                            } catch (NullPointerException e) {
+                                System.err
+                                        .println("Can't print best path, it was already cleared " + commands);
+                            }
 
                             out.writeUTF(jsonToSend.toString());
                             BattleAiMod.battleAiController = null;
+                        } else {
+                            System.err.println("This shouldn't have happened");
                         }
 
                         System.err.println("Sending done");

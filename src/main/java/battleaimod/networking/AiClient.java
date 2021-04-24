@@ -78,7 +78,9 @@ public class AiClient {
                             ArrayList<Command> commandsFromServer = new ArrayList<>();
                             JsonArray jsonCommands = parsed.get("commands").getAsJsonArray();
                             for (JsonElement jsonCommand : jsonCommands) {
+                                System.err.println(jsonCommand);
                                 Command toAdd = toCommand(jsonCommand);
+                                System.err.println(toAdd);
                                 commandsFromServer.add(toAdd);
                             }
 
@@ -145,6 +147,7 @@ public class AiClient {
         if (type.equals("CARD")) {
             return new CardCommand(commandString);
         } else if (type.equals("END")) {
+            System.err.println("parsing end");
             return new EndCommand(commandString);
         }
 

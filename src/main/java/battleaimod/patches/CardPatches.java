@@ -1,14 +1,18 @@
 package battleaimod.patches;
 
+import basemod.ReflectionHacks;
+import battleaimod.BattleAiMod;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
+import com.megacrit.cardcrawl.actions.common.EscapeAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.AbstractCreature;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
 import java.util.UUID;
 
@@ -25,8 +29,31 @@ public class CardPatches {
         @SpireInsertPatch(loc = 391)
         public static SpireReturn Insert(AbstractCard _instance, String id, String name, String imgUrl, int cost, String rawDescription, AbstractCard.CardType type, AbstractCard.CardColor color, AbstractCard.CardRarity rarity, AbstractCard.CardTarget target, DamageInfo.DamageType dType) {
             if (shouldGoFast()) {
+                long loadStartTime = System.currentTimeMillis();
+
+                _instance.originalName = name;
+                _instance.name = name;
+                _instance.cardID = id;
+                _instance.assetUrl = imgUrl;
+                _instance.cost = cost;
+                _instance.costForTurn = cost;
+                _instance.rawDescription = rawDescription;
+                _instance.type = type;
+                _instance.color = color;
+                _instance.rarity = rarity;
+                _instance.target = target;
+
+                ReflectionHacks.setPrivate(_instance, AbstractCard.class, "damageType", dType);
+                _instance.damageTypeForTurn = dType;
                 _instance.uuid = UUID.randomUUID();
+
+                if (BattleAiMod.battleAiController != null) {
+                    BattleAiMod.battleAiController.addRuntime("Constructor time Card " + id, (System
+                            .currentTimeMillis() - loadStartTime));
+                }
+
                 return SpireReturn.Return(null);
+
             }
             return SpireReturn.Continue();
         }
@@ -84,6 +111,23 @@ public class CardPatches {
     public static class NoUpdatePlayerPatch {
         public static SpireReturn Prefix(AbstractPlayer _instance) {
             if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = EscapeAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class FastEscapePatch {
+        public static SpireReturn Prefix(EscapeAction _instance) {
+            if (shouldGoFast()) {
+                AbstractMonster m = (AbstractMonster) _instance.source;
+                m.escape();
+                _instance.isDone = true;
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

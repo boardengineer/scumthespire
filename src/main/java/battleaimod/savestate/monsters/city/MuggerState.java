@@ -15,7 +15,6 @@ import com.megacrit.cardcrawl.monsters.city.Mugger;
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class MuggerState extends MonsterState {
-
     private final int slashCount;
     private final int stolenGold;
 

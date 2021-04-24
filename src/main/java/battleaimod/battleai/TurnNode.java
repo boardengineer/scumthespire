@@ -179,7 +179,6 @@ public class TurnNode implements Comparable<TurnNode> {
         int playerDamage = getPlayerDamage(turnNode);
         int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealth(turnNode.startingState.saveState);
 
-
         int strength = 0;
         int dexterity = 0;
         for (PowerState power : turnNode.startingState.saveState.playerState.powers) {
@@ -190,21 +189,10 @@ public class TurnNode implements Comparable<TurnNode> {
             }
         }
 
-        // (player damage) / (player starting health) vs (monster damage / monster total health)
-
-
-//        if (turnNode.startingState.saveState.encounterName != null) {
-//            String encounterName = turnNode.startingState.saveState.encounterName;
-//            if (encounterName.equals("Lagavulin")) {
-//                return monsterDamage - playerDamage + 3 * strength + 3 * dexterity;
-//            }
-//        }
-
         return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity;
     }
 
     @Override
-
     public int compareTo(TurnNode otherTurn) {
         return getTurnScore(otherTurn) - getTurnScore(this);
     }
@@ -214,6 +202,6 @@ public class TurnNode implements Comparable<TurnNode> {
     }
 
     private boolean isNewTurn(StateNode childNode) {
-        return childNode.saveState.turn > this.startingState.saveState.turn;
+        return (childNode.saveState.turn > this.startingState.saveState.turn) || childNode.lastCommand instanceof EndCommand;
     }
 }

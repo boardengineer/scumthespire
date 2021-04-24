@@ -8,6 +8,8 @@ import battleaimod.savestate.MonsterState;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.MakeTempCardInDiscardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
@@ -20,14 +22,23 @@ import com.megacrit.cardcrawl.vfx.PlayerTurnEffect;
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class SentryState extends MonsterState {
+    private final boolean firstMove;
+
     public SentryState(AbstractMonster monster) {
         super(monster);
+
+        this.firstMove = ReflectionHacks.getPrivate(monster, Sentry.class, "firstMove");
 
         monsterTypeNumber = Monster.SENTRY.ordinal();
     }
 
     public SentryState(String jsonString) {
         super(jsonString);
+
+        // TODO don't parse twice
+        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+
+        this.firstMove = parsed.get("first_move").getAsBoolean();
 
         monsterTypeNumber = Monster.SENTRY.ordinal();
     }
@@ -36,7 +47,19 @@ public class SentryState extends MonsterState {
     public AbstractMonster loadMonster() {
         Sentry result = new Sentry(offsetX, offsetY);
         populateSharedFields(result);
+
+        ReflectionHacks.setPrivate(result, Sentry.class, "firstMove", firstMove);
+
         return result;
+    }
+
+    @Override
+    public String encode() {
+        JsonObject monsterStateJson = new JsonParser().parse(super.encode()).getAsJsonObject();
+
+        monsterStateJson.addProperty("first_move", firstMove);
+
+        return monsterStateJson.toString();
     }
 
     @SpirePatch(

@@ -8,6 +8,7 @@ import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.relics.AncientTeaSet;
 import com.megacrit.cardcrawl.relics.GremlinHorn;
+import com.megacrit.cardcrawl.relics.MummifiedHand;
 import com.megacrit.cardcrawl.vfx.RelicAboveCreatureEffect;
 
 import java.util.ArrayList;
@@ -100,6 +101,7 @@ public class RelicPatches {
             if (shouldGoFast()) {
                 return SpireReturn.Return(null);
             }
+            MummifiedHand hand;
             return SpireReturn.Continue();
         }
     }

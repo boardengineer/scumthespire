@@ -51,7 +51,6 @@ public class JawWormState extends MonsterState {
         JsonObject monsterStateJson = new JsonParser().parse(super.encode()).getAsJsonObject();
 
         monsterStateJson.addProperty("first_move", firstMove);
-        System.err.println(firstMove + " " + monsterStateJson);
 
         return monsterStateJson.toString();
     }

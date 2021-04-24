@@ -4,9 +4,13 @@ import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.core.AbstractCreature;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
+import com.megacrit.cardcrawl.monsters.beyond.Reptomancer;
+import com.megacrit.cardcrawl.monsters.beyond.SnakeDagger;
 import com.megacrit.cardcrawl.monsters.city.TheCollector;
 import com.megacrit.cardcrawl.monsters.city.TorchHead;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
@@ -147,6 +151,16 @@ public class MapRoomNodeState {
 
                 ReflectionHacks
                         .setPrivate(monster, TheCollector.class, "enemySlots", collectorMinions);
+            } else if (monster instanceof Reptomancer) {
+                AbstractCreature[] daggers = ReflectionHacks
+                        .getPrivate(monster, Reptomancer.class, "daggers");
+                int foundDaggers = 0;
+                for (AbstractMonster potentialDagger : AbstractDungeon.getMonsters().monsters) {
+                    if (potentialDagger instanceof SnakeDagger) {
+                        daggers[foundDaggers] = potentialDagger;
+                        foundDaggers++;
+                    }
+                }
             }
         }
 

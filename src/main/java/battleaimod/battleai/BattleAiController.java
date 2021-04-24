@@ -18,7 +18,7 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    public int maxTurnLoads = 10000;
+    public int maxTurnLoads = 10_000;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -80,6 +80,7 @@ public class BattleAiController {
     public long monsterLoadTime;
 
     public BattleAiController(SaveState state) {
+        runTimes = new HashMap<>();
         targetTurn = 7;
         targetTurnJump = 4;
 
@@ -113,6 +114,7 @@ public class BattleAiController {
     }
 
     public BattleAiController(SaveState state, boolean shouldRunWhenFound) {
+        runTimes = new HashMap<>();
         minDamage = 5000;
         bestEnd = null;
         this.shouldRunWhenFound = shouldRunWhenFound;
@@ -122,6 +124,7 @@ public class BattleAiController {
     }
 
     public BattleAiController(SaveState saveState, List<Command> commands) {
+        runTimes = new HashMap<>();
         runCommandMode = true;
         shouldRunWhenFound = true;
         bestPath = commands;
@@ -130,6 +133,7 @@ public class BattleAiController {
     }
 
     public BattleAiController(SaveState saveState, List<Command> commands, boolean isComplete) {
+        runTimes = new HashMap<>();
         runCommandMode = true;
         this.isComplete = isComplete;
         shouldRunWhenFound = true;
@@ -230,7 +234,7 @@ public class BattleAiController {
                     turns.add(toAdd);
                     toAdd.startingState.saveState.loadState();
                     AbstractCard
-                    bestTurn = null;
+                            bestTurn = null;
                     backupTurn = null;
 
                     // TODO this is here to prevent playback errors
@@ -464,7 +468,7 @@ public class BattleAiController {
                                                            .getValue()))
                                            .collect(Collectors.joining("\n")));
         System.err.println("-------------------------------------------------------------------");
-        System.err.println(runTimes.entrySet().stream().map(entry -> entry.toString())
+        System.err.println(runTimes.entrySet().stream().map(entry -> entry.toString()).sorted()
                                    .collect(Collectors.joining("\n")));
         System.err.println("-------------------------------------------------------------------");
     }

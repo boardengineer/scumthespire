@@ -14,6 +14,7 @@ public class CardState {
     private final int baseDamage;
     private final int cost;
     private final int costForTurn;
+    private final boolean freeToPlayOnce;
     private final String name;
 
     private final boolean inBottleTornado;
@@ -45,6 +46,7 @@ public class CardState {
         this.inBottleFlame = card.inBottleFlame;
         this.inBottleTornado = card.inBottleTornado;
         this.inBottleLightning = card.inBottleLightning;
+        this.freeToPlayOnce = card.freeToPlayOnce;
 
         this.current_x = card.current_x;
         this.current_y = card.current_y;
@@ -76,6 +78,7 @@ public class CardState {
 
         this.name = parsed.get("name").getAsString();
         this.uuid = UUID.fromString(parsed.get("uuid").getAsString());
+        this.freeToPlayOnce = parsed.get("free_to_play_once").getAsBoolean();
 
         // TODO
         this.current_x = 0;
@@ -94,11 +97,18 @@ public class CardState {
     public AbstractCard loadCard() {
         long loadStartTime = System.currentTimeMillis();
 
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Card Lookup " + cardId, (System
+                    .currentTimeMillis() - loadStartTime));
+        }
+
         AbstractCard result = CardLibrary.getCard(cardId).makeCopy();
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.playerLoadTime += (System
                     .currentTimeMillis() - loadStartTime);
+            BattleAiMod.battleAiController.addRuntime("Card " + cardId, (System
+                    .currentTimeMillis() - loadStartTime));
         }
 
         if (upgraded) {
@@ -127,6 +137,7 @@ public class CardState {
         result.name = name;
 
         result.uuid = uuid;
+        result.freeToPlayOnce = freeToPlayOnce;
 
         return result;
     }
@@ -147,6 +158,7 @@ public class CardState {
         cardStateJson.addProperty("in_bottle_flame", inBottleFlame);
         cardStateJson.addProperty("in_bottle_tornado", inBottleTornado);
         cardStateJson.addProperty("name", name);
+        cardStateJson.addProperty("free_to_play_once", freeToPlayOnce);
         cardStateJson.addProperty("uuid", uuid.toString());
 
         return cardStateJson.toString();

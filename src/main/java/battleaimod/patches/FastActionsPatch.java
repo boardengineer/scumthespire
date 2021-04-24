@@ -94,6 +94,8 @@ public class FastActionsPatch {
         add(MegaSpeechBubble.class);
         add(MegaDialogTextEffect.class);
         add(ThoughtBubble.class);
+        add(ShowCardAndObtainEffect.class);
+        add(GenericSmokeEffect.class);
 
         // Important stuff happens during construction so we don't have to update, just remove
         add(ShowCardAndAddToDiscardEffect.class);
