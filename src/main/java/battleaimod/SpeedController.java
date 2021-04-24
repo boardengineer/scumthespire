@@ -174,12 +174,13 @@ public class SpeedController implements PreUpdateSubscriber {
             } else if (action instanceof DiscardAtEndOfTurnAction) {
                 actions.remove(i);
                 actions.add(i, new DiscardAtEndOfTurnActionFast());
-            } else if (action instanceof RollMoveAction) {
-                AbstractMonster monster = ReflectionHacks
-                        .getPrivate(action, RollMoveAction.class, "monster");
-                actions.remove(i);
-                actions.add(i, new RollMoveActionFast(monster));
             }
+//            else if (action instanceof RollMoveAction) {
+//                AbstractMonster monster = ReflectionHacks
+//                        .getPrivate(action, RollMoveAction.class, "monster");
+//                actions.remove(i);
+//                actions.add(i, new RollMoveActionFast(monster));
+//            }
         }
     }
 }

@@ -61,7 +61,11 @@ public class TurnNode implements Comparable<TurnNode> {
             return false;
         }
 
-        if (curState != startingState && curState.lastCommand instanceof EndCommand) {
+        if (curState.saveState == null) {
+            curState.saveState = new SaveState();
+        }
+
+        if (curState != startingState && isNewTurn(curState)) {
             controller.turnsLoaded++;
             controller.addRuntime("turnsLoaded", 1);
             TurnNode toAdd = new TurnNode(curState, controller, this);
@@ -72,10 +76,6 @@ public class TurnNode implements Comparable<TurnNode> {
             }
 
             runningCommands = false;
-            if (curState.saveState == null) {
-                curState.saveState = new SaveState();
-            }
-
             ((EndCommand) curState.lastCommand).stateDebugInfo = new StateDebugInfo(curState.saveState);
 
 //            if (controller.bestTurn == null || controller.bestTurn.startingState.saveState.turn < curState.saveState.turn || (controller.bestTurn.startingState.saveState.turn == curState.saveState.turn && this
@@ -211,5 +211,9 @@ public class TurnNode implements Comparable<TurnNode> {
 
     public boolean isBetterThan(TurnNode other) {
         return compareTo(other) < 0;
+    }
+
+    private boolean isNewTurn(StateNode childNode) {
+        return childNode.saveState.turn > this.startingState.saveState.turn;
     }
 }

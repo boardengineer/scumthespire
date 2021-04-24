@@ -51,10 +51,7 @@ import com.megacrit.cardcrawl.screens.CombatRewardScreen;
 import com.megacrit.cardcrawl.screens.DeathScreen;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
 import com.megacrit.cardcrawl.vfx.*;
-import com.megacrit.cardcrawl.vfx.cardManip.ExhaustCardEffect;
-import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
-import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDrawPileEffect;
-import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
+import com.megacrit.cardcrawl.vfx.cardManip.*;
 import com.megacrit.cardcrawl.vfx.combat.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -92,10 +89,16 @@ public class FastActionsPatch {
         add(SpeechBubble.class);
         add(BorderFlashEffect.class);
         add(RelicAboveCreatureEffect.class);
+        add(GainPennyEffect.class);
+        add(ExhaustPileParticle.class);
+        add(MegaSpeechBubble.class);
+        add(MegaDialogTextEffect.class);
+        add(ThoughtBubble.class);
 
         // Important stuff happens during construction so we don't have to update, just remove
         add(ShowCardAndAddToDiscardEffect.class);
         add(ShowCardAndAddToDrawPileEffect.class);
+        add(ShowCardAndAddToHandEffect.class);
 
         add(CardPoofEffect.class);
     }};

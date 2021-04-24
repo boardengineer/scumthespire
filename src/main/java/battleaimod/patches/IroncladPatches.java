@@ -31,6 +31,7 @@ public class IroncladPatches {
         public static SpireReturn Prefix(Ironclad _instance, DamageInfo info) {
             if (shouldGoFast()) {
                 startEffect = System.currentTimeMillis();
+//                System.err.println(info.base + " " + info.type);
                 return SpireReturn.Continue();
             }
             return SpireReturn.Continue();

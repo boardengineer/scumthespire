@@ -145,4 +145,18 @@ public class CardPatches {
             return SpireReturn.Continue();
         }
     }
+
+//    @SpirePatch(
+//            clz = Pain.class,
+//            paramtypez = {AbstractCard.class},
+//            method = "triggerOnOtherCardPlayed"
+//    )
+//    public static class PainPatch {
+//        public static SpireReturn Prefix(AbstractCard _instance, AbstractCard c) {
+//            if (shouldGoFast()) {
+//                System.err.println("Trigger pain");
+//            }
+//            return SpireReturn.Continue();
+//        }
+//    }
 }

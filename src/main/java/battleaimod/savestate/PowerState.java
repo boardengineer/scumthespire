@@ -67,11 +67,12 @@ public class PowerState {
         }
 
         if (power instanceof ConstrictedPower) {
-            AbstractCreature source = ReflectionHacks.getPrivate(power, ConstrictedPower.class, "source");
+            AbstractCreature source = ReflectionHacks
+                    .getPrivate(power, ConstrictedPower.class, "source");
 
             int foundIndex = 0;
-            for(int i = 0; i < AbstractDungeon.getMonsters().monsters.size(); i++) {
-                if(source == AbstractDungeon.getMonsters().monsters.get(i)) {
+            for (int i = 0; i < AbstractDungeon.getMonsters().monsters.size(); i++) {
+                if (source == AbstractDungeon.getMonsters().monsters.get(i)) {
                     foundIndex = i;
                     break;
                 }
@@ -240,6 +241,10 @@ public class PowerState {
             result = new ReactivePower(targetAndSource);
         } else if (powerId.equals("Constricted")) {
             result = new ConstrictedPower(targetAndSource, null, amount);
+        } else if (powerId.equals("No Draw")) {
+            result = new NoDrawPower(targetAndSource);
+        } else if (powerId.equals("Mayhem")) {
+            result = new MayhemPower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

@@ -131,7 +131,11 @@ public abstract class MonsterState extends CreatureState {
 
     public void populateSharedFields(AbstractMonster monster) {
         super.loadCreature(monster);
-        monster.init();
+
+        if(!shouldGoFast()) {
+            monster.showHealthBar();
+            monster.healthBarUpdatedEvent();
+        }
 
         monster.deathTimer = this.deathTimer;
         monster.tintFadeOutCalled = this.tintFadeOutCalled;

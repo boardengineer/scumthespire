@@ -99,4 +99,21 @@ public class BookOfStabbingState extends MonsterState {
             return SpireReturn.Continue();
         }
     }
+
+    @SpirePatch(
+            clz = BookOfStabbing.class,
+            paramtypez = {int.class},
+            method = "getMove"
+    )
+    public static class SpyOnStabCountFix {
+        public static void Postfix(BookOfStabbing _instance, int num) {
+            if(!shouldGoFast())
+            {
+                int stabCount = ReflectionHacks
+                        .getPrivate(_instance, BookOfStabbing.class, "stabCount");
+
+                System.err.println("Going up to " + stabCount + " Stabs");
+            }
+        }
+    }
 }
