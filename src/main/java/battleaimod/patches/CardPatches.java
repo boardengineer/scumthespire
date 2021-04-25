@@ -190,6 +190,20 @@ public class CardPatches {
         }
     }
 
+//    @SpirePatch(
+//            clz = FiendFireAction.class,
+//            paramtypez = {},
+//            method = "update"
+//    )
+//    public static class FiendFirePatch {
+//        public static SpireReturn Prefix(FiendFireAction _instance) {
+//            if (shouldGoFast()) {
+//                System.err.println("doing fiend fire");
+//            }
+//            return SpireReturn.Continue();
+//        }
+//    }
+
     @SpirePatch(
             clz = AbstractPlayer.class,
             paramtypez = {AbstractCard.class},

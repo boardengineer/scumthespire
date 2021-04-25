@@ -56,7 +56,10 @@ import com.megacrit.cardcrawl.vfx.combat.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
@@ -138,9 +141,7 @@ public class FastActionsPatch {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
 
-                    System.err.println("Starting loop " + actionManager.phase);
                     while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
-//                        System.err.println("Starting loop iteration" + actionManager.phase);
                         long startTime = System.currentTimeMillis();
 
                         clearEffects(AbstractDungeon.topLevelEffects);
@@ -152,7 +153,6 @@ public class FastActionsPatch {
 
                         if (shouldWaitOnActions(actionManager)) {
                             while (actionManager.currentAction != null && !actionManager.currentAction.isDone) {
-//                                System.err.println(actionManager.currentAction);
                                 if (actionManager.currentAction instanceof RollMoveAction) {
                                     AbstractMonster monster = ReflectionHacks
                                             .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
@@ -380,7 +380,14 @@ public class FastActionsPatch {
     }
 
     private static boolean shouldStepAiController() {
-        return BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.isDone && BattleAiMod.readyForUpdate && actionManager.phase == GameActionManager.Phase.WAITING_ON_USER && !BattleAiMod.battleAiController.runCommandMode;
+        return BattleAiMod.battleAiController != null &&
+                !BattleAiMod.battleAiController.isDone &&
+                actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
+                !BattleAiMod.battleAiController.runCommandMode &&
+                actionManager.currentAction == null &&
+                actionManager.actions.isEmpty() &&
+                actionManager.cardQueue.isEmpty() &&
+                !actionManager.usingCard;
     }
 
     private static boolean shouldWaitOnActions(GameActionManager actionManager) {

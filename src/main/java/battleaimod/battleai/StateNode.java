@@ -123,7 +123,7 @@ public class StateNode {
             if (card.target == AbstractCard.CardTarget.ENEMY || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
                 for (int j = 0; j < monsters.size(); j++) {
                     AbstractMonster monster = monsters.get(j);
-                    if (card.canUse(player, monster)) {
+                    if (card.canUse(player, monster) && !monster.isDeadOrEscaped()) {
                         commands.add(0, new CardCommand(i, j, card.cardID));
                     }
                 }

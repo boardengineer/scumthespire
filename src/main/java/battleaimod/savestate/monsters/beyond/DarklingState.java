@@ -15,13 +15,13 @@ import com.megacrit.cardcrawl.monsters.beyond.Darkling;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
-public class DarklinkState extends MonsterState {
+public class DarklingState extends MonsterState {
     private final int chompDmg;
     private final int nipDmg;
 
     private final boolean firstMove;
 
-    public DarklinkState(AbstractMonster monster) {
+    public DarklingState(AbstractMonster monster) {
         super(monster);
 
         this.chompDmg = ReflectionHacks.getPrivate(monster, Darkling.class, "chompDmg");
@@ -32,7 +32,7 @@ public class DarklinkState extends MonsterState {
         monsterTypeNumber = Monster.DARKLING.ordinal();
     }
 
-    public DarklinkState(String jsonString) {
+    public DarklingState(String jsonString) {
         super(jsonString);
 
         // TODO don't parse twice

@@ -59,7 +59,7 @@ public enum Monster {
     EXPLODER("Exploder", monster -> new ExploderState(monster), json -> new ExploderState(json)),
     REPULSOR("Repulsor", monster -> new RepulsorState(monster), json -> new RepulsorState(json)),
     SPIKER("Spiker", monster -> new SpikerState(monster), json -> new SpikerState(json)),
-    DARKLING("Darkling", monster -> new DarklinkState(monster), json -> new DarklinkState(json)),
+    DARKLING("Darkling", monster -> new DarklingState(monster), json -> new DarklingState(json)),
     ORG_WALKER("Orb Walker", monster -> new OrbWalkerState(monster), json -> new OrbWalkerState(json)),
     TRANSIENT("Transient", monster -> new TransientState(monster), json -> new TransientState(json)),
     NEMESIS("Nemesis", monster -> new NemesisState(monster), json -> new NemesisState(json)),
