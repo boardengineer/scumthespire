@@ -1,6 +1,5 @@
 package battleaimod.savestate;
 
-import battleaimod.BattleAiMod;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.cards.AbstractCard;
@@ -20,6 +19,7 @@ public class CardState {
     private final boolean inBottleTornado;
     private final boolean inBottleLightning;
     private final boolean inBottleFlame;
+    private final boolean isCostModifiedForTurn;
 
     // Everything works without these, there is just s wonky 'draw' animation that can be avoided
     // by setting all the physical properies right away
@@ -61,6 +61,7 @@ public class CardState {
         this.targetDrawScale = card.targetDrawScale;
         this.name = card.name;
         this.uuid = card.uuid;
+        this.isCostModifiedForTurn = card.isCostModifiedForTurn;
     }
 
     public CardState(String jsonString) {
@@ -79,6 +80,7 @@ public class CardState {
         this.name = parsed.get("name").getAsString();
         this.uuid = UUID.fromString(parsed.get("uuid").getAsString());
         this.freeToPlayOnce = parsed.get("free_to_play_once").getAsBoolean();
+        this.isCostModifiedForTurn = parsed.get("is_cost_modified_for_turn").getAsBoolean();
 
         // TODO
         this.current_x = 0;
@@ -95,21 +97,7 @@ public class CardState {
     }
 
     public AbstractCard loadCard() {
-        long loadStartTime = System.currentTimeMillis();
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Card Lookup " + cardId, (System
-                    .currentTimeMillis() - loadStartTime));
-        }
-
         AbstractCard result = CardLibrary.getCard(cardId).makeCopy();
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.playerLoadTime += (System
-                    .currentTimeMillis() - loadStartTime);
-            BattleAiMod.battleAiController.addRuntime("Card " + cardId, (System
-                    .currentTimeMillis() - loadStartTime));
-        }
 
         if (upgraded) {
             result.upgrade();
@@ -138,6 +126,7 @@ public class CardState {
 
         result.uuid = uuid;
         result.freeToPlayOnce = freeToPlayOnce;
+        result.isCostModifiedForTurn = isCostModifiedForTurn;
 
         return result;
     }
@@ -160,6 +149,7 @@ public class CardState {
         cardStateJson.addProperty("name", name);
         cardStateJson.addProperty("free_to_play_once", freeToPlayOnce);
         cardStateJson.addProperty("uuid", uuid.toString());
+        cardStateJson.addProperty("is_cost_modified_for_turn", isCostModifiedForTurn);
 
         return cardStateJson.toString();
     }

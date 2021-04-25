@@ -17,7 +17,6 @@ import com.megacrit.cardcrawl.core.EnergyManager;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Sentry;
 import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
-import com.megacrit.cardcrawl.vfx.PlayerTurnEffect;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
@@ -110,62 +109,17 @@ public class SentryState extends MonsterState {
     }
 
     @SpirePatch(
-            clz = PlayerTurnEffect.class,
-            paramtypez = {},
-            method = SpirePatch.CONSTRUCTOR
-    )
-    public static class SpyOnPlayerTurnEffectPatch {
-        static long startEffect = 0;
-
-        public static SpireReturn Prefix(PlayerTurnEffect _instance) {
-            if (shouldGoFast()) {
-                startEffect = System.currentTimeMillis();
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(PlayerTurnEffect _instance) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController
-                            .addRuntime("PlayerTurnEffect", System
-                                    .currentTimeMillis() - startEffect);
-                }
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
             clz = EnergyManager.class,
             paramtypez = {},
             method = "recharge"
     )
     public static class SpyOnRecharrgePatch {
-        static long startEffect = 0;
-
         public static SpireReturn Prefix(EnergyManager _instance) {
             if (shouldGoFast()) {
-                startEffect = System.currentTimeMillis();
-
                 // TODO add conserver effects
                 EnergyPanel.setEnergy(_instance.energy);
 
                 return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(EnergyManager _instance) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController
-                            .addRuntime("EnergyManager-recharge", System
-                                    .currentTimeMillis() - startEffect);
-                }
-                return SpireReturn.Continue();
             }
             return SpireReturn.Continue();
         }

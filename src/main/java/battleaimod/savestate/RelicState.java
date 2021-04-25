@@ -24,6 +24,8 @@ public class RelicState {
 
     private final boolean lanternFirstTurn;
 
+    private final boolean pocketwatchFirstTurn;
+
     private final boolean centennialPuzzleUsedThisCombat;
 
     public RelicState(AbstractRelic relic) {
@@ -82,6 +84,15 @@ public class RelicState {
             this.unceasingTopDisabledUntilEndOfTurn = false;
             this.unceasingTopCanDraw = false;
         }
+
+        if (relic instanceof Pocketwatch) {
+            this.pocketwatchFirstTurn = ReflectionHacks
+                    .getPrivate(relic, Pocketwatch.class, "firstTurn");
+        } else {
+            this.pocketwatchFirstTurn = false;
+        }
+
+        MummifiedHand hand;
     }
 
     public RelicState(String jsonString) {
@@ -105,6 +116,7 @@ public class RelicState {
         this.unceasingTopDisabledUntilEndOfTurn = parsed
                 .get("unceasing_top_disabled_until_end_of_turn").getAsBoolean();
         this.unceasingTopCanDraw = parsed.get("unceasing_top_can_draw").getAsBoolean();
+        this.pocketwatchFirstTurn = parsed.get("pocketwatch_first_turn").getAsBoolean();
     }
 
     public AbstractRelic loadRelic() {
@@ -155,6 +167,11 @@ public class RelicState {
                     .setPrivate(result, UnceasingTop.class, "disabledUntilEndOfTurn", unceasingTopDisabledUntilEndOfTurn);
         }
 
+        if (result instanceof Pocketwatch) {
+            ReflectionHacks
+                    .setPrivate(result, Pocketwatch.class, "firstTurn", pocketwatchFirstTurn);
+        }
+
         return result;
     }
 
@@ -180,6 +197,8 @@ public class RelicState {
         relicStateJson.addProperty("unceasing_top_can_draw", unceasingTopCanDraw);
         relicStateJson
                 .addProperty("unceasing_top_disabled_until_end_of_turn", unceasingTopDisabledUntilEndOfTurn);
+
+        relicStateJson.addProperty("pocketwatch_first_turn", pocketwatchFirstTurn);
 
         return relicStateJson.toString();
     }

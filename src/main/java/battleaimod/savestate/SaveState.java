@@ -29,6 +29,7 @@ public class SaveState {
     ListState listState;
     public PlayerState playerState;
     RngState rngState;
+    private final int ascensionLevel;
 
     public MapRoomNodeState curMapNodeState;
 
@@ -47,6 +48,7 @@ public class SaveState {
         previousPhase = GameStateListener.previousPhase;
         myTurn = GameStateListener.myTurn;
         encounterName = BattleAiController.currentEncounter;
+        this.ascensionLevel = AbstractDungeon.ascensionLevel;
     }
 
     public SaveState(String jsonString) {
@@ -73,11 +75,13 @@ public class SaveState {
 
         this.curMapNodeState = new MapRoomNodeState(parsed.get("cur_map_node_state").getAsString());
         this.isScreenUp = parsed.get("is_screen_up").getAsBoolean();
+        this.ascensionLevel = parsed.get("ascension_level").getAsInt();
     }
 
     public void loadState() {
         long loadStartTime = System.currentTimeMillis();
 
+        AbstractDungeon.ascensionLevel = this.ascensionLevel;
         GameActionManager.turn = this.turn;
         AbstractDungeon.player = playerState.loadPlayer();
 
@@ -176,6 +180,7 @@ public class SaveState {
         saveStateJson.addProperty("cur_map_node_state", curMapNodeState.encode());
         saveStateJson.addProperty("encounter_name", encounterName);
         saveStateJson.addProperty("is_screen_up", isScreenUp);
+        saveStateJson.addProperty("ascension_level", ascensionLevel);
 
         return saveStateJson.toString();
     }

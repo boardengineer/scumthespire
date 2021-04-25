@@ -1,7 +1,6 @@
 package battleaimod.patches;
 
 import basemod.ReflectionHacks;
-import battleaimod.BattleAiMod;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -29,8 +28,6 @@ public class CardPatches {
         @SpireInsertPatch(loc = 391)
         public static SpireReturn Insert(AbstractCard _instance, String id, String name, String imgUrl, int cost, String rawDescription, AbstractCard.CardType type, AbstractCard.CardColor color, AbstractCard.CardRarity rarity, AbstractCard.CardTarget target, DamageInfo.DamageType dType) {
             if (shouldGoFast()) {
-                long loadStartTime = System.currentTimeMillis();
-
                 _instance.originalName = name;
                 _instance.name = name;
                 _instance.cardID = id;
@@ -46,11 +43,6 @@ public class CardPatches {
                 ReflectionHacks.setPrivate(_instance, AbstractCard.class, "damageType", dType);
                 _instance.damageTypeForTurn = dType;
                 _instance.uuid = UUID.randomUUID();
-
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController.addRuntime("Constructor time Card " + id, (System
-                            .currentTimeMillis() - loadStartTime));
-                }
 
                 return SpireReturn.Return(null);
 

@@ -47,12 +47,6 @@ public class NoLoggerMummifiedHand extends AbstractRelic {
                 AbstractCard c = null;
                 if (groupCopy.isEmpty()) {
                 } else {
-                    Iterator var9 = groupCopy.iterator();
-
-                    while (var9.hasNext()) {
-                        AbstractCard cc = (AbstractCard) var9.next();
-                    }
-
                     c = groupCopy
                             .get(AbstractDungeon.cardRandomRng.random(0, groupCopy.size() - 1));
                 }
