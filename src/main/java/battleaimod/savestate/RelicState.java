@@ -17,6 +17,9 @@ public class RelicState {
     private final boolean necronomiconActivated;
     private final boolean gamblingChipActivated;
 
+    private final boolean unceasingTopCanDraw;
+    private final boolean unceasingTopDisabledUntilEndOfTurn;
+
     private final boolean redSkullIsActive;
 
     private final boolean lanternFirstTurn;
@@ -26,6 +29,7 @@ public class RelicState {
     public RelicState(AbstractRelic relic) {
         this.relicId = relic.relicId;
         this.counter = relic.counter;
+
         this.grayscale = relic.grayscale;
 
         if (relic instanceof Orichalcum) {
@@ -62,11 +66,21 @@ public class RelicState {
             this.centennialPuzzleUsedThisCombat = false;
         }
 
-        if(relic instanceof GamblingChip) {
+        if (relic instanceof GamblingChip) {
             this.gamblingChipActivated = ReflectionHacks
                     .getPrivate(relic, GamblingChip.class, "activated");
         } else {
             this.gamblingChipActivated = false;
+        }
+
+        if (relic instanceof UnceasingTop) {
+            this.unceasingTopDisabledUntilEndOfTurn = ReflectionHacks
+                    .getPrivate(relic, UnceasingTop.class, "disabledUntilEndOfTurn");
+            this.unceasingTopCanDraw = ReflectionHacks
+                    .getPrivate(relic, UnceasingTop.class, "canDraw");
+        } else {
+            this.unceasingTopDisabledUntilEndOfTurn = false;
+            this.unceasingTopCanDraw = false;
         }
     }
 
@@ -88,6 +102,9 @@ public class RelicState {
         this.centennialPuzzleUsedThisCombat = parsed.get("centennial_puzzle_used_this_combat")
                                                     .getAsBoolean();
         this.gamblingChipActivated = parsed.get("gambling_chip_activated").getAsBoolean();
+        this.unceasingTopDisabledUntilEndOfTurn = parsed
+                .get("unceasing_top_disabled_until_end_of_turn").getAsBoolean();
+        this.unceasingTopCanDraw = parsed.get("unceasing_top_can_draw").getAsBoolean();
     }
 
     public AbstractRelic loadRelic() {
@@ -126,9 +143,16 @@ public class RelicState {
                     .setPrivate(result, CentennialPuzzle.class, "usedThisCombat", centennialPuzzleUsedThisCombat);
         }
 
-        if(result instanceof GamblingChip) {
+        if (result instanceof GamblingChip) {
             ReflectionHacks
                     .setPrivate(result, GamblingChip.class, "activated", gamblingChipActivated);
+        }
+
+        if (result instanceof UnceasingTop) {
+            ReflectionHacks
+                    .setPrivate(result, UnceasingTop.class, "canDraw", unceasingTopCanDraw);
+            ReflectionHacks
+                    .setPrivate(result, UnceasingTop.class, "disabledUntilEndOfTurn", unceasingTopDisabledUntilEndOfTurn);
         }
 
         return result;
@@ -152,6 +176,10 @@ public class RelicState {
                 .addProperty("centennial_puzzle_used_this_combat", centennialPuzzleUsedThisCombat);
 
         relicStateJson.addProperty("gambling_chip_activated", gamblingChipActivated);
+
+        relicStateJson.addProperty("unceasing_top_can_draw", unceasingTopCanDraw);
+        relicStateJson
+                .addProperty("unceasing_top_disabled_until_end_of_turn", unceasingTopDisabledUntilEndOfTurn);
 
         return relicStateJson.toString();
     }
