@@ -1,6 +1,7 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
@@ -44,6 +45,8 @@ public class PlayerState extends CreatureState {
     private final ArrayList<CardState> exhaustPile;
     private final ArrayList<CardState> limbo;
 
+    private final ArrayList<PotionState> potions;
+
     private final ArrayList<RelicState> relics;
 
     public PlayerState(AbstractPlayer player) {
@@ -72,6 +75,9 @@ public class PlayerState extends CreatureState {
         this.relics = player.relics.stream().map(RelicState::new)
                                    .collect(Collectors.toCollection(ArrayList::new));
 
+        this.potions = player.potions.stream().map(PotionState::new)
+                                     .collect(Collectors.toCollection(ArrayList::new));
+
         this.energyManagerEnergy = player.energy.energy;
         this.energyPanelTotalEnergy = EnergyPanel.totalCount;
 
@@ -87,6 +93,7 @@ public class PlayerState extends CreatureState {
 
         this.inspectHb = player.inspectHb == null ? null : new HitboxState(player.inspectHb);
         this.damagedThisCombat = player.damagedThisCombat;
+
 
         this.title = player.title;
     }
@@ -126,6 +133,10 @@ public class PlayerState extends CreatureState {
                             .filter(s -> !s.isEmpty()).map(RelicState::new)
                             .collect(Collectors.toCollection(ArrayList::new));
 
+        this.potions = new ArrayList<>();
+        parsed.get("potions").getAsJsonArray().forEach(potionElement -> this.potions
+                .add(new PotionState(potionElement.getAsString())));
+
         //TODO
         this.isDead = false;
         this.renderCorpse = false;
@@ -162,6 +173,12 @@ public class PlayerState extends CreatureState {
 
         player.relics = this.relics.stream().map(RelicState::loadRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
+
+        player.potions = this.potions.stream().map(PotionState::loadPotion)
+                                     .collect(Collectors.toCollection(ArrayList::new));
+        for (int i = 0; i < player.potions.size(); i++) {
+            player.potions.get(i).setAsObtained(i);
+        }
 
         if (!shouldGoFast()) {
             AbstractDungeon.topPanel.adjustRelicHbs();
@@ -251,6 +268,12 @@ public class PlayerState extends CreatureState {
 
         playerStateJson.addProperty("relics", relics.stream().map(RelicState::encode)
                                                     .collect(Collectors.joining(RELIC_DELIMETER)));
+
+        JsonArray potionArray = new JsonArray();
+        for (PotionState potion : potions) {
+            potionArray.add(potion.encode());
+        }
+        playerStateJson.add("potions", potionArray);
 
         return playerStateJson.toString();
     }
