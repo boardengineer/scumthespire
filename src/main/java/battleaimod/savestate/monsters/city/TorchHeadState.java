@@ -6,6 +6,7 @@ import battleaimod.savestate.MonsterState;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.TorchHead;
 
@@ -40,6 +41,12 @@ public class TorchHeadState extends MonsterState {
         @SpireInsertPatch(loc = 40)
         public static SpireReturn TorchHead(TorchHead _instance, float x, float y) {
             if (shouldGoFast()) {
+                if (AbstractDungeon.ascensionLevel >= 9) {
+                    MonsterState.setHp(_instance, 40, 45);
+                } else {
+                    MonsterState.setHp(_instance, 38, 40);
+                }
+
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

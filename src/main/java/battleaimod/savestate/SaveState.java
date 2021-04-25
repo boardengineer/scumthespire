@@ -15,6 +15,7 @@ import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class SaveState {
+    private final boolean isScreenUp;
     int floorNum;
     boolean previousScreenUp;
     boolean myTurn = false;
@@ -42,6 +43,7 @@ public class SaveState {
         this.turn = GameActionManager.turn;
         previousScreen = GameStateListener.previousScreen;
         previousScreenUp = GameStateListener.previousScreenUp;
+        this.isScreenUp = AbstractDungeon.isScreenUp;
         previousPhase = GameStateListener.previousPhase;
         myTurn = GameStateListener.myTurn;
         encounterName = BattleAiController.currentEncounter;
@@ -70,6 +72,7 @@ public class SaveState {
         this.rngState = new RngState(parsed.get("rng_state").getAsString());
 
         this.curMapNodeState = new MapRoomNodeState(parsed.get("cur_map_node_state").getAsString());
+        this.isScreenUp = parsed.get("is_screen_up").getAsBoolean();
     }
 
     public void loadState() {
@@ -97,7 +100,7 @@ public class SaveState {
 
         AbstractDungeon.screen = screen;
 
-        AbstractDungeon.isScreenUp = false;
+//        AbstractDungeon.isScreenUp = false;
         listState.loadLists();
 
         AbstractDungeon.dungeonMapScreen.close();
@@ -105,6 +108,7 @@ public class SaveState {
         AbstractDungeon.screen = AbstractDungeon.CurrentScreen.NONE;
 
         AbstractDungeon.floorNum = floorNum;
+        AbstractDungeon.isScreenUp = isScreenUp;
 
         BattleAiMod.readyForUpdate = true;
 
@@ -171,6 +175,7 @@ public class SaveState {
 
         saveStateJson.addProperty("cur_map_node_state", curMapNodeState.encode());
         saveStateJson.addProperty("encounter_name", encounterName);
+        saveStateJson.addProperty("is_screen_up", isScreenUp);
 
         return saveStateJson.toString();
     }

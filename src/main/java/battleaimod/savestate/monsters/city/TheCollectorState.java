@@ -101,4 +101,18 @@ public class TheCollectorState extends MonsterState {
             return SpireReturn.Continue();
         }
     }
+
+//    @SpirePatch(
+//            clz = TheCollector.class,
+//            paramtypez = {},
+//            method = "takeTurn"
+//    )
+//    public static class SpyOnCollectorTurnPatch {
+//        public static void Prefix(TheCollector _instance) {
+//            if (shouldGoFast()) {
+//                System.err.printf("%s %s\n", _instance.nextMove, AbstractDungeon
+//                        .getCurrRoom().monsters.monsters.size());
+//            }
+//        }
+//    }
 }

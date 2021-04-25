@@ -63,7 +63,7 @@ public class StateNode {
 
             int damage = controller.startingHealth - saveState.getPlayerHealth();
 
-            boolean isBattleOver = !shouldLookForPlay();
+            boolean isBattleOver = isBattleOver();
             if (!isBattleOver && damage < (controller.minDamage + 6)) {
                 commandIndex = 0;
             } else {
@@ -96,6 +96,10 @@ public class StateNode {
 
     private boolean shouldLookForPlay() {
         return shouldCheckForPlays() || isEndCommandAvailable();
+    }
+
+    private boolean isBattleOver() {
+        return AbstractDungeon.getCurrRoom().monsters.areMonstersBasicallyDead();
     }
 
     private void populateCommands() {

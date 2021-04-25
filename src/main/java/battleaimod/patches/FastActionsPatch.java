@@ -96,6 +96,7 @@ public class FastActionsPatch {
         add(ThoughtBubble.class);
         add(ShowCardAndObtainEffect.class);
         add(GenericSmokeEffect.class);
+        add(MoveNameEffect.class);
 
         // Important stuff happens during construction so we don't have to update, just remove
         add(ShowCardAndAddToDiscardEffect.class);
@@ -136,91 +137,55 @@ public class FastActionsPatch {
             if (shouldGoFast()) {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
+
+                    System.err.println("Starting loop " + actionManager.phase);
                     while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
+//                        System.err.println("Starting loop iteration" + actionManager.phase);
                         long startTime = System.currentTimeMillis();
 
                         clearEffects(AbstractDungeon.topLevelEffects);
                         clearEffects(AbstractDungeon.effectList);
                         clearEffects(AbstractDungeon.effectsQueue);
 
-//
-//                        AbstractDungeon.effectList.clear();
-//                        AbstractDungeon.effectsQueue.clear();
-//                        AbstractDungeon.topLevelEffects.clear();
-
-//                        AbstractDungeon.topLevelEffects.clear();
-//                        AbstractDungeon.effectList.clear();
-//                        while (!AbstractDungeon.effectList.isEmpty()) {
-//                            Iterator<AbstractGameEffect> effects = AbstractDungeon.effectList
-//                                    .iterator();
-//                            while (effects.hasNext()) {
-//                                AbstractGameEffect effect = effects.next();
-//                                effect.update();
-//                                if (effect.isDone) {
-//                                    effects.remove();
-//                                }
-//                            }
-//                        }
-
-//                        while (!AbstractDungeon.topLevelEffects.isEmpty()) {
-//                            Iterator<AbstractGameEffect> effects = AbstractDungeon.topLevelEffects
-//                                    .iterator();
-//                            while (effects.hasNext()) {
-//                                AbstractGameEffect effect = effects.next();
-//                                effect.update();
-//                                if (effect.isDone) {
-//                                    effects.remove();
-//                                }
-//                            }
-//                        }
-
-//                        AbstractDungeon.effectsQueue.clear();
-//                        while (!AbstractDungeon.effectsQueue.isEmpty()) {
-//                            Iterator<AbstractGameEffect> effects = AbstractDungeon.effectsQueue
-//                                    .iterator();
-//                            while (effects.hasNext()) {
-//                                AbstractGameEffect effect = effects.next();
-//                                effect.update();
-//                                if (effect.isDone) {
-//                                    effects.remove();
-//                                }
-//                            }
-//                        }
-
                         // TODO this is going to have consequences
                         actionManager.cardsPlayedThisCombat.clear();
 
-
                         if (shouldWaitOnActions(actionManager)) {
-                            if (actionManager.currentAction instanceof RollMoveAction) {
-                                AbstractMonster monster = ReflectionHacks
-                                        .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
-                                actionManager.currentAction = new RollMoveActionFast(monster);
-                            } else if (actionManager.currentAction instanceof DrawCardAction) {
-                                actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
-                            } else if (actionManager.currentAction instanceof SetAnimationAction) {
-                                actionManager.currentAction = null;
-                            } else if (actionManager.currentAction instanceof ShowMoveNameAction) {
-                                actionManager.currentAction = null;
-                            }
-                            if (actionManager.currentAction != null) {
-                                Class actionClass = actionManager.currentAction.getClass();
-                                actionManager.currentAction.update();
-                                if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.actionClassTimes != null) {
-                                    long timeThisAction = (System
-                                            .currentTimeMillis() - startTime);
-                                    BattleAiMod.battleAiController
-                                            .addRuntime("Actions", timeThisAction);
-                                    HashMap<Class, Long> actionClassTimes = BattleAiMod.battleAiController.actionClassTimes;
-                                    if (actionClassTimes != null) {
-                                        if (actionClassTimes.containsKey(actionClass)) {
-                                            actionClassTimes.put(actionClass, actionClassTimes
-                                                    .get(actionClass) + timeThisAction);
-                                        } else {
-                                            actionClassTimes.put(actionClass, timeThisAction);
-                                        }
-                                    }
+                            while (actionManager.currentAction != null && !actionManager.currentAction.isDone) {
+//                                System.err.println(actionManager.currentAction);
+                                if (actionManager.currentAction instanceof RollMoveAction) {
+                                    AbstractMonster monster = ReflectionHacks
+                                            .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
+                                    actionManager.currentAction = new RollMoveActionFast(monster);
+                                } else if (actionManager.currentAction instanceof DrawCardAction) {
+                                    actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
+                                } else if (actionManager.currentAction instanceof SetAnimationAction) {
+                                    actionManager.currentAction = null;
+                                } else if (actionManager.currentAction instanceof ShowMoveNameAction) {
+                                    actionManager.currentAction = null;
+                                } else if (actionManager.currentAction instanceof WaitAction) {
+                                    actionManager.currentAction = null;
                                 }
+                                if (actionManager.currentAction != null) {
+                                    Class actionClass = actionManager.currentAction.getClass();
+                                    actionManager.currentAction.update();
+//                                    if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.actionClassTimes != null) {
+//                                        long timeThisAction = (System
+//                                                .currentTimeMillis() - startTime);
+//                                        BattleAiMod.battleAiController
+//                                                .addRuntime("Actions", timeThisAction);
+//                                        HashMap<Class, Long> actionClassTimes = BattleAiMod.battleAiController.actionClassTimes;
+//                                        if (actionClassTimes != null) {
+//                                            if (actionClassTimes.containsKey(actionClass)) {
+//                                                actionClassTimes.put(actionClass, actionClassTimes
+//                                                        .get(actionClass) + timeThisAction);
+//                                            } else {
+//                                                actionClassTimes.put(actionClass, timeThisAction);
+//                                            }
+//                                        }
+//                                    }
+                                }
+                                actionManager.update();
                             }
                         } else if (shouldStepAiController()) {
                             long stepStartTime = System.currentTimeMillis();
@@ -234,6 +199,8 @@ public class FastActionsPatch {
 
                         long startRoomUpdate = System.currentTimeMillis();
 
+//                        System.err.println("Updating room");
+                        //actionManager.update();
                         roomUpdate();
 
                         if (BattleAiMod.battleAiController != null) {
@@ -1324,7 +1291,7 @@ public class FastActionsPatch {
             Class effectClass = iterator.next().getClass();
             if (BAD_EFFECTS.contains(effectClass)) {
                 iterator.remove();
-            } else if(!GOOD_EFFECTS.contains(effectClass)) {
+            } else if (!GOOD_EFFECTS.contains(effectClass)) {
                 System.err.println("Allowing unknown effect " + effectClass);
             }
         }

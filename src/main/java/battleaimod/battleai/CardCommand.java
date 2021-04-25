@@ -9,6 +9,10 @@ import com.megacrit.cardcrawl.cards.CardQueueItem;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
+import java.util.stream.Collectors;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
+
 public class CardCommand implements Command {
     private final int cardIndex;
     private final int monsterIndex;
@@ -44,12 +48,17 @@ public class CardCommand implements Command {
 
         if (monsterIndex != -1) {
             monster = AbstractDungeon.getMonsters().monsters.get(monsterIndex);
+            if (!shouldGoFast()) {
+                String allMonsters = AbstractDungeon.getMonsters().monsters.stream().map(m -> String
+                        .format("hp:%s\t", m.currentHealth)).collect(Collectors.joining());
+                System.err.println(allMonsters);
+            }
         }
 
         AbstractDungeon.actionManager.cardQueue.add(new CardQueueItem(card, monster));
 
 //        if (!shouldGoFast()) {
-            AbstractDungeon.actionManager.addToBottom(new WaitAction(.2F));
+        AbstractDungeon.actionManager.addToBottom(new WaitAction(.2F));
 //        }
 
         BattleAiMod.readyForUpdate = true;

@@ -71,7 +71,8 @@ public enum Monster {
     DONU("Donu", monster -> new DonuState(monster), json -> new DonuState(json)),
     DECA("Deca", monster -> new DecaState(monster), json -> new DecaState(json)),
     REPTOMANCER("Reptomancer", monster -> new ReptomancerState(monster), json -> new ReptomancerState(json)),
-    SNAKE_DAGGER("Dagger", monster -> new SnakerDaggerState(monster), json -> new SnakerDaggerState(json))
+    SNAKE_DAGGER("Dagger", monster -> new SnakerDaggerState(monster), json -> new SnakerDaggerState(json)),
+    TIME_EATER("TimeEater", monster -> new TimeEaterState(monster), json -> new TimeEaterState(json))
     ;
 
     public final String monsterId;

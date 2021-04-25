@@ -190,17 +190,17 @@ public class CardPatches {
         }
     }
 
-//    @SpirePatch(
-//            clz = Pain.class,
-//            paramtypez = {AbstractCard.class},
-//            method = "triggerOnOtherCardPlayed"
-//    )
-//    public static class PainPatch {
-//        public static SpireReturn Prefix(AbstractCard _instance, AbstractCard c) {
-//            if (shouldGoFast()) {
-//                System.err.println("Trigger pain");
-//            }
-//            return SpireReturn.Continue();
-//        }
-//    }
+    @SpirePatch(
+            clz = AbstractPlayer.class,
+            paramtypez = {AbstractCard.class},
+            method = "bottledCardUpgradeCheck"
+    )
+    public static class NoBottledDescriptionChangePatch {
+        public static SpireReturn Prefix(AbstractPlayer _instancem, AbstractCard card) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
 }

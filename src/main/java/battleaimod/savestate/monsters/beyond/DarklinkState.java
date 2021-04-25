@@ -19,11 +19,15 @@ public class DarklinkState extends MonsterState {
     private final int chompDmg;
     private final int nipDmg;
 
+    private final boolean firstMove;
+
     public DarklinkState(AbstractMonster monster) {
         super(monster);
 
         this.chompDmg = ReflectionHacks.getPrivate(monster, Darkling.class, "chompDmg");
         this.nipDmg = ReflectionHacks.getPrivate(monster, Darkling.class, "nipDmg");
+
+        this.firstMove = ReflectionHacks.getPrivate(monster, Darkling.class, "firstMove");
 
         monsterTypeNumber = Monster.DARKLING.ordinal();
     }
@@ -36,6 +40,7 @@ public class DarklinkState extends MonsterState {
 
         this.chompDmg = parsed.get("chomp_dmg").getAsInt();
         this.nipDmg = parsed.get("nip_dmg").getAsInt();
+        this.firstMove = parsed.get("fist_move").getAsBoolean();
 
         monsterTypeNumber = Monster.DARKLING.ordinal();
     }
@@ -48,6 +53,7 @@ public class DarklinkState extends MonsterState {
 
         ReflectionHacks.setPrivate(monster, Darkling.class, "chompDmg", chompDmg);
         ReflectionHacks.setPrivate(monster, Darkling.class, "nipDmg", nipDmg);
+        ReflectionHacks.setPrivate(monster, Darkling.class, "firstMove", firstMove);
 
         return monster;
     }
@@ -58,6 +64,7 @@ public class DarklinkState extends MonsterState {
 
         monsterStateJson.addProperty("chomp_dmg", chompDmg);
         monsterStateJson.addProperty("nip_dmg", nipDmg);
+        monsterStateJson.addProperty("fist_move", firstMove);
 
         return monsterStateJson.toString();
     }

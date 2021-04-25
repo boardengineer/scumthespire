@@ -9,7 +9,6 @@ import battleaimod.savestate.SaveState;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -57,12 +56,6 @@ public class AiServer {
 
                         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                         while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode) {
-                            if (AbstractDungeon.actionManager.currentAction != null) {
-                                System.err.println(AbstractDungeon.actionManager.currentAction);
-                            } else {
-                                System.err.println(AbstractDungeon.actionManager.phase);
-                            }
-
                             // Send update
                             JsonObject jsonToSend = new JsonObject();
 

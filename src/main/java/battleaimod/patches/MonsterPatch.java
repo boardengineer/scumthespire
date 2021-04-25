@@ -30,6 +30,7 @@ public class MonsterPatch {
         public static void Postfix(AbstractMonster _instance) {
             if (shouldGoFast()) {
                 _instance.deathTimer = .0000001F;
+                _instance.isDying = true;
                 _instance.isDead = true;
                 _instance.dispose();
             }
@@ -77,6 +78,7 @@ public class MonsterPatch {
         public static void Postfix(AbstractMonster _instance, boolean triggerRelics) {
             if (shouldGoFast()) {
                 _instance.deathTimer = .0000001F;
+                _instance.isDying = true;
                 _instance.isDead = true;
                 _instance.dispose();
             }
@@ -142,29 +144,14 @@ public class MonsterPatch {
     )
     public static class SpawnMonsterAnimationPatch {
         public static void Prefix(SpawnMonsterAction _instance) {
+            ReflectionHacks.setPrivate(_instance, SpawnMonsterAction.class, "targetSlot", -99);
+            ReflectionHacks
+                    .setPrivate(_instance, SpawnMonsterAction.class, "useSmartPositioning", false);
+
+
             if (shouldGoFast()) {
                 _instance.isDone = true;
             }
-        }
-    }
-
-    @SpirePatch(
-            clz = AbstractMonster.class,
-            paramtypez = {},
-            method = "update"
-    )
-    public static class NoUpdateMonstersPatch {
-        public static SpireReturn Prefix(AbstractMonster _instance) {
-//            if (shouldGoFast()) {
-//                if(_instance.isDying) {
-//                    _instance.isDead = true;
-//                    _instance.dispose();
-//                    _instance.powers.clear();
-//                }
-//
-//                return SpireReturn.Return(null);
-//            }
-            return SpireReturn.Continue();
         }
     }
 

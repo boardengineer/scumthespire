@@ -17,6 +17,8 @@ public class PowerState {
     private final int hpLoss;
 
     private final boolean ritualSkipFirst;
+    private final boolean intangibleJustApplied;
+    private final boolean drawReductionJustApplied;
 
     private final CardState stasisCard;
 
@@ -82,6 +84,20 @@ public class PowerState {
         } else {
             constrictedSourceIndex = 0;
         }
+
+        if (power instanceof IntangiblePower) {
+            this.intangibleJustApplied = ReflectionHacks
+                    .getPrivate(power, IntangiblePower.class, "justApplied");
+        } else {
+            this.intangibleJustApplied = false;
+        }
+
+        if(power instanceof DrawReductionPower) {
+            this.drawReductionJustApplied = ReflectionHacks
+                    .getPrivate(power, DrawReductionPower.class, "justApplied");
+        } else {
+            this.drawReductionJustApplied = false;
+        }
     }
 
     public PowerState(String jsonString) {
@@ -104,6 +120,9 @@ public class PowerState {
         this.flightStoredAmount = parsed.get("flight_stored_amount").getAsInt();
 
         this.constrictedSourceIndex = parsed.get("constricted_source_index").getAsInt();
+
+        this.intangibleJustApplied = parsed.get("intangible_just_applied").getAsBoolean();
+        this.drawReductionJustApplied = parsed.get("draw_reduction_just_applied").getAsBoolean();
 
         // TODO
         this.hpLoss = 0;
@@ -229,6 +248,8 @@ public class PowerState {
             result = new GainStrengthPower(targetAndSource, amount);
         } else if (powerId.equals("Intangible")) {
             result = new IntangiblePower(targetAndSource, amount);
+            ReflectionHacks
+                    .setPrivate(result, IntangiblePower.class, "justApplied", intangibleJustApplied);
         } else if (powerId.equals("Slow")) {
             result = new SlowPower(targetAndSource, amount);
         } else if (powerId.equals("Regenerate")) {
@@ -243,8 +264,16 @@ public class PowerState {
             result = new ConstrictedPower(targetAndSource, null, amount);
         } else if (powerId.equals("No Draw")) {
             result = new NoDrawPower(targetAndSource);
+            result.amount = amount;
         } else if (powerId.equals("Mayhem")) {
             result = new MayhemPower(targetAndSource, amount);
+        } else if (powerId.equals("Time Warp")) {
+            result = new TimeWarpPower(targetAndSource);
+            result.amount = amount;
+        } else if (powerId.equals("Draw Reduction")) {
+            result = new DrawReductionPower(targetAndSource, amount);
+            ReflectionHacks
+                    .setPrivate(result, DrawReductionPower.class, "justApplied", drawReductionJustApplied);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }
@@ -263,6 +292,8 @@ public class PowerState {
         powerStateJson.addProperty("malleable_base_power", malleableBasePower);
         powerStateJson.addProperty("flight_stored_amount", flightStoredAmount);
         powerStateJson.addProperty("constricted_source_index", constrictedSourceIndex);
+        powerStateJson.addProperty("intangible_just_applied", intangibleJustApplied);
+        powerStateJson.addProperty("draw_reduction_just_applied", drawReductionJustApplied);
 
         return powerStateJson.toString();
     }

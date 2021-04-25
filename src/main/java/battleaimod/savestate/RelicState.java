@@ -15,6 +15,7 @@ public class RelicState {
     private final boolean orichalcumTrigger;
 
     private final boolean necronomiconActivated;
+    private final boolean gamblingChipActivated;
 
     private final boolean redSkullIsActive;
 
@@ -60,6 +61,13 @@ public class RelicState {
         } else {
             this.centennialPuzzleUsedThisCombat = false;
         }
+
+        if(relic instanceof GamblingChip) {
+            this.gamblingChipActivated = ReflectionHacks
+                    .getPrivate(relic, GamblingChip.class, "activated");
+        } else {
+            this.gamblingChipActivated = false;
+        }
     }
 
     public RelicState(String jsonString) {
@@ -79,6 +87,7 @@ public class RelicState {
 
         this.centennialPuzzleUsedThisCombat = parsed.get("centennial_puzzle_used_this_combat")
                                                     .getAsBoolean();
+        this.gamblingChipActivated = parsed.get("gambling_chip_activated").getAsBoolean();
     }
 
     public AbstractRelic loadRelic() {
@@ -117,6 +126,11 @@ public class RelicState {
                     .setPrivate(result, CentennialPuzzle.class, "usedThisCombat", centennialPuzzleUsedThisCombat);
         }
 
+        if(result instanceof GamblingChip) {
+            ReflectionHacks
+                    .setPrivate(result, GamblingChip.class, "activated", gamblingChipActivated);
+        }
+
         return result;
     }
 
@@ -136,6 +150,8 @@ public class RelicState {
 
         relicStateJson
                 .addProperty("centennial_puzzle_used_this_combat", centennialPuzzleUsedThisCombat);
+
+        relicStateJson.addProperty("gambling_chip_activated", gamblingChipActivated);
 
         return relicStateJson.toString();
     }

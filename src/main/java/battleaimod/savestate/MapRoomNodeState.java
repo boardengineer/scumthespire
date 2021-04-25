@@ -2,15 +2,13 @@ package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
+import battleaimod.savestate.monsters.beyond.ReptomancerState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.megacrit.cardcrawl.core.AbstractCreature;
-import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.monsters.beyond.Reptomancer;
-import com.megacrit.cardcrawl.monsters.beyond.SnakeDagger;
 import com.megacrit.cardcrawl.monsters.city.TheCollector;
 import com.megacrit.cardcrawl.monsters.city.TorchHead;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
@@ -143,22 +141,38 @@ public class MapRoomNodeState {
                 int key = 1;
                 HashMap<Integer, AbstractMonster> collectorMinions = new HashMap<>();
 
+                ArrayList<AbstractMonster> deadTorchHeads = new ArrayList<>();
                 for (AbstractMonster possibleMinion : room.monsters.monsters) {
                     if (possibleMinion instanceof TorchHead) {
-                        collectorMinions.put(key++, possibleMinion);
+                        if (!possibleMinion.isDying) {
+                            collectorMinions.put(key++, possibleMinion);
+                        } else {
+                            deadTorchHeads.add(possibleMinion);
+                        }
                     }
+                }
+
+                int deadIndex = 0;
+                while (key < 3) {
+                    // There should be at least two torchheads between being dead and alive
+                    TorchHead dummy = new TorchHead(0, 0);
+                    dummy.isDead = true;
+                    dummy.isDying = true;
+
+                    collectorMinions.put(key++, dummy);
+                }
+
+                if (key < 3) {
+                    System.err.println("not enough toches");
                 }
 
                 ReflectionHacks
                         .setPrivate(monster, TheCollector.class, "enemySlots", collectorMinions);
+
             } else if (monster instanceof Reptomancer) {
-                AbstractCreature[] daggers = ReflectionHacks
-                        .getPrivate(monster, Reptomancer.class, "daggers");
-                int foundDaggers = 0;
-                for (AbstractMonster potentialDagger : AbstractDungeon.getMonsters().monsters) {
-                    if (potentialDagger instanceof SnakeDagger) {
-                        daggers[foundDaggers] = potentialDagger;
-                        foundDaggers++;
+                for (MonsterState monsterState : monsterData) {
+                    if (monsterState instanceof ReptomancerState) {
+                        ((ReptomancerState) monsterState).postMonstersLoad((Reptomancer) monster);
                     }
                 }
             }

@@ -149,7 +149,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     public void receivePostUpdate() {
         if (++BattleAiMod.logCounter % 300 == 0) {
-            System.err.println(BattleAiMod.logCounter);
+//            System.err.println(BattleAiMod.logCounter);
         }
         if (steveMessage != null) {
             String messageToDisplay = " Processing... NL " + steveMessage;
