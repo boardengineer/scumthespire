@@ -1,12 +1,10 @@
 package battleaimod.patches;
 
-import battleaimod.BattleAiMod;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.animations.VFXAction;
-import com.megacrit.cardcrawl.cards.status.Dazed;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 import com.megacrit.cardcrawl.vfx.combat.ShockWaveEffect;
@@ -129,48 +127,6 @@ public class FXPatches {
             if (shouldGoFast()) {
                 _instance.isDone = true;
                 return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = ShockWaveEffect.class,
-            paramtypez = {SpriteBatch.class},
-            method = "render"
-    )
-    public static class NoShockwaveFxRenderPatch {
-        public static SpireReturn Prefix(ShockWaveEffect _instance, SpriteBatch sb) {
-            if (shouldGoFast()) {
-                return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = Dazed.class,
-            paramtypez = {},
-            method = SpirePatch.CONSTRUCTOR
-    )
-    public static class SpyOnDazedDmgFxConstructorPatch {
-        static long startConstructor = 0;
-
-        public static SpireReturn Prefix(Dazed _instance) {
-            if (shouldGoFast()) {
-                startConstructor = System.currentTimeMillis();
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(Dazed _instance) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController.addRuntime("Dazed Constructor ", System
-                            .currentTimeMillis() - startConstructor);
-                }
-                return SpireReturn.Continue();
             }
             return SpireReturn.Continue();
         }

@@ -116,14 +116,8 @@ public class SaveState {
 
         BattleAiMod.readyForUpdate = true;
 
-        long startLoadCombatReward = System.currentTimeMillis();
-
         if (!shouldGoFast()) {
             CombatRewardScreenState.loadCombatRewardScreen();
-        }
-        if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.runTimes != null) {
-            BattleAiMod.battleAiController.addRuntime("Combat Reward Load Time", System
-                    .currentTimeMillis() - startLoadCombatReward);
         }
 
         rngState.loadRng();

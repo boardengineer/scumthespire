@@ -3,6 +3,7 @@ package battleaimod.battleai;
 import battleaimod.BattleAiMod;
 import battleaimod.ChoiceScreenUtils;
 import battleaimod.battleai.commands.Command;
+import battleaimod.savestate.CardState;
 import battleaimod.savestate.SaveState;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.cards.AbstractCard;
@@ -19,7 +20,7 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    public int maxTurnLoads = 10_000;
+    public int maxTurnLoads = 20_000;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -270,6 +271,7 @@ public class BattleAiController {
                 roomLoadTime = 0;
                 actionClassTimes = new HashMap<>();
                 runTimes = new HashMap<>();
+                CardState.resetFreeCards();
             }
 
             while (!turns

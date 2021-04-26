@@ -151,12 +151,15 @@ public class PlayerState extends CreatureState {
         player.masterHandSize = this.masterHandSize;
         player.startingMaxHP = this.startingMaxHP;
 
+        CardState.freeCardList(player.masterDeck.group);
+        CardState.freeCardList(player.drawPile.group);
+        CardState.freeCardList(player.hand.group);
+        CardState.freeCardList(player.discardPile.group);
+        CardState.freeCardList(player.exhaustPile.group);
+        CardState.freeCardList(player.limbo.group);
+
         player.masterDeck.group = this.masterDeck.stream().map(CardState::loadCard)
                                                  .collect(Collectors.toCollection(ArrayList::new));
-        player.drawPile.clear();
-        this.drawPile.stream().map(CardState::loadCard)
-                     .forEach(card -> AbstractDungeon.player.drawPile.addToHand(card));
-
         player.drawPile.group = this.drawPile.stream().map(CardState::loadCard)
                                              .collect(Collectors.toCollection(ArrayList::new));
         player.hand.group = this.hand.stream().map(CardState::loadCard)

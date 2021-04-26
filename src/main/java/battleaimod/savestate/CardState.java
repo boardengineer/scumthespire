@@ -1,11 +1,14 @@
 package battleaimod.savestate;
 
+import battleaimod.BattleAiMod;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 
-import java.util.UUID;
+import java.util.*;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class CardState {
     private final String cardId;
@@ -35,6 +38,7 @@ public class CardState {
     private final float drawScale;
     private final float targetDrawScale;
 
+    private static HashMap<String, Queue<AbstractCard>> freeCards;
 
     private final UUID uuid;
 
@@ -107,7 +111,7 @@ public class CardState {
     }
 
     public AbstractCard loadCard() {
-        AbstractCard result = CardLibrary.getCard(cardId).makeCopy();
+        AbstractCard result = getCard(cardId);
 
         if (upgraded) {
             result.upgrade();
@@ -168,5 +172,64 @@ public class CardState {
         cardStateJson.addProperty("block", block);
 
         return cardStateJson.toString();
+    }
+
+    public static void resetFreeCards() {
+        freeCards = new HashMap<>();
+    }
+
+    public static void freeCardList(List<AbstractCard> cards) {
+        cards.forEach(CardState::freeCard);
+    }
+
+    public static void freeCard(AbstractCard card) {
+        if (freeCards == null) {
+            freeCards = new HashMap<>();
+        }
+
+        String key = card.cardID;
+
+        if (!freeCards.containsKey(key)) {
+            freeCards.put(key, new LinkedList<>());
+        }
+
+        if (freeCards.get(key).size() > 1000) {
+            return;
+        }
+
+        freeCards.get(key).add(card);
+    }
+
+    private static AbstractCard getCard(String key) {
+        long startMethod = System.currentTimeMillis();
+
+        Optional<AbstractCard> resultOptional = getCachedCard(key);
+
+        AbstractCard result;
+        if (resultOptional.isPresent()) {
+            result = resultOptional.get();
+        } else {
+            result = getFreshCard(key);
+        }
+
+        if (shouldGoFast()) {
+            if (BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.addRuntime("getCard", System
+                        .currentTimeMillis() - startMethod);
+            }
+        }
+
+        return result;
+    }
+
+    private static Optional<AbstractCard> getCachedCard(String key) {
+        if (freeCards == null || !freeCards.containsKey(key) || freeCards.get(key).isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(freeCards.get(key).poll());
+    }
+
+    private static AbstractCard getFreshCard(String key) {
+        return CardLibrary.getCard(key).makeCopy();
     }
 }
