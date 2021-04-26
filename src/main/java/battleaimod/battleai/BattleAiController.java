@@ -2,6 +2,7 @@ package battleaimod.battleai;
 
 import battleaimod.BattleAiMod;
 import battleaimod.ChoiceScreenUtils;
+import battleaimod.battleai.commands.Command;
 import battleaimod.savestate.SaveState;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.cards.AbstractCard;

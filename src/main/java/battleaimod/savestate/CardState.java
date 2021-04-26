@@ -13,6 +13,8 @@ public class CardState {
     private final int baseDamage;
     private final int cost;
     private final int costForTurn;
+    private final int magicNumber;
+    private final int block;
     private final boolean freeToPlayOnce;
     private final String name;
 
@@ -20,6 +22,7 @@ public class CardState {
     private final boolean inBottleLightning;
     private final boolean inBottleFlame;
     private final boolean isCostModifiedForTurn;
+    private final boolean isCostModified;
 
     // Everything works without these, there is just s wonky 'draw' animation that can be avoided
     // by setting all the physical properies right away
@@ -32,12 +35,14 @@ public class CardState {
     private final float drawScale;
     private final float targetDrawScale;
 
+
     private final UUID uuid;
 
 
     // private final HitboxState hb;
     public CardState(AbstractCard card) {
         this.cardId = card.cardID;
+        this.block = card.block;
         this.upgraded = card.upgraded;
         this.baseDamage = card.baseDamage;
         this.cost = card.cost;
@@ -62,6 +67,8 @@ public class CardState {
         this.name = card.name;
         this.uuid = card.uuid;
         this.isCostModifiedForTurn = card.isCostModifiedForTurn;
+        this.isCostModified = card.isCostModified;
+        this.magicNumber = card.magicNumber;
     }
 
     public CardState(String jsonString) {
@@ -81,6 +88,9 @@ public class CardState {
         this.uuid = UUID.fromString(parsed.get("uuid").getAsString());
         this.freeToPlayOnce = parsed.get("free_to_play_once").getAsBoolean();
         this.isCostModifiedForTurn = parsed.get("is_cost_modified_for_turn").getAsBoolean();
+        this.isCostModified = parsed.get("is_cost_modified").getAsBoolean();
+        this.magicNumber = parsed.get("magic_number").getAsInt();
+        this.block = parsed.get("block").getAsInt();
 
         // TODO
         this.current_x = 0;
@@ -127,6 +137,9 @@ public class CardState {
         result.uuid = uuid;
         result.freeToPlayOnce = freeToPlayOnce;
         result.isCostModifiedForTurn = isCostModifiedForTurn;
+        result.isCostModified = isCostModified;
+        result.magicNumber = magicNumber;
+        result.block = block;
 
         return result;
     }
@@ -150,6 +163,9 @@ public class CardState {
         cardStateJson.addProperty("free_to_play_once", freeToPlayOnce);
         cardStateJson.addProperty("uuid", uuid.toString());
         cardStateJson.addProperty("is_cost_modified_for_turn", isCostModifiedForTurn);
+        cardStateJson.addProperty("is_cost_modified", isCostModified);
+        cardStateJson.addProperty("magic_number", magicNumber);
+        cardStateJson.addProperty("block", block);
 
         return cardStateJson.toString();
     }

@@ -2,7 +2,7 @@ package battleaimod.networking;
 
 import battleaimod.BattleAiMod;
 import battleaimod.battleai.BattleAiController;
-import battleaimod.battleai.Command;
+import battleaimod.battleai.commands.Command;
 import battleaimod.battleai.StateNode;
 import battleaimod.battleai.TurnNode;
 import battleaimod.savestate.SaveState;

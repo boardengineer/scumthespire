@@ -1,6 +1,9 @@
 package battleaimod.battleai;
 
 import battleaimod.BattleAiMod;
+import battleaimod.battleai.commands.Command;
+import battleaimod.battleai.commands.EndCommand;
+import battleaimod.savestate.PotionState;
 import battleaimod.savestate.PowerState;
 import battleaimod.savestate.SaveState;
 
@@ -76,7 +79,7 @@ public class TurnNode implements Comparable<TurnNode> {
             }
 
             runningCommands = false;
-            if(curState.lastCommand instanceof EndCommand) {
+            if (curState.lastCommand instanceof EndCommand) {
                 ((EndCommand) curState.lastCommand).stateDebugInfo = new StateDebugInfo(curState.saveState);
             }
 //            if (controller.bestTurn == null || controller.bestTurn.startingState.saveState.turn < curState.saveState.turn || (controller.bestTurn.startingState.saveState.turn == curState.saveState.turn && this
@@ -153,12 +156,21 @@ public class TurnNode implements Comparable<TurnNode> {
     }
 
     public static int getPlayerDamage(TurnNode turnNode) {
-        return turnNode.controller.startingHealth - turnNode.startingState.saveState
-                .getPlayerHealth();
+        return StateNode.getPlayerDamage(turnNode.startingState);
     }
 
     public static int getNumSlimes(TurnNode turnNode) {
         return turnNode.startingState.saveState.getNumSlimes();
+    }
+
+    public static int getPotionScore(SaveState saveState) {
+        return saveState.playerState.potions.stream().map(potionState -> {
+            if (potionState.potionId.equals("Potion Slot") || !PotionState.POTION_VALUES
+                    .containsKey(potionState.potionId)) {
+                return 0;
+            }
+            return PotionState.POTION_VALUES.get(potionState.potionId);
+        }).reduce(Integer::sum).get();
     }
 
     public static int getTotalMonsterHealth(SaveState saveState) {
@@ -177,6 +189,7 @@ public class TurnNode implements Comparable<TurnNode> {
     }
 
     public static int getTurnScore(TurnNode turnNode) {
+//        System.err.println(getPotionScore(turnNode.startingState.saveState));
         int playerDamage = getPlayerDamage(turnNode);
         int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealth(turnNode.startingState.saveState);
 
@@ -190,7 +203,9 @@ public class TurnNode implements Comparable<TurnNode> {
             }
         }
 
-        return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity;
+        int potionLoss = getPotionScore(turnNode.controller.startingState) - getPotionScore(turnNode.startingState.saveState);
+
+        return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity - potionLoss;
     }
 
     @Override

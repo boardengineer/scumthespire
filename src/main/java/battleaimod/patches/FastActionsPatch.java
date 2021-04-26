@@ -68,6 +68,7 @@ public class FastActionsPatch {
     private static final Set<Class> BAD_EFFECTS = new HashSet<Class>() {{
         add(StrikeEffect.class);
         add(HealPanelEffect.class);
+        add(PingHpEffect.class);
         add(FlashAtkImgEffect.class);
         add(RefreshEnergyEffect.class);
         add(HbBlockBrokenEffect.class);

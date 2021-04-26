@@ -45,7 +45,7 @@ public class PlayerState extends CreatureState {
     private final ArrayList<CardState> exhaustPile;
     private final ArrayList<CardState> limbo;
 
-    private final ArrayList<PotionState> potions;
+    public final ArrayList<PotionState> potions;
 
     private final ArrayList<RelicState> relics;
 
