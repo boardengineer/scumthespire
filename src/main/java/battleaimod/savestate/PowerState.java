@@ -92,7 +92,7 @@ public class PowerState {
             this.intangibleJustApplied = false;
         }
 
-        if(power instanceof DrawReductionPower) {
+        if (power instanceof DrawReductionPower) {
             this.drawReductionJustApplied = ReflectionHacks
                     .getPrivate(power, DrawReductionPower.class, "justApplied");
         } else {
@@ -135,7 +135,7 @@ public class PowerState {
         } else if (powerId.equals("Vulnerable")) {
             result = new VulnerablePower(targetAndSource, amount, false);
         } else if (powerId.equals("Ritual")) {
-            result = new RitualPower(targetAndSource, amount, false);
+            result = new RitualPower(targetAndSource, amount, targetAndSource == AbstractDungeon.player);
             ReflectionHacks
                     .setPrivate(result, RitualPower.class, "skipFirst", ritualSkipFirst);
         } else if (powerId.equals("Weakened")) {
