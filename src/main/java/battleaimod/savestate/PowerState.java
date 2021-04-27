@@ -200,6 +200,8 @@ public class PowerState {
                     .setPrivate(result, FlightPower.class, "storedAmount", flightStoredAmount);
         } else if (powerId.equals("Malleable")) {
             result = new MalleablePower(targetAndSource, amount);
+            ReflectionHacks
+                    .setPrivate(result, MalleablePower.class, "basePower", malleableBasePower);
         } else if (powerId.equals("Next Turn Block")) {
             result = new NextTurnBlockPower(targetAndSource, amount);
         } else if (powerId.equals("Painful Stabs")) {

@@ -10,6 +10,8 @@ import com.megacrit.cardcrawl.actions.animations.AnimateHopAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.SpawnMonsterAction;
+import com.megacrit.cardcrawl.actions.unique.SummonGremlinAction;
+import com.megacrit.cardcrawl.cards.red.PommelStrike;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
@@ -148,10 +150,21 @@ public class MonsterPatch {
             ReflectionHacks
                     .setPrivate(_instance, SpawnMonsterAction.class, "useSmartPositioning", false);
 
-
             if (shouldGoFast()) {
                 _instance.isDone = true;
             }
+        }
+    }
+
+    @SpirePatch(
+            clz = SummonGremlinAction.class,
+            paramtypez = {},
+            method = "getSmartPosition"
+    )
+    public static class SummonGremlinActionPatch {
+        PommelStrike power;
+        public static SpireReturn Prefix(SummonGremlinAction _instance) {
+            return SpireReturn.Return(0);
         }
     }
 

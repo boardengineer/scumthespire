@@ -128,7 +128,6 @@ public class SaveState {
         GameStateListener.myTurn = myTurn;
         GameStateListener.externalChange = true;
 
-
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.loadstateTime += (System
                     .currentTimeMillis() - loadStartTime);
@@ -153,6 +152,10 @@ public class SaveState {
 
     public int getNumBurns() {
         return playerState.getNumBurns();
+    }
+
+    public int getNumInstances(String cardName) {
+        return playerState.getNumInstance(cardName);
     }
 
     public String encode() {

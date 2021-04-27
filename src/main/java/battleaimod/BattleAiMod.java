@@ -174,8 +174,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             mustSendGameState = true;
             if (AbstractDungeon.actionManager != null && AbstractDungeon.actionManager.phase == GameActionManager.Phase.WAITING_ON_USER) {
                 readyForUpdate = true;
-            } else {
-                System.err.println("but the action manager is doing stuff");
             }
 
         }
@@ -300,7 +298,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     @Override
     public void receiveOnBattleStart(AbstractRoom abstractRoom) {
-        System.err.println("this is happening");
 //        shouldStartClient = true;
     }
 
@@ -316,7 +313,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
                 actionManager.actions.add(new AbstractGameAction() {
                     @Override
                     public void update() {
-                        System.err.println("The action too");
                         AbstractDungeon.effectList
                                 .add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, 3.0F, "Here we go", true));
 

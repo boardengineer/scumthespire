@@ -91,7 +91,6 @@ public class LagavulinState extends MonsterState {
             method = SpirePatch.CONSTRUCTOR
     )
     public static class YetNoAnimationsPatch {
-
         @SpireInsertPatch(loc = 76)
         public static SpireReturn Lagavulin(Lagavulin _instance, boolean setAsleep) {
             if (shouldGoFast()) {

@@ -11,11 +11,16 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.actions.unique.BurnIncreaseAction;
+import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.status.Burn;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Hexaghost;
 import com.megacrit.cardcrawl.monsters.exordium.HexaghostBody;
 import com.megacrit.cardcrawl.monsters.exordium.HexaghostOrb;
+import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -171,6 +176,43 @@ public class HexaghostState extends MonsterState {
     public static class NoUpdateBodyPatch {
         public static SpireReturn Prefix(HexaghostBody _instance) {
             if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = BurnIncreaseAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class BurnIncreasePatch {
+        public static SpireReturn Prefix(BurnIncreaseAction _instance) {
+            if (shouldGoFast()) {
+                for(AbstractCard card: AbstractDungeon.player.discardPile.group) {
+                    if(card instanceof Burn) {
+                        card.upgrade();
+                    }
+                }
+
+                for(AbstractCard card: AbstractDungeon.player.drawPile.group) {
+                    if(card instanceof Burn) {
+                        card.upgrade();
+                    }
+                }
+
+                Burn b = new Burn();
+                b.upgrade();
+                AbstractDungeon.effectList.add(new ShowCardAndAddToDiscardEffect(b));
+                Burn c = new Burn();
+                c.upgrade();
+                AbstractDungeon.effectList.add(new ShowCardAndAddToDiscardEffect(c));
+                Burn d = new Burn();
+                d.upgrade();
+                AbstractDungeon.effectList.add(new ShowCardAndAddToDiscardEffect(d));
+
+                _instance.isDone = true;
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

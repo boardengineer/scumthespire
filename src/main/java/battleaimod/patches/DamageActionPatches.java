@@ -1,9 +1,9 @@
 package battleaimod.patches;
 
-import basemod.ReflectionHacks;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
-import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.DamageAction;
+import com.megacrit.cardcrawl.cards.DamageInfo;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
@@ -14,19 +14,16 @@ public class DamageActionPatches {
             method = "update"
     )
     public static class SpyOnDamageUpdatePatch {
-        static long startUpdate = 0;
-
         public static void Prefix(DamageAction _instance) {
             if (shouldGoFast()) {
-                ReflectionHacks.setPrivate(_instance, AbstractGameAction.class, "duration", .1F);
-                startUpdate = System.currentTimeMillis();
+                _instance.isDone = true;
             }
         }
 
         public static void Postfix(DamageAction _instance) {
-            if (shouldGoFast()) {
-                _instance.isDone = true;
-            }
+            // TODO: I'm forcing this to only trigger once, why is this necessary
+            _instance.source = null;
+            new DamageInfo(AbstractDungeon.player, 0, DamageInfo.DamageType.NORMAL);
         }
     }
 }

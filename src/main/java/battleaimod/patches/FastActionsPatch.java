@@ -154,7 +154,7 @@ public class FastActionsPatch {
                         actionManager.cardsPlayedThisCombat.clear();
 
                         if (shouldWaitOnActions(actionManager)) {
-                            while (actionManager.currentAction != null && !actionManager.currentAction.isDone) {
+                            while (actionManager.currentAction != null) {
                                 if (actionManager.currentAction instanceof RollMoveAction) {
                                     AbstractMonster monster = ReflectionHacks
                                             .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
@@ -170,7 +170,10 @@ public class FastActionsPatch {
                                 }
                                 if (actionManager.currentAction != null) {
                                     Class actionClass = actionManager.currentAction.getClass();
-                                    actionManager.currentAction.update();
+
+                                    if(!actionManager.currentAction.isDone) {
+                                        actionManager.currentAction.update();
+                                    }
 //                                    if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.actionClassTimes != null) {
 //                                        long timeThisAction = (System
 //                                                .currentTimeMillis() - startTime);
@@ -187,6 +190,11 @@ public class FastActionsPatch {
 //                                        }
 //                                    }
                                 }
+
+                                if (actionManager.currentAction != null && actionManager.currentAction.isDone) {
+                                    actionManager.currentAction = null;
+                                }
+
                                 actionManager.update();
                             }
                         } else if (shouldStepAiController()) {
@@ -393,8 +401,10 @@ public class FastActionsPatch {
     }
 
     private static boolean shouldWaitOnActions(GameActionManager actionManager) {
-        return (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode) && (actionManager.currentAction != null || !actionManager.monsterQueue
-                .isEmpty() || !actionManager.actions.isEmpty() || actionManager.usingCard);
+        return (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode) &&
+                ((actionManager.currentAction != null) ||
+                        !actionManager.monsterQueue.isEmpty() || !actionManager.actions
+                        .isEmpty() || actionManager.usingCard);
     }
 
 
@@ -532,6 +542,17 @@ public class FastActionsPatch {
             _instance.isDone = true;
         }
     }
+
+//    @SpirePatch(
+//            clz = ExhaustAction.class,
+//            paramtypez = {},
+//            method = "update"
+//    )
+//    public static class FastExhaustPatch {
+//        public static void Prefix(ExhaustAction _instance) {
+//            _instance.isDone = true;
+//        }
+//    }
 
     // THIS IS VOODOO, DON'T TOUCH IT
     @SpirePatch(
@@ -1304,6 +1325,7 @@ public class FastActionsPatch {
                 System.err.println("Allowing unknown effect " + effectClass);
             }
         }
+        ExhaustAction es;
     }
 
 }

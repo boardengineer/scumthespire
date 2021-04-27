@@ -14,9 +14,11 @@ public class CardState {
     private final String cardId;
     private final boolean upgraded;
     private final int baseDamage;
+    private final int baseBlock;
     private final int cost;
     private final int costForTurn;
     private final int magicNumber;
+    private final int baseMagicNumber;
     private final int block;
     private final boolean freeToPlayOnce;
     private final String name;
@@ -56,6 +58,7 @@ public class CardState {
         this.inBottleTornado = card.inBottleTornado;
         this.inBottleLightning = card.inBottleLightning;
         this.freeToPlayOnce = card.freeToPlayOnce;
+        this.baseBlock = card.baseBlock;
 
         this.current_x = card.current_x;
         this.current_y = card.current_y;
@@ -73,6 +76,7 @@ public class CardState {
         this.isCostModifiedForTurn = card.isCostModifiedForTurn;
         this.isCostModified = card.isCostModified;
         this.magicNumber = card.magicNumber;
+        this.baseMagicNumber = card.baseMagicNumber;
     }
 
     public CardState(String jsonString) {
@@ -95,6 +99,8 @@ public class CardState {
         this.isCostModified = parsed.get("is_cost_modified").getAsBoolean();
         this.magicNumber = parsed.get("magic_number").getAsInt();
         this.block = parsed.get("block").getAsInt();
+        this.baseMagicNumber = parsed.get("base_magic_number").getAsInt();
+        this.baseBlock = parsed.get("base_block").getAsInt();
 
         // TODO
         this.current_x = 0;
@@ -113,10 +119,7 @@ public class CardState {
     public AbstractCard loadCard() {
         AbstractCard result = getCard(cardId);
 
-        if (upgraded) {
-            result.upgrade();
-        }
-
+        result.upgraded = upgraded;
         result.current_x = current_x;
         result.current_y = current_y;
 
@@ -143,7 +146,17 @@ public class CardState {
         result.isCostModifiedForTurn = isCostModifiedForTurn;
         result.isCostModified = isCostModified;
         result.magicNumber = magicNumber;
+        result.baseMagicNumber = baseMagicNumber;
         result.block = block;
+        result.baseDamage = baseDamage;
+
+//        if (cardId.equals(PommelStrike.ID)) {
+//            System.err.println(result.magicNumber);
+//        }
+
+//        if (upgraded) {
+//            result.upgrade();
+//        }
 
         return result;
     }
@@ -170,6 +183,8 @@ public class CardState {
         cardStateJson.addProperty("is_cost_modified", isCostModified);
         cardStateJson.addProperty("magic_number", magicNumber);
         cardStateJson.addProperty("block", block);
+        cardStateJson.addProperty("base_magic_number", baseMagicNumber);
+        cardStateJson.addProperty("base_block", baseBlock);
 
         return cardStateJson.toString();
     }

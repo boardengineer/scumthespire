@@ -82,6 +82,7 @@ public class TurnNode implements Comparable<TurnNode> {
             if (curState.lastCommand instanceof EndCommand) {
                 ((EndCommand) curState.lastCommand).stateDebugInfo = new StateDebugInfo(curState.saveState);
             }
+
 //            if (controller.bestTurn == null || controller.bestTurn.startingState.saveState.turn < curState.saveState.turn || (controller.bestTurn.startingState.saveState.turn == curState.saveState.turn && this
 //                    .isBetterThan(controller.bestTurn))) {
 //                controller.bestTurn = this;

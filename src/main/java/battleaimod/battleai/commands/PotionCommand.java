@@ -42,7 +42,6 @@ public class PotionCommand implements Command {
             if (!shouldGoFast()) {
                 String allMonsters = AbstractDungeon.getMonsters().monsters.stream().map(m -> String
                         .format("hp:%s\t", m.currentHealth)).collect(Collectors.joining());
-                System.err.println("Using potion " + allMonsters);
             }
         }
 
