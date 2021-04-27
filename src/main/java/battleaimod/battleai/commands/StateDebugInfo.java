@@ -1,4 +1,4 @@
-package battleaimod.battleai;
+package battleaimod.battleai.commands;
 
 import battleaimod.savestate.SaveState;
 import com.google.gson.JsonObject;

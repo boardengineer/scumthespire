@@ -3,6 +3,7 @@ package battleaimod.battleai;
 import battleaimod.BattleAiMod;
 import battleaimod.battleai.commands.Command;
 import battleaimod.battleai.commands.EndCommand;
+import battleaimod.battleai.commands.StateDebugInfo;
 import battleaimod.savestate.PotionState;
 import battleaimod.savestate.PowerState;
 import battleaimod.savestate.SaveState;

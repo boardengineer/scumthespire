@@ -145,20 +145,21 @@ public class StateNode {
                 for (int j = 0; j < monsters.size(); j++) {
                     AbstractMonster monster = monsters.get(j);
                     if (card.canUse(player, monster) && !monster.isDeadOrEscaped()) {
-                        commands.add(0, new CardCommand(i, j, String.format(card.cardID + " for " + card.baseDamage)));
+                        commands.add(0, new CardCommand(i, j, String
+                                .format(card.cardID + " for " + card.baseDamage)));
                     }
                 }
             }
 
             if (card.target == AbstractCard.CardTarget.ALL_ENEMY || card.target == AbstractCard.CardTarget.ALL) {
                 if (card.canUse(player, null)) {
-                    commands.add(0, new CardCommand(i, card.cardID));
+                    commands.add(0, new CardCommand(i, card.cardID + " for " + card.baseBlock));
                 }
             }
 
             if (card.target == AbstractCard.CardTarget.SELF || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY || card.target == AbstractCard.CardTarget.NONE) {
                 if (card.canUse(player, null)) {
-                    commands.add(new CardCommand(i, card.cardID));
+                    commands.add(new CardCommand(i, card.cardID + " for " + card.baseBlock));
                 }
             }
 

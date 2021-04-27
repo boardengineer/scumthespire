@@ -63,6 +63,10 @@ public class DrawCardActionFast extends AbstractGameAction {
     }
 
     public void update() {
+        if (isDone) {
+            return;
+        }
+
         if (alreadyDrawing) {
             return;
         }
@@ -141,7 +145,6 @@ public class DrawCardActionFast extends AbstractGameAction {
                 }
             }
         }
-
     }
 
     private void endActionWithFollowUp() {

@@ -4,10 +4,10 @@ import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
+import battleaimod.fastobjects.actions.EmptyDeckShuffleActionFast;
 import battleaimod.fastobjects.actions.RollMoveActionFast;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
@@ -30,7 +30,7 @@ import com.megacrit.cardcrawl.core.OverlayMenu;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.daily.mods.Careless;
 import com.megacrit.cardcrawl.daily.mods.ControlledChaos;
-import com.megacrit.cardcrawl.dungeons.*;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.File;
 import com.megacrit.cardcrawl.helpers.ModHelper;
 import com.megacrit.cardcrawl.helpers.TipTracker;
@@ -163,6 +163,8 @@ public class FastActionsPatch {
                                     actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
                                 } else if (actionManager.currentAction instanceof SetAnimationAction) {
                                     actionManager.currentAction = null;
+                                } else if (actionManager.currentAction instanceof EmptyDeckShuffleAction) {
+                                    actionManager.currentAction = new EmptyDeckShuffleActionFast();
                                 } else if (actionManager.currentAction instanceof ShowMoveNameAction) {
                                     actionManager.currentAction = null;
                                 } else if (actionManager.currentAction instanceof WaitAction) {
@@ -171,7 +173,7 @@ public class FastActionsPatch {
                                 if (actionManager.currentAction != null) {
                                     Class actionClass = actionManager.currentAction.getClass();
 
-                                    if(!actionManager.currentAction.isDone) {
+                                    if (!actionManager.currentAction.isDone) {
                                         actionManager.currentAction.update();
                                     }
 //                                    if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.actionClassTimes != null) {
@@ -194,7 +196,7 @@ public class FastActionsPatch {
                                 if (actionManager.currentAction != null && actionManager.currentAction.isDone) {
                                     actionManager.currentAction = null;
                                 }
-
+DrawCardAction d;
                                 actionManager.update();
                             }
                         } else if (shouldStepAiController()) {
@@ -235,14 +237,18 @@ public class FastActionsPatch {
                         }
                     }
 
-//                    AbstractDungeon.effectList.clear();
-//                    AbstractDungeon.effectsQueue.clear();
-//                    AbstractDungeon.topLevelEffects.clear();
-
                     System.err
                             .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
-                                    .size() + " " + AbstractDungeon.topLevelEffects
-                                    .size() + " " + AbstractDungeon.effectsQueue.size());
+                                    .size() + " " + actionManager.actions.size()
+                                    + " " + AbstractDungeon.topLevelEffects
+                                    .size() + " " + AbstractDungeon.effectsQueue
+                                    .size() + " " + actionManager.monsterQueue.size());
+                    if (actionManager.currentAction == null) {
+                        ActionManagerNextAction();
+                        AbstractDungeon
+                                .getCurrRoom().phase = AbstractRoom.RoomPhase.COMBAT;
+                    }
+
                 }
             }
         }
@@ -402,7 +408,7 @@ public class FastActionsPatch {
 
     private static boolean shouldWaitOnActions(GameActionManager actionManager) {
         return (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode) &&
-                ((actionManager.currentAction != null) ||
+                ((actionManager.currentAction != null) || (actionManager.turnHasEnded && !AbstractDungeon.getMonsters().areMonstersBasicallyDead()) ||
                         !actionManager.monsterQueue.isEmpty() || !actionManager.actions
                         .isEmpty() || actionManager.usingCard);
     }
@@ -654,7 +660,7 @@ public class FastActionsPatch {
                         .addToBottom(new GainEnergyAndEnableControlsAction(AbstractDungeon.player.energy.energyMaster));
                 AbstractDungeon.player.applyStartOfCombatPreDrawLogic();
                 AbstractDungeon.actionManager
-                        .addToBottom(new DrawCardAction(AbstractDungeon.player, AbstractDungeon.player.gameHandSize));
+                        .addToBottom(new DrawCardActionFast(AbstractDungeon.player, AbstractDungeon.player.gameHandSize));
                 AbstractDungeon.actionManager.addToBottom(new EnableEndTurnButtonAction());
                 AbstractDungeon.overlayMenu.showCombatPanels();
                 AbstractDungeon.player.applyStartOfCombatLogic();
@@ -679,104 +685,7 @@ public class FastActionsPatch {
         if (AbstractDungeon.getCurrRoom().isBattleOver && AbstractDungeon.actionManager.actions
                 .isEmpty()) {
 
-            AbstractDungeon.getCurrRoom().skipMonsterTurn = false;
-            float endBattleTimer = -1.F;
-            if (endBattleTimer < 0.0F) {
-                AbstractDungeon.getCurrRoom().phase = AbstractRoom.RoomPhase.COMPLETE;
-                if (!(AbstractDungeon
-                        .getCurrRoom() instanceof MonsterRoomBoss) || !(CardCrawlGame.dungeon instanceof TheBeyond) || Settings.isEndless) {
-                    CardCrawlGame.sound.play("VICTORY");
-                }
-
-                endBattleTimer = 0.0F;
-                int card_seed_before_roll;
-                if (AbstractDungeon
-                        .getCurrRoom() instanceof MonsterRoomBoss && !AbstractDungeon.loading_post_combat) {
-                    if (!CardCrawlGame.loadingSave) {
-                        if (Settings.isDailyRun) {
-                            AbstractDungeon.getCurrRoom().addGoldToRewards(100);
-                        } else {
-                            card_seed_before_roll = 100 + AbstractDungeon.miscRng.random(-5, 5);
-                            if (AbstractDungeon.ascensionLevel >= 13) {
-                                AbstractDungeon.getCurrRoom().addGoldToRewards(MathUtils
-                                        .round((float) card_seed_before_roll * 0.75F));
-                            } else {
-                                AbstractDungeon.getCurrRoom()
-                                               .addGoldToRewards(card_seed_before_roll);
-                            }
-                        }
-                    }
-
-                    if (ModHelper.isModEnabled("Cursed Run")) {
-                        AbstractDungeon.effectList.add(new ShowCardAndObtainEffect(AbstractDungeon
-                                .returnRandomCurse(), (float) Settings.WIDTH / 2.0F, (float) Settings.HEIGHT / 2.0F));
-                    }
-                } else if (AbstractDungeon
-                        .getCurrRoom() instanceof MonsterRoomElite && !AbstractDungeon.loading_post_combat) {
-                    if (CardCrawlGame.dungeon instanceof Exordium) {
-                        ++CardCrawlGame.elites1Slain;
-                    } else if (CardCrawlGame.dungeon instanceof TheCity) {
-                        ++CardCrawlGame.elites2Slain;
-                    } else if (CardCrawlGame.dungeon instanceof TheBeyond) {
-                        ++CardCrawlGame.elites3Slain;
-                    } else {
-                        ++CardCrawlGame.elitesModdedSlain;
-                    }
-
-                    if (!CardCrawlGame.loadingSave) {
-                        if (Settings.isDailyRun) {
-                            AbstractDungeon.getCurrRoom().addGoldToRewards(30);
-                        } else {
-                            AbstractDungeon.getCurrRoom()
-                                           .addGoldToRewards(AbstractDungeon.treasureRng
-                                                   .random(25, 35));
-                        }
-                    }
-                } else if (AbstractDungeon.getCurrRoom() instanceof MonsterRoom && !AbstractDungeon
-                        .getMonsters().haveMonstersEscaped()) {
-                    ++CardCrawlGame.monstersSlain;
-                    if (Settings.isDailyRun) {
-                        AbstractDungeon.getCurrRoom().addGoldToRewards(15);
-                    } else {
-                        AbstractDungeon.getCurrRoom().addGoldToRewards(AbstractDungeon.treasureRng
-                                .random(10, 20));
-                    }
-                }
-
-                if (!(AbstractDungeon
-                        .getCurrRoom() instanceof MonsterRoomBoss) || !(CardCrawlGame.dungeon instanceof TheBeyond) && !(CardCrawlGame.dungeon instanceof TheEnding) || Settings.isEndless) {
-                    if (!AbstractDungeon.loading_post_combat) {
-                        AbstractDungeon.getCurrRoom().dropReward();
-                        AbstractDungeon.getCurrRoom().addPotionToRewards();
-                    }
-
-                    card_seed_before_roll = AbstractDungeon.cardRng.counter;
-                    int card_randomizer_before_roll = AbstractDungeon.cardBlizzRandomizer;
-                    if (AbstractDungeon.getCurrRoom().rewardAllowed) {
-                        if (AbstractDungeon.getCurrRoom().mugged) {
-                        } else if (AbstractDungeon.getCurrRoom().smoked) {
-                        } else {
-                            AbstractDungeon.combatRewardScreen.open();
-                        }
-
-                        if (!CardCrawlGame.loadingSave && !AbstractDungeon.loading_post_combat) {
-                            SaveFile saveFile = new SaveFile(SaveFile.SaveType.POST_COMBAT);
-                            saveFile.card_seed_count = card_seed_before_roll;
-                            saveFile.card_random_seed_randomizer = card_randomizer_before_roll;
-                            if (AbstractDungeon.getCurrRoom().combatEvent) {
-                                --saveFile.event_seed_count;
-                            }
-
-                            SaveAndContinue.save(saveFile);
-                            AbstractDungeon.effectList.add(new GameSavedEffect());
-                        } else {
-                            CardCrawlGame.loadingSave = false;
-                        }
-
-                        AbstractDungeon.loading_post_combat = false;
-                    }
-                }
-            }
+            // There was stuff here, hopefully we don't need it
         }
 
         AbstractDungeon.getCurrRoom().monsters.updateAnimations();
@@ -1176,7 +1085,7 @@ public class FastActionsPatch {
             if (!AbstractDungeon.getCurrRoom().isBattleOver) {
                 long checkpoint1 = System.currentTimeMillis();
                 AbstractDungeon.actionManager
-                        .addToBottom(new DrawCardAction(null, AbstractDungeon.player.gameHandSize, true));
+                        .addToBottom(new DrawCardActionFast(null, AbstractDungeon.player.gameHandSize, true));
 
                 long checkpoint2 = System.currentTimeMillis();
                 AbstractDungeon.player.applyStartOfTurnPostDrawRelics();
@@ -1325,7 +1234,6 @@ public class FastActionsPatch {
                 System.err.println("Allowing unknown effect " + effectClass);
             }
         }
-        ExhaustAction es;
     }
 
 }

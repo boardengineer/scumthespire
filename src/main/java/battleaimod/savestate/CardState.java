@@ -52,6 +52,7 @@ public class CardState {
         this.upgraded = card.upgraded;
         this.baseDamage = card.baseDamage;
         this.cost = card.cost;
+
         this.costForTurn = card.costForTurn;
 
         this.inBottleFlame = card.inBottleFlame;
@@ -148,7 +149,7 @@ public class CardState {
         result.magicNumber = magicNumber;
         result.baseMagicNumber = baseMagicNumber;
         result.block = block;
-        result.baseDamage = baseDamage;
+        result.baseBlock = baseBlock;
 
 //        if (cardId.equals(PommelStrike.ID)) {
 //            System.err.println(result.magicNumber);
