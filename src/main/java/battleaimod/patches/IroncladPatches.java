@@ -9,6 +9,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.characters.Ironclad;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
@@ -35,6 +36,36 @@ public class IroncladPatches {
                 if (BattleAiMod.battleAiController != null) {
                     BattleAiMod.battleAiController
                             .addRuntime("Ironclad damage", System
+                                    .currentTimeMillis() - startEffect);
+                }
+                return SpireReturn.Continue();
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractMonster.class,
+            paramtypez = {DamageInfo.class},
+            method = "damage"
+    )
+    public static class SpyOnMonsterDamageffectPatch {
+        static long startEffect = 0;
+
+        public static SpireReturn Prefix(AbstractMonster _instance, DamageInfo info) {
+            if (shouldGoFast()) {
+                startEffect = System.currentTimeMillis();
+//                System.err.println(info.base + " " + info.type);
+                return SpireReturn.Continue();
+            }
+            return SpireReturn.Continue();
+        }
+
+        public static SpireReturn Postfix(AbstractMonster _instance, DamageInfo info) {
+            if (shouldGoFast()) {
+                if (BattleAiMod.battleAiController != null) {
+                    BattleAiMod.battleAiController
+                            .addRuntime("AbstractMonster damage", System
                                     .currentTimeMillis() - startEffect);
                 }
                 return SpireReturn.Continue();

@@ -10,6 +10,7 @@ import battleaimod.savestate.SaveState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Stack;
 
 public class TurnNode implements Comparable<TurnNode> {
@@ -25,6 +26,7 @@ public class TurnNode implements Comparable<TurnNode> {
 
     public List<TurnNode> children;
     public TurnNode parent;
+    private Optional<Integer> cachedValue = Optional.empty();
 
     static int nodeIndex = 0;
 
@@ -36,12 +38,14 @@ public class TurnNode implements Comparable<TurnNode> {
         this.turnLabel = nodeIndex++;
         children = new ArrayList<>();
 
-        if (parent != null) {
-            parent.children.add(this);
-        }
+//        if (parent != null) {
+//            parent.children.add(this);
+//        }
     }
 
     public boolean step() {
+        long stepStart = System.currentTimeMillis();
+
         if (isDone) {
             return true;
         }
@@ -62,12 +66,19 @@ public class TurnNode implements Comparable<TurnNode> {
         if (!runningCommands) {
             runningCommands = true;
             curState.saveState.loadState();
+            controller.addRuntime("Battle AI TurnStep Checkpoint 0", System
+                    .currentTimeMillis() - stepStart);
             return false;
         }
+
 
         if (curState.saveState == null) {
             curState.saveState = new SaveState();
         }
+
+
+        controller.addRuntime("Battle AI TurnStep Checkpoint 1", System
+                .currentTimeMillis() - stepStart);
 
         if (curState != startingState && isNewTurn(curState)) {
             controller.turnsLoaded++;
@@ -78,6 +89,9 @@ public class TurnNode implements Comparable<TurnNode> {
             while (!states.isEmpty() && states.peek().isDone()) {
                 states.pop();
             }
+            controller.addRuntime("Battle AI TurnStep early Return Total 1", System
+                    .currentTimeMillis() - stepStart);
+
 
             runningCommands = false;
             if (curState.lastCommand instanceof EndCommand) {
@@ -88,6 +102,9 @@ public class TurnNode implements Comparable<TurnNode> {
 //                    .isBetterThan(controller.bestTurn))) {
 //                controller.bestTurn = this;
 //            }
+
+            controller.addRuntime("Battle AI TurnStep early Return Total 2", System
+                    .currentTimeMillis() - stepStart);
 
             int turnNumber = curState.saveState.turn;
             if (curState.saveState.getPlayerHealth() >= 1) {
@@ -102,22 +119,40 @@ public class TurnNode implements Comparable<TurnNode> {
                         controller.backupTurn = toAdd;
                     }
 //                    System.err.println("adding " + toAdd);
+
+                    long startAdd = System.currentTimeMillis();
+
                     controller.turns.add(toAdd);
+
+                    controller.addRuntime("Battle AI TurnStep Add Turn", System
+                            .currentTimeMillis() - startAdd);
                 }
             }
 
             turnIndex++;
 
             BattleAiMod.readyForUpdate = true;
+            controller.addRuntime("Battle AI TurnStep early Return Total", System
+                    .currentTimeMillis() - stepStart);
+
             return true;
         }
+        controller.addRuntime("Battle AI TurnStep Checkpoint 2", System
+                .currentTimeMillis() - stepStart);
+
         if (curState.isDone()) {
             states.pop();
             if (!states.empty()) {
                 states.peek().saveState.loadState();
             }
         } else {
+            long startNodeSep = System.currentTimeMillis();
+
             Command toExecute = curState.step();
+
+            controller.addRuntime("Battle AI StateNode Step", System
+                    .currentTimeMillis() - startNodeSep);
+
             if (toExecute == null) {
                 states.pop();
                 if (!states.isEmpty()) {
@@ -127,16 +162,19 @@ public class TurnNode implements Comparable<TurnNode> {
             } else {
 //                System.err.println("adding node for " + toExecute);
                 StateNode toAdd = new StateNode(curState, toExecute, controller);
-                if (toExecute instanceof EndCommand) {
-                    states.push(toAdd);
-                    toExecute.execute();
-                } else {
-                    states.push(toAdd);
-                    toExecute.execute();
-                }
+                states.push(toAdd);
 
+                long startExecute = System.currentTimeMillis();
+
+                toExecute.execute();
+
+                controller.addRuntime("Battle AI Execute Action", System
+                        .currentTimeMillis() - startExecute);
             }
         }
+
+        controller.addRuntime("Battle AI TurnStep Checkpoint 3", System
+                .currentTimeMillis() - stepStart);
 
         if (states.isEmpty()) {
             isDone = true;
@@ -175,6 +213,13 @@ public class TurnNode implements Comparable<TurnNode> {
         }).reduce(Integer::sum).get();
     }
 
+    public static int getTurnScore(TurnNode turnNode) {
+        if (!turnNode.cachedValue.isPresent()) {
+            turnNode.cachedValue = Optional.of(caclculateTurnScore(turnNode));
+        }
+        return turnNode.cachedValue.get();
+    }
+
     public static int getTotalMonsterHealth(SaveState saveState) {
         return saveState.curMapNodeState.monsterData.stream()
                                                     .map(monster -> {
@@ -190,7 +235,7 @@ public class TurnNode implements Comparable<TurnNode> {
                                                     .get();
     }
 
-    public static int getTurnScore(TurnNode turnNode) {
+    public static int caclculateTurnScore(TurnNode turnNode) {
 //        System.err.println(getPotionScore(turnNode.startingState.saveState));
         int playerDamage = getPlayerDamage(turnNode);
         int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealth(turnNode.startingState.saveState);
@@ -212,7 +257,15 @@ public class TurnNode implements Comparable<TurnNode> {
 
     @Override
     public int compareTo(TurnNode otherTurn) {
-        return getTurnScore(otherTurn) - getTurnScore(this);
+        long startCompare = System.currentTimeMillis();
+
+        int result = getTurnScore(otherTurn) - getTurnScore(this);
+
+        controller.addRuntime("Comparing Turns", System.currentTimeMillis() - startCompare);
+
+        controller.addRuntime("Comparing Turns instance", 1);
+
+        return result;
     }
 
     public boolean isBetterThan(TurnNode other) {

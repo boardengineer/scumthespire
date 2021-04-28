@@ -29,6 +29,10 @@ public class CardState {
     private final boolean isCostModifiedForTurn;
     private final boolean isCostModified;
 
+    private static HashMap<String, Stack<AbstractCard>> freeCards;
+
+    private final UUID uuid;
+
     // Everything works without these, there is just s wonky 'draw' animation that can be avoided
     // by setting all the physical properies right away
     private final float current_x;
@@ -40,13 +44,11 @@ public class CardState {
     private final float drawScale;
     private final float targetDrawScale;
 
-    private static HashMap<String, Queue<AbstractCard>> freeCards;
-
-    private final UUID uuid;
-
 
     // private final HitboxState hb;
     public CardState(AbstractCard card) {
+        long cardConstructorStartTime = System.currentTimeMillis();
+
         this.cardId = card.cardID;
         this.block = card.block;
         this.upgraded = card.upgraded;
@@ -61,6 +63,13 @@ public class CardState {
         this.freeToPlayOnce = card.freeToPlayOnce;
         this.baseBlock = card.baseBlock;
 
+        this.name = card.name;
+        this.uuid = card.uuid;
+        this.isCostModifiedForTurn = card.isCostModifiedForTurn;
+        this.isCostModified = card.isCostModified;
+        this.magicNumber = card.magicNumber;
+        this.baseMagicNumber = card.baseMagicNumber;
+
         this.current_x = card.current_x;
         this.current_y = card.current_y;
 
@@ -72,12 +81,11 @@ public class CardState {
 
         this.drawScale = card.drawScale;
         this.targetDrawScale = card.targetDrawScale;
-        this.name = card.name;
-        this.uuid = card.uuid;
-        this.isCostModifiedForTurn = card.isCostModifiedForTurn;
-        this.isCostModified = card.isCostModified;
-        this.magicNumber = card.magicNumber;
-        this.baseMagicNumber = card.baseMagicNumber;
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Save Time CardState Constructor", System
+                    .currentTimeMillis() - cardConstructorStartTime);
+        }
     }
 
     public CardState(String jsonString) {
@@ -118,6 +126,8 @@ public class CardState {
     }
 
     public AbstractCard loadCard() {
+        long loadState = System.currentTimeMillis();
+
         AbstractCard result = getCard(cardId);
 
         result.upgraded = upgraded;
@@ -151,13 +161,10 @@ public class CardState {
         result.block = block;
         result.baseBlock = baseBlock;
 
-//        if (cardId.equals(PommelStrike.ID)) {
-//            System.err.println(result.magicNumber);
-//        }
-
-//        if (upgraded) {
-//            result.upgrade();
-//        }
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Load Time load Card Complete", System
+                    .currentTimeMillis() - loadState);
+        }
 
         return result;
     }
@@ -206,7 +213,7 @@ public class CardState {
         String key = card.cardID;
 
         if (!freeCards.containsKey(key)) {
-            freeCards.put(key, new LinkedList<>());
+            freeCards.put(key, new Stack<AbstractCard>());
         }
 
         if (freeCards.get(key).size() > 1000) {
@@ -216,7 +223,7 @@ public class CardState {
         freeCards.get(key).add(card);
     }
 
-    private static AbstractCard getCard(String key) {
+    public static AbstractCard getCard(String key) {
         long startMethod = System.currentTimeMillis();
 
         Optional<AbstractCard> resultOptional = getCachedCard(key);
@@ -224,8 +231,14 @@ public class CardState {
         AbstractCard result;
         if (resultOptional.isPresent()) {
             result = resultOptional.get();
+            if (BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.addRuntime("Card Cache Hit", 1);
+            }
         } else {
             result = getFreshCard(key);
+            if (BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.addRuntime("Card Cache Miss", 1);
+            }
         }
 
         if (shouldGoFast()) {
@@ -242,7 +255,7 @@ public class CardState {
         if (freeCards == null || !freeCards.containsKey(key) || freeCards.get(key).isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(freeCards.get(key).poll());
+        return Optional.of(freeCards.get(key).pop());
     }
 
     private static AbstractCard getFreshCard(String key) {

@@ -1,6 +1,8 @@
 package battleaimod.patches;
 
 import basemod.ReflectionHacks;
+import battleaimod.BattleAiMod;
+import battleaimod.savestate.CardState;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -15,6 +17,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.potions.PotionSlot;
+import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
 
 import java.util.Iterator;
 import java.util.UUID;
@@ -187,6 +190,52 @@ public class CardPatches {
     }
 
     @SpirePatch(
+            clz = AbstractCard.class,
+            paramtypez = {},
+            method = "makeStatEquivalentCopy"
+    )
+    public static class UseCardPoolForRandomCreationPatch {
+        public static SpireReturn Prefix(AbstractCard _instance) {
+            if (shouldGoFast()) {
+                long makeCardCopyStart = System.currentTimeMillis();
+
+                AbstractCard card = CardState.getCard(_instance.cardID);
+                for (int i = 0; i < _instance.timesUpgraded; ++i) {
+                    card.upgrade();
+                }
+
+                card.name = _instance.name;
+                card.target = _instance.target;
+                card.upgraded = _instance.upgraded;
+                card.timesUpgraded = _instance.timesUpgraded;
+                card.baseDamage = _instance.baseDamage;
+                card.baseBlock = _instance.baseBlock;
+                card.baseMagicNumber = _instance.baseMagicNumber;
+                card.cost = _instance.cost;
+                card.costForTurn = _instance.costForTurn;
+                card.isCostModified = _instance.isCostModified;
+                card.isCostModifiedForTurn = _instance.isCostModifiedForTurn;
+                card.inBottleLightning = _instance.inBottleLightning;
+                card.inBottleFlame = _instance.inBottleFlame;
+                card.inBottleTornado = _instance.inBottleTornado;
+                card.isSeen = _instance.isSeen;
+                card.isLocked = _instance.isLocked;
+                card.misc = _instance.misc;
+                card.freeToPlayOnce = _instance.freeToPlayOnce;
+
+                if (BattleAiMod.battleAiController != null) {
+                    BattleAiMod.battleAiController.addRuntime("makeStatEquivalentCopy", System
+                            .currentTimeMillis() - makeCardCopyStart);
+                }
+
+                return SpireReturn.Return(card);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+
+    @SpirePatch(
             clz = AbstractPlayer.class,
             paramtypez = {AbstractCard.class},
             method = "bottledCardUpgradeCheck"
@@ -194,6 +243,28 @@ public class CardPatches {
     public static class NoBottledDescriptionChangePatch {
         public static SpireReturn Prefix(AbstractPlayer _instance, AbstractCard card) {
             if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = ShowCardAndAddToDiscardEffect.class,
+            paramtypez = {AbstractCard.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class ShowCardAndAddToDiscardEffectPatch {
+        public static SpireReturn Prefix(ShowCardAndAddToDiscardEffect _instance, AbstractCard card) {
+            if (shouldGoFast()) {
+
+                if (card.type != AbstractCard.CardType.CURSE && card.type != AbstractCard.CardType.STATUS && AbstractDungeon.player
+                        .hasPower("MasterRealityPower")) {
+                    card.upgrade();
+                }
+
+                AbstractDungeon.player.discardPile.addToTop(card);
+
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

@@ -26,7 +26,7 @@ public class SaveState {
     AbstractDungeon.CurrentScreen screen;
     AbstractDungeon.CurrentScreen previousScreen = null;
 
-    ListState listState;
+//    ListState listState;
     public PlayerState playerState;
     RngState rngState;
     private final int ascensionLevel;
@@ -34,11 +34,29 @@ public class SaveState {
     public MapRoomNodeState curMapNodeState;
 
     public SaveState() {
+        long startSave = System.currentTimeMillis();
+
         this.curMapNodeState = new MapRoomNodeState(AbstractDungeon.currMapNode);
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController
+                    .addRuntime("Save Time New Save Map Node", System.currentTimeMillis() - startSave);
+        }
+
+        long startPlayerSave = System.currentTimeMillis();
+
         playerState = new PlayerState(AbstractDungeon.player);
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController
+                    .addRuntime("Save Time New Save Player", System.currentTimeMillis() - startPlayerSave);
+        }
+
+        long startRngLists = System.currentTimeMillis();
+
         screen = AbstractDungeon.screen;
         rngState = new RngState();
-        listState = new ListState();
+//        listState = new ListState();
         floorNum = AbstractDungeon.floorNum;
 
         this.turn = GameActionManager.turn;
@@ -49,6 +67,14 @@ public class SaveState {
         myTurn = GameStateListener.myTurn;
         encounterName = BattleAiController.currentEncounter;
         this.ascensionLevel = AbstractDungeon.ascensionLevel;
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController
+                    .addRuntime("Save Time Rng and Lists", System.currentTimeMillis() - startRngLists);
+            BattleAiMod.battleAiController
+                    .addRuntime("Save Time New Save State", System.currentTimeMillis() - startSave);
+        }
+
     }
 
     public SaveState(String jsonString) {
@@ -69,7 +95,7 @@ public class SaveState {
         this.encounterName = parsed.get("encounter_name").isJsonNull() ? null : parsed
                 .get("encounter_name").getAsString();
 
-        this.listState = new ListState(parsed.get("list_state").getAsString());
+//        this.listState = new ListState(parsed.get("list_state").getAsString());
         this.playerState = new PlayerState(parsed.get("player_state").getAsString());
         this.rngState = new RngState(parsed.get("rng_state").getAsString());
 
@@ -83,7 +109,16 @@ public class SaveState {
 
         AbstractDungeon.ascensionLevel = this.ascensionLevel;
         GameActionManager.turn = this.turn;
+
+        long loadPlayerStartTime = System.currentTimeMillis();
+
         AbstractDungeon.player = playerState.loadPlayer();
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController
+                    .addRuntime("Load Time Player", System
+                            .currentTimeMillis() - loadPlayerStartTime);
+        }
 
         long point2 = System.currentTimeMillis();
         curMapNodeState.loadMapRoomNode(AbstractDungeon.currMapNode);
@@ -104,8 +139,8 @@ public class SaveState {
 
         AbstractDungeon.screen = screen;
 
-//        AbstractDungeon.isScreenUp = false;
-        listState.loadLists();
+        AbstractDungeon.isScreenUp = false;
+//        listState.loadLists();
 
         AbstractDungeon.dungeonMapScreen.close();
 
@@ -170,7 +205,7 @@ public class SaveState {
         saveStateJson.addProperty("screen_name", screen.name());
         saveStateJson.addProperty("previous_screen_name", previousScreen.name());
 
-        saveStateJson.addProperty("list_state", listState.encode());
+//        saveStateJson.addProperty("list_state", listState.encode());
         saveStateJson.addProperty("player_state", playerState.encode());
         saveStateJson.addProperty("rng_state", rngState.encode());
 

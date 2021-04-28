@@ -6,6 +6,7 @@ import battleaimod.battleai.BattleAiController;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.EmptyDeckShuffleActionFast;
 import battleaimod.fastobjects.actions.RollMoveActionFast;
+import battleaimod.savestate.CardState;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -56,10 +57,7 @@ import com.megacrit.cardcrawl.vfx.combat.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
@@ -171,33 +169,38 @@ public class FastActionsPatch {
                                     actionManager.currentAction = null;
                                 }
                                 if (actionManager.currentAction != null) {
+                                    long actionStartTime = System.currentTimeMillis();
                                     Class actionClass = actionManager.currentAction.getClass();
 
                                     if (!actionManager.currentAction.isDone) {
                                         actionManager.currentAction.update();
                                     }
-//                                    if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.actionClassTimes != null) {
-//                                        long timeThisAction = (System
-//                                                .currentTimeMillis() - startTime);
-//                                        BattleAiMod.battleAiController
-//                                                .addRuntime("Actions", timeThisAction);
-//                                        HashMap<Class, Long> actionClassTimes = BattleAiMod.battleAiController.actionClassTimes;
-//                                        if (actionClassTimes != null) {
-//                                            if (actionClassTimes.containsKey(actionClass)) {
-//                                                actionClassTimes.put(actionClass, actionClassTimes
-//                                                        .get(actionClass) + timeThisAction);
-//                                            } else {
-//                                                actionClassTimes.put(actionClass, timeThisAction);
-//                                            }
-//                                        }
-//                                    }
+                                    if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.actionClassTimes != null) {
+                                        long timeThisAction = (System
+                                                .currentTimeMillis() - actionStartTime);
+                                        BattleAiMod.battleAiController
+                                                .addRuntime("Actions", timeThisAction);
+                                        HashMap<Class, Long> actionClassTimes = BattleAiMod.battleAiController.actionClassTimes;
+                                        if (actionClassTimes != null) {
+                                            if (actionClassTimes.containsKey(actionClass)) {
+                                                actionClassTimes.put(actionClass, actionClassTimes
+                                                        .get(actionClass) + timeThisAction);
+                                            } else {
+                                                actionClassTimes.put(actionClass, timeThisAction);
+                                            }
+                                        }
+                                    }
                                 }
 
                                 if (actionManager.currentAction != null && actionManager.currentAction.isDone) {
                                     actionManager.currentAction = null;
                                 }
-DrawCardAction d;
+
+                                long actionManagerUpdateTime = System.currentTimeMillis();
+
                                 actionManager.update();
+
+                                BattleAiMod.battleAiController.addRuntime("Action Manager Loop", System.currentTimeMillis() - actionManagerUpdateTime);
                             }
                         } else if (shouldStepAiController()) {
                             long stepStartTime = System.currentTimeMillis();
@@ -205,8 +208,8 @@ DrawCardAction d;
                             BattleAiMod.readyForUpdate = false;
                             BattleAiMod.battleAiController.step();
 
-//                            BattleAiMod.battleAiController.addRuntime("Step", System
-//                                    .currentTimeMillis() - stepStartTime);
+                            BattleAiMod.battleAiController.addRuntime("Battle AI Step", System
+                                    .currentTimeMillis() - stepStartTime);
                         }
 
                         long startRoomUpdate = System.currentTimeMillis();
@@ -358,16 +361,18 @@ DrawCardAction d;
         public static void Prefix(MakeTempCardInDiscardAction _instance) {
             if (shouldGoFast()) {
                 ReflectionHacks
-                        .setPrivate(_instance, AbstractGameAction.class, "duration", .001F);
+                        .setPrivate(_instance, AbstractGameAction.class, "duration", .00001F);
 
                 ReflectionHacks
-                        .setPrivate(_instance, AbstractGameAction.class, "startDuration", .001F);
+                        .setPrivate(_instance, AbstractGameAction.class, "startDuration", .00001F);
             }
         }
 
         public static void Postfix(MakeTempCardInDiscardAction _instance) {
             if (shouldGoFast()) {
                 _instance.isDone = true;
+                CardState.freeCard(ReflectionHacks
+                        .getPrivate(_instance, MakeTempCardInDiscardAction.class, "c"));
             }
         }
     }

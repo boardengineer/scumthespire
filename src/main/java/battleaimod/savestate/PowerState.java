@@ -1,6 +1,7 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
+import battleaimod.BattleAiMod;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -129,6 +130,8 @@ public class PowerState {
     }
 
     public AbstractPower loadPower(AbstractCreature targetAndSource) {
+        long loadStartTime = System.currentTimeMillis();
+
         AbstractPower result = null;
         if (powerId.equals("Strength")) {
             result = new StrengthPower(targetAndSource, amount);
@@ -278,6 +281,11 @@ public class PowerState {
                     .setPrivate(result, DrawReductionPower.class, "justApplied", drawReductionJustApplied);
         } else {
             System.err.println("missing type for power id: " + powerId);
+        }
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Load Time loading power", System
+                    .currentTimeMillis() - loadStartTime);
         }
 
         return result;

@@ -51,6 +51,9 @@ public class MapRoomNodeState {
         this.phase = room.phase;
 
         // rooms that haven't been entered have null Monster groups
+
+        long startMonsterSave = System.currentTimeMillis();
+
         if (room.monsters != null) {
             this.monsterData = room.monsters.monsters.stream()
                                                      .map(monster -> BattleAiMod.monsterByIdmap
@@ -59,6 +62,12 @@ public class MapRoomNodeState {
                                                      .collect(Collectors
                                                              .toCollection(ArrayList::new));
         }
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Save Time Monster Save", System
+                    .currentTimeMillis() - startMonsterSave);
+        }
+
         this.isBattleOver = room.isBattleOver;
         this.cannotLose = room.cannotLose;
         this.eliteTrigger = room.eliteTrigger;
@@ -129,6 +138,9 @@ public class MapRoomNodeState {
         AbstractRoom.waitTimer = this.waitTimer;
 
         mapRoomNode.getRoom().dispose();
+
+        long monsterLoadStart = System.currentTimeMillis();
+
         if (monsterData != null) {
             room.monsters = new MonsterGroup(monsterData.stream().map(MonsterState::loadMonster)
                                                         .toArray(AbstractMonster[]::new));
@@ -175,6 +187,13 @@ public class MapRoomNodeState {
                         ((ReptomancerState) monsterState).postMonstersLoad((Reptomancer) monster);
                     }
                 }
+            }
+        }
+
+        if (BattleAiMod.battleAiController != null) {
+            if (BattleAiMod.battleAiController.runTimes != null) {
+                BattleAiMod.battleAiController.addRuntime("Monster Load Time", System
+                        .currentTimeMillis() - monsterLoadStart);
             }
         }
 

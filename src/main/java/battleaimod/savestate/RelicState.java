@@ -1,6 +1,7 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
+import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.NoLoggerMummifiedHand;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -122,10 +123,17 @@ public class RelicState {
     public AbstractRelic loadRelic() {
         AbstractRelic result;
 
+        long makeRelicCopyStartTime = System.currentTimeMillis();
+
         if (relicId.equals("Mummified Hand")) {
             result = new NoLoggerMummifiedHand();
         } else {
             result = RelicLibrary.getRelic(relicId).makeCopy();
+        }
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Load Time Relic Copy", System
+                    .currentTimeMillis() - makeRelicCopyStartTime);
         }
 
         result.counter = counter;
@@ -170,6 +178,11 @@ public class RelicState {
         if (result instanceof Pocketwatch) {
             ReflectionHacks
                     .setPrivate(result, Pocketwatch.class, "firstTurn", pocketwatchFirstTurn);
+        }
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Load Time Load Relic", System
+                    .currentTimeMillis() - makeRelicCopyStartTime);
         }
 
         return result;

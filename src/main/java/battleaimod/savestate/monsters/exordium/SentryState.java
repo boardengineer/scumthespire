@@ -44,10 +44,27 @@ public class SentryState extends MonsterState {
 
     @Override
     public AbstractMonster loadMonster() {
+
+        long constructorStart = System.currentTimeMillis();
+
         Sentry result = new Sentry(offsetX, offsetY);
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController
+                    .addRuntime("Load Time Constructor Sentry", System.currentTimeMillis() - constructorStart);
+            BattleAiMod.battleAiController
+                    .addRuntime("Load Time Constructor Sentry Instance",1);
+        }
+
         populateSharedFields(result);
 
         ReflectionHacks.setPrivate(result, Sentry.class, "firstMove", firstMove);
+
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController
+                    .addRuntime("Load Time Sentry Complete", System.currentTimeMillis() - constructorStart);
+        }
 
         return result;
     }
@@ -216,7 +233,7 @@ public class SentryState extends MonsterState {
             if (shouldGoFast()) {
                 if (BattleAiMod.battleAiController != null) {
                     BattleAiMod.battleAiController
-                            .addRuntime("Make Temp Card", System
+                            .addRuntime("Make Temp Card Constructor", System
                                     .currentTimeMillis() - startConstructor);
                 }
                 return SpireReturn.Continue();

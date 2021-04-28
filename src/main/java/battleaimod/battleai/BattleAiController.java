@@ -5,6 +5,7 @@ import battleaimod.ChoiceScreenUtils;
 import battleaimod.battleai.commands.Command;
 import battleaimod.savestate.CardState;
 import battleaimod.savestate.SaveState;
+import com.google.common.collect.MinMaxPriorityQueue;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
@@ -20,12 +21,12 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    public int maxTurnLoads = 10_000;
+    public int maxTurnLoads = 30_000;
 
     public int targetTurn;
     public int targetTurnJump;
 
-    public PriorityQueue<TurnNode> turns = new PriorityQueue<>();
+    public MinMaxPriorityQueue<TurnNode> turns = MinMaxPriorityQueue.maximumSize(10_000).create();
     public StateNode root = null;
 
     public int minDamage = 5000;
@@ -258,7 +259,7 @@ public class BattleAiController {
                 startingHealth = startingState.getPlayerHealth();
                 root = firstStateContainer;
                 firstStateContainer.saveState = startingState;
-                turns = new PriorityQueue<>();
+                turns = MinMaxPriorityQueue.maximumSize(50_000).create();
                 this.rootTurn = new TurnNode(firstStateContainer, this, null);
                 turns.add(rootTurn);
 
@@ -316,10 +317,14 @@ public class BattleAiController {
                     System.err.println("not done yet");
                 }
             } else if (curTurn != null) {
+                long startTurnStep = System.currentTimeMillis();
+
                 boolean reachedNewTurn = curTurn.step();
                 if (reachedNewTurn) {
                     curTurn = null;
                 }
+
+                addRuntime("Battle AI TurnNode Step", System.currentTimeMillis() - startTurnStep);
             }
 
             if ((curTurn == null || curTurn.isDone || bestTurn != null) && turns.isEmpty()) {
@@ -367,7 +372,7 @@ public class BattleAiController {
 
             if (!bestPathRunner.hasNext()) {
                 System.err.println("no more commands to run");
-                turns = new PriorityQueue<>();
+                turns = MinMaxPriorityQueue.maximumSize(50_000).create();
                 root = null;
                 minDamage = 5000;
                 bestEnd = null;

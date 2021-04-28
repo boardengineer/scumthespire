@@ -1,9 +1,11 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
+import battleaimod.BattleAiMod;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -52,28 +54,35 @@ public class PlayerState extends CreatureState {
     public PlayerState(AbstractPlayer player) {
         super(player);
 
+        long startPlayerLoad = System.currentTimeMillis();
+
         this.chosenClass = player.chosenClass;
         this.gameHandSize = player.gameHandSize;
         this.masterHandSize = player.masterHandSize;
         this.startingMaxHP = player.startingMaxHP;
 
-        this.masterDeck = player.masterDeck.group.stream().map(CardState::new)
-                                                 .collect(Collectors.toCollection(ArrayList::new));
-        this.drawPile = player.drawPile.group.stream().map(CardState::new)
-                                             .collect(Collectors.toCollection(ArrayList::new));
-        this.hand = player.hand.group.stream().map(CardState::new)
-                                     .collect(Collectors.toCollection(ArrayList::new));
-        this.discardPile = player.discardPile.group.stream().map(CardState::new)
-                                                   .collect(Collectors
-                                                           .toCollection(ArrayList::new));
-        this.exhaustPile = player.exhaustPile.group.stream().map(CardState::new)
-                                                   .collect(Collectors
-                                                           .toCollection(ArrayList::new));
-        this.limbo = player.limbo.group.stream().map(CardState::new)
-                                       .collect(Collectors.toCollection(ArrayList::new));
+        this.masterDeck = toCardStateArray(player.masterDeck.group);
+        this.drawPile = toCardStateArray(player.drawPile.group);
+        this.hand = toCardStateArray(player.hand.group);
+        this.discardPile = toCardStateArray(player.discardPile.group);
+        this.exhaustPile = toCardStateArray(player.exhaustPile.group);
+        this.limbo = toCardStateArray(player.limbo.group);
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Save Time Save Player Decks", System
+                    .currentTimeMillis() - startPlayerLoad);
+        }
+
+        long relicSaveStart = System.currentTimeMillis();
 
         this.relics = player.relics.stream().map(RelicState::new)
                                    .collect(Collectors.toCollection(ArrayList::new));
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime("Save Time Save Player Relics", System
+                    .currentTimeMillis() - relicSaveStart);
+        }
+
 
         this.potions = player.potions.stream().map(PotionState::new)
                                      .collect(Collectors.toCollection(ArrayList::new));
@@ -151,12 +160,22 @@ public class PlayerState extends CreatureState {
         player.masterHandSize = this.masterHandSize;
         player.startingMaxHP = this.startingMaxHP;
 
+        long freeCardStart = System.currentTimeMillis();
+
         CardState.freeCardList(player.masterDeck.group);
         CardState.freeCardList(player.drawPile.group);
         CardState.freeCardList(player.hand.group);
         CardState.freeCardList(player.discardPile.group);
         CardState.freeCardList(player.exhaustPile.group);
         CardState.freeCardList(player.limbo.group);
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController
+                    .addRuntime("Load Time Player Free Card", System
+                            .currentTimeMillis() - freeCardStart);
+        }
+
+        long loadDecksStart = System.currentTimeMillis();
 
         player.masterDeck.group = this.masterDeck.stream().map(CardState::loadCard)
                                                  .collect(Collectors.toCollection(ArrayList::new));
@@ -174,20 +193,36 @@ public class PlayerState extends CreatureState {
         player.limbo.group = this.limbo.stream().map(CardState::loadCard)
                                        .collect(Collectors.toCollection(ArrayList::new));
 
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController
+                    .addRuntime("Load Time Player Decks Populated", System
+                            .currentTimeMillis() - loadDecksStart);
+        }
+
+        long relicStartTime = System.currentTimeMillis();
+
         player.relics = this.relics.stream().map(RelicState::loadRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
-
-        player.potions = this.potions.stream().map(PotionState::loadPotion)
-                                     .collect(Collectors.toCollection(ArrayList::new));
-        for (int i = 0; i < player.potions.size(); i++) {
-            player.potions.get(i).setAsObtained(i);
-        }
 
         if (!shouldGoFast()) {
             AbstractDungeon.topPanel.adjustRelicHbs();
             for (int i = 0; i < player.relics.size(); i++) {
                 player.relics.get(i).instantObtain(player, i, false);
             }
+        }
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController
+                    .addRuntime("Load Time Player Relics", System
+                            .currentTimeMillis() - relicStartTime);
+        }
+
+        player.potions = this.potions.stream().map(PotionState::loadPotion)
+                                     .collect(Collectors.toCollection(ArrayList::new));
+
+
+        for (int i = 0; i < player.potions.size(); i++) {
+            player.potions.get(i).setAsObtained(i);
         }
 
         player.energy.energy = this.energyManagerEnergy;
@@ -206,7 +241,9 @@ public class PlayerState extends CreatureState {
                 .setPrivate(player, AbstractPlayer.class, "renderCorpse", this.renderCorpse);
 
 
-        player.update();
+        if(!shouldGoFast()) {
+            player.update();
+        }
 
         return player;
     }
@@ -288,6 +325,16 @@ public class PlayerState extends CreatureState {
     private static ArrayList<CardState> decodeCardList(String cardListString) {
         return Stream.of(cardListString.split(CARD_DELIMETER)).filter(s -> !s.isEmpty())
                      .map(CardState::new).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private static ArrayList<CardState> toCardStateArray(ArrayList<AbstractCard> cards) {
+        ArrayList<CardState> result = new ArrayList<>();
+
+        for (AbstractCard card : cards) {
+            result.add(new CardState(card));
+        }
+
+        return result;
     }
 
 }

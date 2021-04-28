@@ -41,6 +41,11 @@
             <systemPath>${basedir}/../_ModTheSpire/mods/SuperFastMode.jar</systemPath>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>30.1.1-jre</version>
+        </dependency>
+        <dependency>
             <groupId>basemod</groupId>
             <artifactId>BaseMod-root</artifactId>
             <version>${BaseMod.version}</version>

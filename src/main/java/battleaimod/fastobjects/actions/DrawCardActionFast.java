@@ -1,5 +1,6 @@
 package battleaimod.fastobjects.actions;
 
+import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.DrawCardAction;
 import com.megacrit.cardcrawl.cards.SoulGroup;
@@ -63,6 +64,8 @@ public class DrawCardActionFast extends AbstractGameAction {
     }
 
     public void update() {
+        long startDrawUpdate = System.currentTimeMillis();
+
         if (isDone) {
             return;
         }
@@ -70,6 +73,7 @@ public class DrawCardActionFast extends AbstractGameAction {
         if (alreadyDrawing) {
             return;
         }
+
         if (this.clearDrawHistory) {
             this.clearDrawHistory = false;
         }
@@ -82,6 +86,12 @@ public class DrawCardActionFast extends AbstractGameAction {
         } else {
             int deckSize = AbstractDungeon.player.drawPile.size();
             int discardSize = AbstractDungeon.player.discardPile.size();
+
+            if (BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController
+                        .addRuntime("Draw Update 1", System.currentTimeMillis() - startDrawUpdate);
+            }
+
             if (!SoulGroup.isActive() || shouldGoFast()) {
                 if (deckSize + discardSize == 0) {
                     this.endActionWithFollowUp();
@@ -89,6 +99,12 @@ public class DrawCardActionFast extends AbstractGameAction {
                     AbstractDungeon.player.createHandIsFullDialog();
                     this.endActionWithFollowUp();
                 } else {
+
+                    if (BattleAiMod.battleAiController != null) {
+                        BattleAiMod.battleAiController
+                                .addRuntime("Draw Update 2", System.currentTimeMillis() - startDrawUpdate);
+                    }
+
                     if (!this.shuffleCheck) {
                         int tmp;
                         if (this.amount + AbstractDungeon.player.hand.size() > 10) {
@@ -114,14 +130,16 @@ public class DrawCardActionFast extends AbstractGameAction {
                         this.shuffleCheck = true;
                     }
 
+                    if (BattleAiMod.battleAiController != null) {
+                        BattleAiMod.battleAiController
+                                .addRuntime("Draw Update 3", System.currentTimeMillis() - startDrawUpdate);
+                    }
+
                     while (this.amount != 0) {
                         alreadyDrawing = true;
                         --this.amount;
                         if (!AbstractDungeon.player.drawPile.isEmpty()) {
-
                             AbstractDungeon.player.draw();
-
-
                             if (!shouldGoFast()) {
                                 AbstractDungeon.player.hand.refreshHandLayout();
                             }
@@ -136,6 +154,12 @@ public class DrawCardActionFast extends AbstractGameAction {
                         }
 
 
+                    }
+
+
+                    if (BattleAiMod.battleAiController != null) {
+                        BattleAiMod.battleAiController
+                                .addRuntime("Draw Update 4", System.currentTimeMillis() - startDrawUpdate);
                     }
 
                     if (this.amount == 0) {
