@@ -2,10 +2,7 @@ package battleaimod.networking;
 
 import battleaimod.BattleAiMod;
 import battleaimod.battleai.BattleAiController;
-import battleaimod.battleai.commands.CardCommand;
-import battleaimod.battleai.commands.Command;
-import battleaimod.battleai.commands.EndCommand;
-import battleaimod.battleai.commands.PotionCommand;
+import battleaimod.battleai.commands.*;
 import battleaimod.savestate.SaveState;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -150,8 +147,11 @@ public class AiClient {
         } else if (type.equals("POTION")) {
             return new PotionCommand(commandString);
         } else if (type.equals("END")) {
-            System.err.println("parsing end");
             return new EndCommand(commandString);
+        } else if (type.equals("HAND_SELECT")) {
+            return new HandSelectCommand(commandString);
+        } else if (type.equals("HAND_SELECT_CONFIRM")) {
+            return HandSelectConfirmCommand.INSTANCE;
         }
 
         return null;

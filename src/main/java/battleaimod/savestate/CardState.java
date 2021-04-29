@@ -11,8 +11,9 @@ import java.util.*;
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class CardState {
-    private final String cardId;
-    private final boolean upgraded;
+    public final String cardId;
+    public final boolean upgraded;
+    private final int timesUpgraded;
     private final int baseDamage;
     private final int baseBlock;
     private final int cost;
@@ -81,6 +82,7 @@ public class CardState {
 
         this.drawScale = card.drawScale;
         this.targetDrawScale = card.targetDrawScale;
+        this.timesUpgraded = card.timesUpgraded;
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.addRuntime("Save Time CardState Constructor", System
@@ -110,6 +112,7 @@ public class CardState {
         this.block = parsed.get("block").getAsInt();
         this.baseMagicNumber = parsed.get("base_magic_number").getAsInt();
         this.baseBlock = parsed.get("base_block").getAsInt();
+        this.timesUpgraded = parsed.get("times_upgraded").getAsInt();
 
         // TODO
         this.current_x = 0;
@@ -160,6 +163,7 @@ public class CardState {
         result.baseMagicNumber = baseMagicNumber;
         result.block = block;
         result.baseBlock = baseBlock;
+        result.timesUpgraded = timesUpgraded;
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.addRuntime("Load Time load Card Complete", System
@@ -193,6 +197,7 @@ public class CardState {
         cardStateJson.addProperty("block", block);
         cardStateJson.addProperty("base_magic_number", baseMagicNumber);
         cardStateJson.addProperty("base_block", baseBlock);
+        cardStateJson.addProperty("times_upgraded", timesUpgraded);
 
         return cardStateJson.toString();
     }

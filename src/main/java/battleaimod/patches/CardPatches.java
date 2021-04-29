@@ -7,7 +7,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
+import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.EscapeAction;
+import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
@@ -103,6 +105,31 @@ public class CardPatches {
     }
 
     @SpirePatch(
+            clz = CardGroup.class,
+            paramtypez = {AbstractCard.class},
+            method = "moveToDiscardPile"
+    )
+    public static class FastDiscardPatch {
+        public static SpireReturn Prefix(CardGroup _instance, AbstractCard card) {
+            ReflectionHacks
+                    .privateMethod(CardGroup.class, "resetCardBeforeMoving", AbstractCard.class)
+                    .invoke(_instance, card);
+
+            for (AbstractCard groupCard : _instance.group) {
+                if (groupCard.uuid.equals(card.uuid)) {
+                    _instance.group.remove(groupCard);
+                    break;
+                }
+            }
+
+            AbstractDungeon.player.discardPile.addToTop(card);
+
+            AbstractDungeon.player.onCardDrawOrDiscard();
+            return SpireReturn.Return(null);
+        }
+    }
+
+    @SpirePatch(
             clz = AbstractPlayer.class,
             paramtypez = {},
             method = "update"
@@ -111,6 +138,22 @@ public class CardPatches {
         public static SpireReturn Prefix(AbstractPlayer _instance) {
             if (shouldGoFast()) {
                 return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = GameActionManager.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class MaybeSkipActionUpdatePatch {
+        public static SpireReturn Prefix(GameActionManager _instance) {
+            if (shouldGoFast()) {
+//                if (AbstractDungeon.isScreenUp) {
+//                    return SpireReturn.Return(null);
+//                }
             }
             return SpireReturn.Continue();
         }
@@ -130,6 +173,20 @@ public class CardPatches {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = ArmamentsAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class NoDoubleArmamentsPatch {
+        public static void Postfix(ArmamentsAction _instance) {
+            // Force the action to stay in the the manager until cards are selected
+            if (!AbstractDungeon.handCardSelectScreen.wereCardsRetrieved && AbstractDungeon.isScreenUp) {
+                _instance.isDone = false;
+            }
         }
     }
 

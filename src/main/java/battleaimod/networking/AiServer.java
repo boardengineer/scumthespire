@@ -2,9 +2,9 @@ package battleaimod.networking;
 
 import battleaimod.BattleAiMod;
 import battleaimod.battleai.BattleAiController;
-import battleaimod.battleai.commands.Command;
 import battleaimod.battleai.StateNode;
 import battleaimod.battleai.TurnNode;
+import battleaimod.battleai.commands.Command;
 import battleaimod.savestate.SaveState;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -57,6 +57,7 @@ public class AiServer {
                         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                         while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode) {
                             // Send update
+
                             JsonObject jsonToSend = new JsonObject();
 
                             TurnNode committedTurn = BattleAiMod.battleAiController.committedTurn;

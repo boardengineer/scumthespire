@@ -40,12 +40,12 @@ public class PlayerState extends CreatureState {
     private final boolean isDead;
     private final boolean renderCorpse;
 
-    private final ArrayList<CardState> masterDeck;
-    private final ArrayList<CardState> drawPile;
-    private final ArrayList<CardState> hand;
-    private final ArrayList<CardState> discardPile;
-    private final ArrayList<CardState> exhaustPile;
-    private final ArrayList<CardState> limbo;
+    public final ArrayList<CardState> masterDeck;
+    public final ArrayList<CardState> drawPile;
+    public final ArrayList<CardState> hand;
+    public final ArrayList<CardState> discardPile;
+    public final ArrayList<CardState> exhaustPile;
+    public final ArrayList<CardState> limbo;
 
     public final ArrayList<PotionState> potions;
 
@@ -327,7 +327,7 @@ public class PlayerState extends CreatureState {
                      .map(CardState::new).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private static ArrayList<CardState> toCardStateArray(ArrayList<AbstractCard> cards) {
+    public static ArrayList<CardState> toCardStateArray(ArrayList<AbstractCard> cards) {
         ArrayList<CardState> result = new ArrayList<>();
 
         for (AbstractCard card : cards) {

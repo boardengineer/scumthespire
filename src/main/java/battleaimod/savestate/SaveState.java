@@ -7,12 +7,11 @@ import battleaimod.battleai.BattleAiController;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.cards.CardQueueItem;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.powers.ConstrictedPower;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
-
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class SaveState {
     private final boolean isScreenUp;
@@ -28,6 +27,7 @@ public class SaveState {
 
 //    ListState listState;
     public PlayerState playerState;
+    private HandSelectScreenState handSelectScreenState;
     RngState rngState;
     private final int ascensionLevel;
 
@@ -35,6 +35,7 @@ public class SaveState {
 
     public SaveState() {
         long startSave = System.currentTimeMillis();
+        handSelectScreenState = new HandSelectScreenState();
 
         this.curMapNodeState = new MapRoomNodeState(AbstractDungeon.currMapNode);
 
@@ -102,10 +103,17 @@ public class SaveState {
         this.curMapNodeState = new MapRoomNodeState(parsed.get("cur_map_node_state").getAsString());
         this.isScreenUp = parsed.get("is_screen_up").getAsBoolean();
         this.ascensionLevel = parsed.get("ascension_level").getAsInt();
+
+        // TODO
+        handSelectScreenState = null;
     }
 
     public void loadState() {
         long loadStartTime = System.currentTimeMillis();
+//        AbstractDungeon.actionManager.cardQueue.clear();
+        AbstractDungeon.actionManager.currentAction = null;
+        AbstractDungeon.actionManager.actions.clear();
+
 
         AbstractDungeon.ascensionLevel = this.ascensionLevel;
         GameActionManager.turn = this.turn;
@@ -120,6 +128,8 @@ public class SaveState {
                             .currentTimeMillis() - loadPlayerStartTime);
         }
 
+//        AbstractDungeon.actionManager.cardQueue.get(0)
+        CardQueueItem item;
         long point2 = System.currentTimeMillis();
         curMapNodeState.loadMapRoomNode(AbstractDungeon.currMapNode);
 
@@ -139,23 +149,22 @@ public class SaveState {
 
         AbstractDungeon.screen = screen;
 
-        AbstractDungeon.isScreenUp = false;
+//        AbstractDungeon.isScreenUp = false;
 //        listState.loadLists();
 
         AbstractDungeon.dungeonMapScreen.close();
 
-        AbstractDungeon.screen = AbstractDungeon.CurrentScreen.NONE;
+//        AbstractDungeon.screen = AbstractDungeon.CurrentScreen.NONE;
 
         AbstractDungeon.floorNum = floorNum;
         AbstractDungeon.isScreenUp = isScreenUp;
 
         BattleAiMod.readyForUpdate = true;
 
-        if (!shouldGoFast()) {
-            CombatRewardScreenState.loadCombatRewardScreen();
-        }
+//        if (!shouldGoFast()) {
+//            CombatRewardScreenState.loadCombatRewardScreen();
+//        }
 
-        rngState.loadRng();
 
         GameStateListener.previousScreen = previousScreen;
         GameStateListener.previousScreenUp = previousScreenUp;
@@ -171,6 +180,13 @@ public class SaveState {
                         .currentTimeMillis() - loadStartTime);
             }
         }
+
+        if(handSelectScreenState != null) {
+            handSelectScreenState.loadHandSelectScreenState();
+        }
+
+        rngState.loadRng();
+
     }
 
     public int getPlayerHealth() {

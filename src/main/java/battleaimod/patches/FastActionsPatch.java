@@ -17,6 +17,7 @@ import com.megacrit.cardcrawl.actions.IntentFlashAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.defect.TriggerEndOfTurnOrbsAction;
+import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.audio.MusicMaster;
@@ -152,7 +153,7 @@ public class FastActionsPatch {
                         actionManager.cardsPlayedThisCombat.clear();
 
                         if (shouldWaitOnActions(actionManager)) {
-                            while (actionManager.currentAction != null) {
+                            while (actionManager.currentAction != null && !AbstractDungeon.isScreenUp) {
                                 if (actionManager.currentAction instanceof RollMoveAction) {
                                     AbstractMonster monster = ReflectionHacks
                                             .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
@@ -192,15 +193,18 @@ public class FastActionsPatch {
                                     }
                                 }
 
-                                if (actionManager.currentAction != null && actionManager.currentAction.isDone) {
+                                if (actionManager.currentAction != null && actionManager.currentAction.isDone && !(actionManager.currentAction instanceof ArmamentsAction)) {
                                     actionManager.currentAction = null;
                                 }
 
                                 long actionManagerUpdateTime = System.currentTimeMillis();
 
-                                actionManager.update();
-
-                                BattleAiMod.battleAiController.addRuntime("Action Manager Loop", System.currentTimeMillis() - actionManagerUpdateTime);
+                                if(!AbstractDungeon.isScreenUp) {
+                                    actionManager.update();
+                                }
+                                BattleAiMod.battleAiController
+                                        .addRuntime("Action Manager Loop", System
+                                                .currentTimeMillis() - actionManagerUpdateTime);
                             }
                         } else if (shouldStepAiController()) {
                             long stepStartTime = System.currentTimeMillis();
@@ -216,7 +220,9 @@ public class FastActionsPatch {
 
 //                        System.err.println("Updating room");
                         //actionManager.update();
-                        roomUpdate();
+                        if(!AbstractDungeon.isScreenUp) {
+                            roomUpdate();
+                        }
 
                         if (BattleAiMod.battleAiController != null) {
                             BattleAiMod.battleAiController.addRuntime("Room Update", System
@@ -246,7 +252,7 @@ public class FastActionsPatch {
                                     + " " + AbstractDungeon.topLevelEffects
                                     .size() + " " + AbstractDungeon.effectsQueue
                                     .size() + " " + actionManager.monsterQueue.size());
-                    if (actionManager.currentAction == null) {
+                    if (actionManager.currentAction == null && !AbstractDungeon.isScreenUp) {
                         ActionManagerNextAction();
                         AbstractDungeon
                                 .getCurrRoom().phase = AbstractRoom.RoomPhase.COMBAT;
@@ -400,22 +406,24 @@ public class FastActionsPatch {
         }
     }
 
-    private static boolean shouldStepAiController() {
-        return BattleAiMod.battleAiController != null &&
-                !BattleAiMod.battleAiController.isDone &&
-                actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
-                !BattleAiMod.battleAiController.runCommandMode &&
-                actionManager.currentAction == null &&
-                actionManager.actions.isEmpty() &&
-                actionManager.cardQueue.isEmpty() &&
-                !actionManager.usingCard;
+    public static boolean shouldStepAiController() {
+        return (BattleAiMod.battleAiController != null &&
+                !BattleAiMod.battleAiController.isDone) &&
+                ((actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
+                        !BattleAiMod.battleAiController.runCommandMode &&
+                        actionManager.currentAction == null &&
+                        actionManager.actions.isEmpty() &&
+                        actionManager.cardQueue.isEmpty() &&
+                        !actionManager.usingCard) ||
+                        AbstractDungeon.isScreenUp);
     }
 
     private static boolean shouldWaitOnActions(GameActionManager actionManager) {
-        return (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode) &&
-                ((actionManager.currentAction != null) || (actionManager.turnHasEnded && !AbstractDungeon.getMonsters().areMonstersBasicallyDead()) ||
-                        !actionManager.monsterQueue.isEmpty() || !actionManager.actions
-                        .isEmpty() || actionManager.usingCard);
+        return (!AbstractDungeon.isScreenUp && BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode && !AbstractDungeon.isScreenUp) &&
+                ((actionManager.currentAction != null) || (actionManager.turnHasEnded && !AbstractDungeon
+                        .getMonsters().areMonstersBasicallyDead()) ||
+                        !actionManager.monsterQueue.isEmpty() || (!actionManager.actions
+                        .isEmpty() && AbstractDungeon.screen != AbstractDungeon.CurrentScreen.HAND_SELECT) || actionManager.usingCard);
     }
 
 

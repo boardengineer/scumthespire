@@ -2,15 +2,16 @@ package battleaimod;
 
 import basemod.ReflectionHacks;
 import basemod.interfaces.PreUpdateSubscriber;
+import battleaimod.battleai.BattleAiController;
 import battleaimod.fastobjects.actions.*;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
+import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.IntentFlashAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.animations.VFXAction;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
-import com.megacrit.cardcrawl.cards.SoulGroup;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
@@ -50,23 +51,26 @@ public class SpeedController implements PreUpdateSubscriber {
         }
 
         if (AbstractDungeon.actionManager.turnHasEnded
-                || AbstractDungeon.actionManager.currentAction != null
-                || !AbstractDungeon.actionManager.isEmpty()
-                || !AbstractDungeon.actionManager.cardQueue.isEmpty()) {
-            return;
+                || (AbstractDungeon.actionManager.currentAction != null && AbstractDungeon.actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS)
+                || !AbstractDungeon.actionManager.isEmpty()) {
+            if (!AbstractDungeon.isScreenUp || AbstractDungeon.screen != AbstractDungeon.CurrentScreen.HAND_SELECT) {
+                return;
+            }
         } else {
             try {
 //                AbstractDungeon.getCurrRoom().souls.
-                if (SoulGroup.isActive()) {
-                    return;
-                }
+//                if (SoulGroup.isActive()) {
+//                    return;
+//                }
             } catch (Exception e) {
             }
         }
 
-        if (BattleAiMod.readyForUpdate && !shouldGoFast()) {
-            BattleAiMod.readyForUpdate = false;
-            BattleAiMod.sendGameState();
+        if (!shouldGoFast()) {
+            if (BattleAiController.shouldStep()) {
+                BattleAiMod.readyForUpdate = false;
+                BattleAiMod.sendGameState();
+            }
         }
 
     }
@@ -125,10 +129,12 @@ public class SpeedController implements PreUpdateSubscriber {
             } else if (action instanceof DrawCardAction) {
                 actions.remove(i);
                 actions.add(i, new DrawCardActionFast(AbstractDungeon.player, action.amount));
-            } else if (action instanceof EmptyDeckShuffleAction) {
-                actions.remove(i);
-                actions.add(i, new EmptyDeckShuffleActionFast());
-            } else if (action instanceof DiscardAction) {
+            }
+//            else if (action instanceof EmptyDeckShuffleAction) {
+//                actions.remove(i);
+//                actions.add(i, new EmptyDeckShuffleActionFast());
+//            }
+            else if (action instanceof DiscardAction) {
                 actions.remove(i);
                 actions.add(i, new DiscardCardActionFast(AbstractDungeon.player, null, action.amount, false));
             } else if (action instanceof DiscardAtEndOfTurnAction) {
@@ -164,10 +170,15 @@ public class SpeedController implements PreUpdateSubscriber {
             if (action instanceof DrawCardAction) {
                 actions.remove(i);
                 actions.add(i, new DrawCardActionFast(AbstractDungeon.player, action.amount));
-            } else if (action instanceof EmptyDeckShuffleAction) {
-                actions.remove(i);
-                actions.add(i, new EmptyDeckShuffleActionFast());
-            } else if (action instanceof DiscardAction) {
+            }
+
+//            else if (action instanceof EmptyDeckShuffleAction) {
+//                actions.remove(i);
+//                actions.add(i, new EmptyDeckShuffleActionFast());
+//
+//
+//            }
+            else if (action instanceof DiscardAction) {
                 actions.remove(i);
                 actions.add(i, new DiscardCardActionFast(AbstractDungeon.player, null, action.amount, false));
             } else if (action instanceof DiscardAtEndOfTurnAction) {

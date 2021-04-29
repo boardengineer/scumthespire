@@ -76,6 +76,11 @@ public class TurnNode implements Comparable<TurnNode> {
             curState.saveState = new SaveState();
         }
 
+        if(curState.getPlayerHealth() < 1) {
+            controller.deathNode = curState;
+            isDone = true;
+            return true;
+        }
 
         controller.addRuntime("Battle AI TurnStep Checkpoint 1", System
                 .currentTimeMillis() - stepStart);
@@ -91,7 +96,6 @@ public class TurnNode implements Comparable<TurnNode> {
             }
             controller.addRuntime("Battle AI TurnStep early Return Total 1", System
                     .currentTimeMillis() - stepStart);
-
 
             runningCommands = false;
             if (curState.lastCommand instanceof EndCommand) {

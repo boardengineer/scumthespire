@@ -5,6 +5,7 @@ import basemod.ReflectionHacks;
 import basemod.TopPanelItem;
 import basemod.interfaces.*;
 import battleaimod.battleai.BattleAiController;
+import battleaimod.battleai.commands.CardCommand;
 import battleaimod.fastobjects.ScreenShakeFast;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
@@ -86,6 +87,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             if (battleAiController.isDone) {
                 battleAiController = null;
             }
+        } else if(!BattleAiController.shouldStep()) {
+            System.err.println("Can't step yet");
         }
     }
 
@@ -218,10 +221,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         @Override
         protected void onClick() {
-            battleAiController = new BattleAiController(new SaveState(), true);
-
-            goFast = true;
-            readyForUpdate = true;
+            new CardCommand(4, "").execute();
         }
     }
 

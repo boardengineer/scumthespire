@@ -1,8 +1,8 @@
 package battleaimod.battleai;
 
 import battleaimod.BattleAiMod;
-import battleaimod.ChoiceScreenUtils;
 import battleaimod.battleai.commands.Command;
+import battleaimod.patches.FastActionsPatch;
 import battleaimod.savestate.CardState;
 import battleaimod.savestate.SaveState;
 import com.google.common.collect.MinMaxPriorityQueue;
@@ -21,7 +21,7 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    public int maxTurnLoads = 30_000;
+    public int maxTurnLoads = 50_000;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -84,29 +84,8 @@ public class BattleAiController {
 
     public BattleAiController(SaveState state) {
         runTimes = new HashMap<>();
-        targetTurn = 7;
-        targetTurnJump = 4;
-
-//        if (state.encounterName == null) {
-//        } else if (state.encounterName.equals("Lagavulin")) {
-//            maxTurnLoads = 200;
-//            targetTurn = 2;
-//            targetTurnJump = 3;
-//        } else if (state.encounterName.equals("Gremlin Nob")) {
-//            targetTurn = 2;
-//            targetTurnJump = 3;
-//        } else if (state.encounterName.equals("The Guardian")) {
-//            targetTurn = 2;
-//            targetTurnJump = 2;
-//        } else if (state.encounterName.equals("Hexaghost")) {
-//            targetTurn = 2;
-//            targetTurnJump = 2;
-//        } else if (state.encounterName.equals("Gremlin Gang")) {
-//            targetTurnJump = 2;
-//        } else if (state.encounterName.equals("Champ")) {
-//            targetTurn = 2;
-//            targetTurnJump = 2;
-//        }
+        targetTurn = 10;
+        targetTurnJump = 5;
 
         minDamage = 5000;
         bestEnd = null;
@@ -166,8 +145,8 @@ public class BattleAiController {
     }
 
     public static boolean shouldStep() {
-        return shouldCheckForPlays() || isEndCommandAvailable() || !ChoiceScreenUtils
-                .getCurrentChoiceList().isEmpty();
+        return shouldCheckForPlays() || isEndCommandAvailable() || FastActionsPatch
+                .shouldStepAiController();
     }
 
     public static boolean isInDungeon() {
@@ -228,7 +207,7 @@ public class BattleAiController {
 
 
                     return;
-                } else if (turnsLoaded >= maxTurnLoads * 1.5 && backupTurn != null) {
+                } else if (backupTurn != null) {
                     System.err.println("Loading from backup: " + backupTurn);
                     turnsLoaded = 0;
                     turns.clear();
@@ -314,7 +293,7 @@ public class BattleAiController {
                     runCommandMode = true;
                     return;
                 } else {
-                    System.err.println("not done yet");
+                    System.err.println("not done yet " + deathNode);
                 }
             } else if (curTurn != null) {
                 long startTurnStep = System.currentTimeMillis();
@@ -359,6 +338,7 @@ public class BattleAiController {
             while (bestPathRunner.hasNext() && !foundCommand) {
                 Command command = bestPathRunner.next();
                 if (command != null) {
+                    System.err.println(command);
                     foundCommand = true;
                     command.execute();
                 } else {

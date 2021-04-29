@@ -36,7 +36,7 @@ public class IroncladDeckPatch {
 
 
             add(new Anger());
-//            add(new Armaments());
+            add(new Armaments());
             add(new Barricade());
             add(new Bash());
             add(new BattleTrance());
@@ -58,7 +58,7 @@ public class IroncladDeckPatch {
             add(new Disarm());
             add(new DoubleTap());
             add(new Dropkick());
-//            add(new DualWield());
+            add(new DualWield());
             add(new Entrench());
             add(new Feed());
             add(new FeelNoPain());
