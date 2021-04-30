@@ -10,7 +10,6 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.MakeTempCardInDiscardAction;
-import com.megacrit.cardcrawl.actions.common.MakeTempCardInHandAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
@@ -331,46 +330,6 @@ public class CardPatches {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = MakeTempCardInHandAction.class,
-            paramtypez = {},
-            method = "update"
-    )
-    public static class MakeTempCardsInHnadFastPatch {
-        public static SpireReturn Prefix(MakeTempCardInHandAction _instance) {
-            if (shouldGoFast()) {
-                ReflectionHacks
-                        .setPrivate(_instance, AbstractGameAction.class, "duration", .00001F);
-
-                ReflectionHacks
-                        .setPrivate(_instance, AbstractGameAction.class, "startDuration", .00001F);
-
-                AbstractCard card = ReflectionHacks
-                        .getPrivate(_instance, MakeTempCardInHandAction.class, "c");
-
-                if (card == null) {
-                    throw new IllegalStateException("trying to make null card, this will fail");
-                }
-
-                _instance.isDone = true;
-
-                AbstractDungeon.player.hand.addToTop(card);
-
-                return SpireReturn.Return(null);
-            }
-
-            return SpireReturn.Continue();
-        }
-
-        public static void Postfix(MakeTempCardInHandAction _instance) {
-            if (shouldGoFast()) {
-                _instance.isDone = true;
-                CardState.freeCard(ReflectionHacks
-                        .getPrivate(_instance, MakeTempCardInHandAction.class, "c"));
-            }
         }
     }
 

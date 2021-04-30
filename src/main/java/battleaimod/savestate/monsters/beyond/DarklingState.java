@@ -8,10 +8,13 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.actions.common.SetMoveAction;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.Darkling;
+import com.megacrit.cardcrawl.powers.AbstractPower;
+import com.megacrit.cardcrawl.relics.AbstractRelic;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
@@ -99,6 +102,53 @@ public class DarklingState extends MonsterState {
 
                 ReflectionHacks.setPrivate(_instance, Darkling.class, "chompDmg", chompDmg);
                 ReflectionHacks.setPrivate(_instance, Darkling.class, "nipDmg", nipDmg);
+
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = Darkling.class,
+            paramtypez = {DamageInfo.class},
+            method = "damage"
+    )
+    public static class SilentDamagePatch {
+        @SpireInsertPatch(loc = 199)
+        public static SpireReturn Insert(Darkling _instance, DamageInfo info) {
+            if (shouldGoFast()) {
+
+                if (_instance.currentHealth <= 0 && !_instance.halfDead) {
+                    _instance.halfDead = true;
+                    for (AbstractPower p : _instance.powers) {
+                        p.onDeath();
+                    }
+                    for (AbstractRelic r : AbstractDungeon.player.relics) {
+                        r.onMonsterDeath(_instance);
+                    }
+                    _instance.powers.clear();
+                    boolean allDead = true;
+                    for (AbstractMonster m : (AbstractDungeon.getMonsters()).monsters) {
+                        if (m.id.equals("Darkling") && !m.halfDead) {
+                            allDead = false;
+                        }
+                    }
+                    if (!allDead) {
+                        if (_instance.nextMove != 4) {
+                            _instance.setMove((byte) 4, AbstractMonster.Intent.UNKNOWN);
+                            _instance.createIntent();
+                            AbstractDungeon.actionManager
+                                    .addToBottom(new SetMoveAction(_instance, (byte) 4, AbstractMonster.Intent.UNKNOWN));
+                        }
+                    } else {
+                        (AbstractDungeon.getCurrRoom()).cannotLose = false;
+                        _instance.halfDead = false;
+                        for (AbstractMonster m : (AbstractDungeon.getMonsters()).monsters) {
+                            m.die();
+                        }
+                    }
+                }
 
                 return SpireReturn.Return(null);
             }

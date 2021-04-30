@@ -51,6 +51,9 @@ public class PowerState {
             AbstractCard card = ReflectionHacks
                     .getPrivate(power, StasisPower.class, "card");
             stasisCard = new CardState(card);
+            if (stasisCard == null) {
+                throw new IllegalStateException("Bad stasis card");
+            }
         } else {
             stasisCard = null;
         }
@@ -226,7 +229,13 @@ public class PowerState {
         } else if (powerId.equals("Life Link")) {
             result = new RegrowPower(targetAndSource);
         } else if (powerId.equals("Stasis")) {
-            result = new StasisPower(targetAndSource, stasisCard.loadCard());
+            AbstractCard resultCard = stasisCard.loadCard();
+
+            if (resultCard == null) {
+                throw new IllegalStateException("Card Returned Was Null");
+            }
+
+            result = new StasisPower(targetAndSource, resultCard);
         } else if (powerId.equals("Dark Embrace")) {
             result = new DarkEmbracePower(targetAndSource, amount);
         } else if (powerId.equals("Feel No Pain")) {

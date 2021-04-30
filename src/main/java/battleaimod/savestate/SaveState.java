@@ -13,6 +13,8 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.powers.ConstrictedPower;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
+
 public class SaveState {
     private final boolean isScreenUp;
     int floorNum;
@@ -161,9 +163,9 @@ public class SaveState {
 
         BattleAiMod.readyForUpdate = true;
 
-//        if (!shouldGoFast()) {
-//            CombatRewardScreenState.loadCombatRewardScreen();
-//        }
+        if (!shouldGoFast()) {
+            CombatRewardScreenState.loadCombatRewardScreen();
+        }
 
 
         GameStateListener.previousScreen = previousScreen;

@@ -24,9 +24,6 @@ public class UpdateOnlyUseCardAction extends AbstractGameAction {
     public boolean reboundCard;
 
     public UpdateOnlyUseCardAction(AbstractCard card, AbstractCreature target) {
-        int foundIndex = -1;
-
-
         this.target = null;
         this.reboundCard = false;
         this.targetCard = card;
