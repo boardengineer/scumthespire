@@ -2,6 +2,7 @@ package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
 import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
+import battleaimod.savestate.actions.ArmamentsActionState;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;

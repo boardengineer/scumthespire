@@ -1,6 +1,8 @@
-package battleaimod.savestate;
+package battleaimod.savestate.actions;
 
 import basemod.ReflectionHacks;
+import battleaimod.savestate.CardState;
+import battleaimod.savestate.PlayerState;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
@@ -11,6 +13,10 @@ import java.util.stream.Collectors;
 public class ArmamentsActionState {
     private final ArrayList<CardState> cannotUpgrade;
     private final boolean upgraded;
+
+    public ArmamentsActionState(AbstractGameAction action) {
+        this((ArmamentsAction) action);
+    }
 
     public ArmamentsActionState(ArmamentsAction action) {
         ArrayList<AbstractCard> cannotUpgradeSource = ReflectionHacks

@@ -111,14 +111,18 @@ public class CardPatches {
     )
     public static class FastDiscardPatch {
         public static SpireReturn Prefix(CardGroup _instance, AbstractCard card) {
+            int startingSize = _instance.group.size();
+
             ReflectionHacks
                     .privateMethod(CardGroup.class, "resetCardBeforeMoving", AbstractCard.class)
                     .invoke(_instance, card);
 
-            for (AbstractCard groupCard : _instance.group) {
-                if (groupCard.uuid.equals(card.uuid)) {
-                    _instance.group.remove(groupCard);
-                    break;
+            if(_instance.group.size() == startingSize) {
+                for (AbstractCard groupCard : _instance.group) {
+                    if (groupCard.uuid.equals(card.uuid)) {
+                        _instance.group.remove(groupCard);
+                        break;
+                    }
                 }
             }
 
@@ -284,6 +288,8 @@ public class CardPatches {
                     BattleAiMod.battleAiController.addRuntime("makeStatEquivalentCopy", System
                             .currentTimeMillis() - makeCardCopyStart);
                 }
+
+//                System.out.println("Here i am!!!! " + card.cardID);
 
                 return SpireReturn.Return(card);
             }

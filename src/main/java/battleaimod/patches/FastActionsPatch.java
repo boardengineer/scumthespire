@@ -173,7 +173,7 @@ public class FastActionsPatch {
                                     long actionStartTime = System.currentTimeMillis();
                                     Class actionClass = actionManager.currentAction.getClass();
 
-                                    if (!actionManager.currentAction.isDone) {
+                                    if (!actionManager.currentAction.isDone && !AbstractDungeon.isScreenUp) {
                                         actionManager.currentAction.update();
                                     }
                                     if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.actionClassTimes != null) {
@@ -199,7 +199,7 @@ public class FastActionsPatch {
 
                                 long actionManagerUpdateTime = System.currentTimeMillis();
 
-                                if(!AbstractDungeon.isScreenUp) {
+                                if (!AbstractDungeon.isScreenUp) {
                                     actionManager.update();
                                 }
                                 BattleAiMod.battleAiController
@@ -220,7 +220,7 @@ public class FastActionsPatch {
 
 //                        System.err.println("Updating room");
                         //actionManager.update();
-                        if(!AbstractDungeon.isScreenUp) {
+                        if (!AbstractDungeon.isScreenUp) {
                             roomUpdate();
                         }
 
@@ -1187,6 +1187,20 @@ public class FastActionsPatch {
             method = "hardUnlock"
     )
     public static class NoHardUnlockTrackerPatch {
+        public static SpireReturn Prefix(String cardName) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = UnlockTracker.class,
+            paramtypez = {String.class},
+            method = "hardUnlockOverride"
+    )
+    public static class NoHardOverrideUnlockTrackerPatch {
         public static SpireReturn Prefix(String cardName) {
             if (shouldGoFast()) {
                 return SpireReturn.Return(null);
