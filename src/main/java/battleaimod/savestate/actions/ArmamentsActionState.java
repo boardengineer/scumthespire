@@ -10,7 +10,7 @@ import com.megacrit.cardcrawl.cards.AbstractCard;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class ArmamentsActionState {
+public class ArmamentsActionState implements ActionState{
     private final ArrayList<CardState> cannotUpgrade;
     private final boolean upgraded;
 
@@ -27,6 +27,7 @@ public class ArmamentsActionState {
                 .getPrivate(action, ArmamentsAction.class, "upgraded");
     }
 
+    @Override
     public ArmamentsAction loadAction() {
         ArmamentsAction result = new ArmamentsAction(upgraded);
 

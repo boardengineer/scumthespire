@@ -2,10 +2,13 @@ package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
 import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
+import battleaimod.savestate.actions.ActionState;
 import battleaimod.savestate.actions.ArmamentsActionState;
+import battleaimod.savestate.actions.DualWieldActionState;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
+import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.screens.select.HandCardSelectScreen;
@@ -25,7 +28,7 @@ public class HandSelectScreenState {
     private final boolean forTransform;
     private final boolean forUpgrade;
     private final int numSelected;
-    private final ArmamentsActionState actionState;
+    private final ActionState actionState;
     private final boolean isDisabled;
 //    private final CardQueueItemState queueItemState;
 
@@ -54,8 +57,15 @@ public class HandSelectScreenState {
 
         isDisabled = AbstractDungeon.handCardSelectScreen.button.isDisabled;
 
-        if (currentAction instanceof ArmamentsAction) {
-            actionState = new ArmamentsActionState((ArmamentsAction) currentAction);
+        if (currentAction != null) {
+            if (currentAction instanceof ArmamentsAction) {
+                actionState = new ArmamentsActionState(currentAction);
+            } else if (currentAction instanceof DualWieldAction) {
+                actionState = new DualWieldActionState(currentAction);
+            } else {
+                throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);
+            }
+
             useCardActions = AbstractDungeon.actionManager.actions.stream()
                                                                   .filter(action -> action instanceof UseCardAction || action instanceof UpdateOnlyUseCardAction)
                                                                   .map(action -> {
@@ -74,7 +84,6 @@ public class HandSelectScreenState {
             if (useCardActions.isEmpty()) {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);
             }
-
 
 
 //            queueItemState = new CardQueueItemState(AbstractDungeon.actionManager.cardQueue.get(0));

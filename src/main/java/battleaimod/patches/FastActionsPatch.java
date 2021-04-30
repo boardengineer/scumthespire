@@ -17,7 +17,6 @@ import com.megacrit.cardcrawl.actions.IntentFlashAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.defect.TriggerEndOfTurnOrbsAction;
-import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.audio.MusicMaster;
@@ -193,7 +192,7 @@ public class FastActionsPatch {
                                     }
                                 }
 
-                                if (actionManager.currentAction != null && actionManager.currentAction.isDone && !(actionManager.currentAction instanceof ArmamentsAction)) {
+                                if (actionManager.currentAction != null && actionManager.currentAction.isDone && !AbstractDungeon.isScreenUp) {
                                     actionManager.currentAction = null;
                                 }
 

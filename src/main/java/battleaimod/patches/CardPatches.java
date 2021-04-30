@@ -10,6 +10,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.EscapeAction;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
+import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
@@ -187,6 +188,20 @@ public class CardPatches {
     )
     public static class NoDoubleArmamentsPatch {
         public static void Postfix(ArmamentsAction _instance) {
+            // Force the action to stay in the the manager until cards are selected
+            if (!AbstractDungeon.handCardSelectScreen.wereCardsRetrieved && AbstractDungeon.isScreenUp) {
+                _instance.isDone = false;
+            }
+        }
+    }
+
+    @SpirePatch(
+            clz = DualWieldAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class NoDoubleDualWieldPatch {
+        public static void Postfix(DualWieldAction _instance) {
             // Force the action to stay in the the manager until cards are selected
             if (!AbstractDungeon.handCardSelectScreen.wereCardsRetrieved && AbstractDungeon.isScreenUp) {
                 _instance.isDone = false;
