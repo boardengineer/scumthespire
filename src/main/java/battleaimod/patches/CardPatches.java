@@ -7,22 +7,18 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
+import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.actions.common.EscapeAction;
-import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
-import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
+import com.megacrit.cardcrawl.actions.common.MakeTempCardInDiscardAction;
+import com.megacrit.cardcrawl.actions.common.MakeTempCardInHandAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
-import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import com.megacrit.cardcrawl.potions.AbstractPotion;
-import com.megacrit.cardcrawl.potions.PotionSlot;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
+import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToHandEffect;
 
-import java.util.Iterator;
 import java.util.UUID;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
@@ -118,7 +114,7 @@ public class CardPatches {
                     .privateMethod(CardGroup.class, "resetCardBeforeMoving", AbstractCard.class)
                     .invoke(_instance, card);
 
-            if(_instance.group.size() == startingSize) {
+            if (_instance.group.size() == startingSize) {
                 for (AbstractCard groupCard : _instance.group) {
                     if (groupCard.uuid.equals(card.uuid)) {
                         _instance.group.remove(groupCard);
@@ -164,64 +160,6 @@ public class CardPatches {
         }
     }
 
-    @SpirePatch(
-            clz = EscapeAction.class,
-            paramtypez = {},
-            method = "update"
-    )
-    public static class FastEscapePatch {
-        public static SpireReturn Prefix(EscapeAction _instance) {
-            if (shouldGoFast()) {
-                AbstractMonster m = (AbstractMonster) _instance.source;
-                m.escape();
-                _instance.isDone = true;
-                return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = ArmamentsAction.class,
-            paramtypez = {},
-            method = "update"
-    )
-    public static class NoDoubleArmamentsPatch {
-        public static void Postfix(ArmamentsAction _instance) {
-            // Force the action to stay in the the manager until cards are selected
-            if (!AbstractDungeon.handCardSelectScreen.wereCardsRetrieved && AbstractDungeon.isScreenUp) {
-                _instance.isDone = false;
-            }
-        }
-    }
-
-    @SpirePatch(
-            clz = DualWieldAction.class,
-            paramtypez = {},
-            method = "update"
-    )
-    public static class NoDoubleDualWieldPatch {
-        public static void Postfix(DualWieldAction _instance) {
-            // Force the action to stay in the the manager until cards are selected
-            if (!AbstractDungeon.handCardSelectScreen.wereCardsRetrieved && AbstractDungeon.isScreenUp) {
-                _instance.isDone = false;
-            }
-        }
-    }
-
-    @SpirePatch(
-            clz = AbstractCreature.class,
-            paramtypez = {},
-            method = "updateAnimations"
-    )
-    public static class NoUpdateCreatureAnimationsPlayerPatch {
-        public static SpireReturn Prefix(AbstractCreature _instance) {
-            if (shouldGoFast()) {
-                return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-    }
 
     @SpirePatch(
             clz = AbstractCard.class,
@@ -312,6 +250,28 @@ public class CardPatches {
         }
     }
 
+    @SpirePatch(
+            clz = AbstractCard.class,
+            paramtypez = {},
+            method = "makeSameInstanceOf"
+    )
+    public static class UseCardPoolForRandomCreationAndInstancePatch {
+        public static SpireReturn Prefix(AbstractCard _instance) {
+            if (shouldGoFast()) {
+                AbstractCard result = _instance.makeStatEquivalentCopy();
+
+                if (result == null) {
+                    throw new IllegalStateException("Why are the cards null?");
+                }
+
+                result.uuid = _instance.uuid;
+
+                return SpireReturn.Return(result);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
 
     @SpirePatch(
             clz = AbstractPlayer.class,
@@ -350,32 +310,92 @@ public class CardPatches {
     }
 
     @SpirePatch(
-            clz = AbstractPlayer.class,
-            paramtypez = {AbstractPotion.class},
-            method = "obtainPotion"
+            clz = ShowCardAndAddToHandEffect.class,
+            paramtypez = {AbstractCard.class},
+            method = SpirePatch.CONSTRUCTOR
     )
-    public static class QuietPotionsPatch {
-        public static SpireReturn Prefix(AbstractPlayer _instance, AbstractPotion potionToObtain) {
+    public static class ShowCardAndAddToHandEffectPatch {
+        public static SpireReturn Prefix(ShowCardAndAddToHandEffect _instance, AbstractCard card) {
             if (shouldGoFast()) {
-                int index = 0;
-
-                for (Iterator var3 = _instance.potions.iterator(); var3.hasNext(); ++index) {
-                    AbstractPotion p = (AbstractPotion) var3.next();
-                    if (p instanceof PotionSlot) {
-                        break;
-                    }
+                if (card == null) {
+                    throw new IllegalStateException("Card Is null, Nothing to return ");
                 }
 
-                if (index < _instance.potionSlots) {
-                    _instance.potions.set(index, potionToObtain);
-                    potionToObtain.setAsObtained(index);
-                    return SpireReturn.Return(true);
-                } else {
-                    AbstractDungeon.topPanel.flashRed();
-                    return SpireReturn.Return(false);
+                if (card.type != AbstractCard.CardType.CURSE && card.type != AbstractCard.CardType.STATUS && AbstractDungeon.player
+                        .hasPower("MasterRealityPower")) {
+                    card.upgrade();
                 }
+
+                AbstractDungeon.player.hand.addToTop(card);
+
+                return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = MakeTempCardInHandAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class MakeTempCardsInHnadFastPatch {
+        public static SpireReturn Prefix(MakeTempCardInHandAction _instance) {
+            if (shouldGoFast()) {
+                ReflectionHacks
+                        .setPrivate(_instance, AbstractGameAction.class, "duration", .00001F);
+
+                ReflectionHacks
+                        .setPrivate(_instance, AbstractGameAction.class, "startDuration", .00001F);
+
+                AbstractCard card = ReflectionHacks
+                        .getPrivate(_instance, MakeTempCardInHandAction.class, "c");
+
+                if (card == null) {
+                    throw new IllegalStateException("trying to make null card, this will fail");
+                }
+
+                _instance.isDone = true;
+
+                AbstractDungeon.player.hand.addToTop(card);
+
+                return SpireReturn.Return(null);
+            }
+
+            return SpireReturn.Continue();
+        }
+
+        public static void Postfix(MakeTempCardInHandAction _instance) {
+            if (shouldGoFast()) {
+                _instance.isDone = true;
+                CardState.freeCard(ReflectionHacks
+                        .getPrivate(_instance, MakeTempCardInHandAction.class, "c"));
+            }
+        }
+    }
+
+    @SpirePatch(
+            clz = MakeTempCardInDiscardAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class MakeTempCardsFastPatch {
+        public static void Prefix(MakeTempCardInDiscardAction _instance) {
+            if (shouldGoFast()) {
+                ReflectionHacks
+                        .setPrivate(_instance, AbstractGameAction.class, "duration", .00001F);
+
+                ReflectionHacks
+                        .setPrivate(_instance, AbstractGameAction.class, "startDuration", .00001F);
+            }
+        }
+
+        public static void Postfix(MakeTempCardInDiscardAction _instance) {
+            if (shouldGoFast()) {
+                _instance.isDone = true;
+                CardState.freeCard(ReflectionHacks
+                        .getPrivate(_instance, MakeTempCardInDiscardAction.class, "c"));
+            }
         }
     }
 }

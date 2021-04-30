@@ -24,8 +24,8 @@ public class IroncladDeckPatch {
 
             AbstractCard fakeExhume = new Inflame();
             fakeExhume.cardID = "Exhume";
-
             add(fakeExhume);
+
             add(new Havoc());
             add(new HeavyBlade());
             add(new Immolate());
@@ -33,20 +33,18 @@ public class IroncladDeckPatch {
             add(new Sentinel());
             add(new SpotWeakness());
             add(new WildStrike());
-
-
             add(new Anger());
             add(new Armaments());
             add(new Barricade());
             add(new Bash());
             add(new BattleTrance());
             add(new Berserk());
-//            add(new BloodForBlood());
-//            add(new Bloodletting());
+            add(new BloodForBlood());
+            add(new Bloodletting());
             add(new Bludgeon());
             add(new BodySlam());
             add(new Brutality());
-//            add(new BurningPact());
+            add(new BurningPact());
             add(new Carnage());
             add(new Clash());
             add(new Cleave());

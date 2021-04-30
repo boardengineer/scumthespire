@@ -102,4 +102,16 @@ public class RelicPatches {
             return SpireReturn.Continue();
         }
     }
+
+    // TODO this is a hack to fix an NPE
+    @SpirePatch(
+            clz = BottledFlame.class,
+            paramtypez = {},
+            method = "setDescriptionAfterLoading"
+    )
+    public static class FixDescriptionNPE {
+        public static void Replace(BottledFlame _instance) {
+
+        }
+    }
 }

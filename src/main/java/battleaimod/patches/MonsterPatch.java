@@ -9,9 +9,11 @@ import com.megacrit.cardcrawl.actions.animations.AnimateFastAttackAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateHopAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
+import com.megacrit.cardcrawl.actions.common.EscapeAction;
 import com.megacrit.cardcrawl.actions.common.SpawnMonsterAction;
 import com.megacrit.cardcrawl.actions.unique.SummonGremlinAction;
 import com.megacrit.cardcrawl.cards.red.PommelStrike;
+import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
@@ -38,38 +40,6 @@ public class MonsterPatch {
             }
         }
     }
-
-//    @SpirePatch(
-//            clz = AbstractPlayer.class,
-//            paramtypez = {DamageInfo.class},
-//            method = "damage"
-//    )
-//    public static class WhatGIsUpToPath {
-//        public static void Postfix(AbstractPlayer _instance, DamageInfo damage) {
-//            if (_instance.isPlayer) {
-//                System.err.println("Player is taking " + damage.output);
-//            }
-//        }
-//    }
-
-//    @SpirePatch(
-//            clz = AbstractCreature.class,
-//            paramtypez = {int.class},
-//            method = "addBlock"
-//    )
-//    public static class AddBlockPatch {
-//        public static void Prefix(AbstractCreature _instance, int blockAmount) {
-//            if(!_instance.isPlayer) {
-//                System.err.println("monster blocking for " + blockAmount);
-//            }
-//        }
-//
-//        public static void Postfix(AbstractCreature _instance, int blockAmount) {
-//            if(!_instance.isPlayer) {
-//                System.err.println("now monster has " + _instance.currentBlock);
-//            }
-//        }
-//    }
 
     @SpirePatch(
             clz = AbstractMonster.class,
@@ -110,6 +80,37 @@ public class MonsterPatch {
             if (shouldGoFast()) {
                 _instance.isDone = true;
             }
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractCreature.class,
+            paramtypez = {},
+            method = "updateAnimations"
+    )
+    public static class NoUpdateCreatureAnimationsPlayerPatch {
+        public static SpireReturn Prefix(AbstractCreature _instance) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = EscapeAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class FastEscapePatch {
+        public static SpireReturn Prefix(EscapeAction _instance) {
+            if (shouldGoFast()) {
+                AbstractMonster m = (AbstractMonster) _instance.source;
+                m.escape();
+                _instance.isDone = true;
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
         }
     }
 

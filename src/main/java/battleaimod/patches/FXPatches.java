@@ -5,10 +5,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.animations.VFXAction;
+import com.megacrit.cardcrawl.actions.common.DamageAction;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 import com.megacrit.cardcrawl.vfx.combat.ShockWaveEffect;
 import com.megacrit.cardcrawl.vfx.combat.SmallLaserEffect;
+import com.megacrit.cardcrawl.vfx.combat.StrikeEffect;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
@@ -129,6 +131,32 @@ public class FXPatches {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = StrikeEffect.class,
+            paramtypez = {AbstractCreature.class, float.class, float.class, int.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class TooManyLinesPatch {
+        public static SpireReturn Prefix(StrikeEffect _instance, AbstractCreature target, float x, float y, int number) {
+            if (shouldGoFast()) {
+                _instance.isDone = true;
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = DamageAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class ForceDamageActionPatch {
+        public static void Prefix(DamageAction _instance) {
+            _instance.isDone = true;
         }
     }
 }

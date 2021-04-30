@@ -31,7 +31,6 @@ public class DualWieldActionState implements ActionState{
 
         dupeAmount = ReflectionHacks
                 .getPrivate(action, DualWieldAction.class, "dupeAmount");
-        System.err.println("storing dual wield action state");
     }
 
     @Override
@@ -58,6 +57,7 @@ public class DualWieldActionState implements ActionState{
     )
     public static class NoFxConstructorPatchOther {
         public static void Postfix(DualWieldAction _instance, AbstractCreature source, int amount) {
+            // Duration isn't set correctly if you mess with ACTION_DUR_FAST force it right
             if (shouldGoFast()) {
                 ReflectionHacks
                         .setPrivate(_instance, AbstractGameAction.class, "duration", Settings.ACTION_DUR_FAST);
@@ -65,5 +65,17 @@ public class DualWieldActionState implements ActionState{
         }
     }
 
-
+    @SpirePatch(
+            clz = DualWieldAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class NoDoubleDualWieldPatch {
+        public static void Postfix(DualWieldAction _instance) {
+            // Force the action to stay in the the manager until cards are selected
+            if (!AbstractDungeon.handCardSelectScreen.wereCardsRetrieved && AbstractDungeon.isScreenUp) {
+                _instance.isDone = false;
+            }
+        }
+    }
 }
