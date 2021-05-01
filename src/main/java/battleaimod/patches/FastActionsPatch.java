@@ -3,6 +3,7 @@ package battleaimod.patches;
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.ActionSimulator;
+import battleaimod.fastobjects.actions.DiscardCardActionFast;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.EmptyDeckShuffleActionFast;
 import battleaimod.fastobjects.actions.RollMoveActionFast;
@@ -127,6 +128,8 @@ public class FastActionsPatch {
                                     actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
                                 } else if (actionManager.currentAction instanceof SetAnimationAction) {
                                     actionManager.currentAction = null;
+                                } else if (actionManager.currentAction instanceof DiscardAction) {
+                                    actionManager.currentAction = new DiscardCardActionFast(AbstractDungeon.player, null, actionManager.currentAction.amount, false);
                                 } else if (actionManager.currentAction instanceof EmptyDeckShuffleAction) {
                                     actionManager.currentAction = new EmptyDeckShuffleActionFast();
                                 } else if (actionManager.currentAction instanceof ShowMoveNameAction) {

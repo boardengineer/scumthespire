@@ -92,8 +92,6 @@ public class RelicState {
         } else {
             this.pocketwatchFirstTurn = false;
         }
-
-        MummifiedHand hand;
     }
 
     public RelicState(String jsonString) {

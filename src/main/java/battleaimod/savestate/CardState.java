@@ -29,6 +29,7 @@ public class CardState {
     private final boolean inBottleFlame;
     private final boolean isCostModifiedForTurn;
     private final boolean isCostModified;
+    private final boolean dontTriggerOnUseCard;
 
     private static HashMap<String, Stack<AbstractCard>> freeCards;
 
@@ -83,6 +84,7 @@ public class CardState {
         this.drawScale = card.drawScale;
         this.targetDrawScale = card.targetDrawScale;
         this.timesUpgraded = card.timesUpgraded;
+        this.dontTriggerOnUseCard = card.dontTriggerOnUseCard;
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.addRuntime("Save Time CardState Constructor", System
@@ -126,6 +128,7 @@ public class CardState {
 
         this.drawScale = 1.0F;
         this.targetDrawScale = 1.0F;
+        this.dontTriggerOnUseCard = false;
     }
 
     public AbstractCard loadCard() {
@@ -164,6 +167,7 @@ public class CardState {
         result.block = block;
         result.baseBlock = baseBlock;
         result.timesUpgraded = timesUpgraded;
+        result.dontTriggerOnUseCard = dontTriggerOnUseCard;
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.addRuntime("Load Time load Card Complete", System

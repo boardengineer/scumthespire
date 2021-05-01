@@ -27,7 +27,7 @@ public class SaveState {
     AbstractDungeon.CurrentScreen screen;
     AbstractDungeon.CurrentScreen previousScreen = null;
 
-//    ListState listState;
+    //    ListState listState;
     public PlayerState playerState;
     private HandSelectScreenState handSelectScreenState;
     RngState rngState;
@@ -43,7 +43,8 @@ public class SaveState {
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController
-                    .addRuntime("Save Time New Save Map Node", System.currentTimeMillis() - startSave);
+                    .addRuntime("Save Time New Save Map Node", System
+                            .currentTimeMillis() - startSave);
         }
 
         long startPlayerSave = System.currentTimeMillis();
@@ -52,7 +53,8 @@ public class SaveState {
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController
-                    .addRuntime("Save Time New Save Player", System.currentTimeMillis() - startPlayerSave);
+                    .addRuntime("Save Time New Save Player", System
+                            .currentTimeMillis() - startPlayerSave);
         }
 
         long startRngLists = System.currentTimeMillis();
@@ -73,7 +75,8 @@ public class SaveState {
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController
-                    .addRuntime("Save Time Rng and Lists", System.currentTimeMillis() - startRngLists);
+                    .addRuntime("Save Time Rng and Lists", System
+                            .currentTimeMillis() - startRngLists);
             BattleAiMod.battleAiController
                     .addRuntime("Save Time New Save State", System.currentTimeMillis() - startSave);
         }
@@ -149,6 +152,8 @@ public class SaveState {
             }
         }
 
+
+        AbstractDungeon.isScreenUp = isScreenUp;
         AbstractDungeon.screen = screen;
 
 //        AbstractDungeon.isScreenUp = false;
@@ -159,14 +164,8 @@ public class SaveState {
 //        AbstractDungeon.screen = AbstractDungeon.CurrentScreen.NONE;
 
         AbstractDungeon.floorNum = floorNum;
-        AbstractDungeon.isScreenUp = isScreenUp;
 
         BattleAiMod.readyForUpdate = true;
-
-        if (!shouldGoFast()) {
-            CombatRewardScreenState.loadCombatRewardScreen();
-        }
-
 
         GameStateListener.previousScreen = previousScreen;
         GameStateListener.previousScreenUp = previousScreenUp;
@@ -183,8 +182,13 @@ public class SaveState {
             }
         }
 
-        if(handSelectScreenState != null) {
+        if (handSelectScreenState != null) {
             handSelectScreenState.loadHandSelectScreenState();
+        }
+
+
+        if (!shouldGoFast() && !isScreenUp) {
+            CombatRewardScreenState.loadCombatRewardScreen();
         }
 
         rngState.loadRng();

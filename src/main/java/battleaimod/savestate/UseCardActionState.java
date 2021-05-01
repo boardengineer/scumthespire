@@ -20,7 +20,7 @@ public class UseCardActionState {
 
     public UpdateOnlyUseCardAction loadAction() {
         AbstractCard resultCard = card.loadCard();
-        resultCard.dontTriggerOnUseCard = true;
+        
         // TODO: at some point the target here will matter
         return new UpdateOnlyUseCardAction(resultCard, null);
     }

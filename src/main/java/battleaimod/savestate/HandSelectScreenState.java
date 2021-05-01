@@ -66,20 +66,32 @@ public class HandSelectScreenState {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);
             }
 
-            useCardActions = AbstractDungeon.actionManager.actions.stream()
-                                                                  .filter(action -> action instanceof UseCardAction || action instanceof UpdateOnlyUseCardAction)
-                                                                  .map(action -> {
-                                                                      if (action instanceof UseCardAction) {
-                                                                          UseCardAction cast = (UseCardAction) action;
-                                                                          return new UseCardActionState(cast);
-                                                                      } else if (action instanceof UpdateOnlyUseCardAction) {
-                                                                          UpdateOnlyUseCardAction cast = (UpdateOnlyUseCardAction) action;
-                                                                          return new UseCardActionState(cast);
-                                                                      }
-                                                                      return null;
-                                                                  })
-                                                                  .collect(Collectors
-                                                                          .toCollection(ArrayList::new));
+            useCardActions = new ArrayList<>();
+
+            for (AbstractGameAction action : AbstractDungeon.actionManager.actions) {
+                if (action instanceof UseCardAction) {
+                    useCardActions.add(new UseCardActionState((UseCardAction) action));
+                } else if (action instanceof UpdateOnlyUseCardAction) {
+                    useCardActions.add(new UseCardActionState((UpdateOnlyUseCardAction) action));
+                } else {
+                    throw new IllegalArgumentException("Illegal action type found in action manager: " + action);
+                }
+            }
+
+//            useCardActions = AbstractDungeon.actionManager.actions.stream()
+//                                                                  .filter(action -> action instanceof UseCardAction || action instanceof UpdateOnlyUseCardAction)
+//                                                                  .map(action -> {
+//                                                                      if (action instanceof UseCardAction) {
+//                                                                          UseCardAction cast = (UseCardAction) action;
+//                                                                          return new UseCardActionState(cast);
+//                                                                      } else if (action instanceof UpdateOnlyUseCardAction) {
+//                                                                          UpdateOnlyUseCardAction cast = (UpdateOnlyUseCardAction) action;
+//                                                                          return new UseCardActionState(cast);
+//                                                                      }
+//                                                                      return null;
+//                                                                  })
+//                                                                  .collect(Collectors
+//                                                                          .toCollection(ArrayList::new));
 
             if (useCardActions.isEmpty()) {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);

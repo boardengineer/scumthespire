@@ -368,89 +368,6 @@ public class ActionSimulator {
                         .addRuntime("Local Action Manager Other Monster Queued Stuff", System
                                 .currentTimeMillis() - startOtherMonsterQueuedStuff);
             }
-        } else if (AbstractDungeon.actionManager.turnHasEnded && !AbstractDungeon.getMonsters()
-                                                                                 .areMonstersBasicallyDead()) {
-            long startEOTStuff = System.currentTimeMillis();
-
-            if (!AbstractDungeon.getCurrRoom().skipMonsterTurn) {
-                AbstractDungeon.getCurrRoom().monsters.applyEndOfTurnPowers();
-            }
-
-            AbstractDungeon.player.cardsPlayedThisTurn = 0;
-            AbstractDungeon.actionManager.orbsChanneledThisTurn.clear();
-            if (ModHelper.isModEnabled("Careless")) {
-                Careless.modAction();
-            }
-
-            if (ModHelper.isModEnabled("ControlledChaos")) {
-                ControlledChaos.modAction();
-                AbstractDungeon.player.hand.applyPowers();
-            }
-
-            long startStartOfTurn = System.currentTimeMillis();
-
-            AbstractDungeon.player.applyStartOfTurnRelics();
-            AbstractDungeon.player.applyStartOfTurnPreDrawCards();
-            AbstractDungeon.player.applyStartOfTurnCards();
-            AbstractDungeon.player.applyStartOfTurnPowers();
-            AbstractDungeon.player.applyStartOfTurnOrbs();
-
-            if (BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.addRuntime("EOT Stuff SOT", System
-                        .currentTimeMillis() - startStartOfTurn);
-            }
-
-            ++GameActionManager.turn;
-            AbstractDungeon.getCurrRoom().skipMonsterTurn = false;
-            AbstractDungeon.actionManager.turnHasEnded = false;
-            GameActionManager.totalDiscardedThisTurn = 0;
-            AbstractDungeon.actionManager.cardsPlayedThisTurn.clear();
-            GameActionManager.damageReceivedThisTurn = 0;
-            if (!AbstractDungeon.player.hasPower("Barricade") && !AbstractDungeon.player
-                    .hasPower("Blur")) {
-                if (!AbstractDungeon.player.hasRelic("Calipers")) {
-                    AbstractDungeon.player.loseBlock();
-                } else {
-                    AbstractDungeon.player.loseBlock(15);
-                }
-            }
-
-            long startLastPart = System.currentTimeMillis();
-
-            if (!AbstractDungeon.getCurrRoom().isBattleOver) {
-                long checkpoint1 = System.currentTimeMillis();
-                AbstractDungeon.actionManager
-                        .addToBottom(new DrawCardActionFast(null, AbstractDungeon.player.gameHandSize, true));
-
-                long checkpoint2 = System.currentTimeMillis();
-                AbstractDungeon.player.applyStartOfTurnPostDrawRelics();
-                long checkpoint3 = System.currentTimeMillis();
-
-                AbstractDungeon.player.applyStartOfTurnPostDrawPowers();
-                long checkpoint4 = System.currentTimeMillis();
-
-                AbstractDungeon.actionManager.addToBottom(new EnableEndTurnButtonAction());
-                long checkpoint5 = System.currentTimeMillis();
-
-                if (BattleAiMod.battleAiController != null) {
-//                    BattleAiMod.battleAiController.addRuntime("EOT part1", checkpoint2 - checkpoint1);
-//                    BattleAiMod.battleAiController.addRuntime("EOT part2", checkpoint3 - checkpoint2);
-//                    BattleAiMod.battleAiController.addRuntime("EOT part3", checkpoint4 - checkpoint3);
-//                    BattleAiMod.battleAiController.addRuntime("EOT part4", checkpoint5 - checkpoint4);
-                }
-            }
-
-            if (BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.addRuntime("Local Action Manager EOT Stuff", System
-                        .currentTimeMillis() - startEOTStuff);
-                BattleAiMod.battleAiController.addRuntime("EOT Stuff end part", System
-                        .currentTimeMillis() - startLastPart);
-            }
-        }
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Local Manager Next Action", System
-                    .currentTimeMillis() - localManagerNextAction);
         }
     }
 
@@ -539,6 +456,7 @@ public class ActionSimulator {
             }
 
             if (AbstractDungeon.getCurrRoom().waitTimer <= 0.0F) {
+                System.err.println("draw and enable");
                 AbstractDungeon.actionManager.turnHasEnded = true;
                 if (!AbstractDungeon.isScreenUp) {
                     AbstractDungeon.topLevelEffects.add(new BattleStartEffect(false));
