@@ -50,6 +50,8 @@ public class MawState extends MonsterState {
         ReflectionHacks.setPrivate(monster, Maw.class, "roared", roared);
         ReflectionHacks.setPrivate(monster, Maw.class, "turnCount", turnCount);
 
+        monster.applyPowers();
+
         return monster;
     }
 

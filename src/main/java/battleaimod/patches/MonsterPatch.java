@@ -164,6 +164,7 @@ public class MonsterPatch {
     )
     public static class SummonGremlinActionPatch {
         PommelStrike power;
+
         public static SpireReturn Prefix(SummonGremlinAction _instance) {
             return SpireReturn.Return(0);
         }
@@ -194,6 +195,7 @@ public class MonsterPatch {
                 EnemyMoveInfo move = ReflectionHacks
                         .getPrivate(_instance, AbstractMonster.class, "move");
                 _instance.nextMove = move.nextMove;
+                _instance.setIntentBaseDmg(move.baseDamage);
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

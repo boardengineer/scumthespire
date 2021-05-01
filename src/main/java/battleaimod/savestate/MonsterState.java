@@ -149,6 +149,7 @@ public abstract class MonsterState extends CreatureState {
                                     .collect(Collectors.toCollection(ArrayList::new));
 
         monster.setMove(moveName, moveInfo.nextMove, moveInfo.intent, moveInfo.baseDamage, moveInfo.multiplier, moveInfo.isMultiDamage);
+        monster.setIntentBaseDmg(moveInfo.baseDamage);
 
         monster.moveHistory = this.moveHistory.stream()
                                               .collect(Collectors.toCollection(ArrayList::new));

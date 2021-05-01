@@ -11,28 +11,11 @@ public class StateDebugInfo {
     private final int numBurns;
 
     public StateDebugInfo(SaveState saveState) {
-        int upgradedCard = 0;
-
-        upgradedCard += saveState.playerState.hand.stream().map(cardState -> cardState.upgraded ? 1 : 0).reduce(Integer::sum).orElse(0);
-        upgradedCard += saveState.playerState.discardPile.stream().map(cardState -> cardState.upgraded ? 1 : 0).reduce(Integer::sum).orElse(0);
-        upgradedCard += saveState.playerState.drawPile.stream().map(cardState -> cardState.upgraded ? 1 : 0).reduce(Integer::sum).orElse(0);
-
-        int totalCards = 0;
-
-        totalCards += saveState.playerState.hand.size();
-        totalCards +=saveState.playerState.discardPile.size();
-        totalCards += saveState.playerState.drawPile.size();
-
-        int numArmaments = 0;
-
-        numArmaments += saveState.playerState.hand.stream().map(cardState -> cardState.cardId.equals("Strike_R") ? 1 : 0).reduce(Integer::sum).orElse(0);
-        numArmaments += saveState.playerState.discardPile.stream().map(cardState -> cardState.cardId.equals("Strike_R") ? 1 : 0).reduce(Integer::sum).orElse(0);
-        numArmaments += saveState.playerState.drawPile.stream().map(cardState -> cardState.cardId.equals("Strike_R") ? 1 : 0).reduce(Integer::sum).orElse(0);
-
-
-        this.playerHealth = upgradedCard;
-        this.monsterHealth = totalCards;
-        this.numBurns = numArmaments;
+        this.playerHealth = saveState.getPlayerHealth();
+        this.monsterHealth = saveState.curMapNodeState.monsterData.stream()
+                                                                  .map(monster -> monster.currentHealth)
+                                                                  .reduce(Integer::sum).orElse(0);
+        this.numBurns = 0;
     }
 
     public StateDebugInfo(String jsonString) {

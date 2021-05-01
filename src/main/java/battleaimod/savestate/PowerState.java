@@ -19,7 +19,9 @@ public class PowerState {
 
     private final boolean ritualSkipFirst;
     private final boolean intangibleJustApplied;
+
     private final boolean drawReductionJustApplied;
+    private final boolean weakJustApplied;
 
     private final CardState stasisCard;
 
@@ -102,6 +104,13 @@ public class PowerState {
         } else {
             this.drawReductionJustApplied = false;
         }
+
+        if (power instanceof WeakPower) {
+            this.weakJustApplied = ReflectionHacks
+                    .getPrivate(power, WeakPower.class, "justApplied");
+        } else {
+            this.weakJustApplied = false;
+        }
     }
 
     public PowerState(String jsonString) {
@@ -130,6 +139,7 @@ public class PowerState {
 
         // TODO
         this.hpLoss = 0;
+        this.weakJustApplied = false;
     }
 
     public AbstractPower loadPower(AbstractCreature targetAndSource) {
@@ -145,7 +155,7 @@ public class PowerState {
             ReflectionHacks
                     .setPrivate(result, RitualPower.class, "skipFirst", ritualSkipFirst);
         } else if (powerId.equals("Weakened")) {
-            result = new WeakPower(targetAndSource, amount, false);
+            result = new WeakPower(targetAndSource, amount, weakJustApplied);
         } else if (powerId.equals("Frail")) {
             result = new FrailPower(targetAndSource, amount, false);
         } else if (powerId.equals("Anger")) {
@@ -316,5 +326,4 @@ public class PowerState {
 
         return powerStateJson.toString();
     }
-
 }

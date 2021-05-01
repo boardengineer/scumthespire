@@ -10,6 +10,7 @@ import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.cards.CardQueueItem;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.powers.ConstrictedPower;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
@@ -190,6 +191,9 @@ public class SaveState {
         if (!shouldGoFast() && !isScreenUp) {
             CombatRewardScreenState.loadCombatRewardScreen();
         }
+
+        AbstractDungeon.getCurrRoom().monsters.monsters.forEach(AbstractMonster::applyPowers);
+        AbstractDungeon.player.hand.applyPowers();
 
         rngState.loadRng();
 
