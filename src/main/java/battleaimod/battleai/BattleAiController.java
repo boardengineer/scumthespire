@@ -5,7 +5,6 @@ import battleaimod.battleai.commands.Command;
 import battleaimod.patches.FastActionsPatch;
 import battleaimod.savestate.CardState;
 import battleaimod.savestate.SaveState;
-import com.google.common.collect.MinMaxPriorityQueue;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
@@ -21,12 +20,12 @@ import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
-    public int maxTurnLoads = 50_000;
+    public int maxTurnLoads = 5_000;
 
     public int targetTurn;
     public int targetTurnJump;
 
-    public MinMaxPriorityQueue<TurnNode> turns = MinMaxPriorityQueue.maximumSize(10_000).create();
+    public PriorityQueue<TurnNode> turns = new PriorityQueue<>();
     public StateNode root = null;
 
     public int minDamage = 5000;
@@ -238,7 +237,7 @@ public class BattleAiController {
                 startingHealth = startingState.getPlayerHealth();
                 root = firstStateContainer;
                 firstStateContainer.saveState = startingState;
-                turns = MinMaxPriorityQueue.maximumSize(50_000).create();
+                turns = new PriorityQueue<>();
                 this.rootTurn = new TurnNode(firstStateContainer, this, null);
                 turns.add(rootTurn);
 
@@ -352,7 +351,7 @@ public class BattleAiController {
 
             if (!bestPathRunner.hasNext()) {
                 System.err.println("no more commands to run");
-                turns = MinMaxPriorityQueue.maximumSize(50_000).create();
+                turns = new PriorityQueue<>();
                 root = null;
                 minDamage = 5000;
                 bestEnd = null;
