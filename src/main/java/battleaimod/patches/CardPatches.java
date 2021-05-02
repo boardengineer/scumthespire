@@ -10,6 +10,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.MakeTempCardInDiscardAction;
+import com.megacrit.cardcrawl.actions.common.MakeTempCardInHandAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
@@ -259,8 +260,9 @@ public class CardPatches {
             if (shouldGoFast()) {
                 AbstractCard result = _instance.makeStatEquivalentCopy();
 
-                if (result == null) {
-                    throw new IllegalStateException("Why are the cards null?");
+                while (result == null) {
+                    System.err.println("Failed to create card, trying again...");
+                    result = _instance.makeStatEquivalentCopy();
                 }
 
                 result.uuid = _instance.uuid;
@@ -328,6 +330,36 @@ public class CardPatches {
                 AbstractDungeon.player.hand.addToTop(card);
 
                 return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = MakeTempCardInHandAction.class,
+            paramtypez = {},
+            method = "makeNewCard"
+    )
+    public static class ShowCardAndAddToHandActionPatch {
+        public static SpireReturn Prefix(MakeTempCardInHandAction action) {
+            if (shouldGoFast()) {
+                AbstractCard card = ReflectionHacks
+                        .getPrivate(action, MakeTempCardInHandAction.class, "c");
+                boolean sameUUID = ReflectionHacks
+                        .getPrivate(action, MakeTempCardInHandAction.class, "sameUUID");
+
+                AbstractCard result = null;
+
+                while (result == null) {
+                    result = sameUUID ? card.makeSameInstanceOf() : card.makeStatEquivalentCopy();
+
+                    if (result == null) {
+                        System.err.println("Failed to create card, retrying");
+                    }
+                }
+
+
+                return SpireReturn.Return(result);
             }
             return SpireReturn.Continue();
         }

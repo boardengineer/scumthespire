@@ -1,12 +1,14 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
-import battleaimod.savestate.actions.ActionState;
-import battleaimod.savestate.actions.ArmamentsActionState;
-import battleaimod.savestate.actions.DualWieldActionState;
+import battleaimod.savestate.actions.*;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.common.DrawCardAction;
+import com.megacrit.cardcrawl.actions.common.ExhaustAction;
+import com.megacrit.cardcrawl.actions.common.RemoveSpecificPowerAction;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
 import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 public class HandSelectScreenState {
     private final int numCardsToSelect;
     private final ArrayList<CardState> selectedCards;
-    private final ArrayList<UseCardActionState> useCardActions;
+    private final ArrayList<ActionState> useCardActions;
     private final CardState hoveredCard;
     private final boolean wereCardsRetrieved;
     private final boolean canPickZero;
@@ -62,6 +64,8 @@ public class HandSelectScreenState {
                 actionState = new ArmamentsActionState(currentAction);
             } else if (currentAction instanceof DualWieldAction) {
                 actionState = new DualWieldActionState(currentAction);
+            } else if (currentAction instanceof ExhaustAction) {
+                actionState = new ExhaustActionState(currentAction);
             } else {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);
             }
@@ -73,7 +77,15 @@ public class HandSelectScreenState {
                     useCardActions.add(new UseCardActionState((UseCardAction) action));
                 } else if (action instanceof UpdateOnlyUseCardAction) {
                     useCardActions.add(new UseCardActionState((UpdateOnlyUseCardAction) action));
-                } else {
+                } else if (action instanceof DrawCardAction) {
+                    useCardActions.add(new DrawCardActionState(action));
+                } else if (action instanceof DrawCardActionFast) {
+                    useCardActions.add(new DrawCardActionState(action));
+                } else if (action instanceof RemoveSpecificPowerAction) {
+                    // Duplication + burning blood triggers this
+                    useCardActions.add(new RemoveSpecificPowerActionState(action));
+                }
+                else {
                     throw new IllegalArgumentException("Illegal action type found in action manager: " + action);
                 }
             }

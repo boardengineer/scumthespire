@@ -10,6 +10,7 @@ import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.powers.*;
+import com.megacrit.cardcrawl.powers.watcher.VigorPower;
 
 public class PowerState {
     public final String powerId;
@@ -240,11 +241,9 @@ public class PowerState {
             result = new RegrowPower(targetAndSource);
         } else if (powerId.equals("Stasis")) {
             AbstractCard resultCard = stasisCard.loadCard();
-
             if (resultCard == null) {
                 throw new IllegalStateException("Card Returned Was Null");
             }
-
             result = new StasisPower(targetAndSource, resultCard);
         } else if (powerId.equals("Dark Embrace")) {
             result = new DarkEmbracePower(targetAndSource, amount);
@@ -298,6 +297,8 @@ public class PowerState {
             result = new DrawReductionPower(targetAndSource, amount);
             ReflectionHacks
                     .setPrivate(result, DrawReductionPower.class, "justApplied", drawReductionJustApplied);
+        } else if (powerId.equals("Vigor")) {
+            result = new VigorPower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

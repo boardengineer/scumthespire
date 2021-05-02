@@ -12,7 +12,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class ArmamentsActionState implements ActionState{
+public class ArmamentsActionState implements ActionState {
     private final ArrayList<CardState> cannotUpgrade;
     private final boolean upgraded;
 

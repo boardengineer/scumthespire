@@ -92,6 +92,10 @@ public class RelicState {
         } else {
             this.pocketwatchFirstTurn = false;
         }
+
+        if(relic instanceof Akabeko) {
+
+        }
     }
 
     public RelicState(String jsonString) {
