@@ -6,9 +6,7 @@ import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
 import battleaimod.savestate.actions.*;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.actions.common.DrawCardAction;
-import com.megacrit.cardcrawl.actions.common.ExhaustAction;
-import com.megacrit.cardcrawl.actions.common.RemoveSpecificPowerAction;
+import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
 import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
@@ -21,7 +19,7 @@ import java.util.stream.Collectors;
 public class HandSelectScreenState {
     private final int numCardsToSelect;
     private final ArrayList<CardState> selectedCards;
-    private final ArrayList<ActionState> useCardActions;
+    private final ArrayList<ActionState> actionQueue;
     private final CardState hoveredCard;
     private final boolean wereCardsRetrieved;
     private final boolean canPickZero;
@@ -70,22 +68,25 @@ public class HandSelectScreenState {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);
             }
 
-            useCardActions = new ArrayList<>();
+            actionQueue = new ArrayList<>();
 
             for (AbstractGameAction action : AbstractDungeon.actionManager.actions) {
                 if (action instanceof UseCardAction) {
-                    useCardActions.add(new UseCardActionState((UseCardAction) action));
+                    actionQueue.add(new UseCardActionState((UseCardAction) action));
                 } else if (action instanceof UpdateOnlyUseCardAction) {
-                    useCardActions.add(new UseCardActionState((UpdateOnlyUseCardAction) action));
+                    actionQueue.add(new UseCardActionState((UpdateOnlyUseCardAction) action));
                 } else if (action instanceof DrawCardAction) {
-                    useCardActions.add(new DrawCardActionState(action));
+                    actionQueue.add(new DrawCardActionState(action));
                 } else if (action instanceof DrawCardActionFast) {
-                    useCardActions.add(new DrawCardActionState(action));
+                    actionQueue.add(new DrawCardActionState(action));
                 } else if (action instanceof RemoveSpecificPowerAction) {
                     // Duplication + burning blood triggers this
-                    useCardActions.add(new RemoveSpecificPowerActionState(action));
-                }
-                else {
+                    actionQueue.add(new RemoveSpecificPowerActionState(action));
+                } else if (action instanceof MakeTempCardInDrawPileAction) {
+                    actionQueue.add(new MakeTempCardInDrawPileActionState(action));
+                } else if (action instanceof RelicAboveCreatureAction) {
+                    // Visual effect only, ignore
+                } else {
                     throw new IllegalArgumentException("Illegal action type found in action manager: " + action);
                 }
             }
@@ -105,7 +106,7 @@ public class HandSelectScreenState {
 //                                                                  .collect(Collectors
 //                                                                          .toCollection(ArrayList::new));
 
-            if (useCardActions.isEmpty()) {
+            if (actionQueue.isEmpty()) {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);
             }
 
@@ -113,7 +114,7 @@ public class HandSelectScreenState {
 //            queueItemState = new CardQueueItemState(AbstractDungeon.actionManager.cardQueue.get(0));
         } else {
             actionState = null;
-            useCardActions = null;
+            actionQueue = null;
 //            queueItemState = null;
         }
     }
@@ -151,7 +152,7 @@ public class HandSelectScreenState {
             AbstractDungeon.actionManager.phase = GameActionManager.Phase.EXECUTING_ACTIONS;
 
             AbstractDungeon.actionManager.actions.clear();
-            useCardActions.forEach(action -> AbstractDungeon.actionManager.actions.add(action
+            actionQueue.forEach(action -> AbstractDungeon.actionManager.actions.add(action
                     .loadAction()));
 
             if (AbstractDungeon.actionManager.actions.isEmpty()) {

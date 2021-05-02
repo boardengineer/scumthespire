@@ -2,6 +2,7 @@ package battleaimod.patches;
 
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
+import battleaimod.fastobjects.actions.EmptyDeckShuffleActionFast;
 import battleaimod.savestate.CardState;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
@@ -11,6 +12,7 @@ import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.MakeTempCardInDiscardAction;
 import com.megacrit.cardcrawl.actions.common.MakeTempCardInHandAction;
+import com.megacrit.cardcrawl.actions.common.PlayTopCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
@@ -340,7 +342,7 @@ public class CardPatches {
             paramtypez = {},
             method = "makeNewCard"
     )
-    public static class ShowCardAndAddToHandActionPatch {
+    public static class MakeNewCardPatch {
         public static SpireReturn Prefix(MakeTempCardInHandAction action) {
             if (shouldGoFast()) {
                 AbstractCard card = ReflectionHacks
@@ -360,6 +362,40 @@ public class CardPatches {
 
 
                 return SpireReturn.Return(result);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = MakeTempCardInHandAction.class,
+            paramtypez = {int.class},
+            method = "addToHand"
+    )
+    public static class AddToHandPatch {
+        public static SpireReturn Prefix(MakeTempCardInHandAction action, int handAmt) {
+            if (shouldGoFast()) {
+                for (int i = 0; i < handAmt; ++i) {
+                    AbstractCard card = null;
+                    while (card == null) {
+                        card = (AbstractCard) MakeNewCardPatch.Prefix(action)
+                                                              .get();
+                        if (card == null) {
+                            System.err.println("card was null, retrying...");
+                        }
+                    }
+
+                    AbstractDungeon.player.hand.addToHand(card);
+                    card.triggerWhenCopied();
+                    AbstractDungeon.player.hand.applyPowers();
+                    AbstractDungeon.player.onCardDrawOrDiscard();
+                    if (AbstractDungeon.player
+                            .hasPower("Corruption") && card.type == AbstractCard.CardType.SKILL) {
+                        card.setCostForTurn(-9);
+                    }
+                }
+
+                return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
         }
@@ -387,6 +423,30 @@ public class CardPatches {
                 CardState.freeCard(ReflectionHacks
                         .getPrivate(_instance, MakeTempCardInDiscardAction.class, "c"));
             }
+        }
+    }
+
+    @SpirePatch(
+            clz = PlayTopCardAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class PlayTopCardPatch {
+        public static SpireReturn Prefix(PlayTopCardAction _instance) {
+            if (shouldGoFast()) {
+                if (AbstractDungeon.player.drawPile.isEmpty()) {
+                    boolean exhaustCards = ReflectionHacks
+                            .getPrivate(_instance, PlayTopCardAction.class, "exhaustCards");
+
+                    AbstractDungeon.actionManager
+                            .addToTop(new PlayTopCardAction(_instance.target, exhaustCards));
+                    AbstractDungeon.actionManager.addToTop(new EmptyDeckShuffleActionFast());
+                    _instance.isDone = true;
+                    return SpireReturn.Return(null);
+                }
+            }
+
+            return SpireReturn.Continue();
         }
     }
 }

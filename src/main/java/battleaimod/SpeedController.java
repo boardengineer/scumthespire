@@ -129,12 +129,10 @@ public class SpeedController implements PreUpdateSubscriber {
             } else if (action instanceof DrawCardAction) {
                 actions.remove(i);
                 actions.add(i, new DrawCardActionFast(AbstractDungeon.player, action.amount));
-            }
-//            else if (action instanceof EmptyDeckShuffleAction) {
-//                actions.remove(i);
-//                actions.add(i, new EmptyDeckShuffleActionFast());
-//            }
-            else if (action instanceof DiscardAction) {
+            } else if (action instanceof EmptyDeckShuffleAction) {
+                actions.remove(i);
+                actions.add(i, new EmptyDeckShuffleActionFast());
+            } else if (action instanceof DiscardAction) {
                 actions.remove(i);
                 actions.add(i, new DiscardCardActionFast(AbstractDungeon.player, null, action.amount, false));
             } else if (action instanceof DiscardAtEndOfTurnAction) {
@@ -172,12 +170,11 @@ public class SpeedController implements PreUpdateSubscriber {
                 actions.add(i, new DrawCardActionFast(AbstractDungeon.player, action.amount));
             }
 
-//            else if (action instanceof EmptyDeckShuffleAction) {
-//                actions.remove(i);
-//                actions.add(i, new EmptyDeckShuffleActionFast());
-//
-//
-//            }
+            else if (action instanceof EmptyDeckShuffleAction) {
+                actions.remove(i);
+                actions.add(i, new EmptyDeckShuffleActionFast());
+            }
+
             else if (action instanceof DiscardAction) {
                 actions.remove(i);
                 actions.add(i, new DiscardCardActionFast(AbstractDungeon.player, null, action.amount, false));

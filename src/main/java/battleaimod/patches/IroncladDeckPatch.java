@@ -94,7 +94,7 @@ public class IroncladDeckPatch {
 
             add(new SwordBoomerang());
             add(new ThunderClap());
-//            add(new TrueGrit());
+            add(new TrueGrit());
             add(new TwinStrike());
             add(new Uppercut());
 //            add(new Warcry());
