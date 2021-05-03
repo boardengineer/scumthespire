@@ -1,7 +1,9 @@
 package battleaimod.fastobjects.actions;
 
+import basemod.ReflectionHacks;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.common.DiscardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.AbstractCreature;
@@ -44,6 +46,16 @@ public class DiscardCardActionFast extends AbstractGameAction {
         this.actionType = AbstractGameAction.ActionType.DISCARD;
         this.endTurn = endTurn;
         this.duration = DURATION;
+    }
+
+    public DiscardCardActionFast(AbstractGameAction action) {
+        this.p = (AbstractPlayer) action.target;
+        this.isRandom = ReflectionHacks.getPrivate(action, DiscardAction.class, "isRandom");
+        this.setValues(action.target, action.target, action.amount);
+        this.actionType = AbstractGameAction.ActionType.DISCARD;
+        this.endTurn = ReflectionHacks.getPrivate(action, DiscardAction.class, "endTurn");
+        this.duration = DURATION;
+        this.amount = action.amount;
     }
 
     public void update() {

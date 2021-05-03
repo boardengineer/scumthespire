@@ -322,8 +322,11 @@ public class PowerState {
             result = new ConservePower(targetAndSource, amount);
         } else if (powerId.equals("Creative AI")) {
             result = new CreativeAIPower(targetAndSource, amount);
-        //} else if (powerId.equals("Double Damage")) {
-        //    result = new DoubleDamagePower(targetAndSource, amount, TODO);
+        } else if (powerId.equals("Double Damage")) {
+            if (!targetAndSource.isPlayer) {
+                throw new IllegalStateException("Since when do monsters deal double damage?");
+            }
+            result = new DoubleDamagePower(targetAndSource, amount, false);
         } else if (powerId.equals("Draw")) {
             result = new DrawPower(targetAndSource, amount);
         } else if (powerId.equals("Echo Form")) {
@@ -358,16 +361,16 @@ public class PowerState {
             result = new StudyPower(targetAndSource, amount);
         } else if (powerId.equals("Magnetism")) {
             result = new MagnetismPower(targetAndSource, amount);
-        //} else if (powerId.equals("Night Terror")) {
-        //    result = new NightmarePower(targetAndSource, amount, card);   // TODO
+            //} else if (powerId.equals("Night Terror")) {
+            //    result = new NightmarePower(targetAndSource, amount, card);   // TODO
         } else if (powerId.equals("Noxious Fumes")) {
             result = new NoxiousFumesPower(targetAndSource, amount);
-        //} else if (powerId.equals("Panache")) {
-        //    result = new PanachePower(targetAndSource, amount);   // TODO
+            //} else if (powerId.equals("Panache")) {
+            //    result = new PanachePower(targetAndSource, amount);   // TODO
         } else if (powerId.equals("Phantasmal")) {
             result = new PhantasmalPower(targetAndSource, amount);
-        //} else if (powerId.equals("Poison")) {
-        //    result = new PoisonPower();   // TODO!
+        } else if (powerId.equals("Poison")) {
+            result = new PoisonPower(targetAndSource, AbstractDungeon.player, amount);
         } else if (powerId.equals("Rebound")) {
             result = new ReboundPower(targetAndSource);    // TODO
         } else if (powerId.equals("Repair")) {
@@ -380,8 +383,8 @@ public class PowerState {
             result = new StaticDischargePower(targetAndSource, amount);
         } else if (powerId.equals("Storm")) {
             result = new StormPower(targetAndSource, amount);
-        //} else if (powerId.equals("TheBomb")) {
-        //    result = new TheBombPower(targetAndSource, turns, amount);    // TODO
+            //} else if (powerId.equals("TheBomb")) {
+            //    result = new TheBombPower(targetAndSource, turns, amount);    // TODO
         } else if (powerId.equals("Thousand Cuts")) {
             result = new ThousandCutsPower(targetAndSource, amount);
         } else if (powerId.equals("Tools Of The Trade")) {
@@ -450,6 +453,8 @@ public class PowerState {
             result = new MarkPower(targetAndSource, amount);
         } else if (powerId.equals("LikeWaterPower")) {
             result = new LikeWaterPower(targetAndSource, amount);   // End section
+        } else if (powerId.equals("Draw Card")) {
+            result = new DrawCardNextTurnPower(targetAndSource, amount);
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

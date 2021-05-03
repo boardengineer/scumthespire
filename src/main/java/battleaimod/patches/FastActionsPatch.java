@@ -129,7 +129,7 @@ public class FastActionsPatch {
                                 } else if (actionManager.currentAction instanceof SetAnimationAction) {
                                     actionManager.currentAction = null;
                                 } else if (actionManager.currentAction instanceof DiscardAction) {
-                                    actionManager.currentAction = new DiscardCardActionFast(AbstractDungeon.player, null, actionManager.currentAction.amount, false);
+                                    actionManager.currentAction = new DiscardCardActionFast(actionManager.currentAction);
                                 } else if (actionManager.currentAction instanceof EmptyDeckShuffleAction) {
                                     actionManager.currentAction = new EmptyDeckShuffleActionFast();
                                 } else if (actionManager.currentAction instanceof ShowMoveNameAction) {
