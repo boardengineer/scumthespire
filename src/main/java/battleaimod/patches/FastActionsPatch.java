@@ -13,6 +13,7 @@ import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.*;
+import com.megacrit.cardcrawl.actions.utility.SFXAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.File;
@@ -135,6 +136,8 @@ public class FastActionsPatch {
                                 } else if (actionManager.currentAction instanceof ShowMoveNameAction) {
                                     actionManager.currentAction = null;
                                 } else if (actionManager.currentAction instanceof WaitAction) {
+                                    actionManager.currentAction = null;
+                                } else if (actionManager.currentAction instanceof SFXAction) {
                                     actionManager.currentAction = null;
                                 }
                                 if (actionManager.currentAction != null) {

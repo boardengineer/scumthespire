@@ -99,6 +99,7 @@ public enum Power {
     PAINFUL_STABS("Painful Stabs", power -> new PainfulStabsPowerState(power)),
     PATH_TO_VICTORY_POWER("PathToVictoryPower", power -> new MarkPowerState(power)),
     PHANTASMAL("Phantasmal", power -> new PhantasmalPowerState(power)),
+    POISON("Poison", power -> new PoisonPowerState(power)),
     RAGE("Rage", power -> new RagePowerState(power)),
     REGENERATION("Regeneration", power -> new RegenPowerState(power)),
     PEN_NIB("Pen Nib", power -> new PenNibPowerState(power)),
