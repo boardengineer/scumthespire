@@ -14,7 +14,8 @@ public class ChangeStateActionState implements ActionState {
     }
 
     public ChangeStateActionState(ChangeStateAction action) {
-        this.ownerIndex = ActionState.indexForCreature(action.target);
+        AbstractMonster m = ReflectionHacks.getPrivate(action, ChangeStateAction.class, "m");
+        this.ownerIndex = ActionState.indexForCreature(m);
         this.stateName = ReflectionHacks.getPrivate(action, ChangeStateAction.class, "stateName");
     }
 
