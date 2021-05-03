@@ -11,6 +11,7 @@ import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import battleaimod.savestate.Monster;
 import battleaimod.savestate.SaveState;
+import battleaimod.savestate.powers.Power;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
@@ -51,6 +52,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static long logCounter = 0;
 
     public static HashMap<String, Monster> monsterByIdmap;
+    public static HashMap<String, Power> powerByIdmap;
 
     public BattleAiMod() {
         BaseMod.subscribe(this);
@@ -87,7 +89,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             if (battleAiController.isDone) {
                 battleAiController = null;
             }
-        } else if(!BattleAiController.shouldStep()) {
+        } else if (!BattleAiController.shouldStep()) {
             System.err.println("Can't step yet");
         }
     }
@@ -95,8 +97,13 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static void initialize() {
         BattleAiMod mod = new BattleAiMod();
         monsterByIdmap = new HashMap<>();
+        powerByIdmap = new HashMap<>();
         for (Monster monster : Monster.values()) {
             monsterByIdmap.put(monster.monsterId, monster);
+        }
+
+        for (Power power : Power.values()) {
+            powerByIdmap.put(power.powerId, power);
         }
     }
 
