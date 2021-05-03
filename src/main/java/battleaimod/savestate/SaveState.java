@@ -31,7 +31,7 @@ public class SaveState {
 
     //    ListState listState;
     public PlayerState playerState;
-    private HandSelectScreenState handSelectScreenState;
+    private HandSelectScreenState selectScreenState;
     RngState rngState;
     private final int ascensionLevel;
 
@@ -39,7 +39,7 @@ public class SaveState {
 
     public SaveState() {
         long startSave = System.currentTimeMillis();
-        handSelectScreenState = new HandSelectScreenState();
+        selectScreenState = new HandSelectScreenState();
 
         this.curMapNodeState = new MapRoomNodeState(AbstractDungeon.currMapNode);
 
@@ -112,7 +112,7 @@ public class SaveState {
         this.ascensionLevel = parsed.get("ascension_level").getAsInt();
 
         // TODO
-        handSelectScreenState = null;
+        selectScreenState = null;
     }
 
     public void loadState() {
@@ -184,8 +184,8 @@ public class SaveState {
             }
         }
 
-        if (handSelectScreenState != null) {
-            handSelectScreenState.loadHandSelectScreenState();
+        if (selectScreenState != null) {
+            selectScreenState.loadHandSelectScreenState();
         }
 
 

@@ -7,7 +7,6 @@ import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
 import battleaimod.savestate.CardState;
 import battleaimod.savestate.actions.DamageAllEnemiesActionState;
 import battleaimod.savestate.PlayerState;
-import battleaimod.savestate.UseCardActionState;
 import battleaimod.savestate.actions.*;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
@@ -98,7 +97,7 @@ public class HandSelectScreenState {
 
             for (AbstractGameAction action : AbstractDungeon.actionManager.actions) {
                 if (action instanceof UseCardAction) {
-                    actionQueue.add(new battleaimod.savestate.UseCardActionState((UseCardAction) action));
+                    actionQueue.add(new UseCardActionState((UseCardAction) action));
                 } else if (action instanceof UpdateOnlyUseCardAction) {
                     actionQueue.add(new UseCardActionState((UpdateOnlyUseCardAction) action));
                 } else if (action instanceof DrawCardAction) {
