@@ -12,6 +12,8 @@ import com.megacrit.cardcrawl.localization.UIStrings;
 
 import java.util.Iterator;
 
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
+
 public class DiscardCardActionFast extends AbstractGameAction {
     public static final String[] TEXT;
     private static final UIStrings uiStrings;
@@ -19,6 +21,7 @@ public class DiscardCardActionFast extends AbstractGameAction {
     public static int numDiscarded;
     private boolean shouldSkipEverything = false;
     public boolean secondHalfOnly = false;
+    private boolean forceNotDone = false;
 
     static {
         uiStrings = CardCrawlGame.languagePack.getUIString("DiscardAction");
@@ -47,7 +50,11 @@ public class DiscardCardActionFast extends AbstractGameAction {
         isDone = true;
         AbstractCard c;
 
-        this.duration = 0;
+        if (shouldGoFast()) {
+            this.duration = 0;
+        } else {
+            System.err.println("Discard action updating");
+        }
 
         if (AbstractDungeon.getMonsters().areMonstersBasicallyDead() || shouldSkipEverything) {
             this.isDone = true;
@@ -84,18 +91,26 @@ public class DiscardCardActionFast extends AbstractGameAction {
             if (!this.isRandom) {
                 if (this.amount < 0) {
                     AbstractDungeon.handCardSelectScreen.open(TEXT[0], 99, true, true);
+                    forceNotDone = true;
                     AbstractDungeon.player.hand.applyPowers();
                     this.tickDuration();
+                    if(forceNotDone) {
+                        this.isDone = false;
+                    }
                     return;
                 }
 
                 numDiscarded = this.amount;
                 if (this.p.hand.size() > this.amount) {
                     AbstractDungeon.handCardSelectScreen.open(TEXT[0], this.amount, false);
+                    forceNotDone = true;
                 }
 
                 AbstractDungeon.player.hand.applyPowers();
                 this.tickDuration();
+                if(forceNotDone) {
+                    this.isDone = false;
+                }
                 return;
             }
 
@@ -105,18 +120,21 @@ public class DiscardCardActionFast extends AbstractGameAction {
                 c.triggerOnManualDiscard();
                 GameActionManager.incrementDiscard(this.endTurn);
             }
-
-
         }
 
 
         if (!AbstractDungeon.handCardSelectScreen.wereCardsRetrieved) {
+            forceNotDone = false;
             Iterator var4 = AbstractDungeon.handCardSelectScreen.selectedCards.group.iterator();
 
             while (var4.hasNext()) {
                 c = (AbstractCard) var4.next();
                 this.p.hand.moveToDiscardPile(c);
                 c.triggerOnManualDiscard();
+
+                if (!shouldGoFast()) {
+                    System.err.println("Incrementing Discard");
+                }
                 GameActionManager.incrementDiscard(this.endTurn);
             }
 
@@ -124,6 +142,9 @@ public class DiscardCardActionFast extends AbstractGameAction {
         }
 
         this.tickDuration();
+        if(forceNotDone) {
+            this.isDone = false;
+        }
     }
 }
 
