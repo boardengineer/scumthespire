@@ -84,30 +84,34 @@ public class DiscardCardActionFast extends AbstractGameAction {
                 isDone = true;
                 return;
             }
-        
-            if(!this.isRandom)
-            {
-                if(this.amount<0)
-                {
+
+            AbstractDungeon.player.hand.applyPowers();
+            duration = 0;
+            isDone = true;
+            return;
+        }
+
+        if (!secondHalfOnly) {
+            secondHalfOnly = true;
+            if (!this.isRandom) {
+                if (this.amount < 0) {
                     AbstractDungeon.handCardSelectScreen.open(TEXT[0], 99, true, true);
                     AbstractDungeon.player.hand.applyPowers();
                     this.tickDuration();
                     return;
                 }
-            
+
                 numDiscarded = this.amount;
-                if(this.p.hand.size()>this.amount)
-                {
+                if (this.p.hand.size() > this.amount) {
                     AbstractDungeon.handCardSelectScreen.open(TEXT[0], this.amount, false);
                 }
-            
+
                 AbstractDungeon.player.hand.applyPowers();
                 this.tickDuration();
                 return;
             }
-        
-            for(int i = 0; i<this.amount; ++i)
-            {
+
+            for (int i = 0; i < this.amount; ++i) {
                 c = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
                 this.p.hand.moveToDiscardPile(c);
                 c.triggerOnManualDiscard();

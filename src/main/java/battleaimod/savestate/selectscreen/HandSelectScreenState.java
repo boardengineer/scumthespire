@@ -79,16 +79,6 @@ public class HandSelectScreenState {
                 actionState = new DiscardActionState((DiscardAction) currentAction);
             } else if (currentAction instanceof DiscardCardActionFast) {
                 actionState = new DiscardActionState((DiscardCardActionFast) currentAction);
-            } else if (currentAction instanceof ExhumeAction) {     // Grid actions
-                actionState = null;
-            } else if (currentAction instanceof DiscardPileToTopOfDeckAction) {
-                actionState = null;
-            } else if (currentAction instanceof SeekAction) {
-                actionState = null;
-            } else if (currentAction instanceof SkillFromDeckToHandAction) {
-                actionState = null;
-            } else if (currentAction instanceof AttackFromDeckToHandAction) {
-                actionState = null;
             } else {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.currentAction);
             }
@@ -105,11 +95,17 @@ public class HandSelectScreenState {
                 } else if (action instanceof DrawCardActionFast) {
                     actionQueue.add(new DrawCardActionState(action));
                 } else if (action instanceof RemoveSpecificPowerAction) {
-                    // Duplication + burning blood triggers this
                     actionQueue.add(new RemoveSpecificPowerActionState(action));
                 } else if (action instanceof MakeTempCardInDrawPileAction) {
                     actionQueue.add(new MakeTempCardInDrawPileActionState(action));
-                } else if (action instanceof RelicAboveCreatureAction) {
+                } else if (action instanceof GainBlockAction) {
+                    actionQueue.add(new GainBlockActionState(action));
+                } else if (action instanceof ChangeStateAction) {
+                    actionQueue.add(new ChangeStateActionState(action));
+                } else if (action instanceof SFXAction){
+                    // visual only
+                }
+                else if (action instanceof RelicAboveCreatureAction) {
                     // Visual effect only, ignore
                 } else if (action instanceof DamageAllEnemiesAction) {
                     actionQueue.add(new DamageAllEnemiesActionState((DamageAllEnemiesAction) action));
