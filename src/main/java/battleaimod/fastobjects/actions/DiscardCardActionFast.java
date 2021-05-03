@@ -112,7 +112,7 @@ public class DiscardCardActionFast extends AbstractGameAction {
             }
 
             for (int i = 0; i < this.amount; ++i) {
-                c = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
+                AbstractCard c = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
                 this.p.hand.moveToDiscardPile(c);
                 c.triggerOnManualDiscard();
                 GameActionManager.incrementDiscard(this.endTurn);
