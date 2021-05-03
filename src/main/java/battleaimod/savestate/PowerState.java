@@ -10,7 +10,7 @@ import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.powers.*;
-import com.megacrit.cardcrawl.powers.watcher.VigorPower;
+import com.megacrit.cardcrawl.powers.watcher.*;
 
 public class PowerState {
     public final String powerId;
@@ -241,9 +241,11 @@ public class PowerState {
             result = new RegrowPower(targetAndSource);
         } else if (powerId.equals("Stasis")) {
             AbstractCard resultCard = stasisCard.loadCard();
+
             if (resultCard == null) {
                 throw new IllegalStateException("Card Returned Was Null");
             }
+
             result = new StasisPower(targetAndSource, resultCard);
         } else if (powerId.equals("Dark Embrace")) {
             result = new DarkEmbracePower(targetAndSource, amount);
@@ -293,12 +295,161 @@ public class PowerState {
         } else if (powerId.equals("Time Warp")) {
             result = new TimeWarpPower(targetAndSource);
             result.amount = amount;
+        } else if (powerId.equals("Vigor")) {
+            result = new VigorPower(targetAndSource, amount);
         } else if (powerId.equals("Draw Reduction")) {
             result = new DrawReductionPower(targetAndSource, amount);
             ReflectionHacks
                     .setPrivate(result, DrawReductionPower.class, "justApplied", drawReductionJustApplied);
-        } else if (powerId.equals("Vigor")) {
-            result = new VigorPower(targetAndSource, amount);
+        } else if (powerId.equals("Accuracy"))  // Begin section
+        {
+            result = new AccuracyPower(targetAndSource, amount);
+        } else if (powerId.equals("After Image")) {
+            result = new AfterImagePower(targetAndSource, amount);
+        } else if (powerId.equals("Amplify")) {
+            result = new AmplifyPower(targetAndSource, amount);
+        } else if (powerId.equals("Attack Burn")) {
+            result = new AttackBurnPower(targetAndSource, amount);
+        } else if (powerId.equals("Bias")) {
+            result = new BiasPower(targetAndSource, amount);
+        } else if (powerId.equals("Blur")) {
+            result = new BlurPower(targetAndSource, amount);
+        } else if (powerId.equals("Burst")) {
+            result = new BurstPower(targetAndSource, amount);
+        } else if (powerId.equals("Choked")) {
+            result = new ChokePower(targetAndSource, amount);
+        } else if (powerId.equals("Conserve")) {
+            result = new ConservePower(targetAndSource, amount);
+        } else if (powerId.equals("Creative AI")) {
+            result = new CreativeAIPower(targetAndSource, amount);
+        //} else if (powerId.equals("Double Damage")) {
+        //    result = new DoubleDamagePower(targetAndSource, amount, TODO);
+        } else if (powerId.equals("Draw")) {
+            result = new DrawPower(targetAndSource, amount);
+        } else if (powerId.equals("Echo Form")) {
+            result = new EchoPower(targetAndSource, amount);    // TODO
+        } else if (powerId.equals("Electro")) {
+            result = new ElectroPower(targetAndSource);
+        } else if (powerId.equals("Energized")) {
+            result = new EnergizedPower(targetAndSource, amount);
+        } else if (powerId.equals("EnergizedBlue")) {
+            result = new EnergizedBluePower(targetAndSource, amount);
+        } else if (powerId.equals("Envenom")) {
+            result = new EnvenomPower(targetAndSource, amount);
+        } else if (powerId.equals("Focus")) {
+            result = new FocusPower(targetAndSource, amount);
+        } else if (powerId.equals("GrowthPower")) {
+            result = new GrowthPower(targetAndSource, amount);    // TODO
+        } else if (powerId.equals("Heatsink")) {
+            result = new HeatsinkPower(targetAndSource, amount);
+        } else if (powerId.equals("Hello")) {
+            result = new HelloPower(targetAndSource, amount);
+        } else if (powerId.equals("Infinite Blades")) {
+            result = new InfiniteBladesPower(targetAndSource, amount);
+        } else if (powerId.equals("Invincible")) {
+            result = new InvinciblePower(targetAndSource, amount);  // TODO
+        } else if (powerId.equals("BeatOfDeath")) {
+            result = new BeatOfDeathPower(targetAndSource, amount);
+        } else if (powerId.equals("Lockon")) {
+            result = new LockOnPower(targetAndSource, amount);
+        } else if (powerId.equals("Loop")) {
+            result = new LoopPower(targetAndSource, amount);
+        } else if (powerId.equals("Study")) {
+            result = new StudyPower(targetAndSource, amount);
+        } else if (powerId.equals("Magnetism")) {
+            result = new MagnetismPower(targetAndSource, amount);
+        //} else if (powerId.equals("Night Terror")) {
+        //    result = new NightmarePower(targetAndSource, amount, card);   // TODO
+        } else if (powerId.equals("Noxious Fumes")) {
+            result = new NoxiousFumesPower(targetAndSource, amount);
+        //} else if (powerId.equals("Panache")) {
+        //    result = new PanachePower(targetAndSource, amount);   // TODO
+        } else if (powerId.equals("Phantasmal")) {
+            result = new PhantasmalPower(targetAndSource, amount);
+        //} else if (powerId.equals("Poison")) {
+        //    result = new PoisonPower();   // TODO!
+        } else if (powerId.equals("Rebound")) {
+            result = new ReboundPower(targetAndSource);    // TODO
+        } else if (powerId.equals("Repair")) {
+            result = new RepairPower(targetAndSource, amount);
+        } else if (powerId.equals("Retain Cards")) {
+            result = new RetainCardPower(targetAndSource, amount);
+        } else if (powerId.equals("Skill Burn")) {
+            result = new SkillBurnPower(targetAndSource, amount);    // TODO
+        } else if (powerId.equals("StaticDischarge")) {
+            result = new StaticDischargePower(targetAndSource, amount);
+        } else if (powerId.equals("Storm")) {
+            result = new StormPower(targetAndSource, amount);
+        //} else if (powerId.equals("TheBomb")) {
+        //    result = new TheBombPower(targetAndSource, turns, amount);    // TODO
+        } else if (powerId.equals("Thousand Cuts")) {
+            result = new ThousandCutsPower(targetAndSource, amount);
+        } else if (powerId.equals("Tools Of The Trade")) {
+            result = new ToolsOfTheTradePower(targetAndSource, amount);
+        } else if (powerId.equals("Wraith Form v2")) {
+            result = new WraithFormPower(targetAndSource, amount);
+        } else if (powerId.equals("Equilibrium")) {
+            result = new EquilibriumPower(targetAndSource, amount);
+        } else if (powerId.equals("TimeMazePower")) {
+            result = new TimeMazePower(targetAndSource, amount);    // TODO
+        } else if (powerId.equals("NoBlockPower")) {
+            result = new NoBlockPower(targetAndSource, amount, false);  // No monsters do this: only Panic Button.
+        } else if (powerId.equals("CorpseExplosionPower")) {
+            result = new CorpseExplosionPower(targetAndSource);
+        } else if (powerId.equals("Surrounded")) {
+            result = new SurroundedPower(targetAndSource);
+        } else if (powerId.equals("Nirvana")) {
+            result = new NirvanaPower(targetAndSource, amount);
+        } else if (powerId.equals("BackAttack")) {
+            result = new BackAttackPower(targetAndSource);
+        } else if (powerId.equals("Adaptation")) {
+            result = new RushdownPower(targetAndSource, amount);
+        } else if (powerId.equals("Controlled")) {
+            result = new MentalFortressPower(targetAndSource, amount);
+        } else if (powerId.equals("Collect")) {
+            result = new CollectPower(targetAndSource, amount);
+        } else if (powerId.equals("EndTurnDeath")) {
+            result = new EndTurnDeathPower(targetAndSource);
+        } else if (powerId.equals("Mantra")) {
+            result = new MantraPower(targetAndSource, amount);
+        } else if (powerId.equals("AngelForm")) {
+            result = new LiveForeverPower(targetAndSource, amount);
+        } else if (powerId.equals("WireheadingPower")) {
+            result = new ForesightPower(targetAndSource, amount);
+        } else if (powerId.equals("EstablishmentPower")) {
+            result = new EstablishmentPower(targetAndSource, amount);
+        } else if (powerId.equals("DevotionPower")) {
+            result = new DevotionPower(targetAndSource, amount);
+        } else if (powerId.equals("BlockReturnPower")) {
+            result = new BlockReturnPower(targetAndSource, amount);
+        } else if (powerId.equals("BattleHymn")) {
+            result = new BattleHymnPower(targetAndSource, amount);
+        } else if (powerId.equals("FreeAttackPower")) {
+            result = new FreeAttackPower(targetAndSource, amount);
+        } else if (powerId.equals("NoSkills")) {
+            result = new NoSkillsPower(targetAndSource);
+        } else if (powerId.equals("MasterRealityPower")) {
+            result = new MasterRealityPower(targetAndSource);
+        } else if (powerId.equals("StrikeUp")) {
+            result = new StrikeUpPower(targetAndSource, amount);
+        } else if (powerId.equals("CannotChangeStancePower")) {
+            result = new CannotChangeStancePower(targetAndSource);
+        } else if (powerId.equals("OmegaPower")) {
+            result = new OmegaPower(targetAndSource, amount);
+        } else if (powerId.equals("WrathNextTurnPower")) {
+            result = new WrathNextTurnPower(targetAndSource);
+        } else if (powerId.equals("DevaForm")) {
+            result = new DevaPower(targetAndSource);    // TODO
+        } else if (powerId.equals("OmnisciencePower")) {
+            result = new OmnisciencePower(targetAndSource, amount);
+        } else if (powerId.equals("WaveOfTheHandPower")) {
+            result = new WaveOfTheHandPower(targetAndSource, amount);
+        } else if (powerId.equals("EnergyDownPower")) {
+            result = new EnergyDownPower(targetAndSource, amount);
+        } else if (powerId.equals("PathToVictoryPower")) {
+            result = new MarkPower(targetAndSource, amount);
+        } else if (powerId.equals("LikeWaterPower")) {
+            result = new LikeWaterPower(targetAndSource, amount);   // End section
         } else {
             System.err.println("missing type for power id: " + powerId);
         }

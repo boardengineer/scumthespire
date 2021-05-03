@@ -270,4 +270,22 @@ public class CardState {
     private static AbstractCard getFreshCard(String key) {
         return CardLibrary.getCard(key).makeCopy();
     }
+    
+    public static CardState makeNewCardState(AbstractCard card)
+    {
+        if(card!=null)
+        {
+            return new CardState(card);
+        }
+        return null;
+    }
+    
+    public static AbstractCard loadCardFromState(CardState card)
+    {
+        if(card!=null)
+        {
+            return card.loadCard();
+        }
+        return null;
+    }
 }

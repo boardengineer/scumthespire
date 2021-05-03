@@ -65,7 +65,7 @@ public class HandSelectScreenState {
             } else if (currentAction instanceof ExhaustAction) {
                 actionState = new ExhaustActionState(currentAction);
             } else {
-                throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);
+                throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.currentAction);
             }
 
             actionQueue = new ArrayList<>();
