@@ -24,6 +24,7 @@ public class SaveState {
     boolean myTurn = false;
     public int turn;
     public String encounterName;
+    private int totalDiscardedThisTurn;
 
     AbstractRoom.RoomPhase previousPhase = null;
     AbstractDungeon.CurrentScreen screen;
@@ -74,6 +75,7 @@ public class SaveState {
         myTurn = GameStateListener.myTurn;
         encounterName = BattleAiController.currentEncounter;
         this.ascensionLevel = AbstractDungeon.ascensionLevel;
+        this.totalDiscardedThisTurn = GameActionManager.totalDiscardedThisTurn;
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController
@@ -174,6 +176,7 @@ public class SaveState {
         GameStateListener.previousPhase = previousPhase;
         GameStateListener.myTurn = myTurn;
         GameStateListener.externalChange = true;
+        GameActionManager.totalDiscardedThisTurn = totalDiscardedThisTurn;
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.loadstateTime += (System
