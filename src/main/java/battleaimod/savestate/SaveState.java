@@ -4,6 +4,7 @@ import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import battleaimod.GameStateListener;
 import battleaimod.battleai.BattleAiController;
+import battleaimod.savestate.selectscreen.HandSelectScreenState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
