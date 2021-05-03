@@ -1,6 +1,7 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.actions.DiscardCardActionFast;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
 import battleaimod.savestate.actions.*;
@@ -9,6 +10,7 @@ import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
 import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
+import com.megacrit.cardcrawl.actions.utility.SFXAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.screens.select.HandCardSelectScreen;
@@ -64,6 +66,8 @@ public class HandSelectScreenState {
                 actionState = new DualWieldActionState(currentAction);
             } else if (currentAction instanceof ExhaustAction) {
                 actionState = new ExhaustActionState(currentAction);
+            } else if (currentAction instanceof DiscardCardActionFast) {
+                actionState = new DiscardCardActionState(currentAction);
             } else {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.currentAction);
             }
@@ -80,11 +84,17 @@ public class HandSelectScreenState {
                 } else if (action instanceof DrawCardActionFast) {
                     actionQueue.add(new DrawCardActionState(action));
                 } else if (action instanceof RemoveSpecificPowerAction) {
-                    // Duplication + burning blood triggers this
                     actionQueue.add(new RemoveSpecificPowerActionState(action));
                 } else if (action instanceof MakeTempCardInDrawPileAction) {
                     actionQueue.add(new MakeTempCardInDrawPileActionState(action));
-                } else if (action instanceof RelicAboveCreatureAction) {
+                } else if (action instanceof GainBlockAction) {
+                    actionQueue.add(new GainBlockActionState(action));
+                } else if (action instanceof ChangeStateAction) {
+                    actionQueue.add(new ChangeStateActionState(action));
+                } else if (action instanceof SFXAction){
+                    // visual only
+                }
+                else if (action instanceof RelicAboveCreatureAction) {
                     // Visual effect only, ignore
                 } else {
                     throw new IllegalArgumentException("Illegal action type found in action manager: " + action);

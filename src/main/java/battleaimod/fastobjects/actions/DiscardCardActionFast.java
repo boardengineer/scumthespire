@@ -18,6 +18,7 @@ public class DiscardCardActionFast extends AbstractGameAction {
     private static final float DURATION;
     public static int numDiscarded;
     private boolean shouldSkipEverything = false;
+    public boolean secondHalfOnly = false;
 
     static {
         uiStrings = CardCrawlGame.languagePack.getUIString("DiscardAction");
@@ -78,29 +79,34 @@ public class DiscardCardActionFast extends AbstractGameAction {
             return;
         }
 
-        if (!this.isRandom) {
-            if (this.amount < 0) {
-                AbstractDungeon.handCardSelectScreen.open(TEXT[0], 99, true, true);
+        if (!secondHalfOnly) {
+            secondHalfOnly = true;
+            if (!this.isRandom) {
+                if (this.amount < 0) {
+                    AbstractDungeon.handCardSelectScreen.open(TEXT[0], 99, true, true);
+                    AbstractDungeon.player.hand.applyPowers();
+                    this.tickDuration();
+                    return;
+                }
+
+                numDiscarded = this.amount;
+                if (this.p.hand.size() > this.amount) {
+                    AbstractDungeon.handCardSelectScreen.open(TEXT[0], this.amount, false);
+                }
+
                 AbstractDungeon.player.hand.applyPowers();
                 this.tickDuration();
                 return;
             }
 
-            numDiscarded = this.amount;
-            if (this.p.hand.size() > this.amount) {
-                AbstractDungeon.handCardSelectScreen.open(TEXT[0], this.amount, false);
+            for (int i = 0; i < this.amount; ++i) {
+                c = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
+                this.p.hand.moveToDiscardPile(c);
+                c.triggerOnManualDiscard();
+                GameActionManager.incrementDiscard(this.endTurn);
             }
 
-            AbstractDungeon.player.hand.applyPowers();
-            this.tickDuration();
-            return;
-        }
 
-        for (int i = 0; i < this.amount; ++i) {
-            c = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
-            this.p.hand.moveToDiscardPile(c);
-            c.triggerOnManualDiscard();
-            GameActionManager.incrementDiscard(this.endTurn);
         }
 
 
