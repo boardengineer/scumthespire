@@ -46,6 +46,7 @@ public enum Power {
     DEXTERITY("Dexterity", power -> new DexterityPowerState(power)),
     DOUBLE_TAP("Double Tap", power -> new DoubleTapPowerState(power)),
     DRAW("Draw", power -> new DrawPowerState(power)),
+    DRAW_CARD("Draw Card", power -> new DrawCardNextTurnPowerState(power)),
     DRAW_REDUCTION("Draw Reduction", power -> new DrawReductionPowerState(power), json -> new DrawReductionPowerState(json)),
     DUPLICATION_POWER("DuplicationPower", power -> new DuplicationPowerState(power)),
     ECHO_FORM("Echo Form", power -> new EchoPowerState(power)),
