@@ -6,9 +6,11 @@ import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
 import battleaimod.savestate.actions.*;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.animations.VFXAction;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
 import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
+import com.megacrit.cardcrawl.actions.utility.SFXAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.screens.select.HandCardSelectScreen;
@@ -86,6 +88,10 @@ public class HandSelectScreenState {
                     actionQueue.add(new MakeTempCardInDrawPileActionState(action));
                 } else if (action instanceof RelicAboveCreatureAction) {
                     // Visual effect only, ignore
+                } else if (action instanceof DamageAllEnemiesAction) {
+                    actionQueue.add(new DamageAllEnemiesActionState((DamageAllEnemiesAction) action));
+                } else if (action instanceof SFXAction || action instanceof VFXAction) {
+                    // Ignore
                 } else {
                     throw new IllegalArgumentException("Illegal action type found in action manager: " + action);
                 }
