@@ -91,10 +91,11 @@ public class HandSelectScreenState {
                     actionQueue.add(new GainBlockActionState(action));
                 } else if (action instanceof ChangeStateAction) {
                     actionQueue.add(new ChangeStateActionState(action));
-                } else if (action instanceof SFXAction){
+                } else if (action instanceof LoseHPAction) {
+                    actionQueue.add(new LoseHPActionState(action));
+                } else if (action instanceof SFXAction) {
                     // visual only
-                }
-                else if (action instanceof RelicAboveCreatureAction) {
+                } else if (action instanceof RelicAboveCreatureAction) {
                     // Visual effect only, ignore
                 } else {
                     throw new IllegalArgumentException("Illegal action type found in action manager: " + action);

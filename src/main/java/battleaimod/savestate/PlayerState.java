@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.green.Choke;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -268,6 +269,8 @@ public class PlayerState extends CreatureState {
 
 
     public int getNumInstance(String cardId) {
+
+        Choke choke;
         long numInstances = discardPile.stream().filter(card -> card.getName().equals(cardId))
                                        .count();
 
