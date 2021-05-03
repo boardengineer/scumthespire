@@ -5,7 +5,7 @@ import battleaimod.fastobjects.actions.DiscardCardActionFast;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
 import battleaimod.savestate.CardState;
-import battleaimod.savestate.DamageAllEnemiesActionState;
+import battleaimod.savestate.actions.DamageAllEnemiesActionState;
 import battleaimod.savestate.PlayerState;
 import battleaimod.savestate.UseCardActionState;
 import battleaimod.savestate.actions.*;

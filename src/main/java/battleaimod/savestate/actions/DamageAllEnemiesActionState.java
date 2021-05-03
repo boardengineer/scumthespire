@@ -1,4 +1,4 @@
-package battleaimod.savestate;
+package battleaimod.savestate.actions;
 
 import basemod.ReflectionHacks;
 import battleaimod.savestate.actions.ActionState;
