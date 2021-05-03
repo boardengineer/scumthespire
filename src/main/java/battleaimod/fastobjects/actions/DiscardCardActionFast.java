@@ -18,6 +18,7 @@ public class DiscardCardActionFast extends AbstractGameAction {
     private static final float DURATION;
     public static int numDiscarded;
     private boolean shouldSkipEverything = false;
+    public boolean secondHalfOnly = false;
 
     static {
         uiStrings = CardCrawlGame.languagePack.getUIString("DiscardAction");
@@ -42,73 +43,82 @@ public class DiscardCardActionFast extends AbstractGameAction {
         this.duration = DURATION;
     }
 
-    public void update() {
+    public void update()
+    {
         isDone = true;
-        AbstractCard c;
-
         this.duration = 0;
-
-        if (AbstractDungeon.getMonsters().areMonstersBasicallyDead() || shouldSkipEverything) {
-            this.isDone = true;
-            this.shouldSkipEverything = true;
-            return;
-        }
-
-        int handSize;
-        if (this.p.hand.size() <= this.amount) {
-
-            shouldSkipEverything = true;
-
-            this.amount = this.p.hand.size();
-            handSize = this.p.hand.size();
-
-            for (int i = 0; i < handSize; ++i) {
-                AbstractCard card = this.p.hand.getTopCard();
-                this.p.hand.moveToDiscardPile(card);
-                if (!this.endTurn) {
-                    card.triggerOnManualDiscard();
-                }
-
-                GameActionManager.incrementDiscard(this.endTurn);
+        if(!secondHalfOnly)
+        {
+            AbstractCard c;
+        
+            if(AbstractDungeon.getMonsters().areMonstersBasicallyDead() || shouldSkipEverything)
+            {
+                this.isDone = true;
+                this.shouldSkipEverything = true;
+                return;
             }
-
-            AbstractDungeon.player.hand.applyPowers();
-            duration = 0;
-            isDone = true;
-            return;
-        }
-
-        if (!this.isRandom) {
-            if (this.amount < 0) {
-                AbstractDungeon.handCardSelectScreen.open(TEXT[0], 99, true, true);
+        
+            int handSize;
+            if(this.p.hand.size()<=this.amount)
+            {
+        
+                shouldSkipEverything = true;
+        
+                this.amount = this.p.hand.size();
+                handSize = this.p.hand.size();
+        
+                for(int i = 0; i<handSize; ++i)
+                {
+                    AbstractCard card = this.p.hand.getTopCard();
+                    this.p.hand.moveToDiscardPile(card);
+                    if(!this.endTurn)
+                    {
+                        card.triggerOnManualDiscard();
+                    }
+            
+                    GameActionManager.incrementDiscard(this.endTurn);
+                }
+        
+                AbstractDungeon.player.hand.applyPowers();
+                duration = 0;
+                isDone = true;
+                return;
+            }
+        
+            if(!this.isRandom)
+            {
+                if(this.amount<0)
+                {
+                    AbstractDungeon.handCardSelectScreen.open(TEXT[0], 99, true, true);
+                    AbstractDungeon.player.hand.applyPowers();
+                    this.tickDuration();
+                    return;
+                }
+            
+                numDiscarded = this.amount;
+                if(this.p.hand.size()>this.amount)
+                {
+                    AbstractDungeon.handCardSelectScreen.open(TEXT[0], this.amount, false);
+                }
+            
                 AbstractDungeon.player.hand.applyPowers();
                 this.tickDuration();
                 return;
             }
-
-            numDiscarded = this.amount;
-            if (this.p.hand.size() > this.amount) {
-                AbstractDungeon.handCardSelectScreen.open(TEXT[0], this.amount, false);
+        
+            for(int i = 0; i<this.amount; ++i)
+            {
+                c = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
+                this.p.hand.moveToDiscardPile(c);
+                c.triggerOnManualDiscard();
+                GameActionManager.incrementDiscard(this.endTurn);
             }
-
-            AbstractDungeon.player.hand.applyPowers();
-            this.tickDuration();
-            return;
         }
-
-        for (int i = 0; i < this.amount; ++i) {
-            c = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
-            this.p.hand.moveToDiscardPile(c);
-            c.triggerOnManualDiscard();
-            GameActionManager.incrementDiscard(this.endTurn);
-        }
-
 
         if (!AbstractDungeon.handCardSelectScreen.wereCardsRetrieved) {
-            Iterator var4 = AbstractDungeon.handCardSelectScreen.selectedCards.group.iterator();
-
-            while (var4.hasNext()) {
-                c = (AbstractCard) var4.next();
+    
+            for(final AbstractCard c : AbstractDungeon.handCardSelectScreen.selectedCards.group)
+            {
                 this.p.hand.moveToDiscardPile(c);
                 c.triggerOnManualDiscard();
                 GameActionManager.incrementDiscard(this.endTurn);

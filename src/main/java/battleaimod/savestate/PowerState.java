@@ -326,8 +326,8 @@ public class PowerState {
         //    result = new DoubleDamagePower(targetAndSource, amount, TODO);
         } else if (powerId.equals("Draw")) {
             result = new DrawPower(targetAndSource, amount);
-        } else if (powerId.equals("Echo Form")) {
-            result = new EchoPower(targetAndSource, amount);    // TODO
+        //} else if (powerId.equals("Echo Form")) {
+        //    result = new EchoPower(targetAndSource, amount);    // TODO
         } else if (powerId.equals("Electro")) {
             result = new ElectroPower(targetAndSource);
         } else if (powerId.equals("Energized")) {
@@ -338,16 +338,16 @@ public class PowerState {
             result = new EnvenomPower(targetAndSource, amount);
         } else if (powerId.equals("Focus")) {
             result = new FocusPower(targetAndSource, amount);
-        } else if (powerId.equals("GrowthPower")) {
-            result = new GrowthPower(targetAndSource, amount);    // TODO
+        //} else if (powerId.equals("GrowthPower")) {
+        //    result = new GrowthPower(targetAndSource, amount);    // TODO
         } else if (powerId.equals("Heatsink")) {
             result = new HeatsinkPower(targetAndSource, amount);
         } else if (powerId.equals("Hello")) {
             result = new HelloPower(targetAndSource, amount);
         } else if (powerId.equals("Infinite Blades")) {
             result = new InfiniteBladesPower(targetAndSource, amount);
-        } else if (powerId.equals("Invincible")) {
-            result = new InvinciblePower(targetAndSource, amount);  // TODO
+        //} else if (powerId.equals("Invincible")) {
+        //    result = new InvinciblePower(targetAndSource, amount);  // TODO
         } else if (powerId.equals("BeatOfDeath")) {
             result = new BeatOfDeathPower(targetAndSource, amount);
         } else if (powerId.equals("Lockon")) {
@@ -374,8 +374,8 @@ public class PowerState {
             result = new RepairPower(targetAndSource, amount);
         } else if (powerId.equals("Retain Cards")) {
             result = new RetainCardPower(targetAndSource, amount);
-        } else if (powerId.equals("Skill Burn")) {
-            result = new SkillBurnPower(targetAndSource, amount);    // TODO
+        //} else if (powerId.equals("Skill Burn")) {
+        //    result = new SkillBurnPower(targetAndSource, amount);    // TODO
         } else if (powerId.equals("StaticDischarge")) {
             result = new StaticDischargePower(targetAndSource, amount);
         } else if (powerId.equals("Storm")) {
@@ -390,8 +390,8 @@ public class PowerState {
             result = new WraithFormPower(targetAndSource, amount);
         } else if (powerId.equals("Equilibrium")) {
             result = new EquilibriumPower(targetAndSource, amount);
-        } else if (powerId.equals("TimeMazePower")) {
-            result = new TimeMazePower(targetAndSource, amount);    // TODO
+        //} else if (powerId.equals("TimeMazePower")) {
+        //    result = new TimeMazePower(targetAndSource, amount);    // TODO
         } else if (powerId.equals("NoBlockPower")) {
             result = new NoBlockPower(targetAndSource, amount, false);  // No monsters do this: only Panic Button.
         } else if (powerId.equals("CorpseExplosionPower")) {
@@ -438,8 +438,8 @@ public class PowerState {
             result = new OmegaPower(targetAndSource, amount);
         } else if (powerId.equals("WrathNextTurnPower")) {
             result = new WrathNextTurnPower(targetAndSource);
-        } else if (powerId.equals("DevaForm")) {
-            result = new DevaPower(targetAndSource);    // TODO
+        //} else if (powerId.equals("DevaForm")) {
+        //    result = new DevaPower(targetAndSource);    // TODO
         } else if (powerId.equals("OmnisciencePower")) {
             result = new OmnisciencePower(targetAndSource, amount);
         } else if (powerId.equals("WaveOfTheHandPower")) {
