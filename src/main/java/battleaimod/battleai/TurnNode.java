@@ -5,7 +5,7 @@ import battleaimod.battleai.commands.Command;
 import battleaimod.battleai.commands.EndCommand;
 import battleaimod.battleai.commands.StateDebugInfo;
 import battleaimod.savestate.PotionState;
-import battleaimod.savestate.PowerState;
+import battleaimod.savestate.powers.PowerState;
 import battleaimod.savestate.SaveState;
 
 import java.util.ArrayList;

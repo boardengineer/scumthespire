@@ -1,5 +1,7 @@
 package battleaimod.savestate;
 
+import battleaimod.BattleAiMod;
+import battleaimod.savestate.powers.PowerState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.core.AbstractCreature;
@@ -54,7 +56,9 @@ public class CreatureState {
     public CreatureState(AbstractCreature creature) {
         this.name = creature.name;
         this.id = creature.id;
-        this.powers = creature.powers.stream().map(PowerState::new)
+        this.powers = creature.powers.stream()
+                                     .map(power -> BattleAiMod.powerByIdmap.get(power.ID).factory
+                                             .apply(power))
                                      .collect(Collectors.toCollection(ArrayList::new));
         this.isPlayer = creature.isPlayer;
         this.isBloodied = creature.isBloodied;
@@ -131,7 +135,8 @@ public class CreatureState {
 
         this.powers = Stream.of(parsed.get("powers").getAsString().split(POWER_DELIMETER))
                             .filter(s -> !s.isEmpty())
-                            .map(PowerState::new).collect(Collectors.toCollection(ArrayList::new));
+                            .map(PowerState::forJsonString)
+                            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void loadCreature(AbstractCreature creature) {

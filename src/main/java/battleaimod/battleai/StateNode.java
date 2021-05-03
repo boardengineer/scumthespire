@@ -3,7 +3,7 @@ package battleaimod.battleai;
 import basemod.ReflectionHacks;
 import battleaimod.battleai.commands.*;
 import battleaimod.savestate.PotionState;
-import battleaimod.savestate.PowerState;
+import battleaimod.savestate.powers.PowerState;
 import battleaimod.savestate.SaveState;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.red.TwinStrike;
