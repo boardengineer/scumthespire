@@ -1,5 +1,6 @@
 package battleaimod.patches;
 
+import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
@@ -21,10 +22,34 @@ public class DamageActionPatches {
             method = "update"
     )
     public static class SpyOnDamageUpdatePatch {
-        public static void Prefix(DamageAction _instance) {
+        public static SpireReturn Prefix(DamageAction _instance) {
             if (shouldGoFast()) {
                 _instance.isDone = true;
+
+                DamageInfo info = ReflectionHacks.getPrivate(_instance, DamageAction.class, "info");
+
+                if (info.type != DamageInfo.DamageType.THORNS && (info.owner.isDying || info.owner.halfDead)) {
+                    return SpireReturn.Return(null);
+                }
+
+
+                int goldAmount = ReflectionHacks
+                        .getPrivate(_instance, DamageAction.class, "goldAmount");
+
+                if (goldAmount != 0) {
+                    ReflectionHacks.privateMethod(DamageAction.class, "stealGold")
+                                   .invoke(_instance);
+                }
+
+                _instance.target.damage(info);
+                if (AbstractDungeon.getCurrRoom().monsters.areMonstersBasicallyDead()) {
+                    AbstractDungeon.actionManager.clearPostCombatActions();
+                }
+
+                return SpireReturn.Return(null);
             }
+
+            return SpireReturn.Continue();
         }
 
         public static void Postfix(DamageAction _instance) {
@@ -45,13 +70,13 @@ public class DamageActionPatches {
             if (shouldGoFast()) {
                 long startUpdate = System.currentTimeMillis();
 
-                for(AbstractPower power: AbstractDungeon.player.powers) {
+                for (AbstractPower power : AbstractDungeon.player.powers) {
                     power.onDamageAllEnemies(_instance.damage);
                 }
 
                 List<AbstractMonster> monsters = AbstractDungeon.getCurrRoom().monsters.monsters;
 
-                for(int i = 0; i < monsters.size(); i++) {
+                for (int i = 0; i < monsters.size(); i++) {
                     AbstractMonster monster = monsters.get(i);
 
                     monster.damage(new DamageInfo(_instance.source, _instance.damage[i], _instance.damageType));
