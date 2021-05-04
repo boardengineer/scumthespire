@@ -81,7 +81,7 @@ public class BattleAiController {
 
     public BattleAiController(SaveState state) {
         runTimes = new HashMap<>();
-        targetTurn = 7;
+        targetTurn = 5;
         targetTurnJump = 5;
 
         minDamage = 5000;

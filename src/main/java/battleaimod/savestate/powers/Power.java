@@ -44,6 +44,7 @@ public enum Power {
     DEVOTION_POWER("DevotionPower", power -> new DevotionPowerState(power)),
     DEX_LOSS("DexLoss", power -> new LoseDexterityPowerState(power)),
     DEXTERITY("Dexterity", power -> new DexterityPowerState(power)),
+    DOUBLE_DAMAGE("Double Damage", power -> new DoubleDamagePowerState(power)),
     DOUBLE_TAP("Double Tap", power -> new DoubleTapPowerState(power)),
     DRAW("Draw", power -> new DrawPowerState(power)),
     DRAW_CARD("Draw Card", power -> new DrawCardNextTurnPowerState(power)),
