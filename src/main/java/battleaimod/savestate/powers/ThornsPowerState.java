@@ -26,8 +26,10 @@ public class ThornsPowerState extends PowerState {
     public static class NoFlashPatch {
         public static SpireReturn Prefix(ThornsPower power, DamageInfo info, int damageAmount) {
             if (shouldGoFast()) {
-                AbstractDungeon.actionManager
-                        .addToTop(new DamageAction(info.owner, new DamageInfo(power.owner, power.amount, DamageInfo.DamageType.THORNS), AbstractGameAction.AttackEffect.SLASH_HORIZONTAL, true));
+                if (info.type != DamageInfo.DamageType.THORNS && info.type != DamageInfo.DamageType.HP_LOSS && info.owner != null && info.owner != power.owner) {
+                    AbstractDungeon.actionManager
+                            .addToTop(new DamageAction(info.owner, new DamageInfo(power.owner, power.amount, DamageInfo.DamageType.THORNS), AbstractGameAction.AttackEffect.SLASH_HORIZONTAL, true));
+                }
 
                 return SpireReturn.Return(damageAmount);
             }

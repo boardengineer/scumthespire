@@ -20,7 +20,8 @@ public interface ActionState {
             }
 
             if (foundIndex == -1) {
-                throw new IllegalStateException("No Target found for Remove RemoveSpecificPowerActionState");
+                throw new IllegalStateException("No Target for " + creature + " " + AbstractDungeon
+                        .getMonsters().monsters);
             } else {
                 return foundIndex;
             }

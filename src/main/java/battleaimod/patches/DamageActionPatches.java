@@ -26,6 +26,11 @@ public class DamageActionPatches {
             if (shouldGoFast()) {
                 _instance.isDone = true;
 
+                if (_instance.target == null || _instance.source != null && _instance.source.isDying || _instance.target
+                        .isDeadOrEscaped()) {
+                    SpireReturn.Return(null);
+                }
+
                 DamageInfo info = ReflectionHacks.getPrivate(_instance, DamageAction.class, "info");
 
                 if (info.type != DamageInfo.DamageType.THORNS && (info.owner.isDying || info.owner.halfDead)) {
@@ -50,12 +55,6 @@ public class DamageActionPatches {
             }
 
             return SpireReturn.Continue();
-        }
-
-        public static void Postfix(DamageAction _instance) {
-            // TODO: I'm forcing this to only trigger once, why is this necessary
-            _instance.source = null;
-            new DamageInfo(AbstractDungeon.player, 0, DamageInfo.DamageType.NORMAL);
         }
     }
 

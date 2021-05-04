@@ -79,11 +79,9 @@ public class BattleAiController {
     public long playerLoadTime;
     public long roomLoadTime;
 
-    public long monsterLoadTime;
-
     public BattleAiController(SaveState state) {
         runTimes = new HashMap<>();
-        targetTurn = 10;
+        targetTurn = 7;
         targetTurnJump = 5;
 
         minDamage = 5000;

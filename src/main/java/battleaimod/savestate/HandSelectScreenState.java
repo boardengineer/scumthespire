@@ -7,10 +7,13 @@ import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
 import battleaimod.savestate.actions.*;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.animations.ShoutAction;
+import com.megacrit.cardcrawl.actions.animations.VFXAction;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
 import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
 import com.megacrit.cardcrawl.actions.utility.SFXAction;
+import com.megacrit.cardcrawl.actions.utility.TextAboveCreatureAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.screens.select.HandCardSelectScreen;
@@ -93,6 +96,22 @@ public class HandSelectScreenState {
                     actionQueue.add(new ChangeStateActionState(action));
                 } else if (action instanceof LoseHPAction) {
                     actionQueue.add(new LoseHPActionState(action));
+                } else if (action instanceof DamageAllEnemiesAction) {
+                    actionQueue.add(new DamageAllEnemiesActionState(action));
+                } else if (action instanceof SetMoveAction) {
+                    actionQueue.add(new SetMoveActionState(action));
+                } else if (action instanceof GainEnergyAction) {
+                    actionQueue.add(new GainEnergyActionState(action));
+                } else if (action instanceof ReducePowerAction) {
+                    actionQueue.add(new ReducePowerActionState(action));
+                } else if (action instanceof EscapeAction) {
+                    actionQueue.add(new EscapeActionState(action));
+                } else if (action instanceof VFXAction) {
+                    // Nothing
+                } else if (action instanceof ShoutAction) {
+                    // Nothing
+                } else if (action instanceof TextAboveCreatureAction) {
+                    // nothing
                 } else if (action instanceof SFXAction) {
                     // visual only
                 } else if (action instanceof RelicAboveCreatureAction) {
@@ -128,6 +147,7 @@ public class HandSelectScreenState {
             actionQueue = null;
 //            queueItemState = null;
         }
+
     }
 
     public void loadHandSelectScreenState() {
