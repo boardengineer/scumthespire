@@ -31,7 +31,7 @@ public class CardState {
     private final boolean isCostModified;
     private final boolean dontTriggerOnUseCard;
 
-    private static HashMap<String, Stack<AbstractCard>> freeCards;
+    private static HashMap<String, HashSet<AbstractCard>> freeCards;
 
     private final UUID uuid;
 
@@ -215,6 +215,10 @@ public class CardState {
     }
 
     public static void freeCard(AbstractCard card) {
+        if (card == null) {
+            return;
+        }
+
         if (freeCards == null) {
             freeCards = new HashMap<>();
         }
@@ -222,7 +226,7 @@ public class CardState {
         String key = card.cardID;
 
         if (!freeCards.containsKey(key)) {
-            freeCards.put(key, new Stack<AbstractCard>());
+            freeCards.put(key, new HashSet<>());
         }
 
         if (freeCards.get(key).size() > 1000) {
@@ -264,26 +268,27 @@ public class CardState {
         if (freeCards == null || !freeCards.containsKey(key) || freeCards.get(key).isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(freeCards.get(key).pop());
+
+        Iterator<AbstractCard> iterator = freeCards.get(key).iterator();
+        AbstractCard result = iterator.next();
+        iterator.remove();
+
+        return Optional.of(result);
     }
 
     private static AbstractCard getFreshCard(String key) {
         return CardLibrary.getCard(key).makeCopy();
     }
-    
-    public static CardState makeNewCardState(AbstractCard card)
-    {
-        if(card!=null)
-        {
+
+    public static CardState makeNewCardState(AbstractCard card) {
+        if (card != null) {
             return new CardState(card);
         }
         return null;
     }
-    
-    public static AbstractCard loadCardFromState(CardState card)
-    {
-        if(card!=null)
-        {
+
+    public static AbstractCard loadCardFromState(CardState card) {
+        if (card != null) {
             return card.loadCard();
         }
         return null;

@@ -10,14 +10,18 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.common.DamageAllEnemiesAction;
 import com.megacrit.cardcrawl.actions.common.MakeTempCardInDiscardAction;
 import com.megacrit.cardcrawl.actions.common.MakeTempCardInHandAction;
 import com.megacrit.cardcrawl.actions.common.PlayTopCardAction;
+import com.megacrit.cardcrawl.actions.utility.ShowCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
+import com.megacrit.cardcrawl.cards.green.DaggerSpray;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToHandEffect;
 
@@ -444,6 +448,51 @@ public class CardPatches {
                     _instance.isDone = true;
                     return SpireReturn.Return(null);
                 }
+            }
+
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = DaggerSpray.class,
+            method = "use"
+    )
+    public static class NoFxDaggerSprayPatch {
+        public static SpireReturn Prefix(DaggerSpray spray, AbstractPlayer p, AbstractMonster m) {
+            if (shouldGoFast()) {
+
+                AbstractDungeon.actionManager
+                        .addToBottom(new DamageAllEnemiesAction(p, spray.multiDamage, spray.damageTypeForTurn, AbstractGameAction.AttackEffect.NONE));
+                AbstractDungeon.actionManager
+                        .addToBottom(new DamageAllEnemiesAction(p, spray.multiDamage, spray.damageTypeForTurn, AbstractGameAction.AttackEffect.NONE));
+
+                return SpireReturn.Return(false);
+            }
+
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = ShowCardAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class FreeShownCardPatch {
+        public static SpireReturn Prefix(ShowCardAction _instance) {
+            if (shouldGoFast()) {
+                AbstractCard card = ReflectionHacks
+                        .getPrivate(_instance, ShowCardAction.class, "card");
+
+                if (AbstractDungeon.player.limbo.contains(card)) {
+                    AbstractDungeon.player.limbo.removeCard(card);
+                    CardState.freeCard(card);
+                }
+
+                AbstractDungeon.player.cardInUse = null;
+                _instance.isDone = true;
+                return SpireReturn.Return(null);
             }
 
             return SpireReturn.Continue();

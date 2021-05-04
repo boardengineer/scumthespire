@@ -6,7 +6,6 @@ import battleaimod.patches.FastActionsPatch;
 import battleaimod.savestate.CardState;
 import battleaimod.savestate.SaveState;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
@@ -212,8 +211,7 @@ public class BattleAiController {
                     committedTurn = toAdd;
                     turns.add(toAdd);
                     toAdd.startingState.saveState.loadState();
-                    AbstractCard
-                            bestTurn = null;
+                    bestTurn = null;
                     backupTurn = null;
 
                     // TODO this is here to prevent playback errors
