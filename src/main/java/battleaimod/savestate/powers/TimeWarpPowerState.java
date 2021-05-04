@@ -2,7 +2,7 @@ package battleaimod.savestate.powers;
 
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.powers.AbstractPower;
-import com.megacrit.cardcrawl.powers.TimeMazePower;
+import com.megacrit.cardcrawl.powers.TimeWarpPower;
 
 public class TimeWarpPowerState extends PowerState {
     public TimeWarpPowerState(AbstractPower power) {
@@ -11,6 +11,8 @@ public class TimeWarpPowerState extends PowerState {
 
     @Override
     public AbstractPower loadPower(AbstractCreature targetAndSource) {
-        return new TimeMazePower(targetAndSource, amount);
+        TimeWarpPower timeWarpPower = new TimeWarpPower(targetAndSource);
+        timeWarpPower.amount = this.amount;
+        return timeWarpPower;
     }
 }

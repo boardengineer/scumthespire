@@ -128,7 +128,7 @@ public enum Power {
     SURROUNDED("Surrounded", power -> new SurroundedPowerState(power)),
     THIEVERY("Thievery", power -> new ThieveryPowerState(power)),
     THOUSAND_CUTS("Thousand Cuts", power -> new ThousandCutsPowerState(power)),
-    TIME_MAZE_POWER("TimeMazePower", power -> new TimeMazePowerState(power)),
+    TIME_MAZE_POWER("TimeMazePower", power -> new TimeMazePowerState(power), json -> new TimeMazePowerState(json)),
     TIME_WARP("Time Warp", power -> new TimeWarpPowerState(power)),
     THORNS("Thorns", power -> new ThornsPowerState(power)),
     TOOLS_OF_THE_TRADE("Tools Of The Trade", power -> new ToolsOfTheTradePowerState(power)),
