@@ -7,10 +7,14 @@ import battleaimod.savestate.selectscreen.HandSelectScreenState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardQueueItem;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
+
+import java.util.ArrayList;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
@@ -22,6 +26,10 @@ public class SaveState {
     public int turn;
     public String encounterName;
     private int totalDiscardedThisTurn;
+    private final ArrayList<Integer> cardsPlayedThisTurn;
+
+    // Load cards from scratch if necessary, ideally they'll be released elsewhere
+    private final ArrayList<CardState> cardsPlayedThisTurnBackup;
 
     AbstractRoom.RoomPhase previousPhase = null;
     AbstractDungeon.CurrentScreen screen;
@@ -29,7 +37,7 @@ public class SaveState {
 
     //    ListState listState;
     public PlayerState playerState;
-    private HandSelectScreenState selectScreenState;
+    private final HandSelectScreenState selectScreenState;
     RngState rngState;
     private final int ascensionLevel;
 
@@ -74,6 +82,33 @@ public class SaveState {
         this.ascensionLevel = AbstractDungeon.ascensionLevel;
         this.totalDiscardedThisTurn = GameActionManager.totalDiscardedThisTurn;
 
+        ArrayList<AbstractCard> allCards = new ArrayList<>();
+
+        AbstractPlayer player = AbstractDungeon.player;
+
+        allCards.addAll(player.masterDeck.group);
+        allCards.addAll(player.drawPile.group);
+        allCards.addAll(player.hand.group);
+        allCards.addAll(player.discardPile.group);
+        allCards.addAll(player.exhaustPile.group);
+        allCards.addAll(player.limbo.group);
+
+        this.cardsPlayedThisTurn = new ArrayList<>();
+        this.cardsPlayedThisTurnBackup = new ArrayList<>();
+
+        AbstractDungeon.actionManager.cardsPlayedThisTurn
+                .forEach(card -> {
+                    int index = allCards.indexOf(card);
+                    if (index == -1) {
+                        this.cardsPlayedThisTurnBackup.add(new CardState(card));
+                    } else {
+                        this.cardsPlayedThisTurn.add(allCards.indexOf(card));
+                    }
+                });
+
+//        this.cardsPlayedThisTurn = PlayerState
+//                .toCardStateArray(AbstractDungeon.actionManager.cardsPlayedThisTurn);
+
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController
                     .addRuntime("Save Time Rng and Lists", System
@@ -112,20 +147,22 @@ public class SaveState {
 
         // TODO
         selectScreenState = null;
+        this.cardsPlayedThisTurn = new ArrayList<>();
+        this.cardsPlayedThisTurnBackup = new ArrayList<>();
     }
 
     public void loadState() {
         long loadStartTime = System.currentTimeMillis();
-//        AbstractDungeon.actionManager.cardQueue.clear();
+
         AbstractDungeon.actionManager.currentAction = null;
         AbstractDungeon.actionManager.actions.clear();
-
 
         AbstractDungeon.ascensionLevel = this.ascensionLevel;
         GameActionManager.turn = this.turn;
 
         long loadPlayerStartTime = System.currentTimeMillis();
 
+//        CardState.freeCardList(AbstractDungeon.actionManager.cardsPlayedThisTurn);
         AbstractDungeon.player = playerState.loadPlayer();
 
         if (BattleAiMod.battleAiController != null) {
@@ -152,7 +189,6 @@ public class SaveState {
 
         AbstractDungeon.dungeonMapScreen.close();
 
-//        AbstractDungeon.screen = AbstractDungeon.CurrentScreen.NONE;
 
         AbstractDungeon.floorNum = floorNum;
 
@@ -182,6 +218,30 @@ public class SaveState {
         if (!shouldGoFast() && !isScreenUp) {
             CombatRewardScreenState.loadCombatRewardScreen();
         }
+
+        ArrayList<AbstractCard> allCards = new ArrayList<>();
+
+        AbstractPlayer player = AbstractDungeon.player;
+
+        allCards.addAll(player.masterDeck.group);
+        allCards.addAll(player.drawPile.group);
+        allCards.addAll(player.hand.group);
+        allCards.addAll(player.discardPile.group);
+        allCards.addAll(player.exhaustPile.group);
+        allCards.addAll(player.limbo.group);
+
+        AbstractDungeon.actionManager.cardsPlayedThisTurn.clear();
+
+        this.cardsPlayedThisTurn.forEach(index -> AbstractDungeon.actionManager.cardsPlayedThisTurn
+                .add(allCards.get(index)));
+        this.cardsPlayedThisTurnBackup
+                .forEach(card -> AbstractDungeon.actionManager.cardsPlayedThisTurn
+                        .add(card.loadCard()));
+
+//        AbstractDungeon.actionManager.cardsPlayedThisTurn = this.cardsPlayedThisTurn.stream()
+//                                                                                    .map(CardState::loadCard)
+//                                                                                    .collect(Collectors
+//                                                                                            .toCollection(ArrayList::new));
 
         AbstractDungeon.getCurrRoom().monsters.monsters.forEach(AbstractMonster::applyPowers);
         AbstractDungeon.player.hand.applyPowers();

@@ -76,7 +76,7 @@ public class TurnNode implements Comparable<TurnNode> {
             curState.saveState = new SaveState();
         }
 
-        if(curState.getPlayerHealth() < 1) {
+        if (curState.getPlayerHealth() < 1) {
             controller.deathNode = curState;
             isDone = true;
             return true;
@@ -118,8 +118,9 @@ public class TurnNode implements Comparable<TurnNode> {
                     }
 
                 } else {
-                    if (controller.backupTurn == null || (toAdd
-                            .isBetterThan(controller.backupTurn)) && controller.backupTurn.startingState.saveState.turn <= toAdd.startingState.saveState.turn) {
+                    if (controller.backupTurn == null ||
+                            controller.backupTurn.startingState.saveState.turn < toAdd.startingState.saveState.turn ||
+                            (toAdd.isBetterThan(controller.backupTurn)) && controller.backupTurn.startingState.saveState.turn == toAdd.startingState.saveState.turn) {
                         controller.backupTurn = toAdd;
                     }
 //                    System.err.println("adding " + toAdd);

@@ -10,6 +10,7 @@ import battleaimod.savestate.PlayerState;
 import battleaimod.savestate.actions.*;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.animations.ShoutAction;
 import com.megacrit.cardcrawl.actions.animations.VFXAction;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.defect.SeekAction;
@@ -20,6 +21,7 @@ import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
 import com.megacrit.cardcrawl.actions.unique.ExhumeAction;
 import com.megacrit.cardcrawl.actions.unique.SkillFromDeckToHandAction;
 import com.megacrit.cardcrawl.actions.utility.SFXAction;
+import com.megacrit.cardcrawl.actions.utility.TextAboveCreatureAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.screens.select.HandCardSelectScreen;
@@ -104,54 +106,48 @@ public class HandSelectScreenState {
                     actionQueue.add(new ChangeStateActionState(action));
                 } else if (action instanceof LoseHPAction) {
                     actionQueue.add(new LoseHPActionState(action));
+                } else if (action instanceof DamageAllEnemiesAction) {
+                    actionQueue.add(new DamageAllEnemiesActionState(action));
+                } else if (action instanceof SetMoveAction) {
+                    actionQueue.add(new SetMoveActionState(action));
+                } else if (action instanceof GainEnergyAction) {
+                    actionQueue.add(new GainEnergyActionState(action));
+                } else if (action instanceof ReducePowerAction) {
+                    actionQueue.add(new ReducePowerActionState(action));
+                } else if (action instanceof EscapeAction) {
+                    actionQueue.add(new EscapeActionState(action));
+                } else if (action instanceof ApplyPowerAction) {
+                    actionQueue.add(new ApplyPowerActionState(action));
+                } else if (action instanceof VFXAction) {
+                    // Nothing
+                } else if (action instanceof ShoutAction) {
+                    // Nothing
+                } else if (action instanceof TextAboveCreatureAction) {
+                    // nothing
                 } else if (action instanceof SFXAction) {
                     // visual only
                 } else if (action instanceof RelicAboveCreatureAction) {
                     // Visual effect only, ignore
                 } else if (action instanceof DamageAllEnemiesAction) {
                     actionQueue.add(new DamageAllEnemiesActionState((DamageAllEnemiesAction) action));
-                } else if (action instanceof SFXAction || action instanceof VFXAction) {
-                    // Ignore
                 } else {
                     throw new IllegalArgumentException("Illegal action type found in action manager: " + action);
                 }
             }
 
-//            useCardActions = AbstractDungeon.actionManager.actions.stream()
-//                                                                  .filter(action -> action instanceof UseCardAction || action instanceof UpdateOnlyUseCardAction)
-//                                                                  .map(action -> {
-//                                                                      if (action instanceof UseCardAction) {
-//                                                                          UseCardAction cast = (UseCardAction) action;
-//                                                                          return new UseCardActionState(cast);
-//                                                                      } else if (action instanceof UpdateOnlyUseCardAction) {
-//                                                                          UpdateOnlyUseCardAction cast = (UpdateOnlyUseCardAction) action;
-//                                                                          return new UseCardActionState(cast);
-//                                                                      }
-//                                                                      return null;
-//                                                                  })
-//                                                                  .collect(Collectors
-//                                                                          .toCollection(ArrayList::new));
-
             if (actionQueue.isEmpty()) {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);
             }
-
-
-//            queueItemState = new CardQueueItemState(AbstractDungeon.actionManager.cardQueue.get(0));
         } else {
             actionState = null;
             actionQueue = null;
-//            queueItemState = null;
         }
+
     }
 
     public void loadHandSelectScreenState() {
-        if (hoveredCard != null) {
-            AbstractDungeon.handCardSelectScreen.hoveredCard = hoveredCard.loadCard();
-        } else {
-            AbstractDungeon.handCardSelectScreen.hoveredCard = null;
-        }
         AbstractDungeon.handCardSelectScreen.button.isDisabled = isDisabled;
+
         AbstractDungeon.handCardSelectScreen.selectedCards.group = this.selectedCards.stream()
                                                                                      .map(CardState::loadCard)
                                                                                      .collect(Collectors
@@ -173,11 +169,9 @@ public class HandSelectScreenState {
         AbstractDungeon.handCardSelectScreen.numSelected = numSelected;
 
         if (actionState != null) {
-//            AbstractDungeon.handCardSelectScreen.wereCardsRetrieved = false;
             AbstractDungeon.actionManager.currentAction = actionState.loadAction();
             AbstractDungeon.actionManager.phase = GameActionManager.Phase.EXECUTING_ACTIONS;
 
-            AbstractDungeon.actionManager.actions.clear();
             actionQueue.forEach(action -> AbstractDungeon.actionManager.actions.add(action
                     .loadAction()));
 
@@ -185,10 +179,6 @@ public class HandSelectScreenState {
                 throw new IllegalStateException("this too shouldn't happen");
             }
 
-//            queueItemState.loadQueueItem();
-//            AbstractDungeon.actionManager.cardQueue.clear();
-
-//            AbstractDungeon.actionManager.cardQueue.add(queueItemState.loadQueueItem());
         }
     }
 }

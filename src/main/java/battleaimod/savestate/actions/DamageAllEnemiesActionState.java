@@ -3,43 +3,51 @@ package battleaimod.savestate.actions;
 import basemod.ReflectionHacks;
 import battleaimod.savestate.actions.ActionState;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
+import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.DamageAllEnemiesAction;
+import com.megacrit.cardcrawl.actions.common.DamageAllEnemiesAction;
+import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.AbstractCreature;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
-public class DamageAllEnemiesActionState implements ActionState
-{
+public class DamageAllEnemiesActionState implements ActionState {
     private final int[] damage;
+    private final DamageInfo.DamageType type;
+    private final AbstractGameAction.AttackEffect effect;
     private final int baseDamage;
-    private final boolean firstFrame;
     private final boolean utilizeBaseDamage;
-    private final AbstractGameAction.AttackEffect attackEffect;
     private final AbstractCreature source;
-    private final DamageInfo.DamageType damageType;
+
+    public DamageAllEnemiesActionState(AbstractGameAction action) {
+        this((DamageAllEnemiesAction) action);
+    }
 
     public DamageAllEnemiesActionState(DamageAllEnemiesAction action) {
-        this.damage = action.damage;
+        damage = ReflectionHacks.getPrivate(action, DamageAllEnemiesAction.class, "damage");
         this.baseDamage = ReflectionHacks.getPrivate(action, DamageAllEnemiesAction.class, "baseDamage");
-        this.firstFrame = ReflectionHacks.getPrivate(action, DamageAllEnemiesAction.class, "firstFrame");
         this.utilizeBaseDamage = ReflectionHacks.getPrivate(action, DamageAllEnemiesAction.class, "utilizeBaseDamage");
-        attackEffect = action.attackEffect;
+        type = action.damageType;
+        effect = action.attackEffect;
         source = action.source;
-        damageType = action.damageType;
+    }
+
+    public DamageAllEnemiesActionState(DamageAllEnemiesAction action) {
+        damage = ReflectionHacks.getPrivate(action, DamageAllEnemiesAction.class, "damage");
+        type = action.damageType;
+        effect = action.attackEffect;
     }
 
     public DamageAllEnemiesAction loadAction() {
         DamageAllEnemiesAction result;
         if(utilizeBaseDamage)
         {
-            result = new DamageAllEnemiesAction((AbstractPlayer) source, baseDamage, damageType, attackEffect);
+            return new DamageAllEnemiesAction((AbstractPlayer) source, baseDamage, type, effect);
         }
         else
         {
-            result = new DamageAllEnemiesAction(source, damage, damageType, attackEffect, true);
+            return new DamageAllEnemiesAction(source, damage, type, effect, true);
         }
-        ReflectionHacks.setPrivate(result, DamageAllEnemiesAction.class, "firstFrame", firstFrame);
-        
-        return result;
     }
 }
