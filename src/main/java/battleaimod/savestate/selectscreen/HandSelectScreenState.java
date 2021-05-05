@@ -113,6 +113,8 @@ public class HandSelectScreenState {
                     actionQueue.add(new EscapeActionState(action));
                 } else if (action instanceof ApplyPowerAction) {
                     actionQueue.add(new ApplyPowerActionState(action));
+                } else if (action instanceof DamageRandomEnemyAction) {
+                    actionQueue.add(new DamageRandomEnemyActionState(action));
                 } else if (action instanceof VFXAction) {
                     // Nothing
                 } else if (action instanceof ShoutAction) {
