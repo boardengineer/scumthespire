@@ -56,12 +56,13 @@ public class MapRoomNodeState {
         long startMonsterSave = System.currentTimeMillis();
 
         if (room.monsters != null) {
-            this.monsterData = room.monsters.monsters.stream()
-                                                     .map(monster -> BattleAiMod.monsterByIdmap
-                                                             .get(monster.id).factory
-                                                             .apply(monster))
-                                                     .collect(Collectors
-                                                             .toCollection(ArrayList::new));
+            ArrayList<MonsterState> monsters = new ArrayList<>();
+
+            for (AbstractMonster monster : room.monsters.monsters) {
+                monsters.add(BattleAiMod.monsterByIdmap.get(monster.id).factory.apply(monster));
+            }
+
+            this.monsterData = monsters;
         }
 
         if (BattleAiMod.battleAiController != null) {
