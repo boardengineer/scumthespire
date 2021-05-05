@@ -3,6 +3,7 @@ package battleaimod.savestate;
 import battleaimod.BattleAiMod;
 import battleaimod.GameStateListener;
 import battleaimod.battleai.BattleAiController;
+import battleaimod.savestate.selectscreen.HandSelectScreenState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
@@ -36,7 +37,7 @@ public class SaveState {
 
     //    ListState listState;
     public PlayerState playerState;
-    private final HandSelectScreenState handSelectScreenState;
+    private final HandSelectScreenState selectScreenState;
     RngState rngState;
     private final int ascensionLevel;
 
@@ -44,7 +45,7 @@ public class SaveState {
 
     public SaveState() {
         long startSave = System.currentTimeMillis();
-        handSelectScreenState = new HandSelectScreenState();
+        selectScreenState = new HandSelectScreenState();
 
         this.curMapNodeState = new MapRoomNodeState(AbstractDungeon.currMapNode);
 
@@ -145,7 +146,7 @@ public class SaveState {
         this.ascensionLevel = parsed.get("ascension_level").getAsInt();
 
         // TODO
-        handSelectScreenState = null;
+        selectScreenState = null;
         this.cardsPlayedThisTurn = new ArrayList<>();
         this.cardsPlayedThisTurnBackup = new ArrayList<>();
     }
@@ -209,8 +210,8 @@ public class SaveState {
             }
         }
 
-        if (handSelectScreenState != null) {
-            handSelectScreenState.loadHandSelectScreenState();
+        if (selectScreenState != null) {
+            selectScreenState.loadHandSelectScreenState();
         }
 
 

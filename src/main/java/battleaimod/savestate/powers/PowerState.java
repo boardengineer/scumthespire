@@ -9,6 +9,7 @@ import com.megacrit.cardcrawl.powers.AbstractPower;
 public class PowerState {
     public final String powerId;
     public final int amount;
+    protected JsonObject jObject = null;
 
     public PowerState(AbstractPower power) {
         this.powerId = power.ID;
@@ -16,10 +17,10 @@ public class PowerState {
     }
 
     public PowerState(String jsonString) {
-        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+        jObject = new JsonParser().parse(jsonString).getAsJsonObject();
 
-        this.powerId = parsed.get("power_id").getAsString();
-        this.amount = parsed.get("amount").getAsInt();
+        this.powerId = jObject.get("power_id").getAsString();
+        this.amount = jObject.get("amount").getAsInt();
     }
 
     public static PowerState forJsonString(String jsonString) {
@@ -40,12 +41,13 @@ public class PowerState {
     }
 
     public String encode() {
-        JsonObject powerStateJson = new JsonObject();
+        if(jObject == null)
+            jObject = new JsonObject();
+    
+        jObject.addProperty("power_id", powerId);
+        jObject.addProperty("amount", amount);
 
-        powerStateJson.addProperty("power_id", powerId);
-        powerStateJson.addProperty("amount", amount);
-
-        return powerStateJson.toString();
+        return jObject.toString();
     }
 
     // A generic empty power so that power factories can be used for basic json powers

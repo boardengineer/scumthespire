@@ -1,5 +1,12 @@
 package battleaimod.savestate.powers;
 
+import battleaimod.savestate.powers.powerstates.*;
+import battleaimod.savestate.powers.powerstates.common.*;
+import battleaimod.savestate.powers.powerstates.defect.*;
+import battleaimod.savestate.powers.powerstates.ironclad.*;
+import battleaimod.savestate.powers.powerstates.monsters.*;
+import battleaimod.savestate.powers.powerstates.silent.*;
+import battleaimod.savestate.powers.powerstates.watcher.*;
 import com.megacrit.cardcrawl.powers.AbstractPower;
 
 import java.util.function.Function;
@@ -50,7 +57,7 @@ public enum Power {
     DRAW_CARD("Draw Card", power -> new DrawCardNextTurnPowerState(power)),
     DRAW_REDUCTION("Draw Reduction", power -> new DrawReductionPowerState(power), json -> new DrawReductionPowerState(json)),
     DUPLICATION_POWER("DuplicationPower", power -> new DuplicationPowerState(power)),
-    ECHO_FORM("Echo Form", power -> new EchoPowerState(power)),
+    ECHO_FORM("Echo Form", power -> new EchoPowerState(power), json -> new EchoPowerState(json)),
     ELECTRO("Electro", power -> new ElectroPowerState(power)),
     END_TURN_DEATH("EndTurnDeath", power -> new EndTurnDeathPowerState(power)),
     ENTANGLED("Entangled", power -> new EntanglePowerState(power)),

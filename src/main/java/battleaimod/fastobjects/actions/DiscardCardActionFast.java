@@ -60,7 +60,6 @@ public class DiscardCardActionFast extends AbstractGameAction {
 
     public void update() {
         isDone = true;
-        AbstractCard c;
 
         if (shouldGoFast()) {
             this.duration = 0;
@@ -125,26 +124,23 @@ public class DiscardCardActionFast extends AbstractGameAction {
                 }
                 return;
             }
-
-            for (int i = 0; i < this.amount; ++i) {
-                c = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
-                this.p.hand.moveToDiscardPile(c);
-                c.triggerOnManualDiscard();
+    
+            for(int i=0; i < this.amount; i++) {
+                AbstractCard card = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
+                this.p.hand.moveToDiscardPile(card);
+                card.triggerOnManualDiscard();
                 GameActionManager.incrementDiscard(this.endTurn);
             }
         }
 
-
         if (!AbstractDungeon.handCardSelectScreen.wereCardsRetrieved) {
             forceNotDone = false;
-            Iterator var4 = AbstractDungeon.handCardSelectScreen.selectedCards.group.iterator();
-
-            while (var4.hasNext()) {
-                c = (AbstractCard) var4.next();
-                this.p.hand.moveToDiscardPile(c);
-                c.triggerOnManualDiscard();
-
-                if (!shouldGoFast()) {
+    
+            for(final AbstractCard card : AbstractDungeon.handCardSelectScreen.selectedCards.group) {
+                this.p.hand.moveToDiscardPile(card);
+                card.triggerOnManualDiscard();
+        
+                if(!shouldGoFast()) {
                     System.err.println("Incrementing Discard");
                 }
                 GameActionManager.incrementDiscard(this.endTurn);

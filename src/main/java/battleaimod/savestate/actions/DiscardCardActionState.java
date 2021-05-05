@@ -2,6 +2,7 @@ package battleaimod.savestate.actions;
 
 import battleaimod.fastobjects.actions.DiscardCardActionFast;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
+import com.megacrit.cardcrawl.actions.common.DiscardAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
 public class DiscardCardActionState implements ActionState {
@@ -14,6 +15,8 @@ public class DiscardCardActionState implements ActionState {
     public DiscardCardActionState(DiscardCardActionFast action) {
         amount = action.amount;
     }
+    
+    public DiscardCardActionState(DiscardAction action) { amount = action.amount; }
 
     @Override
     public AbstractGameAction loadAction() {
