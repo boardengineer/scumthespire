@@ -87,6 +87,8 @@ public class DiscardCardActionFast extends AbstractGameAction {
                 if (!this.endTurn) {
                     card.triggerOnManualDiscard();
                 }
+
+                GameActionManager.incrementDiscard(this.endTurn);
             }
 
             AbstractDungeon.player.hand.applyPowers();
@@ -123,8 +125,7 @@ public class DiscardCardActionFast extends AbstractGameAction {
                 return;
             }
     
-            for(int i=0; i < this.amount; i++)
-            {
+            for(int i=0; i < this.amount; i++) {
                 AbstractCard card = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
                 this.p.hand.moveToDiscardPile(card);
                 card.triggerOnManualDiscard();
