@@ -50,6 +50,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
     public static long logCounter = 0;
+    public static boolean isServer;
 
     public static HashMap<String, Monster> monsterByIdmap;
     public static HashMap<String, Power> powerByIdmap;
@@ -135,12 +136,10 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     public void receivePostInitialize() {
         String isServerFlag = System.getProperty("isServer");
-        boolean isServer = false;
-
 
         if (isServerFlag != null) {
             if (Boolean.parseBoolean(isServerFlag)) {
-                isServer = true;
+                BattleAiMod.isServer = true;
 
             }
         }
