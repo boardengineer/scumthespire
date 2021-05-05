@@ -28,8 +28,8 @@ public class DamageAllEnemiesActionState implements ActionState {
         source = action.source;
     }
 
+    @Override
     public DamageAllEnemiesAction loadAction() {
-        DamageAllEnemiesAction result;
         if(utilizeBaseDamage)
         {
             return new DamageAllEnemiesAction((AbstractPlayer) source, baseDamage, type, effect);

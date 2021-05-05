@@ -7,7 +7,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
 public class DiscardCardActionState implements ActionState {
     private final int amount;
-    
+
     public DiscardCardActionState(AbstractGameAction action) {
         this((DiscardCardActionFast) action);
     }
