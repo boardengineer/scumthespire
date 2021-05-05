@@ -1,16 +1,11 @@
 package battleaimod.savestate.actions;
 
 import basemod.ReflectionHacks;
-import battleaimod.savestate.actions.ActionState;
-import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.DamageAllEnemiesAction;
-import com.megacrit.cardcrawl.actions.common.DamageAllEnemiesAction;
-import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.AbstractCreature;
-import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
 public class DamageAllEnemiesActionState implements ActionState {
     private final int[] damage;
@@ -31,12 +26,6 @@ public class DamageAllEnemiesActionState implements ActionState {
         type = action.damageType;
         effect = action.attackEffect;
         source = action.source;
-    }
-
-    public DamageAllEnemiesActionState(DamageAllEnemiesAction action) {
-        damage = ReflectionHacks.getPrivate(action, DamageAllEnemiesAction.class, "damage");
-        type = action.damageType;
-        effect = action.attackEffect;
     }
 
     public DamageAllEnemiesAction loadAction() {

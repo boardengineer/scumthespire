@@ -5,21 +5,16 @@ import battleaimod.fastobjects.actions.DiscardCardActionFast;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
 import battleaimod.savestate.CardState;
-import battleaimod.savestate.actions.DamageAllEnemiesActionState;
 import battleaimod.savestate.PlayerState;
+import battleaimod.savestate.SetMoveActionState;
 import battleaimod.savestate.actions.*;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.animations.ShoutAction;
 import com.megacrit.cardcrawl.actions.animations.VFXAction;
 import com.megacrit.cardcrawl.actions.common.*;
-import com.megacrit.cardcrawl.actions.defect.SeekAction;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
-import com.megacrit.cardcrawl.actions.unique.AttackFromDeckToHandAction;
-import com.megacrit.cardcrawl.actions.unique.DiscardPileToTopOfDeckAction;
 import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
-import com.megacrit.cardcrawl.actions.unique.ExhumeAction;
-import com.megacrit.cardcrawl.actions.unique.SkillFromDeckToHandAction;
 import com.megacrit.cardcrawl.actions.utility.SFXAction;
 import com.megacrit.cardcrawl.actions.utility.TextAboveCreatureAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
@@ -78,9 +73,9 @@ public class HandSelectScreenState {
             } else if (currentAction instanceof ExhaustAction) {
                 actionState = new ExhaustActionState(currentAction);
             } else if (currentAction instanceof DiscardAction) {
-                actionState = new DiscardActionState((DiscardAction) currentAction);
+                actionState = new DiscardCardActionState((DiscardAction) currentAction);
             } else if (currentAction instanceof DiscardCardActionFast) {
-                actionState = new DiscardActionState((DiscardCardActionFast) currentAction);
+                actionState = new DiscardCardActionState((DiscardCardActionFast) currentAction);
             } else {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.currentAction);
             }
@@ -128,8 +123,6 @@ public class HandSelectScreenState {
                     // visual only
                 } else if (action instanceof RelicAboveCreatureAction) {
                     // Visual effect only, ignore
-                } else if (action instanceof DamageAllEnemiesAction) {
-                    actionQueue.add(new DamageAllEnemiesActionState((DamageAllEnemiesAction) action));
                 } else {
                     throw new IllegalArgumentException("Illegal action type found in action manager: " + action);
                 }
