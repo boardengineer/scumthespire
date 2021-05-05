@@ -1,5 +1,12 @@
 package battleaimod.savestate.powers;
 
+import battleaimod.savestate.powers.powerstates.*;
+import battleaimod.savestate.powers.powerstates.common.*;
+import battleaimod.savestate.powers.powerstates.defect.*;
+import battleaimod.savestate.powers.powerstates.ironclad.*;
+import battleaimod.savestate.powers.powerstates.monsters.*;
+import battleaimod.savestate.powers.powerstates.silent.*;
+import battleaimod.savestate.powers.powerstates.watcher.*;
 import com.megacrit.cardcrawl.powers.AbstractPower;
 
 import java.util.function.Function;
