@@ -36,7 +36,7 @@ public class CardState {
     private final UUID uuid;
 
     // Everything works without these, there is just s wonky 'draw' animation that can be avoided
-    // by setting all the physical properies right away
+    // by setting all the physical properties right away
     private final float current_x;
     private final float current_y;
     private final float target_x;
