@@ -1,8 +1,8 @@
 package battleaimod.savestate.monsters.city;
 
 import basemod.ReflectionHacks;
-import battleaimod.savestate.Monster;
-import battleaimod.savestate.MonsterState;
+import battleaimod.savestate.monsters.Monster;
+import battleaimod.savestate.monsters.MonsterState;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.google.gson.JsonObject;

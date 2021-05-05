@@ -2,8 +2,8 @@ package battleaimod.savestate.monsters.beyond;
 
 import basemod.ReflectionHacks;
 import battleaimod.fastobjects.AnimationStateFast;
-import battleaimod.savestate.Monster;
-import battleaimod.savestate.MonsterState;
+import battleaimod.savestate.monsters.Monster;
+import battleaimod.savestate.monsters.MonsterState;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;

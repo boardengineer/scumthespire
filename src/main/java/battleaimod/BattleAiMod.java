@@ -9,7 +9,7 @@ import battleaimod.battleai.commands.CardCommand;
 import battleaimod.fastobjects.ScreenShakeFast;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
-import battleaimod.savestate.Monster;
+import battleaimod.savestate.monsters.Monster;
 import battleaimod.savestate.SaveState;
 import battleaimod.savestate.powers.Power;
 import com.badlogic.gdx.graphics.Texture;

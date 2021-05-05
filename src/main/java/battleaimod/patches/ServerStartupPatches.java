@@ -55,4 +55,16 @@ public class ServerStartupPatches {
             return SpireReturn.Continue();
         }
     }
+
+    @SpirePatch(clz = AbstractDungeon.class, method = "render")
+    public static class NoRenderDungeon {
+        @SpirePrefixPatch
+        public static SpireReturn replaceOnServer(AbstractDungeon dungeon, SpriteBatch sb) {
+            if (BattleAiMod.isServer) {
+                return SpireReturn.Return(null);
+            }
+
+            return SpireReturn.Continue();
+        }
+    }
 }

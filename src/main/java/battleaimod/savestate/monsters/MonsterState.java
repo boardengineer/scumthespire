@@ -1,6 +1,10 @@
-package battleaimod.savestate;
+package battleaimod.savestate.monsters;
 
 import basemod.ReflectionHacks;
+import battleaimod.savestate.CreatureState;
+import battleaimod.savestate.DamageInfoState;
+import battleaimod.savestate.EnemyMoveInfoState;
+import battleaimod.savestate.HitboxState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.core.AbstractCreature;

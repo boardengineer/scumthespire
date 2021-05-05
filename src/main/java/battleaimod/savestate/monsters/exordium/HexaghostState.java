@@ -1,8 +1,8 @@
 package battleaimod.savestate.monsters.exordium;
 
 import basemod.ReflectionHacks;
-import battleaimod.savestate.Monster;
-import battleaimod.savestate.MonsterState;
+import battleaimod.savestate.monsters.Monster;
+import battleaimod.savestate.monsters.MonsterState;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;

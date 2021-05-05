@@ -1,7 +1,7 @@
 package battleaimod.savestate.monsters.beyond;
 
-import battleaimod.savestate.Monster;
-import battleaimod.savestate.MonsterState;
+import battleaimod.savestate.monsters.Monster;
+import battleaimod.savestate.monsters.MonsterState;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;

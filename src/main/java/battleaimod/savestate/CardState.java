@@ -212,6 +212,7 @@ public class CardState {
 
     public static void freeCardList(List<AbstractCard> cards) {
         cards.forEach(CardState::freeCard);
+        cards.clear();
     }
 
     public static void freeCard(AbstractCard card) {
@@ -242,15 +243,23 @@ public class CardState {
         Optional<AbstractCard> resultOptional = getCachedCard(key);
 
         AbstractCard result;
-        if (resultOptional.isPresent()) {
+        if (resultOptional.isPresent() && shouldGoFast()) {
             result = resultOptional.get();
             if (BattleAiMod.battleAiController != null) {
                 BattleAiMod.battleAiController.addRuntime("Card Cache Hit", 1);
+                if (BattleAiMod.battleAiController != null) {
+                    BattleAiMod.battleAiController.addRuntime("Card Cache Hit-Time", System
+                            .currentTimeMillis() - startMethod);
+                }
             }
         } else {
             result = getFreshCard(key);
             if (BattleAiMod.battleAiController != null) {
                 BattleAiMod.battleAiController.addRuntime("Card Cache Miss", 1);
+            }
+            if (BattleAiMod.battleAiController != null) {
+                BattleAiMod.battleAiController.addRuntime("Card Cache Miss-Time", System
+                        .currentTimeMillis() - startMethod);
             }
         }
 

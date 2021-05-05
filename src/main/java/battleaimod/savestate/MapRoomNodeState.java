@@ -2,6 +2,7 @@ package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
+import battleaimod.savestate.monsters.MonsterState;
 import battleaimod.savestate.monsters.beyond.ReptomancerState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

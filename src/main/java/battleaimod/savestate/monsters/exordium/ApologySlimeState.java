@@ -1,7 +1,7 @@
 package battleaimod.savestate.monsters.exordium;
 
-import battleaimod.savestate.Monster;
-import battleaimod.savestate.MonsterState;
+import battleaimod.savestate.monsters.Monster;
+import battleaimod.savestate.monsters.MonsterState;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.ApologySlime;
 
