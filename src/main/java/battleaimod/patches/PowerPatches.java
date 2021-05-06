@@ -92,10 +92,9 @@ public class PowerPatches {
                     for (AbstractPower power : _instance.target.powers) {
                         if (power.ID.equals(powerToApply.ID) && !power.ID.equals("Night Terror")) {
                             power.stackPower(_instance.amount);
+                            hasBuffAlready = true;
+                            AbstractDungeon.onModifyPower();
                         }
-
-                        hasBuffAlready = true;
-                        AbstractDungeon.onModifyPower();
                     }
 
                     if (!hasBuffAlready) {
