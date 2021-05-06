@@ -30,6 +30,7 @@ public class CardState {
     private final boolean isCostModifiedForTurn;
     private final boolean isCostModified;
     private final boolean dontTriggerOnUseCard;
+    private final boolean exhaust;
 
     private static HashMap<String, HashSet<AbstractCard>> freeCards;
 
@@ -56,6 +57,7 @@ public class CardState {
         this.upgraded = card.upgraded;
         this.baseDamage = card.baseDamage;
         this.cost = card.cost;
+        this.exhaust = card.exhaust;
 
         this.costForTurn = card.costForTurn;
 
@@ -115,6 +117,7 @@ public class CardState {
         this.baseMagicNumber = parsed.get("base_magic_number").getAsInt();
         this.baseBlock = parsed.get("base_block").getAsInt();
         this.timesUpgraded = parsed.get("times_upgraded").getAsInt();
+        this.exhaust = parsed.get("exhaust").getAsBoolean();
 
         // TODO
         this.current_x = 0;
@@ -167,6 +170,7 @@ public class CardState {
         result.block = block;
         result.baseBlock = baseBlock;
         result.timesUpgraded = timesUpgraded;
+        result.exhaust = exhaust;
         result.dontTriggerOnUseCard = dontTriggerOnUseCard;
 
         if (BattleAiMod.battleAiController != null) {
@@ -202,6 +206,7 @@ public class CardState {
         cardStateJson.addProperty("base_magic_number", baseMagicNumber);
         cardStateJson.addProperty("base_block", baseBlock);
         cardStateJson.addProperty("times_upgraded", timesUpgraded);
+        cardStateJson.addProperty("exhaust", exhaust);
 
         return cardStateJson.toString();
     }

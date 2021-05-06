@@ -25,6 +25,7 @@ public enum Action {
     MAKE_TEMP_CARD_IN_DRAW_PILE_ACTION(MakeTempCardInDrawPileAction.class, action -> new MakeTempCardInDrawPileActionState(action)),
     REDUCE_POWER_ACTION(ReducePowerAction.class, action -> new ReducePowerActionState(action)),
     REMOVE_SPECIFIC_POWER_ACTION(RemoveSpecificPowerAction.class, action -> new RemoveSpecificPowerActionState(action)),
+    ROLL_MOVE_ACTION(RollMoveAction.class, action -> new RollMoveActionState(action)),
     SET_MOVE_ACTION(SetMoveAction.class, action -> new SetMoveActionState(action)),
     UPDATE_ONLY_USE_CARD_ACTION(UpdateOnlyUseCardAction.class, action -> new UseCardActionState((UpdateOnlyUseCardAction) action)),
     USE_CARD_ACTION(UseCardAction.class, action -> new UseCardActionState((UseCardAction) action));
