@@ -35,7 +35,7 @@ public class SaveState {
     AbstractDungeon.CurrentScreen screen;
     AbstractDungeon.CurrentScreen previousScreen = null;
 
-    //    ListState listState;
+    ListState listState;
     public PlayerState playerState;
     private final HandSelectScreenState selectScreenState;
     RngState rngState;
@@ -69,7 +69,7 @@ public class SaveState {
 
         screen = AbstractDungeon.screen;
         rngState = new RngState();
-//        listState = new ListState();
+        listState = new ListState();
         floorNum = AbstractDungeon.floorNum;
 
         this.turn = GameActionManager.turn;
@@ -137,7 +137,7 @@ public class SaveState {
         this.encounterName = parsed.get("encounter_name").isJsonNull() ? null : parsed
                 .get("encounter_name").getAsString();
 
-//        this.listState = new ListState(parsed.get("list_state").getAsString());
+        this.listState = new ListState(parsed.get("list_state").getAsString());
         this.playerState = new PlayerState(parsed.get("player_state").getAsString());
         this.rngState = new RngState(parsed.get("rng_state").getAsString());
 
@@ -185,7 +185,7 @@ public class SaveState {
         AbstractDungeon.screen = screen;
 
 //        AbstractDungeon.isScreenUp = false;
-//        listState.loadLists();
+        listState.loadLists();
 
         AbstractDungeon.dungeonMapScreen.close();
 
@@ -282,7 +282,7 @@ public class SaveState {
         saveStateJson.addProperty("screen_name", screen.name());
         saveStateJson.addProperty("previous_screen_name", previousScreen.name());
 
-//        saveStateJson.addProperty("list_state", listState.encode());
+        saveStateJson.addProperty("list_state", listState.encode());
         saveStateJson.addProperty("player_state", playerState.encode());
         saveStateJson.addProperty("rng_state", rngState.encode());
 

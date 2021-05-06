@@ -12,7 +12,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class ArmamentsActionState implements ActionState {
+public class ArmamentsActionState implements CurrentActionState {
     private final ArrayList<CardState> cannotUpgrade;
     private final boolean upgraded;
 
@@ -30,7 +30,7 @@ public class ArmamentsActionState implements ActionState {
     }
 
     @Override
-    public ArmamentsAction loadAction() {
+    public ArmamentsAction loadCurrentAction() {
         ArmamentsAction result = new ArmamentsAction(upgraded);
 
         ReflectionHacks

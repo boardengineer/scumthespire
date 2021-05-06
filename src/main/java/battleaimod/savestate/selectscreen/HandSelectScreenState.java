@@ -1,23 +1,13 @@
 package battleaimod.savestate.selectscreen;
 
 import basemod.ReflectionHacks;
-import battleaimod.fastobjects.actions.DiscardCardActionFast;
-import battleaimod.fastobjects.actions.DrawCardActionFast;
-import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
+import battleaimod.BattleAiMod;
 import battleaimod.savestate.CardState;
 import battleaimod.savestate.PlayerState;
-import battleaimod.savestate.SetMoveActionState;
-import battleaimod.savestate.actions.*;
+import battleaimod.savestate.actions.ActionState;
+import battleaimod.savestate.actions.CurrentActionState;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.actions.animations.ShoutAction;
-import com.megacrit.cardcrawl.actions.animations.VFXAction;
-import com.megacrit.cardcrawl.actions.common.*;
-import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
-import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
-import com.megacrit.cardcrawl.actions.utility.SFXAction;
-import com.megacrit.cardcrawl.actions.utility.TextAboveCreatureAction;
-import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.screens.select.HandCardSelectScreen;
 
@@ -36,7 +26,7 @@ public class HandSelectScreenState {
     private final boolean forTransform;
     private final boolean forUpgrade;
     private final int numSelected;
-    private final ActionState actionState;
+    private final CurrentActionState currentActionState;
     private final boolean isDisabled;
 //    private final CardQueueItemState queueItemState;
 
@@ -66,69 +56,24 @@ public class HandSelectScreenState {
         isDisabled = AbstractDungeon.handCardSelectScreen.button.isDisabled;
 
         if (currentAction != null) {
-            if (currentAction instanceof ArmamentsAction) {
-                actionState = new ArmamentsActionState(currentAction);
-            } else if (currentAction instanceof DualWieldAction) {
-                actionState = new DualWieldActionState(currentAction);
-            } else if (currentAction instanceof ExhaustAction) {
-                actionState = new ExhaustActionState(currentAction);
-            } else if (currentAction instanceof DiscardAction) {
-                actionState = new DiscardActionState((DiscardAction) currentAction);
-            } else if (currentAction instanceof DiscardCardActionFast) {
-                actionState = new DiscardActionState((DiscardCardActionFast) currentAction);
+            if (BattleAiMod.currentActionByClassMap.containsKey(currentAction.getClass())) {
+                currentActionState = BattleAiMod.currentActionByClassMap
+                        .get(currentAction.getClass()).factory.apply(currentAction);
             } else {
-                throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.currentAction);
+                throw new IllegalStateException("No State Factory for Current Action " + AbstractDungeon.actionManager.currentAction);
             }
+
 
             actionQueue = new ArrayList<>();
 
             for (AbstractGameAction action : AbstractDungeon.actionManager.actions) {
-                if (action instanceof UseCardAction) {
-                    actionQueue.add(new UseCardActionState((UseCardAction) action));
-                } else if (action instanceof UpdateOnlyUseCardAction) {
-                    actionQueue.add(new UseCardActionState((UpdateOnlyUseCardAction) action));
-                } else if (action instanceof DrawCardAction) {
-                    actionQueue.add(new DrawCardActionState(action));
-                } else if (action instanceof DrawCardActionFast) {
-                    actionQueue.add(new DrawCardActionState(action));
-                } else if (action instanceof RemoveSpecificPowerAction) {
-                    actionQueue.add(new RemoveSpecificPowerActionState(action));
-                } else if (action instanceof MakeTempCardInDrawPileAction) {
-                    actionQueue.add(new MakeTempCardInDrawPileActionState(action));
-                } else if (action instanceof GainBlockAction) {
-                    actionQueue.add(new GainBlockActionState(action));
-                } else if (action instanceof ChangeStateAction) {
-                    actionQueue.add(new ChangeStateActionState(action));
-                } else if (action instanceof LoseHPAction) {
-                    actionQueue.add(new LoseHPActionState(action));
-                } else if (action instanceof DamageAllEnemiesAction) {
-                    actionQueue.add(new DamageAllEnemiesActionState(action));
-                } else if (action instanceof SetMoveAction) {
-                    actionQueue.add(new SetMoveActionState(action));
-                } else if (action instanceof GainEnergyAction) {
-                    actionQueue.add(new GainEnergyActionState(action));
-                } else if (action instanceof ReducePowerAction) {
-                    actionQueue.add(new ReducePowerActionState(action));
-                } else if (action instanceof EscapeAction) {
-                    actionQueue.add(new EscapeActionState(action));
-                } else if (action instanceof ApplyPowerAction) {
-                    actionQueue.add(new ApplyPowerActionState(action));
-                } else if (action instanceof DamageRandomEnemyAction) {
-                    actionQueue.add(new DamageRandomEnemyActionState(action));
-                } else if (action instanceof DamageAction) {
-                    actionQueue.add(new DamageActionState(action));
-                } else if (action instanceof VFXAction) {
-                    // Nothing
-                } else if (action instanceof ShoutAction) {
-                    // Nothing
-                } else if (action instanceof TextAboveCreatureAction) {
-                    // nothing
-                } else if (action instanceof SFXAction) {
-                    // visual only
-                } else if (action instanceof RelicAboveCreatureAction) {
-                    // Visual effect only, ignore
+                if (BattleAiMod.actionByClassMap.containsKey(action.getClass())) {
+                    actionQueue.add(BattleAiMod.actionByClassMap.get(action.getClass()).factory
+                            .apply(action));
+                } else if (ActionState.IGNORED_ACTIONS.contains(action.getClass())) {
+                    // These are visual effects that are not worth encoding
                 } else {
-                    throw new IllegalArgumentException("Illegal action type found in action manager: " + action);
+                    throw new IllegalArgumentException("Unkown action type found in action manager: " + action);
                 }
             }
 
@@ -136,7 +81,7 @@ public class HandSelectScreenState {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);
             }
         } else {
-            actionState = null;
+            currentActionState = null;
             actionQueue = null;
         }
 
@@ -165,8 +110,8 @@ public class HandSelectScreenState {
 
         AbstractDungeon.handCardSelectScreen.numSelected = numSelected;
 
-        if (actionState != null) {
-            AbstractDungeon.actionManager.currentAction = actionState.loadAction();
+        if (currentActionState != null) {
+            AbstractDungeon.actionManager.currentAction = currentActionState.loadCurrentAction();
             AbstractDungeon.actionManager.phase = GameActionManager.Phase.EXECUTING_ACTIONS;
 
             actionQueue.forEach(action -> AbstractDungeon.actionManager.actions.add(action

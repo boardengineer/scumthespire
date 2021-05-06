@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
-public class DualWieldActionState implements ActionState{
+public class DualWieldActionState implements CurrentActionState {
     private final ArrayList<CardState> cannotDuplicate;
     private final int dupeAmount;
 
@@ -34,7 +34,7 @@ public class DualWieldActionState implements ActionState{
     }
 
     @Override
-    public DualWieldAction loadAction() {
+    public DualWieldAction loadCurrentAction() {
         DualWieldAction result = new DualWieldAction(AbstractDungeon.player, dupeAmount);
 
         ReflectionHacks

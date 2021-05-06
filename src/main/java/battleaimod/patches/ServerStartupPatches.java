@@ -30,7 +30,7 @@ public class ServerStartupPatches {
                 Settings.seed = 123L;
                 AbstractDungeon.generateSeeds();
                 new Exordium(CardCrawlGame.characterManager
-                        .getCharacter(AbstractPlayer.PlayerClass.IRONCLAD), new ArrayList<>());
+                        .getCharacter(AbstractPlayer.PlayerClass.THE_SILENT), new ArrayList<>());
 
                 CardCrawlGame.dungeon.currMapNode.room = new EmptyRoom();
 
