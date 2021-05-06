@@ -5,18 +5,18 @@ import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.DiscardAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
-public class DiscardCardActionState implements ActionState {
+public class DiscardActionState implements ActionState {
     private final int amount;
 
-    public DiscardCardActionState(AbstractGameAction action) {
+    public DiscardActionState(AbstractGameAction action) {
         this((DiscardCardActionFast) action);
     }
 
-    public DiscardCardActionState(DiscardCardActionFast action) {
+    public DiscardActionState(DiscardCardActionFast action) {
         amount = action.amount;
     }
     
-    public DiscardCardActionState(DiscardAction action) { amount = action.amount; }
+    public DiscardActionState(DiscardAction action) { amount = action.amount; }
 
     @Override
     public AbstractGameAction loadAction() {

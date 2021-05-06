@@ -73,9 +73,9 @@ public class HandSelectScreenState {
             } else if (currentAction instanceof ExhaustAction) {
                 actionState = new ExhaustActionState(currentAction);
             } else if (currentAction instanceof DiscardAction) {
-                actionState = new DiscardCardActionState((DiscardAction) currentAction);
+                actionState = new DiscardActionState((DiscardAction) currentAction);
             } else if (currentAction instanceof DiscardCardActionFast) {
-                actionState = new DiscardCardActionState((DiscardCardActionFast) currentAction);
+                actionState = new DiscardActionState((DiscardCardActionFast) currentAction);
             } else {
                 throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.currentAction);
             }

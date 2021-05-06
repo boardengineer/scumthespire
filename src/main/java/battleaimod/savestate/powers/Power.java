@@ -30,6 +30,7 @@ public enum Power {
     BLOCK_RETURN_POWER("BlockReturnPower", power -> new BlockReturnPowerState(power)),
     BLUR("Blur", power -> new BlurPowerState(power)),
     BRUTALITY("Brutality", power -> new BrutalityPowerState(power)),
+    BUFFER("Buffer", power -> new BufferPowerState(power)),
     BURST("Burst", power -> new BurstPowerState(power)),
     CANNOT_CHANGE_STANCE_POWER("CannotChangeStancePower", power -> new CannotChangeStancePowerState(power)),
     CHOKED("Choked", power -> new ChokePowerState(power)),
