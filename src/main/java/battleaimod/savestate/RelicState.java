@@ -29,6 +29,8 @@ public class RelicState {
 
     private final boolean centennialPuzzleUsedThisCombat;
 
+    private final boolean hoveringKiteTriggeredThisTurn;
+
     public RelicState(AbstractRelic relic) {
         this.relicId = relic.relicId;
         this.counter = relic.counter;
@@ -93,8 +95,11 @@ public class RelicState {
             this.pocketwatchFirstTurn = false;
         }
 
-        if(relic instanceof Akabeko) {
-
+        if (relic instanceof HoveringKite) {
+            this.hoveringKiteTriggeredThisTurn = ReflectionHacks
+                    .getPrivate(relic, HoveringKite.class, "triggeredThisTurn");
+        } else {
+            this.hoveringKiteTriggeredThisTurn = false;
         }
     }
 
@@ -120,6 +125,8 @@ public class RelicState {
                 .get("unceasing_top_disabled_until_end_of_turn").getAsBoolean();
         this.unceasingTopCanDraw = parsed.get("unceasing_top_can_draw").getAsBoolean();
         this.pocketwatchFirstTurn = parsed.get("pocketwatch_first_turn").getAsBoolean();
+        this.hoveringKiteTriggeredThisTurn = parsed.get("hovering_kite_triggered_this_turn")
+                                                   .getAsBoolean();
     }
 
     public AbstractRelic loadRelic() {
@@ -182,6 +189,11 @@ public class RelicState {
                     .setPrivate(result, Pocketwatch.class, "firstTurn", pocketwatchFirstTurn);
         }
 
+        if (result instanceof HoveringKite) {
+            ReflectionHacks
+                    .setPrivate(result, HoveringKite.class, "triggeredThisTurn", hoveringKiteTriggeredThisTurn);
+        }
+
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.addRuntime("Load Time Load Relic", System
                     .currentTimeMillis() - makeRelicCopyStartTime);
@@ -214,6 +226,7 @@ public class RelicState {
                 .addProperty("unceasing_top_disabled_until_end_of_turn", unceasingTopDisabledUntilEndOfTurn);
 
         relicStateJson.addProperty("pocketwatch_first_turn", pocketwatchFirstTurn);
+        relicStateJson.addProperty("hovering_kite_triggered_this_turn", hoveringKiteTriggeredThisTurn);
 
         return relicStateJson.toString();
     }

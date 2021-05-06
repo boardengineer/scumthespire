@@ -12,8 +12,6 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.localization.UIStrings;
 
-import java.util.Iterator;
-
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class DiscardCardActionFast extends AbstractGameAction {
@@ -73,39 +71,39 @@ public class DiscardCardActionFast extends AbstractGameAction {
             return;
         }
 
-        int handSize;
-        if (this.p.hand.size() <= this.amount) {
-
-            shouldSkipEverything = true;
-
-            this.amount = this.p.hand.size();
-            handSize = this.p.hand.size();
-
-            for (int i = 0; i < handSize; ++i) {
-                AbstractCard card = this.p.hand.getTopCard();
-                this.p.hand.moveToDiscardPile(card);
-                if (!this.endTurn) {
-                    card.triggerOnManualDiscard();
-                }
-
-                GameActionManager.incrementDiscard(this.endTurn);
-            }
-
-            AbstractDungeon.player.hand.applyPowers();
-            duration = 0;
-            isDone = true;
-            return;
-        }
-
         if (!secondHalfOnly) {
             secondHalfOnly = true;
+            int handSize;
+            if (this.p.hand.size() <= this.amount) {
+
+                shouldSkipEverything = true;
+
+                this.amount = this.p.hand.size();
+                handSize = this.p.hand.size();
+
+                for (int i = 0; i < handSize; ++i) {
+                    AbstractCard card = this.p.hand.getTopCard();
+                    this.p.hand.moveToDiscardPile(card);
+                    if (!this.endTurn) {
+                        card.triggerOnManualDiscard();
+                    }
+
+                    GameActionManager.incrementDiscard(this.endTurn);
+                }
+
+                AbstractDungeon.player.hand.applyPowers();
+                duration = 0;
+                isDone = true;
+                return;
+            }
+
             if (!this.isRandom) {
                 if (this.amount < 0) {
                     AbstractDungeon.handCardSelectScreen.open(TEXT[0], 99, true, true);
                     forceNotDone = true;
                     AbstractDungeon.player.hand.applyPowers();
                     this.tickDuration();
-                    if(forceNotDone) {
+                    if (forceNotDone) {
                         this.isDone = false;
                     }
                     return;
@@ -119,13 +117,13 @@ public class DiscardCardActionFast extends AbstractGameAction {
 
                 AbstractDungeon.player.hand.applyPowers();
                 this.tickDuration();
-                if(forceNotDone) {
+                if (forceNotDone) {
                     this.isDone = false;
                 }
                 return;
             }
-    
-            for(int i=0; i < this.amount; i++) {
+
+            for (int i = 0; i < this.amount; i++) {
                 AbstractCard card = this.p.hand.getRandomCard(AbstractDungeon.cardRandomRng);
                 this.p.hand.moveToDiscardPile(card);
                 card.triggerOnManualDiscard();
@@ -135,12 +133,12 @@ public class DiscardCardActionFast extends AbstractGameAction {
 
         if (!AbstractDungeon.handCardSelectScreen.wereCardsRetrieved) {
             forceNotDone = false;
-    
-            for(final AbstractCard card : AbstractDungeon.handCardSelectScreen.selectedCards.group) {
+
+            for (final AbstractCard card : AbstractDungeon.handCardSelectScreen.selectedCards.group) {
                 this.p.hand.moveToDiscardPile(card);
                 card.triggerOnManualDiscard();
-        
-                if(!shouldGoFast()) {
+
+                if (!shouldGoFast()) {
                     System.err.println("Incrementing Discard");
                 }
                 GameActionManager.incrementDiscard(this.endTurn);
@@ -150,7 +148,7 @@ public class DiscardCardActionFast extends AbstractGameAction {
         }
 
         this.tickDuration();
-        if(forceNotDone) {
+        if (forceNotDone) {
             this.isDone = false;
         }
     }
