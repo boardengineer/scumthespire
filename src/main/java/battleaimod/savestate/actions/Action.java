@@ -17,6 +17,7 @@ public enum Action {
     DAMAGE_RANDOM_ENEMY_ACTION(DamageRandomEnemyAction.class, action -> new DamageRandomEnemyActionState(action)),
     DRAW_CARD_ACTION(DrawCardAction.class, action -> new DrawCardActionState(action)),
     DRAW_CARD_ACTION_FAST(DrawCardActionFast.class, action -> new DrawCardActionState(action)),
+    ENABLE_END_TURN_BUTTON_ACTION(EnableEndTurnButtonAction.class, action -> new EnableEndTurnButtonActionState(action)),
     ESCAPE_ACTION(EscapeAction.class, action -> new EscapeActionState(action)),
     GAIN_BLOCK_ACTION(GainBlockAction.class, action -> new GainBlockActionState(action)),
     GAIN_ENERGY_ACTION(GainEnergyAction.class, action -> new GainEnergyActionState(action)),
