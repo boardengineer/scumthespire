@@ -78,7 +78,7 @@ public class PotionState {
         put(HeartOfIron.POTION_ID, 150);
         put(LiquidBronze.POTION_ID, 50);
         put(LiquidMemories.POTION_ID, 30);
-        put(PoisonPotion.POTION_ID, 150);
+        put(PoisonPotion.POTION_ID, 20);
         put(PotionOfCapacity.POTION_ID, 0);
         put(SmokeBomb.POTION_ID, 0);
         put(PowerPotion.POTION_ID, 50);
