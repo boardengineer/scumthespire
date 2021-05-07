@@ -54,6 +54,9 @@ public class FastActionsPatch {
         add(HealEffect.class);
         add(HealVerticalLineEffect.class);
         add(LightningOrbActivateEffect.class);
+        add(PlasmaOrbActivateEffect.class);
+        add(FrostOrbActivateEffect.class);
+        add(DarkOrbActivateEffect.class);
         add(PlayerTurnEffect.class);
         add(EnemyTurnEffect.class);
         add(CardPoofParticle.class);
@@ -106,6 +109,7 @@ public class FastActionsPatch {
     public static class ForceGameActionsPatch {
         public static void Postfix(AbstractDungeon dungeon) {
             long updateStartTime = System.currentTimeMillis();
+            boolean firstIteration = true;
             GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
@@ -113,6 +117,16 @@ public class FastActionsPatch {
 
                     while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
                         long startTime = System.currentTimeMillis();
+
+                        if (firstIteration) {
+                            firstIteration = false;
+                            System.err
+                                    .println("first iteration loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
+                                            .size() + " " + actionManager.actions.size()
+                                            + " " + AbstractDungeon.topLevelEffects
+                                            .size() + " " + AbstractDungeon.effectsQueue
+                                            .size() + " " + actionManager.monsterQueue.size());
+                        }
 
                         clearEffects(AbstractDungeon.topLevelEffects);
                         clearEffects(AbstractDungeon.effectList);
@@ -212,7 +226,7 @@ public class FastActionsPatch {
                             .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
                                     .size() + " " + actionManager.actions.size()
                                     + " " + AbstractDungeon.topLevelEffects
-                                    .size() + " " + AbstractDungeon.effectsQueue
+                                    .size() + " " + AbstractDungeon.getCurrRoom().waitTimer + " " + AbstractDungeon.effectsQueue
                                     .size() + " " + actionManager.monsterQueue.size());
                     if (actionManager.currentAction == null && !AbstractDungeon.isScreenUp) {
                         ActionSimulator.ActionManagerNextAction();

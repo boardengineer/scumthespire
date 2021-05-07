@@ -268,12 +268,11 @@ public class ActionSimulator {
                 ActionSimulator.ActionManageUpdate();
                 if (!AbstractDungeon.getCurrRoom().monsters
                         .areMonstersBasicallyDead() && AbstractDungeon.player.currentHealth > 0) {
-                    AbstractDungeon.player.updateInput();
+                    if (AbstractDungeon.player.endTurnQueued) {
+                        AbstractDungeon.player.endTurnQueued = false;
+                        AbstractDungeon.player.isEndingTurn = true;
+                    }
                 }
-            }
-
-            if (!AbstractDungeon.screen.equals(AbstractDungeon.CurrentScreen.HAND_SELECT)) {
-                AbstractDungeon.player.combatUpdate();
             }
 
             if (AbstractDungeon.player.isEndingTurn) {

@@ -1,15 +1,20 @@
 package battleaimod.patches;
 
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePrefixPatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.powers.AbstractPower;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Iterator;
+
+import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class PlayerPatches {
     @SpirePatch(
@@ -67,6 +72,38 @@ public class PlayerPatches {
                     }
                 }
             }
+        }
+    }
+
+    @SpirePatch(clz = AbstractPlayer.class, method = "combatUpdate")
+    public static class NoCombatUpdatePatch {
+        @SpirePrefixPatch
+        public static SpireReturn skipInFastMode(AbstractPlayer player) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(clz = AbstractPlayer.class, method = "updateInput")
+    public static class FastUpdateInputPatch {
+        @SpirePrefixPatch
+        public static SpireReturn skipInFastMode(AbstractPlayer player) {
+            if (shouldGoFast()) {
+                if (!player.endTurnQueued) {
+                    if (!AbstractDungeon.actionManager.turnHasEnded) {
+                        return SpireReturn.Return(null);
+                    }
+                } else if (AbstractDungeon.actionManager.cardQueue
+                        .isEmpty() && !AbstractDungeon.actionManager.hasControl) {
+                    player.endTurnQueued = false;
+                    player.isEndingTurn = true;
+                }
+
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
         }
     }
 }
