@@ -13,6 +13,7 @@ import battleaimod.savestate.SaveState;
 import battleaimod.savestate.actions.Action;
 import battleaimod.savestate.actions.CurrentAction;
 import battleaimod.savestate.monsters.Monster;
+import battleaimod.savestate.orbs.Orb;
 import battleaimod.savestate.powers.Power;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
@@ -60,6 +61,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static HashMap<Class, Action> actionByClassMap;
     public static HashMap<Class, CurrentAction> currentActionByClassMap;
 
+    public static HashMap<Class, Orb> orbByClassMap;
+
     public BattleAiMod() {
         BaseMod.subscribe(this);
         BaseMod.subscribe(new SpeedController());
@@ -106,6 +109,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         powerByIdmap = new HashMap<>();
         actionByClassMap = new HashMap<>();
         currentActionByClassMap = new HashMap<>();
+        orbByClassMap = new HashMap<>();
 
         for (Monster monster : Monster.values()) {
             monsterByIdmap.put(monster.monsterId, monster);
@@ -121,6 +125,10 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         for (CurrentAction action : CurrentAction.values()) {
             currentActionByClassMap.put(action.actionClass, action);
+        }
+
+        for (Orb orb : Orb.values()) {
+            orbByClassMap.put(orb.orbClass, orb);
         }
     }
 

@@ -51,6 +51,7 @@ public class FastActionsPatch {
         add(GameSavedEffect.class);
         add(DeckPoofEffect.class);
         add(HealEffect.class);
+        add(LightningOrbActivateEffect.class);
         add(HealVerticalLineEffect.class);
         add(PlayerTurnEffect.class);
         add(EnemyTurnEffect.class);
@@ -208,7 +209,7 @@ public class FastActionsPatch {
 
                     System.err
                             .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
-                                    .size() + " " + actionManager.actions.size()
+                                     + " " + actionManager.actions.size()
                                     + " " + AbstractDungeon.topLevelEffects
                                     .size() + " " + AbstractDungeon.effectsQueue
                                     .size() + " " + actionManager.monsterQueue.size());

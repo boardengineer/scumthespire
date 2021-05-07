@@ -29,8 +29,10 @@ public class ServerStartupPatches {
                 // Sets the current dungeon
                 Settings.seed = 123L;
                 AbstractDungeon.generateSeeds();
+
+                // TODO this needs to be the actual character class or bad things happen
                 new Exordium(CardCrawlGame.characterManager
-                        .getCharacter(AbstractPlayer.PlayerClass.THE_SILENT), new ArrayList<>());
+                        .getCharacter(AbstractPlayer.PlayerClass.IRONCLAD), new ArrayList<>());
 
                 CardCrawlGame.dungeon.currMapNode.room = new EmptyRoom();
 
