@@ -50,9 +50,10 @@ public class FastActionsPatch {
         add(HealNumberEffect.class);
         add(GameSavedEffect.class);
         add(DeckPoofEffect.class);
+        add(TimeWarpTurnEndEffect.class);
         add(HealEffect.class);
-        add(LightningOrbActivateEffect.class);
         add(HealVerticalLineEffect.class);
+        add(LightningOrbActivateEffect.class);
         add(PlayerTurnEffect.class);
         add(EnemyTurnEffect.class);
         add(CardPoofParticle.class);
@@ -209,7 +210,7 @@ public class FastActionsPatch {
 
                     System.err
                             .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
-                                     + " " + actionManager.actions.size()
+                                    .size() + " " + actionManager.actions.size()
                                     + " " + AbstractDungeon.topLevelEffects
                                     .size() + " " + AbstractDungeon.effectsQueue
                                     .size() + " " + actionManager.monsterQueue.size());
@@ -318,6 +319,8 @@ public class FastActionsPatch {
         return (!AbstractDungeon.isScreenUp && BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode && !AbstractDungeon.isScreenUp) &&
                 ((actionManager.currentAction != null) || (actionManager.turnHasEnded && !AbstractDungeon
                         .getMonsters().areMonstersBasicallyDead()) ||
+                        (actionManager.turnHasEnded && !AbstractDungeon.getMonsters()
+                                                                       .areMonstersBasicallyDead()) ||
                         !actionManager.monsterQueue.isEmpty() || (!actionManager.actions
                         .isEmpty() && AbstractDungeon.screen != AbstractDungeon.CurrentScreen.HAND_SELECT) || actionManager.usingCard);
     }
@@ -334,7 +337,7 @@ public class FastActionsPatch {
         }
     }
 
-    private static void runAndProfile(String name, Runnable runnable) {
+    public static void runAndProfile(String name, Runnable runnable) {
         long start = System.currentTimeMillis();
 
         runnable.run();

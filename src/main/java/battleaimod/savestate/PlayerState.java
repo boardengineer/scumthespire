@@ -244,10 +244,6 @@ public class PlayerState extends CreatureState {
         player.orbs = this.orbs.stream().map(OrbState::loadOrb)
                                .collect(Collectors.toCollection(ArrayList::new));
 
-        for(int i = 0; i < player.orbs.size(); i++) {
-            player.orbs.get(i).setSlot(i, player.maxOrbs);
-        }
-
         player.energy.energy = this.energyManagerEnergy;
         player.energy.energyMaster = this.energyManagerMaxMaster;
         EnergyPanel.setEnergy(this.energyManagerEnergy);
@@ -266,7 +262,9 @@ public class PlayerState extends CreatureState {
 
 
         if (!shouldGoFast()) {
-            player.orbs.forEach(orb -> orb.update());
+            for(int i = 0; i < player.orbs.size(); i++) {
+                player.orbs.get(i).setSlot(i, player.maxOrbs);
+            }
             player.update();
         }
 
