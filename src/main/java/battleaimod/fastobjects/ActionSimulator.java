@@ -226,7 +226,7 @@ public class ActionSimulator {
             case EXECUTING_ACTIONS:
                 if (actionManager.currentAction != null && !actionManager.currentAction.isDone) {
                     if (actionManager.currentAction instanceof DrawCardAction) {
-                        actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
+                        actionManager.currentAction = new DrawCardActionFast((DrawCardAction) actionManager.currentAction);
                     }
                     actionManager.currentAction.update();
                 } else {

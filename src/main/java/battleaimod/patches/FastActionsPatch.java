@@ -69,7 +69,7 @@ public class FastActionsPatch {
                                             .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
                                     actionManager.currentAction = new RollMoveActionFast(monster);
                                 } else if (actionManager.currentAction instanceof DrawCardAction) {
-                                    actionManager.currentAction = new DrawCardActionFast(AbstractDungeon.player, actionManager.currentAction.amount);
+                                    actionManager.currentAction = new DrawCardActionFast((DrawCardAction) actionManager.currentAction);
                                 } else if (actionManager.currentAction instanceof SetAnimationAction) {
                                     actionManager.currentAction = null;
                                 } else if (actionManager.currentAction instanceof DiscardAction) {
