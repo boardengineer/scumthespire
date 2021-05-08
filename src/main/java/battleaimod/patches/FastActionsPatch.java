@@ -42,7 +42,7 @@ public class FastActionsPatch {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
 
-                    while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
+                    while (shouldWaitOnActions() || shouldStepAiController()) {
                         long startTime = System.currentTimeMillis();
 
                         if (firstIteration) {
@@ -62,7 +62,7 @@ public class FastActionsPatch {
                         // TODO this is going to have consequences
                         actionManager.cardsPlayedThisCombat.clear();
 
-                        if (shouldWaitOnActions(actionManager)) {
+                        if (shouldWaitOnActions()) {
                             while (actionManager.currentAction != null && !AbstractDungeon.isScreenUp) {
                                 if (actionManager.currentAction instanceof RollMoveAction) {
                                     AbstractMonster monster = ReflectionHacks
@@ -153,7 +153,8 @@ public class FastActionsPatch {
                             .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
                                     .size() + " " + actionManager.actions.size()
                                     + " " + AbstractDungeon.topLevelEffects
-                                    .size() + " " + AbstractDungeon.getCurrRoom().waitTimer + " " + AbstractDungeon.effectsQueue
+                                    .size() + " " + AbstractDungeon
+                                    .getCurrRoom().waitTimer + " " + AbstractDungeon.effectsQueue
                                     .size() + " " + actionManager.monsterQueue.size());
                     if (actionManager.currentAction == null && !AbstractDungeon.isScreenUp) {
                         ActionSimulator.ActionManagerNextAction();
@@ -245,25 +246,50 @@ public class FastActionsPatch {
     }
 
     public static boolean shouldStepAiController() {
-        return (BattleAiMod.battleAiController != null &&
-                !BattleAiMod.battleAiController.isDone) &&
-                ((actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
-                        !BattleAiMod.battleAiController.runCommandMode &&
-                        actionManager.currentAction == null &&
-                        actionManager.actions.isEmpty() &&
-                        actionManager.cardQueue.isEmpty() &&
-                        !actionManager.usingCard) ||
-                        AbstractDungeon.isScreenUp);
+        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.isDone) {
+            return false;
+        }
+
+        if (shouldWaitOnActions()) {
+            return false;
+        }
+
+        if (AbstractDungeon.isScreenUp) {
+            return true;
+        }
+
+        return actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
+                !BattleAiMod.battleAiController.runCommandMode;
     }
 
-    private static boolean shouldWaitOnActions(GameActionManager actionManager) {
-        return (!AbstractDungeon.isScreenUp && BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode && !AbstractDungeon.isScreenUp) &&
-                ((actionManager.currentAction != null) || (actionManager.turnHasEnded && !AbstractDungeon
-                        .getMonsters().areMonstersBasicallyDead()) ||
-                        (actionManager.turnHasEnded && !AbstractDungeon.getMonsters()
-                                                                       .areMonstersBasicallyDead()) ||
-                        !actionManager.monsterQueue.isEmpty() || (!actionManager.actions
-                        .isEmpty() && AbstractDungeon.screen != AbstractDungeon.CurrentScreen.HAND_SELECT) || actionManager.usingCard);
+    private static boolean shouldWaitOnActions() {
+        // Only freeze if the AI is pathing
+        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.runCommandMode) {
+            return false;
+        }
+
+        // Screens wait for users even though there are actions in the action manager
+        if (AbstractDungeon.isScreenUp) {
+            return false;
+        }
+
+        // Start of Turn
+        if (actionManager.turnHasEnded && !AbstractDungeon.getMonsters()
+                                                          .areMonstersBasicallyDead()) {
+            return true;
+        }
+
+        // Middle of Monster turn
+        if (!actionManager.monsterQueue.isEmpty()) {
+            return true;
+        }
+
+        if (actionManager.usingCard) {
+            return true;
+        }
+
+        return actionManager.currentAction != null || !actionManager.actions
+                .isEmpty() || !actionManager.actions.isEmpty();
     }
 
     public static void runAndProfile(String name, Runnable runnable) {
