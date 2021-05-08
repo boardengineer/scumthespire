@@ -58,7 +58,7 @@ public class FastActionsPatch {
                         AbstractDungeon.topLevelEffects.clear();
                         AbstractDungeon.effectList.clear();
                         AbstractDungeon.effectsQueue.clear();
-
+                      
                         // TODO this is going to have consequences
                         actionManager.cardsPlayedThisCombat.clear();
 
