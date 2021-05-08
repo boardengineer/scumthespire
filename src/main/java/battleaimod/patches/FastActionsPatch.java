@@ -246,22 +246,20 @@ public class FastActionsPatch {
     }
 
     public static boolean shouldStepAiController() {
-        // Only freeze if the AI is pathing
-        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.runCommandMode) {
+        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.isDone) {
             return false;
         }
 
-        // Actions always go first
         if (shouldWaitOnActions()) {
             return false;
         }
 
-        // Screens always wait for users
-        if(AbstractDungeon.isScreenUp) {
+        if (AbstractDungeon.isScreenUp) {
             return true;
         }
 
-        return actionManager.phase == GameActionManager.Phase.WAITING_ON_USER;
+        return actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
+                !BattleAiMod.battleAiController.runCommandMode;
     }
 
     private static boolean shouldWaitOnActions() {
@@ -290,7 +288,8 @@ public class FastActionsPatch {
             return true;
         }
 
-        return actionManager.currentAction != null || !actionManager.actions.isEmpty();
+        return actionManager.currentAction != null || !actionManager.actions
+                .isEmpty() || !actionManager.actions.isEmpty();
     }
 
     public static void runAndProfile(String name, Runnable runnable) {
