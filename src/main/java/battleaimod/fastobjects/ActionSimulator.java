@@ -2,11 +2,9 @@ package battleaimod.fastobjects;
 
 import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
-import com.badlogic.gdx.Gdx;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.DrawCardAction;
 import com.megacrit.cardcrawl.actions.common.EnableEndTurnButtonAction;
-import com.megacrit.cardcrawl.actions.common.GainEnergyAndEnableControlsAction;
 import com.megacrit.cardcrawl.actions.defect.TriggerEndOfTurnOrbsAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
@@ -21,7 +19,6 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.relics.UnceasingTop;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
-import com.megacrit.cardcrawl.vfx.combat.BattleStartEffect;
 
 import java.util.Iterator;
 
@@ -280,53 +277,6 @@ public class ActionSimulator {
                 AbstractDungeon.getCurrRoom().endTurn();
             }
 
-        } else {
-            if (actionManager.currentAction == null && actionManager
-                    .isEmpty()) {
-                AbstractDungeon.getCurrRoom().waitTimer -= Gdx.graphics.getDeltaTime();
-            } else {
-                actionManager.update();
-            }
-
-            if (AbstractDungeon.getCurrRoom().waitTimer <= 0.0F) {
-                System.err.println("draw and enable");
-                actionManager.turnHasEnded = true;
-                if (!AbstractDungeon.isScreenUp) {
-                    AbstractDungeon.topLevelEffects.add(new BattleStartEffect(false));
-                }
-
-                actionManager
-                        .addToBottom(new GainEnergyAndEnableControlsAction(AbstractDungeon.player.energy.energyMaster));
-                AbstractDungeon.player.applyStartOfCombatPreDrawLogic();
-                actionManager
-                        .addToBottom(new DrawCardActionFast(AbstractDungeon.player, AbstractDungeon.player.gameHandSize));
-                actionManager.addToBottom(new EnableEndTurnButtonAction());
-                AbstractDungeon.overlayMenu.showCombatPanels();
-                AbstractDungeon.player.applyStartOfCombatLogic();
-                if (ModHelper.isModEnabled("Careless")) {
-                    Careless.modAction();
-                }
-
-                if (ModHelper.isModEnabled("ControlledChaos")) {
-                    ControlledChaos.modAction();
-                }
-
-                AbstractDungeon.getCurrRoom().skipMonsterTurn = false;
-                AbstractDungeon.player.applyStartOfTurnRelics();
-                AbstractDungeon.player.applyStartOfTurnPostDrawRelics();
-                AbstractDungeon.player.applyStartOfTurnCards();
-                AbstractDungeon.player.applyStartOfTurnPowers();
-                AbstractDungeon.player.applyStartOfTurnOrbs();
-                actionManager.useNextCombatActions();
-            }
         }
-
-        if (AbstractDungeon.getCurrRoom().isBattleOver && actionManager.actions
-                .isEmpty()) {
-
-            // There was stuff here, hopefully we don't need it
-        }
-
-        AbstractDungeon.getCurrRoom().monsters.updateAnimations();
     }
 }
