@@ -5,7 +5,6 @@ import battleaimod.battleai.commands.Command;
 import battleaimod.patches.FastActionsPatch;
 import battleaimod.savestate.CardState;
 import battleaimod.savestate.SaveState;
-import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
@@ -165,14 +164,35 @@ public class BattleAiController {
         if (runCommandMode) {
             System.err.println("running after run command mode");
         }
-        if (!shouldGoFast()) {
-            System.err.println("step");
-        }
         if (isDone) {
             return;
         }
         if (!runCommandMode && !runPartialMode) {
-            if (turnsLoaded >= maxTurnLoads && (curTurn == null || curTurn.isDone)) {
+            if (!initialized) {
+                TurnNode.nodeIndex = 0;
+                initialized = true;
+                runCommandMode = false;
+                StateNode firstStateContainer = new StateNode(null, null, this);
+                startingHealth = startingState.getPlayerHealth();
+                root = firstStateContainer;
+                firstStateContainer.saveState = startingState;
+                turns = new PriorityQueue<>();
+                this.rootTurn = new TurnNode(firstStateContainer, this, null);
+                turns.add(rootTurn);
+
+                controllerStartTime = System.currentTimeMillis();
+                actionTime = 0;
+                stepTime = 0;
+                updateTime = 0;
+                loadstateTime = 0;
+                playerLoadTime = 0;
+                roomLoadTime = 0;
+                actionClassTimes = new HashMap<>();
+                runTimes = new HashMap<>();
+                CardState.resetFreeCards();
+            }
+
+            if ((turns.isEmpty() || turnsLoaded >= maxTurnLoads) && (curTurn == null || curTurn.isDone)) {
                 if (bestEnd != null) {
                     System.err.println("Found end at turn treshold, going into rerun");
 
@@ -222,33 +242,6 @@ public class BattleAiController {
                 }
             }
 
-            GameActionManager s;
-            long currentTime = System.nanoTime();
-
-            if (!initialized) {
-                TurnNode.nodeIndex = 0;
-                initialized = true;
-                runCommandMode = false;
-                StateNode firstStateContainer = new StateNode(null, null, this);
-                startingHealth = startingState.getPlayerHealth();
-                root = firstStateContainer;
-                firstStateContainer.saveState = startingState;
-                turns = new PriorityQueue<>();
-                this.rootTurn = new TurnNode(firstStateContainer, this, null);
-                turns.add(rootTurn);
-
-                controllerStartTime = System.currentTimeMillis();
-                actionTime = 0;
-                stepTime = 0;
-                updateTime = 0;
-                loadstateTime = 0;
-                playerLoadTime = 0;
-                roomLoadTime = 0;
-                actionClassTimes = new HashMap<>();
-                runTimes = new HashMap<>();
-                CardState.resetFreeCards();
-            }
-
             while (!turns
                     .isEmpty() && (curTurn == null || (curTurn.isDone || curTurn.startingState.saveState.turn >= targetTurn))) {
                 curTurn = turns.peek();
@@ -288,7 +281,8 @@ public class BattleAiController {
                     runCommandMode = true;
                     return;
                 } else {
-                    System.err.println("not done yet " + deathNode);
+                    System.err
+                            .println("not done yet death node:" + deathNode + "\nbest turn:" + bestTurn + "\ncurTurn:" + curTurn);
                 }
             } else if (curTurn != null) {
                 long startTurnStep = System.currentTimeMillis();
