@@ -21,86 +21,13 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.saveAndContinue.SaveAndContinue;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
-import com.megacrit.cardcrawl.vfx.*;
-import com.megacrit.cardcrawl.vfx.cardManip.*;
-import com.megacrit.cardcrawl.vfx.combat.*;
 
-import java.util.*;
+import java.util.HashMap;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 public class FastActionsPatch {
-    private static final Set<Class> BAD_EFFECTS = new HashSet<Class>() {{
-        add(StrikeEffect.class);
-        add(HealPanelEffect.class);
-        add(PingHpEffect.class);
-        add(FlashAtkImgEffect.class);
-        add(RefreshEnergyEffect.class);
-        add(HbBlockBrokenEffect.class);
-        add(BlockImpactLineEffect.class);
-        add(BlockedWordEffect.class);
-        add(FlashIntentEffect.class);
-        add(PowerExpireTextEffect.class);
-        add(FlashPowerEffect.class);
-        add(PowerDebuffEffect.class);
-        add(PowerBuffEffect.class);
-        add(ExhaustCardEffect.class);
-        add(DeckPoofParticle.class);
-        add(HealNumberEffect.class);
-        add(GameSavedEffect.class);
-        add(DeckPoofEffect.class);
-        add(TimeWarpTurnEndEffect.class);
-        add(HealEffect.class);
-        add(HealVerticalLineEffect.class);
-        add(LightningOrbActivateEffect.class);
-        add(PlasmaOrbActivateEffect.class);
-        add(FrostOrbActivateEffect.class);
-        add(DarkOrbActivateEffect.class);
-        add(PlayerTurnEffect.class);
-        add(EnemyTurnEffect.class);
-        add(CardPoofParticle.class);
-        add(TextAboveCreatureEffect.class);
-        add(SpeechTextEffect.class);
-        add(SpeechBubble.class);
-        add(BorderFlashEffect.class);
-        add(RelicAboveCreatureEffect.class);
-        add(GainPennyEffect.class);
-        add(ExhaustPileParticle.class);
-        add(MegaSpeechBubble.class);
-        add(MegaDialogTextEffect.class);
-        add(ThoughtBubble.class);
-        add(ShowCardAndObtainEffect.class);
-        add(GenericSmokeEffect.class);
-        add(MoveNameEffect.class);
-
-        // Important stuff happens during construction so we don't have to update, just remove
-        add(ShowCardAndAddToDiscardEffect.class);
-        add(ShowCardAndAddToDrawPileEffect.class);
-        add(ShowCardAndAddToHandEffect.class);
-
-        add(CardPoofEffect.class);
-    }};
-
-
-    private static final Set<Class> GOOD_EFFECTS = new HashSet<Class>() {{
-
-    }};
-
-    static long updateStartTime = 0;
-
-    @SpirePatch(
-            clz = AbstractDungeon.class,
-            paramtypez = {},
-            method = "update"
-    )
-    public static class StartSpyingPatch {
-        public static void Prefix(AbstractDungeon dungeon) {
-
-        }
-    }
-
-
     @SpirePatch(
             clz = AbstractDungeon.class,
             paramtypez = {},
@@ -115,7 +42,7 @@ public class FastActionsPatch {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
                         .isEmpty() || shouldStepAiController()) {
 
-                    while (shouldWaitOnActions(actionManager) || shouldStepAiController()) {
+                    while (shouldWaitOnActions() || shouldStepAiController()) {
                         long startTime = System.currentTimeMillis();
 
                         if (firstIteration) {
@@ -128,14 +55,14 @@ public class FastActionsPatch {
                                             .size() + " " + actionManager.monsterQueue.size());
                         }
 
-                        clearEffects(AbstractDungeon.topLevelEffects);
-                        clearEffects(AbstractDungeon.effectList);
-                        clearEffects(AbstractDungeon.effectsQueue);
-
+                        AbstractDungeon.topLevelEffects.clear();
+                        AbstractDungeon.effectList.clear();
+                        AbstractDungeon.effectsQueue.clear();
+                      
                         // TODO this is going to have consequences
                         actionManager.cardsPlayedThisCombat.clear();
 
-                        if (shouldWaitOnActions(actionManager)) {
+                        if (shouldWaitOnActions()) {
                             while (actionManager.currentAction != null && !AbstractDungeon.isScreenUp) {
                                 if (actionManager.currentAction instanceof RollMoveAction) {
                                     AbstractMonster monster = ReflectionHacks
@@ -226,7 +153,8 @@ public class FastActionsPatch {
                             .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
                                     .size() + " " + actionManager.actions.size()
                                     + " " + AbstractDungeon.topLevelEffects
-                                    .size() + " " + AbstractDungeon.getCurrRoom().waitTimer + " " + AbstractDungeon.effectsQueue
+                                    .size() + " " + AbstractDungeon
+                                    .getCurrRoom().waitTimer + " " + AbstractDungeon.effectsQueue
                                     .size() + " " + actionManager.monsterQueue.size());
                     if (actionManager.currentAction == null && !AbstractDungeon.isScreenUp) {
                         ActionSimulator.ActionManagerNextAction();
@@ -318,37 +246,50 @@ public class FastActionsPatch {
     }
 
     public static boolean shouldStepAiController() {
-        return (BattleAiMod.battleAiController != null &&
-                !BattleAiMod.battleAiController.isDone) &&
-                ((actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
-                        !BattleAiMod.battleAiController.runCommandMode &&
-                        actionManager.currentAction == null &&
-                        actionManager.actions.isEmpty() &&
-                        actionManager.cardQueue.isEmpty() &&
-                        !actionManager.usingCard) ||
-                        AbstractDungeon.isScreenUp);
-    }
-
-    private static boolean shouldWaitOnActions(GameActionManager actionManager) {
-        return (!AbstractDungeon.isScreenUp && BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode && !AbstractDungeon.isScreenUp) &&
-                ((actionManager.currentAction != null) || (actionManager.turnHasEnded && !AbstractDungeon
-                        .getMonsters().areMonstersBasicallyDead()) ||
-                        (actionManager.turnHasEnded && !AbstractDungeon.getMonsters()
-                                                                       .areMonstersBasicallyDead()) ||
-                        !actionManager.monsterQueue.isEmpty() || (!actionManager.actions
-                        .isEmpty() && AbstractDungeon.screen != AbstractDungeon.CurrentScreen.HAND_SELECT) || actionManager.usingCard);
-    }
-
-    private static void clearEffects(ArrayList<AbstractGameEffect> effects) {
-        Iterator<AbstractGameEffect> iterator = effects.iterator();
-        while (iterator.hasNext()) {
-            Class effectClass = iterator.next().getClass();
-            if (BAD_EFFECTS.contains(effectClass)) {
-                iterator.remove();
-            } else if (!GOOD_EFFECTS.contains(effectClass)) {
-                System.err.println("Allowing unknown effect " + effectClass);
-            }
+        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.isDone) {
+            return false;
         }
+
+        if (shouldWaitOnActions()) {
+            return false;
+        }
+
+        if (AbstractDungeon.isScreenUp) {
+            return true;
+        }
+
+        return actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
+                !BattleAiMod.battleAiController.runCommandMode;
+    }
+
+    private static boolean shouldWaitOnActions() {
+        // Only freeze if the AI is pathing
+        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.runCommandMode) {
+            return false;
+        }
+
+        // Screens wait for users even though there are actions in the action manager
+        if (AbstractDungeon.isScreenUp) {
+            return false;
+        }
+
+        // Start of Turn
+        if (actionManager.turnHasEnded && !AbstractDungeon.getMonsters()
+                                                          .areMonstersBasicallyDead()) {
+            return true;
+        }
+
+        // Middle of Monster turn
+        if (!actionManager.monsterQueue.isEmpty()) {
+            return true;
+        }
+
+        if (actionManager.usingCard) {
+            return true;
+        }
+
+        return actionManager.currentAction != null || !actionManager.actions
+                .isEmpty() || !actionManager.actions.isEmpty();
     }
 
     public static void runAndProfile(String name, Runnable runnable) {
