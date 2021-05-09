@@ -49,7 +49,9 @@ public class PlayerState extends CreatureState {
     public final ArrayList<CardState> limbo;
 
     public int maxOrbs;
+
     public ArrayList<OrbState> orbs;
+    public ArrayList<OrbState> orbsChanneledThisCombat;
 
     public final ArrayList<PotionState> potions;
 
@@ -92,6 +94,11 @@ public class PlayerState extends CreatureState {
                                .map(orb -> BattleAiMod.orbByClassMap.get(orb.getClass()).factory
                                        .apply(orb))
                                .collect(Collectors.toCollection(ArrayList::new));
+        this.orbsChanneledThisCombat = AbstractDungeon.actionManager.orbsChanneledThisCombat
+                .stream()
+                .map(orb -> BattleAiMod.orbByClassMap.get(orb.getClass()).factory
+                        .apply(orb))
+                .collect(Collectors.toCollection(ArrayList::new));
 
         this.potions = player.potions.stream().map(PotionState::new)
                                      .collect(Collectors.toCollection(ArrayList::new));
@@ -157,9 +164,15 @@ public class PlayerState extends CreatureState {
                 .add(new PotionState(potionElement.getAsString())));
 
         this.maxOrbs = parsed.get("max_orbs").getAsInt();
+
         this.orbs = new ArrayList<>();
         parsed.get("orbs").getAsJsonArray().forEach(orbElement -> this.orbs
                 .add(OrbState.forJsonString(orbElement.getAsString())));
+
+        this.orbsChanneledThisCombat = new ArrayList<>();
+        parsed.get("orbs_channeled_this_combat").getAsJsonArray()
+              .forEach(orbElement -> this.orbsChanneledThisCombat
+                      .add(OrbState.forJsonString(orbElement.getAsString())));
 
         //TODO
         this.isDead = false;
@@ -243,6 +256,10 @@ public class PlayerState extends CreatureState {
         player.orbs = this.orbs.stream().map(OrbState::loadOrb)
                                .collect(Collectors.toCollection(ArrayList::new));
 
+        AbstractDungeon.actionManager.orbsChanneledThisCombat = this.orbsChanneledThisCombat
+                .stream().map(OrbState::loadOrb)
+                .collect(Collectors.toCollection(ArrayList::new));
+
         player.energy.energy = this.energyManagerEnergy;
         player.energy.energyMaster = this.energyManagerMaxMaster;
         EnergyPanel.setEnergy(this.energyManagerEnergy);
@@ -261,7 +278,7 @@ public class PlayerState extends CreatureState {
 
 
         if (!shouldGoFast()) {
-            for(int i = 0; i < player.orbs.size(); i++) {
+            for (int i = 0; i < player.orbs.size(); i++) {
                 player.orbs.get(i).setSlot(i, player.maxOrbs);
             }
             player.update();
@@ -343,6 +360,12 @@ public class PlayerState extends CreatureState {
             orbArray.add(orb.encode());
         }
         playerStateJson.add("orbs", orbArray);
+
+        JsonArray orbChanneledThisCombatArray = new JsonArray();
+        for (OrbState orb : orbsChanneledThisCombat) {
+            orbChanneledThisCombatArray.add(orb.encode());
+        }
+        playerStateJson.add("orbs_channeled_this_combat", orbChanneledThisCombatArray);
 
         return playerStateJson.toString();
     }
