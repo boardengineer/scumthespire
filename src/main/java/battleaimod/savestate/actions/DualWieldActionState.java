@@ -44,7 +44,7 @@ public class DualWieldActionState implements CurrentActionState {
                         .collect(Collectors
                                 .toCollection(ArrayList::new)));
 
-        // This should make the action only trigger the second hald of the update
+        // This should make the action only trigger the second half of the update
         ReflectionHacks
                 .setPrivate(result, AbstractGameAction.class, "duration", 0);
 

@@ -57,8 +57,13 @@ public class CreatureState {
         this.name = creature.name;
         this.id = creature.id;
         this.powers = creature.powers.stream()
-                                     .map(power -> BattleAiMod.powerByIdmap.get(power.ID).factory
-                                             .apply(power))
+                                     .map(power -> {
+                                         if (!BattleAiMod.powerByIdmap.containsKey(power.ID)) {
+                                             throw new IllegalStateException("Now Power State for " + power.ID);
+                                         }
+                                         return BattleAiMod.powerByIdmap.get(power.ID).factory
+                                                 .apply(power);
+                                     })
                                      .collect(Collectors.toCollection(ArrayList::new));
         this.isPlayer = creature.isPlayer;
         this.isBloodied = creature.isBloodied;

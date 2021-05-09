@@ -113,7 +113,7 @@ public class FastActionsPatch {
 
                                 runAndProfile("Action Manager Loop", () -> {
                                     if (!AbstractDungeon.isScreenUp) {
-                                        actionManager.update();
+                                        ActionSimulator.ActionManageUpdate();
                                     }
                                 });
                             }
@@ -124,20 +124,11 @@ public class FastActionsPatch {
                             });
                         }
 
-                        long startRoomUpdate = System.currentTimeMillis();
-
                         runAndProfile("Room Update", () -> {
                             if (!AbstractDungeon.isScreenUp) {
                                 ActionSimulator.roomUpdate();
                             }
                         });
-
-                        if (AbstractDungeon.player.currentHealth <= 0) {
-                            if (actionManager.currentAction instanceof DamageAction) {
-                                actionManager.update();
-                            }
-//                            break;
-                        }
 
                         if (BattleAiMod.battleAiController != null) {
                             BattleAiMod.battleAiController.addRuntime("Update Loop Total", System

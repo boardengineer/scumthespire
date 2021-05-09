@@ -25,4 +25,15 @@ public class EndTurnPatches {
             return SpireReturn.Continue();
         }
     }
+
+    @SpirePatch(clz = GameActionManager.class, method = "callEndOfTurnActions")
+    public static class NoNaturalEOT {
+        @SpirePrefixPatch
+        public static SpireReturn doNothing() {
+            if(shouldGoFast()) {
+                System.err.println("how did we get here?");
+            }
+            return SpireReturn.Continue();
+        }
+    }
 }

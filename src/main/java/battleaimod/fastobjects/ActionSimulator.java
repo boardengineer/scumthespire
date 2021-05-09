@@ -2,11 +2,13 @@ package battleaimod.fastobjects;
 
 import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.actions.DrawCardActionFast;
+import com.megacrit.cardcrawl.actions.AbstractGameAction;
+import com.megacrit.cardcrawl.actions.ClearCardQueueAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.actions.common.DrawCardAction;
-import com.megacrit.cardcrawl.actions.common.EnableEndTurnButtonAction;
+import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.defect.TriggerEndOfTurnOrbsAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
+import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardQueueItem;
 import com.megacrit.cardcrawl.core.Settings;
@@ -274,9 +276,40 @@ public class ActionSimulator {
             }
 
             if (AbstractDungeon.player.isEndingTurn) {
-                AbstractDungeon.getCurrRoom().endTurn();
+                roomEndTurn();
             }
 
+        }
+    }
+
+    public static void roomEndTurn() {
+        AbstractDungeon.player.applyEndOfTurnTriggers();
+        AbstractDungeon.actionManager.addToBottom(new ClearCardQueueAction());
+        AbstractDungeon.actionManager.addToBottom(new DiscardAtEndOfTurnAction());
+
+        AbstractDungeon.player.drawPile.group.forEach(AbstractCard::resetAttributes);
+        AbstractDungeon.player.discardPile.group.forEach(AbstractCard::resetAttributes);
+        AbstractDungeon.player.hand.group.forEach(AbstractCard::resetAttributes);
+
+        if (AbstractDungeon.player.hoveredCard != null) {
+            AbstractDungeon.player.hoveredCard.resetAttributes();
+        }
+
+        AbstractDungeon.actionManager.addToBottom(new EnqueueEndTurnAction());
+        AbstractDungeon.player.isEndingTurn = false;
+    }
+
+    public static class EnqueueEndTurnAction extends AbstractGameAction {
+        @Override
+        public void update() {
+            this.addToBot(new EndTurnAction());
+            this.addToBot(new WaitAction(1.2F));
+            if (!AbstractDungeon.getCurrRoom().skipMonsterTurn) {
+                this.addToBot(new MonsterStartTurnAction());
+            }
+
+            AbstractDungeon.actionManager.monsterAttacksQueued = false;
+            this.isDone = true;
         }
     }
 }

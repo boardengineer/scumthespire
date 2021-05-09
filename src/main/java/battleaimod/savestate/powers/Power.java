@@ -75,6 +75,7 @@ public enum Power {
     FLAME_BARRIER("Flame Barrier", power -> new FlameBarrierPowerState(power)),
     FLEX("Flex", power -> new LoseStrengthPowerState(power)),
     FLIGHT("Flight", power -> new FlightPowerState(power), json -> new FlightPowerState(json)),
+    FOCUS("Focus", power -> new FocusPowerState(power)),
     FRAIL("Frail", power -> new FrailPowerState(power)),
     FREE_ATTACK_POWER("FreeAttackPower", power -> new FreeAttackPowerState(power)),
     GENERIC_STRENGTH_UP_POWER("Generic Strength Up Power", power -> new GenericStrengthUpPowerState(power)),

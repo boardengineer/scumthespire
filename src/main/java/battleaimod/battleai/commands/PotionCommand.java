@@ -1,6 +1,7 @@
 package battleaimod.battleai.commands;
 
 import battleaimod.BattleAiMod;
+import battleaimod.fastobjects.ActionSimulator;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
@@ -51,9 +52,8 @@ public class PotionCommand implements Command {
         if (!shouldGoFast()) {
             AbstractDungeon.actionManager.addToBottom(new WaitAction(.2F));
         } else {
-            AbstractDungeon.actionManager.update();
+            ActionSimulator.ActionManageUpdate();
         }
-
 
         BattleAiMod.readyForUpdate = true;
     }

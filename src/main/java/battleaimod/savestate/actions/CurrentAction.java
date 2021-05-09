@@ -6,6 +6,7 @@ import com.megacrit.cardcrawl.actions.common.DiscardAction;
 import com.megacrit.cardcrawl.actions.common.ExhaustAction;
 import com.megacrit.cardcrawl.actions.unique.ArmamentsAction;
 import com.megacrit.cardcrawl.actions.unique.DualWieldAction;
+import com.megacrit.cardcrawl.actions.unique.RetainCardsAction;
 
 import java.util.function.Function;
 
@@ -14,7 +15,9 @@ public enum CurrentAction {
     DISCARD_ACTION(DiscardAction.class, action -> new DiscardActionState(action)),
     DISCARD_ACTION_FAST(DiscardCardActionFast.class, action -> new DiscardActionState(action)),
     DUAL_WIELD_ACTION(DualWieldAction.class, action -> new DualWieldActionState(action)),
-    EXHAUST_ACTION(ExhaustAction.class, action -> new ExhaustActionState(action));
+    EXHAUST_ACTION(ExhaustAction.class, action -> new ExhaustActionState(action)),
+    RETAIN_CARDS_ACTION(RetainCardsAction.class, action -> new RetainCardsActionState(action))
+    ;
 
     public Function<AbstractGameAction, CurrentActionState> factory;
     public Class<? extends AbstractGameAction> actionClass;
