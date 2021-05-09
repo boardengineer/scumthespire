@@ -8,15 +8,12 @@ import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.*;
 import com.megacrit.cardcrawl.actions.defect.TriggerEndOfTurnOrbsAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
-import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardQueueItem;
-import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.daily.mods.Careless;
 import com.megacrit.cardcrawl.daily.mods.ControlledChaos;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.ModHelper;
-import com.megacrit.cardcrawl.helpers.input.DevInputActionSet;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.relics.UnceasingTop;
@@ -256,29 +253,22 @@ public class ActionSimulator {
     }
 
     public static void roomUpdate() {
-        AbstractDungeon.getCurrRoom().monsters.update();
-        if (!(AbstractDungeon.getCurrRoom().waitTimer > 0.0F)) {
-            if (Settings.isDebug && DevInputActionSet.drawCard.isJustPressed()) {
-                actionManager
-                        .addToTop(new DrawCardAction(AbstractDungeon.player, 1));
-            }
+        updateMonsters();
 
-            if (!AbstractDungeon.isScreenUp) {
-                ActionSimulator.ActionManageUpdate();
-                if (!AbstractDungeon.getCurrRoom().monsters
-                        .areMonstersBasicallyDead() && AbstractDungeon.player.currentHealth > 0) {
-                    if (AbstractDungeon.player.endTurnQueued && AbstractDungeon.actionManager.cardQueue
-                            .isEmpty() && !AbstractDungeon.actionManager.hasControl) {
-                        AbstractDungeon.player.endTurnQueued = false;
-                        AbstractDungeon.player.isEndingTurn = true;
-                    }
+        if (!AbstractDungeon.isScreenUp) {
+            ActionSimulator.ActionManageUpdate();
+            if (!AbstractDungeon.getCurrRoom().monsters
+                    .areMonstersBasicallyDead() && AbstractDungeon.player.currentHealth > 0) {
+                if (AbstractDungeon.player.endTurnQueued && AbstractDungeon.actionManager.cardQueue
+                        .isEmpty() && !AbstractDungeon.actionManager.hasControl) {
+                    AbstractDungeon.player.endTurnQueued = false;
+                    AbstractDungeon.player.isEndingTurn = true;
                 }
             }
+        }
 
-            if (AbstractDungeon.player.isEndingTurn) {
-                roomEndTurn();
-            }
-
+        if (AbstractDungeon.player.isEndingTurn) {
+            roomEndTurn();
         }
     }
 
@@ -303,7 +293,6 @@ public class ActionSimulator {
         @Override
         public void update() {
             this.addToBot(new EndTurnAction());
-            this.addToBot(new WaitAction(1.2F));
             if (!AbstractDungeon.getCurrRoom().skipMonsterTurn) {
                 this.addToBot(new MonsterStartTurnAction());
             }
@@ -311,5 +300,24 @@ public class ActionSimulator {
             AbstractDungeon.actionManager.monsterAttacksQueued = false;
             this.isDone = true;
         }
+    }
+
+    public static void updateMonsters() {
+        AbstractDungeon.getCurrRoom().monsters.monsters.forEach(monster -> {
+            if (monster.isDying) {
+                monster.isDead = true;
+                monster.dispose();
+                monster.powers.clear();
+            }
+
+            if (monster.escapeTimer != 0) {
+                monster.escaped = true;
+            }
+
+            if (AbstractDungeon.getMonsters().areMonstersDead() && !AbstractDungeon
+                    .getCurrRoom().isBattleOver && !AbstractDungeon.getCurrRoom().cannotLose) {
+                AbstractDungeon.getCurrRoom().endBattle();
+            }
+        });
     }
 }

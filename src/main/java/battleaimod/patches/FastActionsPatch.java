@@ -58,7 +58,7 @@ public class FastActionsPatch {
                         AbstractDungeon.topLevelEffects.clear();
                         AbstractDungeon.effectList.clear();
                         AbstractDungeon.effectsQueue.clear();
-                      
+
                         // TODO this is going to have consequences
                         actionManager.cardsPlayedThisCombat.clear();
 
@@ -143,7 +143,7 @@ public class FastActionsPatch {
                     System.err
                             .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
                                     .size() + " " + actionManager.actions.size()
-                                    + " " + AbstractDungeon.topLevelEffects
+                                    + " " + AbstractDungeon.actionManager.preTurnActions
                                     .size() + " " + AbstractDungeon
                                     .getCurrRoom().waitTimer + " " + AbstractDungeon.effectsQueue
                                     .size() + " " + actionManager.monsterQueue.size());
@@ -280,7 +280,8 @@ public class FastActionsPatch {
         }
 
         return actionManager.currentAction != null || !actionManager.actions
-                .isEmpty() || !actionManager.actions.isEmpty();
+                .isEmpty() || !actionManager.actions
+                .isEmpty() || actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS;
     }
 
     public static void runAndProfile(String name, Runnable runnable) {
