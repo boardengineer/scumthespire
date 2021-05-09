@@ -59,7 +59,7 @@ public class CreatureState {
         this.powers = creature.powers.stream()
                                      .map(power -> {
                                          if (!BattleAiMod.powerByIdmap.containsKey(power.ID)) {
-                                             throw new IllegalStateException("Now Power State for " + power.ID);
+                                             throw new IllegalStateException("No Power State for " + power.ID);
                                          }
                                          return BattleAiMod.powerByIdmap.get(power.ID).factory
                                                  .apply(power);

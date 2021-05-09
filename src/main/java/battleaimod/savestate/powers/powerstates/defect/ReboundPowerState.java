@@ -1,18 +1,23 @@
 package battleaimod.savestate.powers.powerstates.defect;
 
+import basemod.ReflectionHacks;
 import battleaimod.savestate.powers.PowerState;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.powers.AbstractPower;
 import com.megacrit.cardcrawl.powers.ReboundPower;
 
-public class ReboundPowerState extends PowerState
-{
+public class ReboundPowerState extends PowerState {
     public ReboundPowerState(AbstractPower power) {
         super(power);
     }
 
     @Override
     public AbstractPower loadPower(AbstractCreature targetAndSource) {
-        return new ReboundPower(targetAndSource);
+        ReboundPower result = new ReboundPower(targetAndSource);
+
+        // Once the state is saved, Rebound should clear it's justEvoked status
+        ReflectionHacks.setPrivate(result, ReboundPower.class, "justEvoked", false);
+
+        return result;
     }
 }

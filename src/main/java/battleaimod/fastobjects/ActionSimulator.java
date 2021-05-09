@@ -6,7 +6,6 @@ import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.ClearCardQueueAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.*;
-import com.megacrit.cardcrawl.actions.defect.TriggerEndOfTurnOrbsAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardQueueItem;
@@ -15,6 +14,7 @@ import com.megacrit.cardcrawl.daily.mods.ControlledChaos;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.ModHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.orbs.AbstractOrb;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.relics.UnceasingTop;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
@@ -34,7 +34,7 @@ public class ActionSimulator {
 
         AbstractDungeon.getCurrRoom().applyEndOfTurnRelics();
         AbstractDungeon.getCurrRoom().applyEndOfTurnPreCardPowers();
-        actionManager.addToBottom(new TriggerEndOfTurnOrbsAction());
+//        actionManager.addToBottom(new TriggerEndOfTurnOrbsAction());
         Iterator var1 = AbstractDungeon.player.hand.group.iterator();
 
         while (var1.hasNext()) {
@@ -43,6 +43,10 @@ public class ActionSimulator {
         }
 
         AbstractDungeon.player.stance.onEndOfTurn();
+
+        if (!actionManager.actions.isEmpty()) {
+            actionManager.phase = GameActionManager.Phase.EXECUTING_ACTIONS;
+        }
 
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.addRuntime("Local Manager Call EOT", System
@@ -274,6 +278,9 @@ public class ActionSimulator {
 
     public static void roomEndTurn() {
         AbstractDungeon.player.applyEndOfTurnTriggers();
+
+        AbstractDungeon.player.orbs.forEach(AbstractOrb::onEndOfTurn);
+
         AbstractDungeon.actionManager.addToBottom(new ClearCardQueueAction());
         AbstractDungeon.actionManager.addToBottom(new DiscardAtEndOfTurnAction());
 

@@ -79,6 +79,7 @@ public enum Power {
     FRAIL("Frail", power -> new FrailPowerState(power)),
     FREE_ATTACK_POWER("FreeAttackPower", power -> new FreeAttackPowerState(power)),
     GENERIC_STRENGTH_UP_POWER("Generic Strength Up Power", power -> new GenericStrengthUpPowerState(power)),
+    HEAT_SINK("Heatsink", power -> new HeatsinkPowerState(power)),
     HELLO("Hello", power -> new HelloPowerState(power)),
     HEX("Hex", power -> new HexPowerState(power)),
     INFINITE_BLADES("Infinite Blades", power -> new InfiniteBladesPowerState(power)),

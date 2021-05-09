@@ -1,6 +1,7 @@
 package battleaimod.savestate.monsters.beyond;
 
 import basemod.ReflectionHacks;
+import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.monsters.Monster;
 import battleaimod.savestate.monsters.MonsterState;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
@@ -103,6 +104,7 @@ public class DarklingState extends MonsterState {
                 ReflectionHacks.setPrivate(_instance, Darkling.class, "chompDmg", chompDmg);
                 ReflectionHacks.setPrivate(_instance, Darkling.class, "nipDmg", nipDmg);
 
+                _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

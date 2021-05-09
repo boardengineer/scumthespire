@@ -1,5 +1,6 @@
 package battleaimod.savestate.monsters.beyond;
 
+import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.monsters.Monster;
 import battleaimod.savestate.monsters.MonsterState;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
@@ -39,6 +40,7 @@ public class OrbWalkerState extends MonsterState {
         @SpireInsertPatch(loc = 58)
         public static SpireReturn Insert(OrbWalker _instance, float x, float y) {
             if (shouldGoFast()) {
+                _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
