@@ -131,6 +131,11 @@ public class PlayerState extends CreatureState {
 
         this.chosenClass = AbstractPlayer.PlayerClass
                 .valueOf(parsed.get("chosen_class_name").getAsString());
+
+        // TODO This should ideally happen during load but only once per run
+        AbstractDungeon.player = CardCrawlGame.characterManager.getCharacter(chosenClass);
+        CardCrawlGame.dungeon.initializeCardPools();
+
         this.gameHandSize = parsed.get("game_hand_size").getAsInt();
         this.masterHandSize = parsed.get("master_hand_size").getAsInt();
         this.startingMaxHP = parsed.get("starting_max_hp").getAsInt();

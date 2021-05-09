@@ -38,13 +38,6 @@ public enum Action {
     public Function<AbstractGameAction, ActionState> factory;
     public Class<? extends AbstractGameAction> actionClass;
 
-    Action() {
-    }
-
-    Action(Function<AbstractGameAction, ActionState> factory) {
-        this.factory = factory;
-    }
-
     Action(Class<? extends AbstractGameAction> actionClass, Function<AbstractGameAction, ActionState> factory) {
         this.factory = factory;
         this.actionClass = actionClass;

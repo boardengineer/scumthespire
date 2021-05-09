@@ -66,7 +66,7 @@ public class IroncladDeckPatch {
             add(new Flex());
             add(new GhostlyArmor());
 
-//            add(new Headbutt());
+            add(new Headbutt());
             add(new Hemokinesis());
             add(new Impervious());
             add(new InfernalBlade());

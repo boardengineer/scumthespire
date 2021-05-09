@@ -3,6 +3,7 @@ package battleaimod.savestate;
 import battleaimod.BattleAiMod;
 import battleaimod.GameStateListener;
 import battleaimod.battleai.BattleAiController;
+import battleaimod.savestate.selectscreen.GridCardSelectScreenState;
 import battleaimod.savestate.selectscreen.HandSelectScreenState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -37,7 +38,8 @@ public class SaveState {
 
     ListState listState;
     public PlayerState playerState;
-    private final HandSelectScreenState selectScreenState;
+    private HandSelectScreenState handSelectScreenState = null;
+    private GridCardSelectScreenState gridCardSelectScreenState = null;
     RngState rngState;
     private final int ascensionLevel;
 
@@ -45,7 +47,16 @@ public class SaveState {
 
     public SaveState() {
         long startSave = System.currentTimeMillis();
-        selectScreenState = new HandSelectScreenState();
+
+        if (AbstractDungeon.isScreenUp) {
+            if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT) {
+                handSelectScreenState = new HandSelectScreenState();
+            }
+
+            if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.GRID) {
+                gridCardSelectScreenState = new GridCardSelectScreenState();
+            }
+        }
 
         this.curMapNodeState = new MapRoomNodeState(AbstractDungeon.currMapNode);
 
@@ -153,7 +164,7 @@ public class SaveState {
         this.ascensionLevel = parsed.get("ascension_level").getAsInt();
 
         // TODO
-        selectScreenState = null;
+        handSelectScreenState = null;
         this.cardsPlayedThisTurn = new ArrayList<>();
         this.cardsPlayedThisTurnBackup = new ArrayList<>();
     }
@@ -217,8 +228,10 @@ public class SaveState {
             }
         }
 
-        if (selectScreenState != null) {
-            selectScreenState.loadHandSelectScreenState();
+        if (handSelectScreenState != null) {
+            handSelectScreenState.loadHandSelectScreenState();
+        } else if (gridCardSelectScreenState != null) {
+            gridCardSelectScreenState.loadGridSelectScreen();
         }
 
 

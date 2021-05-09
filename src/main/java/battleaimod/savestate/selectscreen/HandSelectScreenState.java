@@ -1,7 +1,6 @@
 package battleaimod.savestate.selectscreen;
 
 import basemod.ReflectionHacks;
-import battleaimod.BattleAiMod;
 import battleaimod.savestate.CardState;
 import battleaimod.savestate.PlayerState;
 import battleaimod.savestate.actions.ActionState;
@@ -18,7 +17,6 @@ public class HandSelectScreenState {
     private final int numCardsToSelect;
     private final ArrayList<CardState> selectedCards;
     private final ArrayList<ActionState> actionQueue;
-    private final CardState hoveredCard;
     private final boolean wereCardsRetrieved;
     private final boolean canPickZero;
     private final boolean upTo;
@@ -28,14 +26,8 @@ public class HandSelectScreenState {
     private final int numSelected;
     private final CurrentActionState currentActionState;
     private final boolean isDisabled;
-//    private final CardQueueItemState queueItemState;
 
     public HandSelectScreenState() {
-        if (AbstractDungeon.handCardSelectScreen.hoveredCard != null) {
-            this.hoveredCard = new CardState(AbstractDungeon.handCardSelectScreen.hoveredCard);
-        } else {
-            hoveredCard = null;
-        }
         selectedCards = PlayerState
                 .toCardStateArray(AbstractDungeon.handCardSelectScreen.selectedCards.group);
 
@@ -56,29 +48,11 @@ public class HandSelectScreenState {
         isDisabled = AbstractDungeon.handCardSelectScreen.button.isDisabled;
 
         if (currentAction != null) {
-            if (BattleAiMod.currentActionByClassMap.containsKey(currentAction.getClass())) {
-                currentActionState = BattleAiMod.currentActionByClassMap
-                        .get(currentAction.getClass()).factory.apply(currentAction);
-            } else {
-                throw new IllegalStateException("No State Factory for Current Action " + AbstractDungeon.actionManager.currentAction);
-            }
-
-
-            actionQueue = new ArrayList<>();
-
-            for (AbstractGameAction action : AbstractDungeon.actionManager.actions) {
-                if (BattleAiMod.actionByClassMap.containsKey(action.getClass())) {
-                    actionQueue.add(BattleAiMod.actionByClassMap.get(action.getClass()).factory
-                            .apply(action));
-                } else if (ActionState.IGNORED_ACTIONS.contains(action.getClass())) {
-                    // These are visual effects that are not worth encoding
-                } else {
-                    throw new IllegalArgumentException("Unkown action type found in action manager: " + action);
-                }
-            }
+            currentActionState = CurrentActionState.getCurrentActionState();
+            actionQueue = ActionState.getActionQueueState();
 
             if (actionQueue.isEmpty()) {
-                throw new IllegalStateException("this shouldn't happen " + AbstractDungeon.actionManager.actions);
+                throw new IllegalStateException("The action queue shouldn't be empty in the middle of a selection screen");
             }
         } else {
             currentActionState = null;
