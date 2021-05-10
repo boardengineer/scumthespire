@@ -11,12 +11,12 @@ public class AnimationStateFast extends AnimationState {
 
     @Override
     public TrackEntry addAnimation(int trackIndex, Animation animation, boolean loop, float delay) {
-        return null;
+        return new TrackEntry();
     }
 
     @Override
     public TrackEntry addAnimation(int trackIndex, String animationName, boolean loop, float delay) {
-        return null;
+        return new TrackEntry();
     }
 
     @Override

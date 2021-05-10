@@ -2,6 +2,9 @@ package battleaimod.savestate.monsters;
 
 import battleaimod.savestate.monsters.beyond.*;
 import battleaimod.savestate.monsters.city.*;
+import battleaimod.savestate.monsters.ending.CorrputHeartState;
+import battleaimod.savestate.monsters.ending.SpireShieldState;
+import battleaimod.savestate.monsters.ending.SpireSpearState;
 import battleaimod.savestate.monsters.exordium.*;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
@@ -12,6 +15,7 @@ public enum Monster {
     ACID_SLIME_M("AcidSlime_M", monster -> new AcidSlime_MState(monster), json -> new AcidSlime_MState(json)),
     ACID_SLIME_S("AcidSlime_S", monster -> new AcidSlime_SState(monster), json -> new AcidSlime_SState(json)),
     APOLOGY_SLIME("Apology Slime", monster -> new ApologySlimeState(monster), json -> new ApologySlimeState(json)),
+    CORRUPT_HEART("CorruptHeart", monster -> new CorrputHeartState(monster), json -> new CorrputHeartState(json)),
     CULTIST("Cultist", monster -> new CultistState(monster), json -> new CultistState(json)),
     FUNGI_BEAST("FungiBeast", monster -> new FungiBeastState(monster), json -> new FungiBeastState(json)),
     GREMLIN_FAT("GremlinFat", monster -> new GremlinFatState(monster), json -> new GremlinFatState(json)),
@@ -33,6 +37,8 @@ public enum Monster {
     SPIKE_SLIME_L("SpikeSlime_L", monster -> new SpikeSlime_LState(monster), json -> new SpikeSlime_LState(json)),
     SPIKE_SLIME_M("SpikeSlime_M", monster -> new SpikeSlime_MState(monster), json -> new SpikeSlime_MState(json)),
     SPIKE_SLIME_S("SpikeSlime_S", monster -> new SpikeSlime_SState(monster), json -> new SpikeSlime_SState(json)),
+    SPIRE_SPEAR("SpireSpear", monster -> new SpireSpearState(monster), json -> new SpireSpearState(json)),
+    SPIRE_SHIELD("SpireShield", monster -> new SpireShieldState(monster), json -> new SpireShieldState(json)),
     THE_GUARDIAN("TheGuardian", monster -> new TheGuardianState(monster), json -> new TheGuardianState(json)),
     CHOSEN("Chosen", monster -> new ChosenState(monster), json -> new ChosenState(json)),
     MUGGER("Mugger", monster -> new MuggerState(monster), json -> new MuggerState(json)),
@@ -67,13 +73,12 @@ public enum Monster {
     MAW("Maw", monster -> new MawState(monster), json -> new MawState(json)),
     AWAKENED_ONE("AwakenedOne", monster -> new AwakenedOneState(monster), json -> new AwakenedOneState(json)),
     WRITHING_MASS("WrithingMass", monster -> new WrithingMassState(monster), json -> new WrithingMassState(json)),
-    SPIRE_GROWTH("Serpent",monster -> new SpireGrowthState(monster), json -> new SpireGrowthState(json)),
+    SPIRE_GROWTH("Serpent", monster -> new SpireGrowthState(monster), json -> new SpireGrowthState(json)),
     DONU("Donu", monster -> new DonuState(monster), json -> new DonuState(json)),
     DECA("Deca", monster -> new DecaState(monster), json -> new DecaState(json)),
     REPTOMANCER("Reptomancer", monster -> new ReptomancerState(monster), json -> new ReptomancerState(json)),
     SNAKE_DAGGER("Dagger", monster -> new SnakerDaggerState(monster), json -> new SnakerDaggerState(json)),
-    TIME_EATER("TimeEater", monster -> new TimeEaterState(monster), json -> new TimeEaterState(json))
-    ;
+    TIME_EATER("TimeEater", monster -> new TimeEaterState(monster), json -> new TimeEaterState(json));
 
     public final String monsterId;
     public final Function<AbstractMonster, MonsterState> factory;

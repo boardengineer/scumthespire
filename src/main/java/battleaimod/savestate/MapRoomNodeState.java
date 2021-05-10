@@ -59,7 +59,11 @@ public class MapRoomNodeState {
             ArrayList<MonsterState> monsters = new ArrayList<>();
 
             for (AbstractMonster monster : room.monsters.monsters) {
-                monsters.add(BattleAiMod.monsterByIdmap.get(monster.id).factory.apply(monster));
+                if (BattleAiMod.monsterByIdmap.containsKey(monster.id)) {
+                    monsters.add(BattleAiMod.monsterByIdmap.get(monster.id).factory.apply(monster));
+                } else {
+                    throw new IllegalStateException("No Factory for monster " + monster.id);
+                }
             }
 
             this.monsterData = monsters;
