@@ -12,6 +12,7 @@ public class RelicState {
     private final String relicId;
     private final int counter;
     private final boolean grayscale;
+    private final boolean pulse;
 
     private final boolean orichalcumTrigger;
 
@@ -31,11 +32,13 @@ public class RelicState {
 
     private final boolean hoveringKiteTriggeredThisTurn;
 
+
     public RelicState(AbstractRelic relic) {
         this.relicId = relic.relicId;
         this.counter = relic.counter;
 
         this.grayscale = relic.grayscale;
+        this.pulse = ReflectionHacks.getPrivate(relic, AbstractRelic.class, "pulse");
 
         if (relic instanceof Orichalcum) {
             this.orichalcumTrigger = ((Orichalcum) relic).trigger;
@@ -127,6 +130,7 @@ public class RelicState {
         this.pocketwatchFirstTurn = parsed.get("pocketwatch_first_turn").getAsBoolean();
         this.hoveringKiteTriggeredThisTurn = parsed.get("hovering_kite_triggered_this_turn")
                                                    .getAsBoolean();
+        this.pulse = parsed.get("pulse").getAsBoolean();
     }
 
     public AbstractRelic loadRelic() {
@@ -199,6 +203,8 @@ public class RelicState {
                     .currentTimeMillis() - makeRelicCopyStartTime);
         }
 
+        ReflectionHacks.setPrivate(result, AbstractRelic.class, "pulse", pulse);
+
         return result;
     }
 
@@ -226,7 +232,9 @@ public class RelicState {
                 .addProperty("unceasing_top_disabled_until_end_of_turn", unceasingTopDisabledUntilEndOfTurn);
 
         relicStateJson.addProperty("pocketwatch_first_turn", pocketwatchFirstTurn);
-        relicStateJson.addProperty("hovering_kite_triggered_this_turn", hoveringKiteTriggeredThisTurn);
+        relicStateJson
+                .addProperty("hovering_kite_triggered_this_turn", hoveringKiteTriggeredThisTurn);
+        relicStateJson.addProperty("pulse", pulse);
 
         return relicStateJson.toString();
     }
