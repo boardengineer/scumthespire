@@ -27,7 +27,10 @@ public class SaveState {
     public int turn;
     public String encounterName;
     private int totalDiscardedThisTurn;
+
+
     private final ArrayList<Integer> cardsPlayedThisTurn;
+    private final ArrayList<Integer> gridSelectedCards;
 
     // Load cards from scratch if necessary, ideally they'll be released elsewhere
     private final ArrayList<CardState> cardsPlayedThisTurnBackup;
@@ -117,6 +120,11 @@ public class SaveState {
                     }
                 });
 
+        this.gridSelectedCards = new ArrayList<>();
+
+        AbstractDungeon.gridSelectScreen.selectedCards
+                .forEach(card -> this.gridSelectedCards.add(allCards.indexOf(card)));
+
 //        this.cardsPlayedThisTurn = PlayerState
 //                .toCardStateArray(AbstractDungeon.actionManager.cardsPlayedThisTurn);
 
@@ -167,6 +175,7 @@ public class SaveState {
         handSelectScreenState = null;
         this.cardsPlayedThisTurn = new ArrayList<>();
         this.cardsPlayedThisTurnBackup = new ArrayList<>();
+        this.gridSelectedCards = new ArrayList<>();
     }
 
     public void loadState() {
@@ -251,12 +260,20 @@ public class SaveState {
         allCards.addAll(player.limbo.group);
 
         AbstractDungeon.actionManager.cardsPlayedThisTurn.clear();
+        AbstractDungeon.gridSelectScreen.selectedCards.clear();
 
         this.cardsPlayedThisTurn.forEach(index -> AbstractDungeon.actionManager.cardsPlayedThisTurn
                 .add(allCards.get(index)));
         this.cardsPlayedThisTurnBackup
                 .forEach(card -> AbstractDungeon.actionManager.cardsPlayedThisTurn
                         .add(card.loadCard()));
+        this.gridSelectedCards.forEach(index -> AbstractDungeon.gridSelectScreen.selectedCards
+                .add(allCards.get(index)));
+        if (!this.gridSelectedCards.isEmpty()) {
+            System.err
+                    .println("there were selected cards " + this.gridSelectedCards + " " + allCards
+                            .get(this.gridSelectedCards.get(0)));
+        }
 
 //        AbstractDungeon.actionManager.cardsPlayedThisTurn = this.cardsPlayedThisTurn.stream()
 //                                                                                    .map(CardState::loadCard)

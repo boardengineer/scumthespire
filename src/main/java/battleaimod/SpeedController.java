@@ -53,7 +53,8 @@ public class SpeedController implements PreUpdateSubscriber {
         if (AbstractDungeon.actionManager.turnHasEnded
                 || (AbstractDungeon.actionManager.currentAction != null && AbstractDungeon.actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS)
                 || !AbstractDungeon.actionManager.isEmpty()) {
-            if (!AbstractDungeon.isScreenUp || AbstractDungeon.screen != AbstractDungeon.CurrentScreen.HAND_SELECT) {
+            if (!(AbstractDungeon.isScreenUp
+                    && (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT || AbstractDungeon.screen == AbstractDungeon.CurrentScreen.GRID))) {
                 return;
             }
         } else {
@@ -167,7 +168,7 @@ public class SpeedController implements PreUpdateSubscriber {
             AbstractGameAction action = actions.get(i);
             if (action instanceof DrawCardAction) {
                 actions.remove(i);
-                actions.add(i, new DrawCardActionFast((DrawCardAction)action));
+                actions.add(i, new DrawCardActionFast((DrawCardAction) action));
             } else if (action instanceof EmptyDeckShuffleAction) {
                 actions.remove(i);
                 actions.add(i, new EmptyDeckShuffleActionFast());

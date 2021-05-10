@@ -152,6 +152,8 @@ public class AiClient {
             return new HandSelectCommand(commandString);
         } else if (type.equals("HAND_SELECT_CONFIRM")) {
             return HandSelectConfirmCommand.INSTANCE;
+        } else if (type.equals("GRID_SELECT")) {
+            return new GridSelectCommand(commandString);
         }
 
         return null;

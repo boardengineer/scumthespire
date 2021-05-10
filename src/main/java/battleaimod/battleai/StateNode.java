@@ -14,6 +14,7 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.potions.PotionSlot;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import com.megacrit.cardcrawl.screens.select.GridCardSelectScreen;
 import com.megacrit.cardcrawl.ui.buttons.CardSelectConfirmButton;
 
 import java.util.ArrayList;
@@ -61,6 +62,13 @@ public class StateNode {
                 AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT &&
                 AbstractDungeon.isScreenUp &&
                 AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT;
+    }
+
+    public static boolean isInGridSelect() {
+        return isInDungeon() &&
+                AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT &&
+                AbstractDungeon.isScreenUp &&
+                AbstractDungeon.screen == AbstractDungeon.CurrentScreen.GRID;
     }
 
     private static boolean isEndCommandAvailable() {
@@ -156,7 +164,7 @@ public class StateNode {
                         AbstractMonster monster = monsters.get(j);
                         if (card.canUse(player, monster) && !monster.isDeadOrEscaped()) {
                             commands.add(0, new CardCommand(i, j, String
-                                    .format(card.cardID + " for " + card.baseDamage)));
+                                    .format(card.cardID + " for " + card.costForTurn)));
                         }
                     }
                 }
@@ -220,9 +228,17 @@ public class StateNode {
             }
         }
 
+        if (isInGridSelect()) {
+            for (int i = 0; i < AbstractDungeon.gridSelectScreen.targetGroup.size(); i++) {
+                commands.add(new GridSelectCommand(i));
+            }
+        }
+
         if (isEndCommandAvailable()) {
             commands.add(new EndCommand());
         }
+
+        GridCardSelectScreen gridSelectScreen = AbstractDungeon.gridSelectScreen;
     }
 
     public boolean isDone() {

@@ -3,6 +3,7 @@ package battleaimod.savestate.actions;
 import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.animations.ShoutAction;
+import com.megacrit.cardcrawl.actions.animations.TalkAction;
 import com.megacrit.cardcrawl.actions.animations.VFXAction;
 import com.megacrit.cardcrawl.actions.common.RelicAboveCreatureAction;
 import com.megacrit.cardcrawl.actions.utility.SFXAction;
@@ -47,6 +48,7 @@ public interface ActionState {
     Set<Class<? extends AbstractGameAction>> IGNORED_ACTIONS = new HashSet<Class<? extends AbstractGameAction>>() {{
         add(VFXAction.class);
         add(ShoutAction.class);
+        add(TalkAction.class);
         add(TextAboveCreatureAction.class);
         add(SFXAction.class);
         add(RelicAboveCreatureAction.class);

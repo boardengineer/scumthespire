@@ -41,6 +41,8 @@ public class CardCommand implements Command {
 
     @Override
     public void execute() {
+//        System.err.println("Playing card " + displayString);
+
         AbstractDungeon.player.hand.refreshHandLayout();
         AbstractCard card = AbstractDungeon.player.hand.group.get(cardIndex);
         AbstractMonster monster = null;

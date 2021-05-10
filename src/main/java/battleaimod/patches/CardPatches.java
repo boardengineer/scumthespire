@@ -22,6 +22,8 @@ import com.megacrit.cardcrawl.cards.green.DaggerSpray;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import com.megacrit.cardcrawl.screens.select.GridCardSelectScreen;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToHandEffect;
 
@@ -132,6 +134,27 @@ public class CardPatches {
             AbstractDungeon.player.discardPile.addToTop(card);
 
             AbstractDungeon.player.onCardDrawOrDiscard();
+            return SpireReturn.Return(null);
+        }
+    }
+
+    @SpirePatch(
+            clz = CardGroup.class,
+            paramtypez = {AbstractCard.class, boolean.class},
+            method = "moveToDeck"
+    )
+    public static class FastMoveToDeckDiscardPatch {
+        public static SpireReturn Prefix(CardGroup _instance, AbstractCard card, boolean randomSpot) {
+            ReflectionHacks
+                    .privateMethod(CardGroup.class, "resetCardBeforeMoving", AbstractCard.class)
+                    .invoke(_instance, card);
+
+            if (randomSpot) {
+                AbstractDungeon.player.drawPile.addToRandomSpot(card);
+            } else {
+                AbstractDungeon.player.drawPile.addToTop(card);
+            }
+
             return SpireReturn.Return(null);
         }
     }
@@ -495,6 +518,50 @@ public class CardPatches {
                 return SpireReturn.Return(null);
             }
 
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = GridCardSelectScreen.class,
+            paramtypez = {},
+            method = "hideCards"
+    )
+    public static class SkipHideCardPatch {
+        public static SpireReturn Prefix(GridCardSelectScreen screen) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
+
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = GridCardSelectScreen.class,
+            paramtypez = {},
+            method = "updateCardPositionsAndHoverLogic"
+    )
+    public static class SkipAutoUnhoverCardPatch {
+        public static SpireReturn Prefix(GridCardSelectScreen screen) {
+            if (shouldGoFast() || AbstractDungeon
+                    .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractCard.class,
+            paramtypez = {boolean.class},
+            method = "lighten"
+    )
+    public static class NoLightenCardPatch {
+        public static SpireReturn Prefix(AbstractCard card, boolean something) {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(null);
+            }
             return SpireReturn.Continue();
         }
     }

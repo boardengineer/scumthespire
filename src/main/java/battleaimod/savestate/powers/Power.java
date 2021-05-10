@@ -108,6 +108,7 @@ public enum Power {
     OMEGA_POWER("OmegaPower", power -> new OmegaPowerState(power)),
     OMNISCIENCE_POWER("OmnisciencePower", power -> new OmnisciencePowerState(power)),
     PAINFUL_STABS("Painful Stabs", power -> new PainfulStabsPowerState(power)),
+    PANACHE("Panache", power -> new PanachePowerState(power), json -> new PanachePowerState(json)),
     PATH_TO_VICTORY_POWER("PathToVictoryPower", power -> new MarkPowerState(power)),
     PHANTASMAL("Phantasmal", power -> new PhantasmalPowerState(power)),
     POISON("Poison", power -> new PoisonPowerState(power)),

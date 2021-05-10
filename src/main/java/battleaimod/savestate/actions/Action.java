@@ -13,6 +13,7 @@ import java.util.function.Function;
 
 public enum Action {
     APPLY_POWER_ACTION(ApplyPowerAction.class, action -> new ApplyPowerActionState(action)),
+    APPLY_POWER_TO_RANDOM_CREATURE_ACTION(ApplyPowerToRandomEnemyAction.class, action -> new ApplyPowerToRandomEnemyActionState(action)),
     CHANGE_STATE_ACTION(ChangeStateAction.class, action -> new ChangeStateActionState(action)),
     CLEAR_CARD_QUEUE_ACTION(ClearCardQueueAction.class, action -> new ClearCardQueueActionState()),
     DAMAGE_ACTION(DamageAction.class, action -> new DamageActionState(action)),
