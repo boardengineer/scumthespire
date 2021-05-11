@@ -68,7 +68,8 @@ public class SpeedController implements PreUpdateSubscriber {
         }
 
         if (!shouldGoFast()) {
-            if (BattleAiController.shouldStep()) {
+            if (BattleAiController
+                    .shouldStep() || AbstractDungeon.actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS) {
                 BattleAiMod.readyForUpdate = false;
                 BattleAiMod.sendGameState();
             }
