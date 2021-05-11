@@ -32,6 +32,8 @@ public class RelicState {
 
     private final boolean hoveringKiteTriggeredThisTurn;
 
+    private final boolean runicCapacitorFirstTurn;
+
 
     public RelicState(AbstractRelic relic) {
         this.relicId = relic.relicId;
@@ -104,6 +106,13 @@ public class RelicState {
         } else {
             this.hoveringKiteTriggeredThisTurn = false;
         }
+
+        if (relic instanceof RunicCapacitor) {
+            this.runicCapacitorFirstTurn = ReflectionHacks
+                    .getPrivate(relic, RunicCapacitor.class, "firstTurn");
+        } else {
+            this.runicCapacitorFirstTurn = false;
+        }
     }
 
     public RelicState(String jsonString) {
@@ -131,6 +140,7 @@ public class RelicState {
         this.hoveringKiteTriggeredThisTurn = parsed.get("hovering_kite_triggered_this_turn")
                                                    .getAsBoolean();
         this.pulse = parsed.get("pulse").getAsBoolean();
+        this.runicCapacitorFirstTurn = parsed.get("runic_capacitor_first_turn").getAsBoolean();
     }
 
     public AbstractRelic loadRelic() {
@@ -198,6 +208,11 @@ public class RelicState {
                     .setPrivate(result, HoveringKite.class, "triggeredThisTurn", hoveringKiteTriggeredThisTurn);
         }
 
+        if (result instanceof RunicCapacitor) {
+            ReflectionHacks
+                    .setPrivate(result, RunicCapacitor.class, "firstTurn", runicCapacitorFirstTurn);
+        }
+
         if (BattleAiMod.battleAiController != null) {
             BattleAiMod.battleAiController.addRuntime("Load Time Load Relic", System
                     .currentTimeMillis() - makeRelicCopyStartTime);
@@ -234,6 +249,7 @@ public class RelicState {
         relicStateJson.addProperty("pocketwatch_first_turn", pocketwatchFirstTurn);
         relicStateJson
                 .addProperty("hovering_kite_triggered_this_turn", hoveringKiteTriggeredThisTurn);
+        relicStateJson.addProperty("runic_capacitor_first_turn", runicCapacitorFirstTurn);
         relicStateJson.addProperty("pulse", pulse);
 
         return relicStateJson.toString();
