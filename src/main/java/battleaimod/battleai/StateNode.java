@@ -2,9 +2,11 @@ package battleaimod.battleai;
 
 import basemod.ReflectionHacks;
 import battleaimod.battleai.commands.*;
+import battleaimod.battleai.playorder.IronCladPlayOrder;
+import battleaimod.battleai.playorder.SilentPlayOrder;
 import battleaimod.savestate.PotionState;
-import battleaimod.savestate.powers.PowerState;
 import battleaimod.savestate.SaveState;
+import battleaimod.savestate.powers.PowerState;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.red.TwinStrike;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
@@ -17,10 +19,7 @@ import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.screens.select.GridCardSelectScreen;
 import com.megacrit.cardcrawl.ui.buttons.CardSelectConfirmButton;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static battleaimod.battleai.TurnNode.getPotionScore;
 import static battleaimod.battleai.TurnNode.getTotalMonsterHealth;
@@ -148,40 +147,67 @@ public class StateNode {
         Set<String> seenCommands = new HashSet<>();
 
         if (shouldCheckForPlays()) {
+            HashMap<AbstractCard, Integer> cardIndeces = new HashMap<>();
+
             for (int i = 0; i < hand.size(); i++) {
-                AbstractCard card = hand.get(i);
-
-                // Only populate the first time you've seen a card with this specific {name X upgraded}
-                String setName = card.name + (card.upgraded ? "+" : "");
-                int oldCount = seenCommands.size();
-                seenCommands.add(setName);
-                if (oldCount == seenCommands.size()) {
-                    continue;
-                }
-
-                if (card.target == AbstractCard.CardTarget.ENEMY || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
-                    for (int j = 0; j < monsters.size(); j++) {
-                        AbstractMonster monster = monsters.get(j);
-                        if (card.canUse(player, monster) && !monster.isDeadOrEscaped()) {
-                            commands.add(0, new CardCommand(i, j, String
-                                    .format(card.cardID + " for " + card.costForTurn)));
-                        }
-                    }
-                }
-
-                if (card.target == AbstractCard.CardTarget.ALL_ENEMY || card.target == AbstractCard.CardTarget.ALL) {
-                    if (card.canUse(player, null)) {
-                        commands.add(0, new CardCommand(i, card.cardID + " for " + card.baseBlock));
-                    }
-                }
-
-                if (card.target == AbstractCard.CardTarget.SELF || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY || card.target == AbstractCard.CardTarget.NONE) {
-                    if (card.canUse(player, null)) {
-                        commands.add(new CardCommand(i, card.cardID + " for " + card.baseMagicNumber));
-                    }
-                }
-
+                cardIndeces.put(hand.get(i), i);
             }
+
+            cardIndeces.entrySet().stream()
+                       .sorted((card1, card2) -> {
+                           if (IronCladPlayOrder.CARD_RANKS.containsKey(card1
+                                   .getKey().cardID) && IronCladPlayOrder.CARD_RANKS
+                                   .containsKey(card2.getKey().cardID)) {
+                               return IronCladPlayOrder.CARD_RANKS
+                                       .get(card1.getKey().cardID) - IronCladPlayOrder.CARD_RANKS
+                                       .get(card2.getKey().cardID);
+                           } else if (SilentPlayOrder.CARD_RANKS.containsKey(card1
+                                   .getKey().cardID) && SilentPlayOrder.CARD_RANKS
+                                   .containsKey(card2.getKey().cardID)) {
+                               return SilentPlayOrder.CARD_RANKS
+                                       .get(card1.getKey().cardID) - SilentPlayOrder.CARD_RANKS
+                                       .get(card2.getKey().cardID);
+                           }
+
+                           return card2.getKey().costForTurn - card1.getKey().costForTurn;
+                       }).forEach(
+                    cardEntry -> {
+                        AbstractCard card = cardEntry.getKey();
+
+                        // Only populate the first time you've seen a card with this specific {name X upgraded}
+                        String setName = card.name + (card.upgraded ? "+" : "");
+                        int oldCount = seenCommands.size();
+                        seenCommands.add(setName);
+                        if (oldCount == seenCommands.size()) {
+                            return;
+                        }
+
+                        if (card.target == AbstractCard.CardTarget.ENEMY || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY) {
+                            for (int j = 0; j < monsters.size(); j++) {
+                                AbstractMonster monster = monsters.get(j);
+                                if (card.canUse(player, monster) && !monster.isDeadOrEscaped()) {
+                                    commands.add(new CardCommand(cardEntry.getValue(), j, String
+                                            .format(card.cardID + " for " + card.costForTurn)));
+                                }
+                            }
+                        }
+
+                        if (card.target == AbstractCard.CardTarget.ALL_ENEMY || card.target == AbstractCard.CardTarget.ALL) {
+                            if (card.canUse(player, null)) {
+                                commands.add(new CardCommand(cardEntry
+                                        .getValue(), card.cardID + " for " + card.baseBlock));
+                            }
+                        }
+
+                        if (card.target == AbstractCard.CardTarget.SELF || card.target == AbstractCard.CardTarget.SELF_AND_ENEMY || card.target == AbstractCard.CardTarget.NONE) {
+                            if (card.canUse(player, null)) {
+                                commands.add(new CardCommand(cardEntry
+                                        .getValue(), card.cardID + " for " + card.baseMagicNumber));
+                            }
+                        }
+
+                    }
+            );
 
             for (int i = 0; i < potions.size(); i++) {
                 AbstractPotion potion = potions.get(i);
