@@ -8,6 +8,7 @@ import battleaimod.savestate.selectscreen.HandSelectScreenState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.common.DrawCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardQueueItem;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
@@ -31,6 +32,7 @@ public class SaveState {
 
     private final ArrayList<Integer> cardsPlayedThisTurn;
     private final ArrayList<Integer> gridSelectedCards;
+    private final ArrayList<Integer> drawnCards;
 
     // Load cards from scratch if necessary, ideally they'll be released elsewhere
     private final ArrayList<CardState> cardsPlayedThisTurnBackup;
@@ -125,6 +127,9 @@ public class SaveState {
         AbstractDungeon.gridSelectScreen.selectedCards
                 .forEach(card -> this.gridSelectedCards.add(allCards.indexOf(card)));
 
+        this.drawnCards = new ArrayList<>();
+        DrawCardAction.drawnCards.forEach(card -> this.drawnCards.add(allCards.indexOf(card)));
+
 //        this.cardsPlayedThisTurn = PlayerState
 //                .toCardStateArray(AbstractDungeon.actionManager.cardsPlayedThisTurn);
 
@@ -176,6 +181,7 @@ public class SaveState {
         this.cardsPlayedThisTurn = new ArrayList<>();
         this.cardsPlayedThisTurnBackup = new ArrayList<>();
         this.gridSelectedCards = new ArrayList<>();
+        this.drawnCards = new ArrayList<>();
     }
 
     public void loadState() {
@@ -267,6 +273,7 @@ public class SaveState {
         this.cardsPlayedThisTurnBackup
                 .forEach(card -> AbstractDungeon.actionManager.cardsPlayedThisTurn
                         .add(card.loadCard()));
+        AbstractDungeon.gridSelectScreen.selectedCards.clear();
         this.gridSelectedCards.forEach(index -> AbstractDungeon.gridSelectScreen.selectedCards
                 .add(allCards.get(index)));
         if (!this.gridSelectedCards.isEmpty()) {
@@ -274,6 +281,10 @@ public class SaveState {
                     .println("there were selected cards " + this.gridSelectedCards + " " + allCards
                             .get(this.gridSelectedCards.get(0)));
         }
+        DrawCardAction.drawnCards.clear();
+        this.drawnCards.stream().filter(index -> index != -1)
+                       .forEach(index -> DrawCardAction.drawnCards.add(allCards.get(index)));
+
 
 //        AbstractDungeon.actionManager.cardsPlayedThisTurn = this.cardsPlayedThisTurn.stream()
 //                                                                                    .map(CardState::loadCard)

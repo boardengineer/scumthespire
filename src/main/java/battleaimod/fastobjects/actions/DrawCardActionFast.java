@@ -67,6 +67,9 @@ public class DrawCardActionFast extends AbstractGameAction {
     public DrawCardActionFast(DrawCardAction action) {
         this(action.amount, ReflectionHacks
                 .getPrivate(action, DrawCardAction.class, "followUpAction"), false);
+
+        this.clearDrawHistory = ReflectionHacks
+                .getPrivate(action, DrawCardAction.class, "clearDrawHistory");
     }
 
     public void update() {
@@ -81,6 +84,7 @@ public class DrawCardActionFast extends AbstractGameAction {
         }
 
         if (this.clearDrawHistory) {
+            DrawCardAction.drawnCards.clear();
             this.clearDrawHistory = false;
         }
 
@@ -147,12 +151,8 @@ public class DrawCardActionFast extends AbstractGameAction {
                         alreadyDrawing = true;
                         --this.amount;
                         if (!AbstractDungeon.player.drawPile.isEmpty()) {
-
-                            // TODO this is a hack for escape plan
-                            DrawCardAction.drawnCards.clear();
                             DrawCardAction.drawnCards
                                     .add(AbstractDungeon.player.drawPile.getTopCard());
-
                             AbstractDungeon.player.draw();
                             if (!shouldGoFast()) {
                                 AbstractDungeon.player.hand.refreshHandLayout();

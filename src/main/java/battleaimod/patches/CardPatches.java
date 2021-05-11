@@ -10,10 +10,8 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.actions.common.DamageAllEnemiesAction;
-import com.megacrit.cardcrawl.actions.common.MakeTempCardInDiscardAction;
-import com.megacrit.cardcrawl.actions.common.MakeTempCardInHandAction;
-import com.megacrit.cardcrawl.actions.common.PlayTopCardAction;
+import com.megacrit.cardcrawl.actions.common.*;
+import com.megacrit.cardcrawl.actions.defect.ScrapeFollowUpAction;
 import com.megacrit.cardcrawl.actions.utility.ShowCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
@@ -474,6 +472,26 @@ public class CardPatches {
             }
 
             return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = ScrapeFollowUpAction.class,
+            paramtypez = {},
+            method = "update"
+    )
+    public static class ScrapePatch {
+        public static SpireReturn Prefix(ScrapeFollowUpAction _instance) {
+            for(AbstractCard card : DrawCardAction.drawnCards) {
+                if(card.costForTurn != 0 && !card.freeToPlayOnce) {
+                    AbstractDungeon.player.hand.moveToDiscardPile(card);
+                    card.triggerOnManualDiscard();
+                    GameActionManager.incrementDiscard(false);
+                }
+            }
+
+            _instance.isDone = true;
+            return SpireReturn.Return(null);
         }
     }
 
