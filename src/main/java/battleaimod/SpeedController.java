@@ -1,20 +1,22 @@
 package battleaimod;
 
-import basemod.ReflectionHacks;
 import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
-import battleaimod.fastobjects.actions.*;
+import battleaimod.fastobjects.actions.DiscardAtEndOfTurnActionFast;
+import battleaimod.fastobjects.actions.EmptyDeckShuffleActionFast;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.IntentFlashAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.animations.VFXAction;
-import com.megacrit.cardcrawl.actions.common.*;
+import com.megacrit.cardcrawl.actions.common.DiscardAtEndOfTurnAction;
+import com.megacrit.cardcrawl.actions.common.EmptyDeckShuffleAction;
+import com.megacrit.cardcrawl.actions.common.GainBlockAction;
+import com.megacrit.cardcrawl.actions.common.ShowMoveNameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.vfx.*;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
 import skrelpoid.superfastmode.SuperFastMode;
@@ -149,11 +151,6 @@ public class SpeedController implements PreUpdateSubscriber {
             } else if (action instanceof GainBlockAction) {
 //                actions.remove(i);
 //                i--;
-            } else if (action instanceof RollMoveAction) {
-                AbstractMonster monster = ReflectionHacks
-                        .getPrivate(action, RollMoveAction.class, "monster");
-                actions.remove(i);
-                actions.add(i, new RollMoveActionFast(monster));
             }
         }
     }
@@ -168,12 +165,6 @@ public class SpeedController implements PreUpdateSubscriber {
                 actions.remove(i);
                 actions.add(i, new DiscardAtEndOfTurnActionFast());
             }
-//            else if (action instanceof RollMoveAction) {
-//                AbstractMonster monster = ReflectionHacks
-//                        .getPrivate(action, RollMoveAction.class, "monster");
-//                actions.remove(i);
-//                actions.add(i, new RollMoveActionFast(monster));
-//            }
         }
     }
 }

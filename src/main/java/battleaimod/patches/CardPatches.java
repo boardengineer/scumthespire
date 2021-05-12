@@ -612,13 +612,4 @@ public class CardPatches {
             }
         }
     }
-
-    @SpirePatch(clz = DiscardAction.class, method = "update")
-    public static class DiscardFastPatch {
-        @SpirePostfixPatch
-        public static void setStuffAtEnd(DiscardAction action) {
-            ReflectionHacks.setPrivate(action, AbstractGameAction.class, "duration", 0);
-            action.isDone = true;
-        }
-    }
 }
