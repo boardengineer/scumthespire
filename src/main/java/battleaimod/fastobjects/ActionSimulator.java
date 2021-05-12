@@ -1,7 +1,6 @@
 package battleaimod.fastobjects;
 
 import battleaimod.BattleAiMod;
-import battleaimod.fastobjects.actions.DrawCardActionFast;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.ClearCardQueueAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
@@ -228,9 +227,6 @@ public class ActionSimulator {
                 break;
             case EXECUTING_ACTIONS:
                 if (actionManager.currentAction != null && !actionManager.currentAction.isDone) {
-                    if (actionManager.currentAction instanceof DrawCardAction) {
-                        actionManager.currentAction = new DrawCardActionFast((DrawCardAction) actionManager.currentAction);
-                    }
                     actionManager.currentAction.update();
                 } else {
                     actionManager.previousAction = actionManager.currentAction;

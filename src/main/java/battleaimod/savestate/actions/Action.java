@@ -1,7 +1,6 @@
 package battleaimod.savestate.actions;
 
 import battleaimod.fastobjects.ActionSimulator;
-import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
 import battleaimod.savestate.SetMoveActionState;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
@@ -21,7 +20,6 @@ public enum Action {
     DAMAGE_RANDOM_ENEMY_ACTION(DamageRandomEnemyAction.class, action -> new DamageRandomEnemyActionState(action)),
     DISCARD_AT_END_OF_TURN_ACTION(DiscardAtEndOfTurnAction.class, action -> new DiscardAtEndOfTurnActionState()),
     DRAW_CARD_ACTION(DrawCardAction.class, action -> new DrawCardActionState(action)),
-    DRAW_CARD_ACTION_FAST(DrawCardActionFast.class, action -> new DrawCardActionState(action)),
     ENABLE_END_TURN_BUTTON_ACTION(EnableEndTurnButtonAction.class, action -> new EnableEndTurnButtonActionState(action)),
     ENQUEUE_END_TURN_ACTION(ActionSimulator.EnqueueEndTurnAction.class, action -> new EnqueueEndTurnActionState()),
     ESCAPE_ACTION(EscapeAction.class, action -> new EscapeActionState(action)),

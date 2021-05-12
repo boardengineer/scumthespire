@@ -128,9 +128,6 @@ public class SpeedController implements PreUpdateSubscriber {
             if (action instanceof WaitAction || action instanceof IntentFlashAction) {
                 actions.remove(i);
                 i--;
-            } else if (action instanceof DrawCardAction) {
-                actions.remove(i);
-                actions.add(i, new DrawCardActionFast((DrawCardAction) action));
             } else if (action instanceof EmptyDeckShuffleAction) {
                 actions.remove(i);
                 actions.add(i, new EmptyDeckShuffleActionFast());
@@ -167,10 +164,7 @@ public class SpeedController implements PreUpdateSubscriber {
     private void clearSomeActions(List<AbstractGameAction> actions) {
         for (int i = 0; i < actions.size(); i++) {
             AbstractGameAction action = actions.get(i);
-            if (action instanceof DrawCardAction) {
-                actions.remove(i);
-                actions.add(i, new DrawCardActionFast((DrawCardAction) action));
-            } else if (action instanceof EmptyDeckShuffleAction) {
+            if (action instanceof EmptyDeckShuffleAction) {
                 actions.remove(i);
                 actions.add(i, new EmptyDeckShuffleActionFast());
             } else if (action instanceof DiscardAction) {

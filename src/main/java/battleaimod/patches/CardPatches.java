@@ -7,6 +7,7 @@ import battleaimod.savestate.CardState;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpirePrefixPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
@@ -16,6 +17,7 @@ import com.megacrit.cardcrawl.actions.utility.ShowCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
+import com.megacrit.cardcrawl.cards.SoulGroup;
 import com.megacrit.cardcrawl.cards.green.DaggerSpray;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -113,26 +115,30 @@ public class CardPatches {
             method = "moveToDiscardPile"
     )
     public static class FastDiscardPatch {
-        public static SpireReturn Prefix(CardGroup _instance, AbstractCard card) {
-            int startingSize = _instance.group.size();
+        @SpirePrefixPatch
+        public static SpireReturn Prefix(CardGroup cardGroup, AbstractCard card) {
+            if (shouldGoFast()) {
+                int startingSize = cardGroup.group.size();
 
-            ReflectionHacks
-                    .privateMethod(CardGroup.class, "resetCardBeforeMoving", AbstractCard.class)
-                    .invoke(_instance, card);
+                ReflectionHacks
+                        .privateMethod(CardGroup.class, "resetCardBeforeMoving", AbstractCard.class)
+                        .invoke(cardGroup, card);
 
-            if (_instance.group.size() == startingSize) {
-                for (AbstractCard groupCard : _instance.group) {
-                    if (groupCard.uuid.equals(card.uuid)) {
-                        _instance.group.remove(groupCard);
-                        break;
+                if (cardGroup.group.size() == startingSize) {
+                    for (AbstractCard groupCard : cardGroup.group) {
+                        if (groupCard.uuid.equals(card.uuid)) {
+                            cardGroup.group.remove(groupCard);
+                            break;
+                        }
                     }
                 }
+
+                AbstractDungeon.player.discardPile.addToTop(card);
+                AbstractDungeon.player.onCardDrawOrDiscard();
+
+                return SpireReturn.Return(null);
             }
-
-            AbstractDungeon.player.discardPile.addToTop(card);
-
-            AbstractDungeon.player.onCardDrawOrDiscard();
-            return SpireReturn.Return(null);
+            return SpireReturn.Continue();
         }
     }
 
@@ -482,8 +488,8 @@ public class CardPatches {
     )
     public static class ScrapePatch {
         public static SpireReturn Prefix(ScrapeFollowUpAction _instance) {
-            for(AbstractCard card : DrawCardAction.drawnCards) {
-                if(card.costForTurn != 0 && !card.freeToPlayOnce) {
+            for (AbstractCard card : DrawCardAction.drawnCards) {
+                if (card.costForTurn != 0 && !card.freeToPlayOnce) {
                     AbstractDungeon.player.hand.moveToDiscardPile(card);
                     card.triggerOnManualDiscard();
                     GameActionManager.incrementDiscard(false);
@@ -579,6 +585,17 @@ public class CardPatches {
         public static SpireReturn Prefix(AbstractCard card, boolean something) {
             if (shouldGoFast()) {
                 return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(clz = SoulGroup.class, method = "isActive")
+    public static class SoulsNeverActivePatch {
+        @SpirePrefixPatch
+        public static SpireReturn alwaysFalse() {
+            if (shouldGoFast()) {
+                return SpireReturn.Return(false);
             }
             return SpireReturn.Continue();
         }

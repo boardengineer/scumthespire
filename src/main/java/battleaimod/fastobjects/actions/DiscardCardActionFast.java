@@ -75,7 +75,6 @@ public class DiscardCardActionFast extends AbstractGameAction {
             secondHalfOnly = true;
             int handSize;
             if (this.p.hand.size() <= this.amount) {
-
                 shouldSkipEverything = true;
 
                 this.amount = this.p.hand.size();

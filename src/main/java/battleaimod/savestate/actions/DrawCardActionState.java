@@ -1,7 +1,7 @@
 package battleaimod.savestate.actions;
 
-import battleaimod.fastobjects.actions.DrawCardActionFast;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
+import com.megacrit.cardcrawl.actions.common.DrawCardAction;
 
 public class DrawCardActionState implements ActionState {
     private final int amount;
@@ -12,7 +12,7 @@ public class DrawCardActionState implements ActionState {
 
     @Override
     public AbstractGameAction loadAction() {
-        DrawCardActionFast result = new DrawCardActionFast(amount);
+        DrawCardAction result = new DrawCardAction(amount);
         return result;
     }
 }

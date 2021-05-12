@@ -4,7 +4,6 @@ import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.ActionSimulator;
 import battleaimod.fastobjects.actions.DiscardCardActionFast;
-import battleaimod.fastobjects.actions.DrawCardActionFast;
 import battleaimod.fastobjects.actions.EmptyDeckShuffleActionFast;
 import battleaimod.fastobjects.actions.RollMoveActionFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -68,8 +67,6 @@ public class FastActionsPatch {
                                     AbstractMonster monster = ReflectionHacks
                                             .getPrivate(actionManager.currentAction, RollMoveAction.class, "monster");
                                     actionManager.currentAction = new RollMoveActionFast(monster);
-                                } else if (actionManager.currentAction instanceof DrawCardAction) {
-                                    actionManager.currentAction = new DrawCardActionFast((DrawCardAction) actionManager.currentAction);
                                 } else if (actionManager.currentAction instanceof SetAnimationAction) {
                                     actionManager.currentAction = null;
                                 } else if (actionManager.currentAction instanceof DiscardAction) {
