@@ -80,7 +80,7 @@ public class BattleAiController {
     public BattleAiController(SaveState state) {
         runTimes = new HashMap<>();
         targetTurn = 8;
-        targetTurnJump = 5;
+        targetTurnJump = 6;
 
         minDamage = 5000;
         bestEnd = null;
@@ -192,7 +192,8 @@ public class BattleAiController {
                 CardState.resetFreeCards();
             }
 
-            if ((turns.isEmpty() || turnsLoaded >= maxTurnLoads) && (curTurn == null || curTurn.isDone)) {
+            if ((turns
+                    .isEmpty() || turnsLoaded >= maxTurnLoads) && (curTurn == null || curTurn.isDone)) {
                 if (bestEnd != null) {
                     System.err.println("Found end at turn treshold, going into rerun");
 
@@ -209,9 +210,28 @@ public class BattleAiController {
                     System.err.println("Loading for turn load threshold, best turn: " + bestTurn);
                     turnsLoaded = 0;
                     turns.clear();
+
+                    int backStep = targetTurnJump / 2;
+
+                    TurnNode backStepTurn = bestTurn;
+                    for (int i = 0; i < backStep; i++) {
+                        if (backStepTurn == null) {
+                            break;
+                        }
+
+                        backStepTurn = backStepTurn.parent;
+                    }
+
+                    if (backStepTurn != null && (committedTurn == null || backStepTurn.startingState.saveState.turn > committedTurn.startingState.saveState.turn)) {
+                        bestTurn = backStepTurn;
+                    }
+
+                    System.err.println("Backstepping to turn: " + bestTurn);
+
+
                     TurnNode toAdd = makeResetCopy(bestTurn);
                     turns.add(toAdd);
-                    targetTurn += targetTurnJump;
+                    targetTurn = bestTurn.startingState.saveState.turn + targetTurnJump;
                     toAdd.startingState.saveState.loadState();
                     committedTurn = toAdd;
                     bestTurn = null;
@@ -220,7 +240,6 @@ public class BattleAiController {
                     // TODO this is here to prevent playback errors
                     bestEnd = null;
                     minDamage = 5000;
-
 
                     return;
                 } else if (backupTurn != null) {
