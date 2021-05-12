@@ -5,10 +5,7 @@ import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.actions.EmptyDeckShuffleActionFast;
 import battleaimod.savestate.CardState;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
-import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
-import com.evacipated.cardcrawl.modthespire.lib.SpirePrefixPatch;
-import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
+import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.*;
@@ -598,6 +595,30 @@ public class CardPatches {
                 return SpireReturn.Return(false);
             }
             return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(clz = DiscardAction.class, method = "update")
+    public static class DiscardFastPatch {
+        @SpirePostfixPatch
+        public static void setStuffAtEnd(DiscardAction action) {
+            if(shouldGoFast()) {
+                if (!AbstractDungeon.isScreenUp) {
+                    ReflectionHacks.setPrivate(action, AbstractGameAction.class, "duration", 0);
+                    action.isDone = true;
+                } else {
+                    action.isDone = false;
+                }
+            }
+        }
+    }
+
+    @SpirePatch(clz = DiscardAction.class, method = "update")
+    public static class DiscardFastPatch {
+        @SpirePostfixPatch
+        public static void setStuffAtEnd(DiscardAction action) {
+            ReflectionHacks.setPrivate(action, AbstractGameAction.class, "duration", 0);
+            action.isDone = true;
         }
     }
 }

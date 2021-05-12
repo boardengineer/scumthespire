@@ -3,7 +3,6 @@ package battleaimod.patches;
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.ActionSimulator;
-import battleaimod.fastobjects.actions.DiscardCardActionFast;
 import battleaimod.fastobjects.actions.EmptyDeckShuffleActionFast;
 import battleaimod.fastobjects.actions.RollMoveActionFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -11,7 +10,10 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
-import com.megacrit.cardcrawl.actions.common.*;
+import com.megacrit.cardcrawl.actions.common.EmptyDeckShuffleAction;
+import com.megacrit.cardcrawl.actions.common.GainBlockAction;
+import com.megacrit.cardcrawl.actions.common.RollMoveAction;
+import com.megacrit.cardcrawl.actions.common.ShowMoveNameAction;
 import com.megacrit.cardcrawl.actions.utility.SFXAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -69,8 +71,6 @@ public class FastActionsPatch {
                                     actionManager.currentAction = new RollMoveActionFast(monster);
                                 } else if (actionManager.currentAction instanceof SetAnimationAction) {
                                     actionManager.currentAction = null;
-                                } else if (actionManager.currentAction instanceof DiscardAction) {
-                                    actionManager.currentAction = new DiscardCardActionFast(actionManager.currentAction);
                                 } else if (actionManager.currentAction instanceof EmptyDeckShuffleAction) {
                                     actionManager.currentAction = new EmptyDeckShuffleActionFast();
                                 } else if (actionManager.currentAction instanceof ShowMoveNameAction) {

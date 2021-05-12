@@ -1,6 +1,6 @@
 package battleaimod.savestate.actions;
 
-import battleaimod.fastobjects.actions.DiscardCardActionFast;
+import basemod.ReflectionHacks;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.DiscardAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -8,20 +8,14 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 public class DiscardActionState implements CurrentActionState {
     private final int amount;
 
-    public DiscardActionState(AbstractGameAction action) {
-        this((DiscardCardActionFast) action);
-    }
-
-    public DiscardActionState(DiscardCardActionFast action) {
-        amount = action.amount;
-    }
-    
     public DiscardActionState(DiscardAction action) { amount = action.amount; }
 
     @Override
     public AbstractGameAction loadCurrentAction() {
-        DiscardCardActionFast result = new DiscardCardActionFast(AbstractDungeon.player, AbstractDungeon.player, amount, false);
-        result.secondHalfOnly = true;
+        DiscardAction result = new DiscardAction(AbstractDungeon.player, AbstractDungeon.player, amount, false);
+
+        ReflectionHacks.setPrivate(result, AbstractGameAction.class, "duration", 0);
+
         return result;
     }
 }

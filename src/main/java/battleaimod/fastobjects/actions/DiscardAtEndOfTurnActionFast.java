@@ -6,6 +6,7 @@
 package battleaimod.fastobjects.actions;
 
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
+import com.megacrit.cardcrawl.actions.common.DiscardAction;
 import com.megacrit.cardcrawl.actions.unique.RestoreRetainedCardsAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -31,7 +32,7 @@ public class DiscardAtEndOfTurnActionFast extends AbstractGameAction {
                             .hasPower("Equilibrium")) {
                         int tempSize = AbstractDungeon.player.hand.size();
                         for (int i = 0; i < tempSize; ++i) {
-                            this.addToTop(new DiscardCardActionFast(AbstractDungeon.player, null, AbstractDungeon.player.hand
+                            this.addToTop(new DiscardAction(AbstractDungeon.player, null, AbstractDungeon.player.hand
                                     .size(), true, true));
                         }
                     }
