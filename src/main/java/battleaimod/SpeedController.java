@@ -2,22 +2,10 @@ package battleaimod;
 
 import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
-import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.actions.IntentFlashAction;
-import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
-import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
-import com.megacrit.cardcrawl.actions.animations.VFXAction;
-import com.megacrit.cardcrawl.actions.common.ShowMoveNameAction;
-import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.vfx.*;
-import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
 import skrelpoid.superfastmode.SuperFastMode;
-
-import java.util.Iterator;
-import java.util.List;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
@@ -52,20 +40,10 @@ public class SpeedController implements PreUpdateSubscriber {
                     && (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT || AbstractDungeon.screen == AbstractDungeon.CurrentScreen.GRID))) {
                 return;
             }
-        } else {
-            try {
-//                AbstractDungeon.getCurrRoom().souls.
-//                if (SoulGroup.isActive()) {
-//                    return;
-//                }
-            } catch (Exception e) {
-            }
         }
 
         if (!shouldGoFast()) {
-            if (BattleAiController
-                    .shouldStep() || AbstractDungeon.actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS) {
-                BattleAiMod.readyForUpdate = false;
+            if (BattleAiController.shouldStep()) {
                 BattleAiMod.sendGameState();
             }
         }
@@ -79,63 +57,5 @@ public class SpeedController implements PreUpdateSubscriber {
         Settings.ACTION_DUR_MED = 0.005F;
         Settings.ACTION_DUR_LONG = .01F;
         Settings.ACTION_DUR_XLONG = .015F;
-
-        SuperFastMode.deltaMultiplier = 100000000.0F;
-        SuperFastMode.isInstantLerp = true;
-        SuperFastMode.isDeltaMultiplied = true;
-        Settings.DISABLE_EFFECTS = true;
-        Iterator<AbstractGameEffect> topLevelEffects = AbstractDungeon.topLevelEffects.iterator();
-        while (topLevelEffects.hasNext()) {
-            AbstractGameEffect effect = topLevelEffects.next();
-            effect.duration = Math.min(effect.duration, .005F);
-
-            if (effect instanceof EnemyTurnEffect || effect instanceof PlayerTurnEffect) {
-                effect.isDone = true;
-            }
-
-            if (effect instanceof CardTrailEffect) {
-                effect.dispose();
-                topLevelEffects.remove();
-            } else if (effect instanceof FastCardObtainEffect) {
-                // don't remove card obtain effects of they get skipped
-            } else {
-                effect.dispose();
-                topLevelEffects.remove();
-            }
-        }
-
-        Iterator<AbstractGameEffect> effectIterator = AbstractDungeon.effectList.iterator();
-        while (effectIterator.hasNext()) {
-            AbstractGameEffect effect = effectIterator.next();
-            if (!(effect instanceof FastCardObtainEffect || effect instanceof ShowCardAndAddToDiscardEffect)) {
-                effect.dispose();
-                effectIterator.remove();
-            }
-        }
-
-        clearActions(AbstractDungeon.actionManager.actions);
-        clearActions(AbstractDungeon.actionManager.preTurnActions);
-    }
-
-    private static void clearActions(List<AbstractGameAction> actions) {
-        for (int i = 0; i < actions.size(); i++) {
-            AbstractGameAction action = actions.get(i);
-            if (action instanceof WaitAction || action instanceof IntentFlashAction) {
-                actions.remove(i);
-                i--;
-            } else if (action instanceof AnimateSlowAttackAction) {
-                actions.remove(i);
-                i--;
-            } else if (action instanceof ShowMoveNameAction) {
-                actions.remove(i);
-                i--;
-            } else if (action instanceof SetAnimationAction) {
-                actions.remove(i);
-                i--;
-            } else if (action instanceof VFXAction) {
-                actions.remove(i);
-                i--;
-            }
-        }
     }
 }

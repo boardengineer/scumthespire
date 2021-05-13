@@ -28,8 +28,6 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -48,7 +46,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static AiClient aiClient = null;
     public static boolean shouldStartAiFromServer = false;
     public static BattleAiController battleAiController = null;
-    private static boolean canStep = false;
     public static SaveState saveState;
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
@@ -71,13 +68,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         ModSelectWindow window = ReflectionHacks.getPrivateStatic(Loader.class, "ex");
         window.removeAll();
 
-//        Settings.ACTION_DUR_XFAST = 0.01F;
-//        Settings.ACTION_DUR_FASTER = 0.02F;
-//        Settings.ACTION_DUR_FAST = 0.025F;
-//        Settings.ACTION_DUR_MED = 0.05F;
-//        Settings.ACTION_DUR_LONG = .10F;
-//        Settings.ACTION_DUR_XLONG = .15F;
-
         CardCrawlGame.screenShake = new ScreenShakeFast();
     }
 
@@ -87,13 +77,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             battleAiController = new BattleAiController(saveState);
         }
         if (battleAiController != null && BattleAiController.shouldStep()) {
-//                if (canStep) {
-            if (canStep || true) {
-//                if (canStep || !battleAiController.runCommandMode) {
-                canStep = false;
-
-                battleAiController.step();
-            }
+            battleAiController.step();
 
             if (battleAiController.isDone) {
                 battleAiController = null;
@@ -132,32 +116,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         }
     }
 
-    private static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {
-        int originaHeight = originalImage.getHeight();
-        int originalWidth = originalImage.getWidth();
-
-        double originalRatio = (double) originaHeight / (double) originalWidth;
-        double targetRatio = (double) targetHeight / (double) targetWidth;
-
-        int actualWidth;
-        int actualHeight;
-
-        if (originalRatio > targetRatio) {
-            // match height
-            actualHeight = Math.min(targetHeight, originaHeight);
-            actualWidth = (int) (actualHeight / originalRatio);
-        } else {
-            actualWidth = Math.min(targetWidth, originalWidth);
-            actualHeight = (int) (actualWidth * originalRatio);
-        }
-
-        BufferedImage resizedImage = new BufferedImage(actualWidth, actualHeight, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics2D = resizedImage.createGraphics();
-        graphics2D.drawImage(originalImage, 0, 0, actualWidth, actualHeight, null);
-        graphics2D.dispose();
-        return resizedImage;
-    }
-
     public void receivePostInitialize() {
         String isServerFlag = System.getProperty("isServer");
 
@@ -181,9 +139,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     }
 
     public void receivePostUpdate() {
-        if (++BattleAiMod.logCounter % 300 == 0) {
-//            System.err.println(BattleAiMod.logCounter);
-        }
         if (steveMessage != null) {
             String messageToDisplay = " Processing... NL " + steveMessage;
             steveMessage = null;
@@ -270,21 +225,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             if (saveState != null) {
                 saveState.loadState();
             }
-        }
-    }
-
-    public class StepTopPanel extends TopPanelItem {
-        public static final String ID = "yourmodname:Step";
-
-        public StepTopPanel() {
-            super(new Texture("Icon.png"), ID);
-        }
-
-        @Override
-        protected void onClick() {
-            canStep = true;
-            readyForUpdate = true;
-            receivePostUpdate();
         }
     }
 

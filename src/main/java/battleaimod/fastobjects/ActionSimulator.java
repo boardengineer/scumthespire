@@ -5,6 +5,7 @@ import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.ClearCardQueueAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.*;
+import com.megacrit.cardcrawl.actions.defect.TriggerEndOfTurnOrbsAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardQueueItem;
@@ -30,10 +31,10 @@ import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 public class ActionSimulator {
     public static void callEndOfTurnActions() {
         long localManagerCallEOT = System.currentTimeMillis();
-
+        TriggerEndOfTurnOrbsAction d;
         AbstractDungeon.getCurrRoom().applyEndOfTurnRelics();
         AbstractDungeon.getCurrRoom().applyEndOfTurnPreCardPowers();
-//        actionManager.addToBottom(new TriggerEndOfTurnOrbsAction());
+
         Iterator var1 = AbstractDungeon.player.hand.group.iterator();
 
         while (var1.hasNext()) {
@@ -249,7 +250,6 @@ public class ActionSimulator {
             BattleAiMod.battleAiController.addRuntime("Local Manager Update", System
                     .currentTimeMillis() - localManagerUpdateStart);
         }
-
     }
 
     public static void roomUpdate() {

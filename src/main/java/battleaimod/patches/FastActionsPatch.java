@@ -1,24 +1,15 @@
 package battleaimod.patches;
 
-import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.ActionSimulator;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
-import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
-import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
-import com.megacrit.cardcrawl.actions.common.GainBlockAction;
 import com.megacrit.cardcrawl.actions.common.ShowMoveNameAction;
 import com.megacrit.cardcrawl.actions.utility.SFXAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.helpers.File;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
-import com.megacrit.cardcrawl.saveAndContinue.SaveAndContinue;
-import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
-
-import java.util.HashMap;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
@@ -31,8 +22,6 @@ public class FastActionsPatch {
     )
     public static class ForceGameActionsPatch {
         public static void Postfix(AbstractDungeon dungeon) {
-            long updateStartTime = System.currentTimeMillis();
-            boolean firstIteration = true;
             GameActionManager actionManager = AbstractDungeon.actionManager;
             if (shouldGoFast()) {
                 if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
@@ -40,16 +29,6 @@ public class FastActionsPatch {
 
                     while (shouldWaitOnActions() || shouldStepAiController()) {
                         long startTime = System.currentTimeMillis();
-
-                        if (firstIteration) {
-                            firstIteration = false;
-                            System.err
-                                    .println("first iteration loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
-                                            .size() + " " + actionManager.actions.size()
-                                            + " " + AbstractDungeon.topLevelEffects
-                                            .size() + " " + AbstractDungeon.effectsQueue
-                                            .size() + " " + actionManager.monsterQueue.size());
-                        }
 
                         AbstractDungeon.topLevelEffects.clear();
                         AbstractDungeon.effectList.clear();
@@ -69,45 +48,25 @@ public class FastActionsPatch {
                                 } else if (actionManager.currentAction instanceof SFXAction) {
                                     actionManager.currentAction = null;
                                 }
-                                if (actionManager.currentAction != null) {
-                                    long actionStartTime = System.currentTimeMillis();
-                                    Class actionClass = actionManager.currentAction.getClass();
 
-                                    if (!actionManager.currentAction.isDone && !AbstractDungeon.isScreenUp) {
+                                if (actionManager.currentAction != null) {
+                                    if (!actionManager.currentAction.isDone) {
                                         actionManager.currentAction.update();
-                                    }
-                                    if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.actionClassTimes != null) {
-                                        long timeThisAction = (System
-                                                .currentTimeMillis() - actionStartTime);
-                                        BattleAiMod.battleAiController
-                                                .addRuntime("Actions", timeThisAction);
-                                        HashMap<Class, Long> actionClassTimes = BattleAiMod.battleAiController.actionClassTimes;
-                                        if (actionClassTimes != null) {
-                                            if (actionClassTimes.containsKey(actionClass)) {
-                                                actionClassTimes.put(actionClass, actionClassTimes
-                                                        .get(actionClass) + timeThisAction);
-                                            } else {
-                                                actionClassTimes.put(actionClass, timeThisAction);
-                                            }
-                                        }
                                     }
                                 }
 
-                                if (actionManager.currentAction != null && actionManager.currentAction.isDone && !AbstractDungeon.isScreenUp) {
+                                if (actionManager.currentAction != null &&
+                                        actionManager.currentAction.isDone && !AbstractDungeon.isScreenUp) {
                                     actionManager.currentAction = null;
                                 }
 
-                                runAndProfile("Action Manager Loop", () -> {
-                                    if (!AbstractDungeon.isScreenUp) {
-                                        ActionSimulator.ActionManageUpdate();
-                                    }
-                                });
+                                if (!AbstractDungeon.isScreenUp) {
+                                    ActionSimulator.ActionManageUpdate();
+                                }
+
                             }
                         } else if (shouldStepAiController()) {
-                            runAndProfile("Battle AI Step", () -> {
-                                BattleAiMod.readyForUpdate = false;
-                                BattleAiMod.battleAiController.step();
-                            });
+                            BattleAiMod.battleAiController.step();
                         }
 
                         runAndProfile("Room Update", () -> {
@@ -120,19 +79,9 @@ public class FastActionsPatch {
                             BattleAiMod.battleAiController.addRuntime("Update Loop Total", System
                                     .currentTimeMillis() - startTime);
                         }
-
-                        if (actionManager.phase == GameActionManager.Phase.WAITING_ON_USER && actionManager.currentAction == null) {
-                            BattleAiMod.readyForUpdate = true;
-                        }
                     }
 
-                    System.err
-                            .println("exiting loop " + actionManager.currentAction + " " + actionManager.phase + " " + AbstractDungeon.effectList
-                                    .size() + " " + actionManager.actions.size()
-                                    + " " + AbstractDungeon.actionManager.preTurnActions
-                                    .size() + " " + AbstractDungeon
-                                    .getCurrRoom().waitTimer + " " + AbstractDungeon.effectsQueue
-                                    .size() + " " + actionManager.monsterQueue.size());
+                    System.err.println("exiting loop ");
                     if (actionManager.currentAction == null && !AbstractDungeon.isScreenUp) {
                         ActionSimulator.ActionManagerNextAction();
                         AbstractDungeon
@@ -140,84 +89,6 @@ public class FastActionsPatch {
                     }
 
                 }
-            }
-        }
-    }
-
-    @SpirePatch(
-            clz = AbstractRoom.class,
-            paramtypez = {},
-            method = "endBattle"
-    )
-    public static class EndBattlePatch {
-        public static void Postfix(AbstractRoom _instance) {
-            if (shouldGoFast()) {
-                BattleAiMod.readyForUpdate = true;
-            }
-        }
-    }
-
-    @SpirePatch(
-            clz = SaveFile.class,
-            paramtypez = {SaveFile.SaveType.class},
-            method = SpirePatch.CONSTRUCTOR
-    )
-    public static class NoMakeSavePatch {
-        public static SpireReturn Prefix(SaveFile _instance, SaveFile.SaveType type) {
-            if (shouldGoFast()) {
-                return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = SaveAndContinue.class,
-            paramtypez = {SaveFile.class},
-            method = "save"
-    )
-    public static class NoSavingPatch {
-        public static SpireReturn Prefix(SaveFile save) {
-            if (shouldGoFast()) {
-                return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = File.class,
-            paramtypez = {},
-            method = "save"
-    )
-    public static class NoSavingOnOtherThreadPatch {
-        public static SpireReturn Prefix(File _instance) {
-            if (shouldGoFast()) {
-                return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = GainBlockAction.class,
-            paramtypez = {},
-            method = "update"
-    )
-    public static class GainBlockActionFastPatch {
-        public static void Prefix(GainBlockAction _instance) {
-            if (shouldGoFast()) {
-                ReflectionHacks
-                        .setPrivate(_instance, AbstractGameAction.class, "duration", .001F);
-
-                ReflectionHacks
-                        .setPrivate(_instance, AbstractGameAction.class, "startDuration", .001F);
-            }
-        }
-
-        public static void Postfix(GainBlockAction _instance) {
-            if (shouldGoFast()) {
-                _instance.isDone = true;
             }
         }
     }
