@@ -9,8 +9,6 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,8 +50,6 @@ public class BattleAiController {
     public TurnNode curTurn;
 
     public int turnsLoaded = 0;
-    private final int totalSteps = 0;
-    public TurnNode furthestSoFar = null;
 
     boolean isComplete = true;
     boolean wouldComplete = true;
@@ -145,7 +141,6 @@ public class BattleAiController {
     }
 
     public static boolean isInDungeon() {
-
         return CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY && AbstractDungeon
                 .isPlayerInDungeon() && AbstractDungeon.currMapNode != null;
     }
@@ -387,10 +382,10 @@ public class BattleAiController {
         }
     }
 
-    private TurnNode makeResetCopy(TurnNode node) {
-        StateNode stateNode = new StateNode(node.startingState.parent, node.startingState.lastCommand, this);
+    private static TurnNode makeResetCopy(TurnNode node) {
+        StateNode stateNode = new StateNode(node.startingState.parent, node.startingState.lastCommand, node.controller);
         stateNode.saveState = node.startingState.saveState;
-        return new TurnNode(stateNode, this, node.parent);
+        return new TurnNode(stateNode, node.controller, node.parent);
     }
 
     public static List<Command> commandsToGetToNode(StateNode endNode) {
@@ -404,66 +399,12 @@ public class BattleAiController {
         return commands;
     }
 
-    private void showTree() {
-        try {
-            FileWriter writer = new FileWriter("out.dot");
-
-            writer.write("digraph battleTurns {\n");
-            TurnNode start = rootTurn;
-            LinkedList<TurnNode> bfs = new LinkedList<>();
-            bfs.add(start);
-            while (!bfs.isEmpty()) {
-                TurnNode node = bfs.pollFirst();
-
-                int playerDamage = TurnNode.getPlayerDamage(node);
-                int monsterHealth = TurnNode.getTotalMonsterHealth(node);
-
-                String nodeLabel = String
-                        .format("player damage:%d monster health:%d", playerDamage, monsterHealth);
-
-                writer.write(String.format("%s [label=\"%s\"]\n", node.turnLabel, nodeLabel));
-                node.children.forEach(child -> {
-                    try {
-                        ArrayList<Command> commands = new ArrayList<>();
-                        StateNode iterator = child.startingState;
-                        while (iterator != node.startingState) {
-                            commands.add(0, iterator.lastCommand);
-                            iterator = iterator.parent;
-                        }
-                        writer.write(String
-                                .format("%s->%s [label=\"%s\"]\n", node.turnLabel, child.turnLabel, commands));
-                    } catch (IOException e) {
-                        System.err.println("writing failed");
-                        e.printStackTrace();
-                    }
-                    bfs.add(child);
-                });
-            }
-
-            writer.write("}\n");
-            writer.close();
-
-        } catch (IOException e) {
-            System.err.println("file writing failed");
-            e.printStackTrace();
-        }
-    }
-
     public void printRuntimeStats() {
-        System.err
-                .printf("Total runtime: %d\taction time: %d\tstep time: %d\tupdate time:%d load time:%d\tplayer load:%d\troom load:%d\n", System
-                        .currentTimeMillis() - controllerStartTime, actionTime, stepTime, updateTime, loadstateTime, playerLoadTime, roomLoadTime);
-        System.err.println(actionClassTimes.entrySet().stream()
-                                           .filter(entry -> entry.getValue() > 100)
-                                           .sorted((e1, e2) -> (int) (e2.getValue() - e1
-                                                   .getValue()))
-                                           .map(entry -> String
-                                                   .format("%s = %s", entry.getKey()
-                                                                           .getSimpleName(), entry
-                                                           .getValue()))
-                                           .collect(Collectors.joining("\n")));
         System.err.println("-------------------------------------------------------------------");
-        System.err.println(runTimes.entrySet().stream().map(entry -> entry.toString()).sorted()
+        System.err.println(runTimes.entrySet()
+                                   .stream()
+                                   .map(entry -> entry.toString())
+                                   .sorted()
                                    .collect(Collectors.joining("\n")));
         System.err.println("-------------------------------------------------------------------");
     }

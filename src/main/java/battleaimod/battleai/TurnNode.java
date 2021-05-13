@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.Stack;
 
 public class TurnNode implements Comparable<TurnNode> {
-    private final BattleAiController controller;
+    public final BattleAiController controller;
     public final int turnLabel;
     public Stack<StateNode> states;
     public boolean runningCommands = false;

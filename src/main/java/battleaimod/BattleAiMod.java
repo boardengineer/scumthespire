@@ -76,7 +76,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             shouldStartAiFromServer = false;
             battleAiController = new BattleAiController(saveState);
         }
-        if (battleAiController != null && BattleAiController.shouldStep()) {
+        if (battleAiController != null) {
             battleAiController.step();
 
             if (battleAiController.isDone) {

@@ -10,8 +10,6 @@ import skrelpoid.superfastmode.SuperFastMode;
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
 
 public class SpeedController implements PreUpdateSubscriber {
-    public static boolean goFast = false;
-
     @Override
     public void receivePreUpdate() {
         if (shouldGoFast()) {
