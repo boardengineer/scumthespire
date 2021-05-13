@@ -17,6 +17,8 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
+// The normal UserCardAction does a bunch of triggering during the constructor, this dupe
+// bypasses the triggering constructor logic and only performs the action
 public class UpdateOnlyUseCardAction extends AbstractGameAction {
     private final AbstractCard targetCard;
     public AbstractCreature target;

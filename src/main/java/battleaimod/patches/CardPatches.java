@@ -2,7 +2,6 @@ package battleaimod.patches;
 
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
-import battleaimod.fastobjects.actions.EmptyDeckShuffleActionFast;
 import battleaimod.savestate.CardState;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.*;
@@ -468,7 +467,7 @@ public class CardPatches {
 
                     AbstractDungeon.actionManager
                             .addToTop(new PlayTopCardAction(_instance.target, exhaustCards));
-                    AbstractDungeon.actionManager.addToTop(new EmptyDeckShuffleActionFast());
+                    AbstractDungeon.actionManager.addToTop(new EmptyDeckShuffleAction());
                     _instance.isDone = true;
                     return SpireReturn.Return(null);
                 }
@@ -587,6 +586,65 @@ public class CardPatches {
         }
     }
 
+    @SpirePatch(clz = SoulGroup.class, method = "discard", paramtypez = {AbstractCard.class, boolean.class})
+    public static class NoSoulDiscardPatch {
+        @SpirePrefixPatch
+        public static SpireReturn alwaysFalse(SoulGroup soulGroup, AbstractCard card, boolean visualOnly) {
+            if (shouldGoFast()) {
+                if (!visualOnly) {
+                    AbstractDungeon.player.discardPile.addToTop(card);
+                }
+
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(clz = SoulGroup.class, method = "obtain", paramtypez = {AbstractCard.class, boolean.class})
+    public static class NoSoulObtainPatch {
+        @SpirePrefixPatch
+        public static SpireReturn alwaysFalse(SoulGroup soulGroup, AbstractCard card, boolean obtainCard) {
+            if (shouldGoFast()) {
+                if (obtainCard) {
+                    AbstractDungeon.player.masterDeck.addToTop(card);
+                }
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(clz = SoulGroup.class, method = "shuffle", paramtypez = {AbstractCard.class, boolean.class})
+    public static class NoSoulshufflePatch {
+        @SpirePrefixPatch
+        public static SpireReturn alwaysFalse(SoulGroup soulGroup, AbstractCard card, boolean isInvisible) {
+            if (shouldGoFast()) {
+                AbstractDungeon.player.drawPile.addToTop(card);
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(clz = SoulGroup.class, method = "onToDeck", paramtypez = {AbstractCard.class, boolean.class, boolean.class})
+    public static class NoSoulOnToDeckPatch {
+        @SpirePrefixPatch
+        public static SpireReturn alwaysFalse(SoulGroup soulGroup, AbstractCard card, boolean randomSpot, boolean visualOnly) {
+            if (shouldGoFast()) {
+                if (!visualOnly) {
+                    if (randomSpot) {
+                        AbstractDungeon.player.drawPile.addToRandomSpot(card);
+                    } else {
+                        AbstractDungeon.player.drawPile.addToTop(card);
+                    }
+                }
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
     @SpirePatch(clz = SoulGroup.class, method = "isActive")
     public static class SoulsNeverActivePatch {
         @SpirePrefixPatch
@@ -602,7 +660,7 @@ public class CardPatches {
     public static class DiscardFastPatch {
         @SpirePostfixPatch
         public static void setStuffAtEnd(DiscardAction action) {
-            if(shouldGoFast()) {
+            if (shouldGoFast()) {
                 if (!AbstractDungeon.isScreenUp) {
                     ReflectionHacks.setPrivate(action, AbstractGameAction.class, "duration", 0);
                     action.isDone = true;

@@ -2,17 +2,12 @@ package battleaimod;
 
 import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
-import battleaimod.fastobjects.actions.DiscardAtEndOfTurnActionFast;
-import battleaimod.fastobjects.actions.EmptyDeckShuffleActionFast;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.IntentFlashAction;
 import com.megacrit.cardcrawl.actions.animations.AnimateSlowAttackAction;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.animations.VFXAction;
-import com.megacrit.cardcrawl.actions.common.DiscardAtEndOfTurnAction;
-import com.megacrit.cardcrawl.actions.common.EmptyDeckShuffleAction;
-import com.megacrit.cardcrawl.actions.common.GainBlockAction;
 import com.megacrit.cardcrawl.actions.common.ShowMoveNameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.core.Settings;
@@ -31,8 +26,6 @@ public class SpeedController implements PreUpdateSubscriber {
 
     @Override
     public void receivePreUpdate() {
-        clearSomeActions(AbstractDungeon.actionManager.actions);
-        clearSomeActions(AbstractDungeon.actionManager.preTurnActions);
         if (shouldGoFast()) {
             makeGameVeryFast();
         } else {
@@ -130,12 +123,6 @@ public class SpeedController implements PreUpdateSubscriber {
             if (action instanceof WaitAction || action instanceof IntentFlashAction) {
                 actions.remove(i);
                 i--;
-            } else if (action instanceof EmptyDeckShuffleAction) {
-                actions.remove(i);
-                actions.add(i, new EmptyDeckShuffleActionFast());
-            } else if (action instanceof DiscardAtEndOfTurnAction) {
-                actions.remove(i);
-                actions.add(i, new DiscardAtEndOfTurnActionFast());
             } else if (action instanceof AnimateSlowAttackAction) {
                 actions.remove(i);
                 i--;
@@ -148,22 +135,6 @@ public class SpeedController implements PreUpdateSubscriber {
             } else if (action instanceof VFXAction) {
                 actions.remove(i);
                 i--;
-            } else if (action instanceof GainBlockAction) {
-//                actions.remove(i);
-//                i--;
-            }
-        }
-    }
-
-    private void clearSomeActions(List<AbstractGameAction> actions) {
-        for (int i = 0; i < actions.size(); i++) {
-            AbstractGameAction action = actions.get(i);
-            if (action instanceof EmptyDeckShuffleAction) {
-                actions.remove(i);
-                actions.add(i, new EmptyDeckShuffleActionFast());
-            } else if (action instanceof DiscardAtEndOfTurnAction) {
-                actions.remove(i);
-                actions.add(i, new DiscardAtEndOfTurnActionFast());
             }
         }
     }
