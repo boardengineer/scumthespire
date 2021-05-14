@@ -1,6 +1,5 @@
 package battleaimod.battleai.commands;
 
-import battleaimod.BattleAiMod;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
@@ -63,8 +62,6 @@ public class CardCommand implements Command {
         } else {
             AbstractDungeon.actionManager.phase = GameActionManager.Phase.EXECUTING_ACTIONS;
         }
-
-        BattleAiMod.readyForUpdate = true;
     }
 
     @Override

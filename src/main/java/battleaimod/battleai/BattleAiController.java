@@ -1,6 +1,5 @@
 package battleaimod.battleai;
 
-import battleaimod.BattleAiMod;
 import battleaimod.battleai.commands.Command;
 import battleaimod.patches.FastActionsPatch;
 import battleaimod.savestate.CardState;
@@ -359,7 +358,6 @@ public class BattleAiController {
                 root = null;
                 minDamage = 5000;
                 bestEnd = null;
-                BattleAiMod.readyForUpdate = true;
 
                 if (isComplete) {
                     isDone = true;

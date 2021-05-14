@@ -1,6 +1,5 @@
 package battleaimod.patches;
 
-import battleaimod.BattleAiMod;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
@@ -48,7 +47,6 @@ public class ScreenPatches {
     public static class DisableDeathScreenpatch {
         public static SpireReturn Prefix(DeathScreen _instance, MonsterGroup monsterGroup) {
             if (shouldGoFast()) {
-                BattleAiMod.readyForUpdate = true;
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

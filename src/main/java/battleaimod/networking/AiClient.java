@@ -86,7 +86,6 @@ public class AiClient {
 
                             if (BattleAiMod.battleAiController == null) {
                                 BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, true);
-                                BattleAiMod.readyForUpdate = true;
                                 BattleAiMod.forceStep = true;
                             } else {
                                 BattleAiMod.battleAiController
@@ -106,7 +105,6 @@ public class AiClient {
 
                                 if (BattleAiMod.battleAiController == null) {
                                     BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, false);
-                                    BattleAiMod.readyForUpdate = true;
                                     BattleAiMod.forceStep = true;
                                 } else {
                                     BattleAiMod.battleAiController

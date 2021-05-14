@@ -1,6 +1,5 @@
 package battleaimod.battleai.commands;
 
-import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.ActionSimulator;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -54,8 +53,6 @@ public class PotionCommand implements Command {
         } else {
             ActionSimulator.ActionManageUpdate();
         }
-
-        BattleAiMod.readyForUpdate = true;
     }
 
     @Override

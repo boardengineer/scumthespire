@@ -1,7 +1,6 @@
 package battleaimod.savestate;
 
 import battleaimod.BattleAiMod;
-import battleaimod.GameStateListener;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.savestate.selectscreen.GridCardSelectScreenState;
 import battleaimod.savestate.selectscreen.HandSelectScreenState;
@@ -14,7 +13,6 @@ import com.megacrit.cardcrawl.cards.CardQueueItem;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
 import java.util.ArrayList;
 
@@ -37,9 +35,7 @@ public class SaveState {
     // Load cards from scratch if necessary, ideally they'll be released elsewhere
     private final ArrayList<CardState> cardsPlayedThisTurnBackup;
 
-    AbstractRoom.RoomPhase previousPhase = null;
     AbstractDungeon.CurrentScreen screen;
-    AbstractDungeon.CurrentScreen previousScreen = null;
 
     ListState listState;
     public PlayerState playerState;
@@ -89,11 +85,7 @@ public class SaveState {
         floorNum = AbstractDungeon.floorNum;
 
         this.turn = GameActionManager.turn;
-        previousScreen = GameStateListener.previousScreen;
-        previousScreenUp = GameStateListener.previousScreenUp;
         this.isScreenUp = AbstractDungeon.isScreenUp;
-        previousPhase = GameStateListener.previousPhase;
-        myTurn = GameStateListener.myTurn;
         encounterName = BattleAiController.currentEncounter;
         this.ascensionLevel = AbstractDungeon.ascensionLevel;
         this.totalDiscardedThisTurn = GameActionManager.totalDiscardedThisTurn;
@@ -153,13 +145,8 @@ public class SaveState {
         this.myTurn = parsed.get("my_turn").getAsBoolean();
         this.turn = parsed.get("turn").getAsInt();
 
-        this.previousPhase = AbstractRoom.RoomPhase
-                .valueOf(parsed.get("previous_phase_name").getAsString());
-
         this.screen = AbstractDungeon.CurrentScreen
                 .valueOf(parsed.get("screen_name").getAsString());
-        this.previousScreen = AbstractDungeon.CurrentScreen
-                .valueOf(parsed.get("previous_screen_name").getAsString());
         this.encounterName = parsed.get("encounter_name").isJsonNull() ? null : parsed
                 .get("encounter_name").getAsString();
 
@@ -225,13 +212,6 @@ public class SaveState {
 
         AbstractDungeon.floorNum = floorNum;
 
-        BattleAiMod.readyForUpdate = true;
-
-        GameStateListener.previousScreen = previousScreen;
-        GameStateListener.previousScreenUp = previousScreenUp;
-        GameStateListener.previousPhase = previousPhase;
-        GameStateListener.myTurn = myTurn;
-        GameStateListener.externalChange = true;
         GameActionManager.totalDiscardedThisTurn = totalDiscardedThisTurn;
 
         if (BattleAiMod.battleAiController != null) {
@@ -326,9 +306,7 @@ public class SaveState {
         saveStateJson.addProperty("my_turn", myTurn);
         saveStateJson.addProperty("turn", turn);
 
-        saveStateJson.addProperty("previous_phase_name", previousPhase.name());
         saveStateJson.addProperty("screen_name", screen.name());
-        saveStateJson.addProperty("previous_screen_name", previousScreen.name());
 
         saveStateJson.addProperty("list_state", listState.encode());
         saveStateJson.addProperty("player_state", playerState.encode());

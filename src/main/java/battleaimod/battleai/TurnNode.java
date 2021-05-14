@@ -1,12 +1,11 @@
 package battleaimod.battleai;
 
-import battleaimod.BattleAiMod;
 import battleaimod.battleai.commands.Command;
 import battleaimod.battleai.commands.EndCommand;
 import battleaimod.battleai.commands.StateDebugInfo;
 import battleaimod.savestate.PotionState;
-import battleaimod.savestate.powers.PowerState;
 import battleaimod.savestate.SaveState;
+import battleaimod.savestate.powers.PowerState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +56,6 @@ public class TurnNode implements Comparable<TurnNode> {
         }
 
         if (states.isEmpty()) {
-            BattleAiMod.readyForUpdate = true;
             isDone = true;
             return true;
         }
@@ -136,7 +134,6 @@ public class TurnNode implements Comparable<TurnNode> {
 
             turnIndex++;
 
-            BattleAiMod.readyForUpdate = true;
             controller.addRuntime("Battle AI TurnStep early Return Total", System
                     .currentTimeMillis() - stepStart);
 
@@ -163,7 +160,6 @@ public class TurnNode implements Comparable<TurnNode> {
                 if (!states.isEmpty()) {
                     states.peek().saveState.loadState();
                 }
-                BattleAiMod.readyForUpdate = true;
             } else {
 //                System.err.println("adding node for " + toExecute);
                 StateNode toAdd = new StateNode(curState, toExecute, controller);

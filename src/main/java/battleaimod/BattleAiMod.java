@@ -20,7 +20,6 @@ import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
-import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
@@ -34,13 +33,11 @@ import java.util.HashMap;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 @SpireInitializer
-public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, PostDungeonUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber {
+public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber {
     public final static long MESSAGE_TIME_MILLIS = 1500L;
 
     public static String steveMessage = null;
 
-    public static boolean mustSendGameState = false;
-    public static boolean readyForUpdate;
     public static boolean forceStep = false;
     public static AiServer aiServer = null;
     public static AiClient aiClient = null;
@@ -49,7 +46,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static SaveState saveState;
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
-    public static long logCounter = 0;
     public static boolean isServer;
 
     public static HashMap<String, Monster> monsterByIdmap;
@@ -150,23 +146,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
             battleAiController = new BattleAiController(saveState);
-            readyForUpdate = true;
-        }
-        if (!mustSendGameState && GameStateListener.checkForMenuStateChange()) {
-            mustSendGameState = true;
-        }
-    }
-
-    public void receivePostDungeonUpdate() {
-        if (GameStateListener.checkForDungeonStateChange()) {
-            mustSendGameState = true;
-            if (AbstractDungeon.actionManager != null && AbstractDungeon.actionManager.phase == GameActionManager.Phase.WAITING_ON_USER) {
-                readyForUpdate = true;
-            }
-
-        }
-        if (AbstractDungeon.getCurrRoom().isBattleOver) {
-            GameStateListener.signalTurnEnd();
         }
     }
 
@@ -192,8 +171,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         protected void onClick() {
             System.out.println("you clicked on save");
             saveState = new SaveState();
-
-            readyForUpdate = true;
         }
     }
 
@@ -219,7 +196,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         @Override
         protected void onClick() {
-            readyForUpdate = true;
             receivePostUpdate();
 
             if (saveState != null) {

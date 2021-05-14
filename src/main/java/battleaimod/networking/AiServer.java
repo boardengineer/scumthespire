@@ -39,7 +39,6 @@ public class AiServer {
                         BattleAiMod.saveState = new SaveState(in.readUTF());
 
                         BattleAiMod.shouldStartAiFromServer = true;
-                        BattleAiMod.readyForUpdate = true;
                         BattleAiMod.goFast = true;
 
                         // let the AI start before sending out requests
