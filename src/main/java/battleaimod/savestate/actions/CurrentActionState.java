@@ -1,6 +1,6 @@
 package battleaimod.savestate.actions;
 
-import battleaimod.BattleAiMod;
+import battleaimod.savestate.StateFactories;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
@@ -10,9 +10,9 @@ public interface CurrentActionState {
     AbstractGameAction loadCurrentAction();
 
     static CurrentActionState getCurrentActionState() {
-        if (BattleAiMod.currentActionByClassMap
+        if (StateFactories.currentActionByClassMap
                 .containsKey(actionManager.currentAction.getClass())) {
-            return BattleAiMod.currentActionByClassMap
+            return StateFactories.currentActionByClassMap
                     .get(actionManager.currentAction.getClass()).factory
                     .apply(actionManager.currentAction);
         } else {

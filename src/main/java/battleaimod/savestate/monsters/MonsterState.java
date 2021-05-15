@@ -1,10 +1,7 @@
 package battleaimod.savestate.monsters;
 
 import basemod.ReflectionHacks;
-import battleaimod.savestate.CreatureState;
-import battleaimod.savestate.DamageInfoState;
-import battleaimod.savestate.EnemyMoveInfoState;
-import battleaimod.savestate.HitboxState;
+import battleaimod.savestate.*;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.core.AbstractCreature;
@@ -13,10 +10,6 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.ModHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
-import com.megacrit.cardcrawl.monsters.beyond.Darkling;
-import com.megacrit.cardcrawl.monsters.beyond.OrbWalker;
-import com.megacrit.cardcrawl.monsters.city.*;
-import com.megacrit.cardcrawl.monsters.exordium.*;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -125,13 +118,7 @@ public abstract class MonsterState extends CreatureState {
         offsetY = (drawY - AbstractDungeon.floorY) / Settings.yScale;
     }
 
-    public AbstractMonster loadMonster() {
-        AbstractMonster monster = getMonsterFromId();
-
-        populateSharedFields(monster);
-
-        return monster;
-    }
+    public abstract AbstractMonster loadMonster();
 
     public void populateSharedFields(AbstractMonster monster) {
         super.loadCreature(monster);
@@ -180,123 +167,6 @@ public abstract class MonsterState extends CreatureState {
         }
     }
 
-    private AbstractMonster getMonsterFromId() {
-        System.err.println("this is still happening, why?");
-        float offsetX = (drawX - (float) Settings.WIDTH * 0.75F) / Settings.xScale;
-        float offsetY = (drawY - AbstractDungeon.floorY) / Settings.yScale;
-
-        AbstractMonster monster = null;
-        if (id.equals("AcidSlime_L")) {
-            monster = new AcidSlime_L(offsetX, offsetY);
-        } else if (id.equals("AcidSlime_M")) {
-            monster = new AcidSlime_M(offsetX, offsetY);
-        } else if (id.equals("AcidSlime_S")) {
-            monster = new AcidSlime_S(offsetX, offsetY, 0);
-        } else if (id.equals("Apology Slime")) {
-            monster = new ApologySlime();
-        } else if (id.equals("Cultist")) {
-            monster = new Cultist(offsetX, offsetY, false);
-        } else if (id.equals("FungiBeast")) {
-            monster = new FungiBeast(offsetX, offsetY);
-        } else if (id.equals("GremlinFat")) {
-            monster = new GremlinFat(offsetX, offsetY);
-        } else if (id.equals("GremlinNob")) {
-            monster = new GremlinNob(offsetX, offsetY);
-        } else if (id.equals("GremlinThief")) {
-            monster = new GremlinThief(offsetX, offsetY);
-        } else if (id.equals("GremlinTsundere")) {
-            monster = new GremlinTsundere(offsetX, offsetY);
-        } else if (id.equals("GremlinWarrior")) {
-            monster = new GremlinWarrior(offsetX, offsetY);
-        } else if (id.equals("GremlinWizard")) {
-            monster = new GremlinWizard(offsetX, offsetY);
-        } else if (id.equals("Hexaghost")) {
-            monster = new Hexaghost();
-        } else if (id.equals("JawWorm")) {
-            try {
-                monster = new JawWorm(offsetX, offsetY);
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-        } else if (id.equals("Lagavulin")) {
-            monster = new Lagavulin(true);
-        } else if (id.equals("Looter")) {
-            monster = new Looter(offsetX, offsetY);
-        } else if (id.equals("FuzzyLouseDefensive")) {
-            monster = new LouseDefensive(offsetX, offsetY);
-        } else if (id.equals("FuzzyLouseNormal")) {
-            monster = new LouseNormal(offsetX, offsetY);
-        } else if (id.equals("Sentry")) {
-            monster = new Sentry(offsetX, offsetY);
-        } else if (id.equals("SlaverBlue")) {
-            monster = new SlaverBlue(offsetX, offsetY);
-        } else if (id.equals("SlaverRed")) {
-            monster = new SlaverRed(offsetX, offsetY);
-        } else if (id.equals("SlimeBoss")) {
-            monster = new SlimeBoss();
-        } else if (id.equals("SpikeSlime_L")) {
-            monster = new SpikeSlime_L(offsetX, offsetY);
-        } else if (id.equals("SpikeSlime_M")) {
-            monster = new SpikeSlime_M(offsetX, offsetY);
-        } else if (id.equals("SpikeSlime_S")) {
-            monster = new SpikeSlime_S(offsetX, offsetY, 0);
-        } else if (id.equals("TheGuardian")) {
-            monster = new TheGuardian();
-        } else if (id.equals("Chosen")) {
-            monster = new Chosen();
-        } else if (id.equals("Mugger")) {
-            monster = new Mugger(offsetX, offsetY);
-        } else if (id.equals("Shelled Parasite")) {
-            monster = new ShelledParasite();
-        } else if (id.equals("SphericGuardian")) {
-            monster = new SphericGuardian();
-        } else if (id.equals("GremlinLeader")) {
-            monster = new GremlinLeader();
-        } else if (id.equals("Byrd")) {
-            monster = new Byrd(offsetX, offsetY);
-        } else if (id.equals("SnakePlant")) {
-            monster = new SnakePlant(offsetX, offsetY);
-        } else if (id.equals("BookOfStabbing")) {
-            monster = new BookOfStabbing();
-        } else if (id.equals("BanditChild")) {
-            monster = new BanditPointy(offsetX, offsetY);
-        } else if (id.equals("BanditLeader")) {
-            monster = new BanditLeader(offsetX, offsetY);
-        } else if (id.equals("BanditBear")) {
-            monster = new BanditBear(offsetX, offsetY);
-        } else if (id.equals("SlaverBoss")) {
-            monster = new Taskmaster(offsetX, offsetY);
-        } else if (id.equals("Centurion")) {
-            monster = new Centurion(offsetX, offsetY);
-        } else if (id.equals("Healer")) {
-            monster = new Healer(offsetX, offsetY);
-        } else if (id.equals("Snecko")) {
-            monster = new Snecko();
-        } else if (id.equals("Champ")) {
-            monster = new Champ();
-        } else if (id.equals("Orb Walker")) {
-            monster = new OrbWalker(offsetX, offsetY);
-        } else if (id.equals("Darkling")) {
-            monster = new Darkling(offsetX, offsetY);
-        } else if (id.equals("BronzeAutomaton")) {
-            monster = new BronzeAutomaton();
-        } else if (id.equals("BronzeOrb")) {
-            monster = new BronzeOrb(offsetX, offsetY, 0);
-        } else if (id.equals("TheCollector")) {
-            monster = new TheCollector();
-        } else if (id.equals("TorchHead")) {
-            monster = new TorchHead(offsetX, offsetY);
-        } else {
-            System.err.println("couldn't find monster with id " + id);
-        }
-
-        if (!shouldGoFast()) {
-            monster.update();
-        }
-
-        return monster;
-    }
-
     public String encode() {
         JsonObject monsterStateJson = new JsonObject();
 
@@ -342,5 +212,26 @@ public abstract class MonsterState extends CreatureState {
         }
 
         monster.maxHealth = monster.currentHealth;
+    }
+
+    public static MonsterState forMonster(AbstractMonster monster) {
+        if(StateFactories.monsterByIdMap.containsKey(monster.id)) {
+            return StateFactories.monsterByIdMap.get(monster.id).factory.apply(monster);
+        }
+
+        throw new IllegalStateException("No Factory for monster " + monster.id);
+    }
+
+    public static MonsterState forJsonString(String jsonString) {
+        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+        JsonObject moreParsed = new JsonParser().parse(parsed.get("creature").getAsString())
+                                                .getAsJsonObject();
+
+        String id = moreParsed.get("id").getAsString();
+        if (!StateFactories.monsterByIdMap.containsKey(id)) {
+            throw new IllegalStateException("Missing json factory for " + id);
+        }
+
+        return StateFactories.monsterByIdMap.get(id).jsonFactory.apply(jsonString);
     }
 }

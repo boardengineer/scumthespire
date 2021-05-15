@@ -1,5 +1,6 @@
 package battleaimod.savestate.orbs;
 
+import battleaimod.savestate.StateFactories;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.orbs.AbstractOrb;
@@ -23,16 +24,6 @@ public abstract class OrbState {
         this.lookupIndex = lookupIndex;
     }
 
-    public static OrbState forJsonString(String jsonString) {
-        System.err.println("parsing orb...");
-
-        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
-
-        int lookupIndex = parsed.get("lookup_index").getAsInt();
-
-        return Orb.values()[lookupIndex].jsonFactory.apply(jsonString);
-    }
-
     public String encode() {
         JsonObject result = new JsonObject();
 
@@ -45,4 +36,18 @@ public abstract class OrbState {
     }
 
     public abstract AbstractOrb loadOrb();
+
+    public static OrbState forOrb(AbstractOrb orb) {
+        return StateFactories.orbByClassMap.get(orb.getClass()).factory.apply(orb);
+    }
+
+    public static OrbState forJsonString(String jsonString) {
+        System.err.println("parsing orb...");
+
+        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
+
+        int lookupIndex = parsed.get("lookup_index").getAsInt();
+
+        return Orb.values()[lookupIndex].jsonFactory.apply(jsonString);
+    }
 }

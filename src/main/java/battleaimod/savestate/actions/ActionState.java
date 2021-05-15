@@ -1,6 +1,6 @@
 package battleaimod.savestate.actions;
 
-import battleaimod.BattleAiMod;
+import battleaimod.savestate.StateFactories;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.animations.ShoutAction;
 import com.megacrit.cardcrawl.actions.animations.TalkAction;
@@ -59,8 +59,8 @@ public interface ActionState {
         ArrayList<ActionState> actionQueue = new ArrayList<>();
 
         for (AbstractGameAction action : AbstractDungeon.actionManager.actions) {
-            if (BattleAiMod.actionByClassMap.containsKey(action.getClass())) {
-                actionQueue.add(BattleAiMod.actionByClassMap.get(action.getClass()).factory
+            if (StateFactories.actionByClassMap.containsKey(action.getClass())) {
+                actionQueue.add(StateFactories.actionByClassMap.get(action.getClass()).factory
                         .apply(action));
             } else if (ActionState.IGNORED_ACTIONS.contains(action.getClass())) {
                 // These are visual effects that are not worth encoding

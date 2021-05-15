@@ -13,12 +13,6 @@ import battleaimod.fastobjects.ScreenShakeFast;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import battleaimod.savestate.SaveState;
-import battleaimod.savestate.actions.Action;
-import battleaimod.savestate.actions.CurrentAction;
-import battleaimod.savestate.monsters.Monster;
-import battleaimod.savestate.orbs.Orb;
-import battleaimod.savestate.powers.Power;
-import battleaimod.savestate.relics.Relic;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
@@ -32,7 +26,6 @@ import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
@@ -51,14 +44,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
     public static boolean isServer;
-
-    public static HashMap<String, Monster> monsterByIdmap;
-    public static HashMap<String, Power> powerByIdmap;
-    public static HashMap<String, Relic> relicByIdmap;
-
-    public static HashMap<Class, Action> actionByClassMap;
-    public static HashMap<Class, CurrentAction> currentActionByClassMap;
-    public static HashMap<Class, Orb> orbByClassMap;
 
     public BattleAiMod() {
         BaseMod.subscribe(this);
@@ -89,36 +74,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     public static void initialize() {
         BattleAiMod mod = new BattleAiMod();
-        monsterByIdmap = new HashMap<>();
-        powerByIdmap = new HashMap<>();
-        relicByIdmap = new HashMap<>();
-        actionByClassMap = new HashMap<>();
-        currentActionByClassMap = new HashMap<>();
-        orbByClassMap = new HashMap<>();
-
-        for (Monster monster : Monster.values()) {
-            monsterByIdmap.put(monster.monsterId, monster);
-        }
-
-        for (Power power : Power.values()) {
-            powerByIdmap.put(power.powerId, power);
-        }
-
-        for (Action action : Action.values()) {
-            actionByClassMap.put(action.actionClass, action);
-        }
-
-        for (CurrentAction action : CurrentAction.values()) {
-            currentActionByClassMap.put(action.actionClass, action);
-        }
-
-        for (Orb orb : Orb.values()) {
-            orbByClassMap.put(orb.orbClass, orb);
-        }
-
-        for (Relic relic : Relic.values()) {
-            relicByIdmap.put(relic.relicId, relic);
-        }
     }
 
     public void receivePostInitialize() {

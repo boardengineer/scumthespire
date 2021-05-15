@@ -1,6 +1,5 @@
 package battleaimod.savestate;
 
-import battleaimod.BattleAiMod;
 import battleaimod.savestate.powers.PowerState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -56,14 +55,7 @@ public class CreatureState {
     public CreatureState(AbstractCreature creature) {
         this.name = creature.name;
         this.id = creature.id;
-        this.powers = creature.powers.stream()
-                                     .map(power -> {
-                                         if (!BattleAiMod.powerByIdmap.containsKey(power.ID)) {
-                                             throw new IllegalStateException("No Power State for " + power.ID);
-                                         }
-                                         return BattleAiMod.powerByIdmap.get(power.ID).factory
-                                                 .apply(power);
-                                     })
+        this.powers = creature.powers.stream().map(PowerState::forPower)
                                      .collect(Collectors.toCollection(ArrayList::new));
         this.isPlayer = creature.isPlayer;
         this.isBloodied = creature.isBloodied;

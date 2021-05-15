@@ -57,15 +57,9 @@ public class MapRoomNodeState {
 
         if (room.monsters != null) {
             ArrayList<MonsterState> monsters = new ArrayList<>();
-
             for (AbstractMonster monster : room.monsters.monsters) {
-                if (BattleAiMod.monsterByIdmap.containsKey(monster.id)) {
-                    monsters.add(BattleAiMod.monsterByIdmap.get(monster.id).factory.apply(monster));
-                } else {
-                    throw new IllegalStateException("No Factory for monster " + monster.id);
-                }
+                monsters.add(MonsterState.forMonster(monster));
             }
-
             this.monsterData = monsters;
         }
 
@@ -115,7 +109,7 @@ public class MapRoomNodeState {
 
         this.monsterData = Stream
                 .of(parsed.get("monster_data").getAsString().split(MONSTER_DELIMETER))
-                .filter(s -> !s.isEmpty()).map(s -> lookUpAndCreateMonsterState(s))
+                .filter(s -> !s.isEmpty()).map(MonsterState::forJsonString)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         this.phase = AbstractRoom.RoomPhase.valueOf(parsed.get("phase_name").getAsString());
@@ -257,18 +251,5 @@ public class MapRoomNodeState {
         MONSTER,
         ELITE,
         BOSS
-    }
-
-    private static MonsterState lookUpAndCreateMonsterState(String jsonString) {
-        JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
-        JsonObject moreParsed = new JsonParser().parse(parsed.get("creature").getAsString())
-                                                .getAsJsonObject();
-
-        String id = moreParsed.get("id").getAsString();
-        if (!BattleAiMod.monsterByIdmap.containsKey(id)) {
-            throw new IllegalStateException("Missing json factory for " + id);
-        }
-
-        return BattleAiMod.monsterByIdmap.get(id).jsonFactory.apply(jsonString);
     }
 }

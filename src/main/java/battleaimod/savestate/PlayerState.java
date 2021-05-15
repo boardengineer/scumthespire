@@ -91,14 +91,11 @@ public class PlayerState extends CreatureState {
         }
 
 
-        this.orbs = player.orbs.stream()
-                               .map(orb -> BattleAiMod.orbByClassMap.get(orb.getClass()).factory
-                                       .apply(orb))
+        this.orbs = player.orbs.stream().map(OrbState::forOrb)
                                .collect(Collectors.toCollection(ArrayList::new));
         this.orbsChanneledThisCombat = AbstractDungeon.actionManager.orbsChanneledThisCombat
                 .stream()
-                .map(orb -> BattleAiMod.orbByClassMap.get(orb.getClass()).factory
-                        .apply(orb))
+                .map(OrbState::forOrb)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         this.potions = player.potions.stream().map(PotionState::new)

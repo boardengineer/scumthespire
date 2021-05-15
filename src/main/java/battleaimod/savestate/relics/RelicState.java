@@ -3,6 +3,7 @@ package battleaimod.savestate.relics;
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.NoLoggerMummifiedHand;
+import battleaimod.savestate.StateFactories;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.helpers.RelicLibrary;
@@ -71,8 +72,8 @@ public class RelicState {
     }
 
     public static RelicState forRelic(AbstractRelic relic) {
-        if (BattleAiMod.relicByIdmap.containsKey(relic.relicId)) {
-            return BattleAiMod.relicByIdmap.get(relic.relicId).factory.apply(relic);
+        if (StateFactories.relicByIdMap.containsKey(relic.relicId)) {
+            return StateFactories.relicByIdMap.get(relic.relicId).factory.apply(relic);
         }
 
         return new RelicState(relic);
@@ -82,8 +83,8 @@ public class RelicState {
         JsonObject parsed = new JsonParser().parse(jsonString).getAsJsonObject();
 
         String relicId = parsed.get("relic_id").getAsString();
-        if (BattleAiMod.relicByIdmap.containsKey(relicId)) {
-            return BattleAiMod.relicByIdmap.get(relicId).jsonFactory.apply(jsonString);
+        if (StateFactories.relicByIdMap.containsKey(relicId)) {
+            return StateFactories.relicByIdMap.get(relicId).jsonFactory.apply(jsonString);
         }
 
         return new RelicState(jsonString);
