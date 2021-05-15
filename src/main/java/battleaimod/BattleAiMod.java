@@ -3,7 +3,10 @@ package battleaimod;
 import basemod.BaseMod;
 import basemod.ReflectionHacks;
 import basemod.TopPanelItem;
-import basemod.interfaces.*;
+import basemod.interfaces.OnStartBattleSubscriber;
+import basemod.interfaces.PostInitializeSubscriber;
+import basemod.interfaces.PostUpdateSubscriber;
+import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.commands.CardCommand;
 import battleaimod.fastobjects.ScreenShakeFast;
@@ -15,6 +18,7 @@ import battleaimod.savestate.actions.CurrentAction;
 import battleaimod.savestate.monsters.Monster;
 import battleaimod.savestate.orbs.Orb;
 import battleaimod.savestate.powers.Power;
+import battleaimod.savestate.relics.Relic;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
@@ -50,10 +54,10 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     public static HashMap<String, Monster> monsterByIdmap;
     public static HashMap<String, Power> powerByIdmap;
+    public static HashMap<String, Relic> relicByIdmap;
 
     public static HashMap<Class, Action> actionByClassMap;
     public static HashMap<Class, CurrentAction> currentActionByClassMap;
-
     public static HashMap<Class, Orb> orbByClassMap;
 
     public BattleAiMod() {
@@ -87,6 +91,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         BattleAiMod mod = new BattleAiMod();
         monsterByIdmap = new HashMap<>();
         powerByIdmap = new HashMap<>();
+        relicByIdmap = new HashMap<>();
         actionByClassMap = new HashMap<>();
         currentActionByClassMap = new HashMap<>();
         orbByClassMap = new HashMap<>();
@@ -109,6 +114,10 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         for (Orb orb : Orb.values()) {
             orbByClassMap.put(orb.orbClass, orb);
+        }
+
+        for (Relic relic : Relic.values()) {
+            relicByIdmap.put(relic.relicId, relic);
         }
     }
 

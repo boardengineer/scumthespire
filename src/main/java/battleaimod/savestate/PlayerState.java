@@ -3,6 +3,7 @@ package battleaimod.savestate;
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
 import battleaimod.savestate.orbs.OrbState;
+import battleaimod.savestate.relics.RelicState;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -81,7 +82,7 @@ public class PlayerState extends CreatureState {
 
         long relicSaveStart = System.currentTimeMillis();
 
-        this.relics = player.relics.stream().map(RelicState::new)
+        this.relics = player.relics.stream().map(RelicState::forRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
 
         if (BattleAiMod.battleAiController != null) {
@@ -161,7 +162,7 @@ public class PlayerState extends CreatureState {
         this.limbo = decodeCardList(parsed.get("limbo").getAsString());
 
         this.relics = Stream.of(parsed.get("relics").getAsString().split(RELIC_DELIMETER))
-                            .filter(s -> !s.isEmpty()).map(RelicState::new)
+                            .filter(s -> !s.isEmpty()).map(RelicState::forJsonString)
                             .collect(Collectors.toCollection(ArrayList::new));
 
         this.potions = new ArrayList<>();
