@@ -2,7 +2,6 @@ package battleaimod.savestate.actions;
 
 import battleaimod.fastobjects.ActionSimulator;
 import battleaimod.fastobjects.actions.UpdateOnlyUseCardAction;
-import battleaimod.savestate.SetMoveActionState;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.ClearCardQueueAction;
 import com.megacrit.cardcrawl.actions.common.*;

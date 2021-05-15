@@ -9,7 +9,6 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.DrawCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
-import com.megacrit.cardcrawl.cards.CardQueueItem;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
@@ -121,18 +120,6 @@ public class SaveState {
 
         this.drawnCards = new ArrayList<>();
         DrawCardAction.drawnCards.forEach(card -> this.drawnCards.add(allCards.indexOf(card)));
-
-//        this.cardsPlayedThisTurn = PlayerState
-//                .toCardStateArray(AbstractDungeon.actionManager.cardsPlayedThisTurn);
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController
-                    .addRuntime("Save Time Rng and Lists", System
-                            .currentTimeMillis() - startRngLists);
-            BattleAiMod.battleAiController
-                    .addRuntime("Save Time New Save State", System.currentTimeMillis() - startSave);
-        }
-
     }
 
     public SaveState(String jsonString) {
@@ -182,7 +169,6 @@ public class SaveState {
 
         long loadPlayerStartTime = System.currentTimeMillis();
 
-//        CardState.freeCardList(AbstractDungeon.actionManager.cardsPlayedThisTurn);
         AbstractDungeon.player = playerState.loadPlayer();
 
         if (BattleAiMod.battleAiController != null) {
@@ -191,25 +177,14 @@ public class SaveState {
                             .currentTimeMillis() - loadPlayerStartTime);
         }
 
-//        AbstractDungeon.actionManager.cardQueue.get(0)
-        CardQueueItem item;
-        long point2 = System.currentTimeMillis();
         curMapNodeState.loadMapRoomNode(AbstractDungeon.currMapNode);
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.roomLoadTime += (System
-                    .currentTimeMillis() - point2);
-        }
 
         AbstractDungeon.isScreenUp = isScreenUp;
         AbstractDungeon.screen = screen;
 
-//        AbstractDungeon.isScreenUp = false;
         listState.loadLists();
 
         AbstractDungeon.dungeonMapScreen.close();
-
-
         AbstractDungeon.floorNum = floorNum;
 
         GameActionManager.totalDiscardedThisTurn = totalDiscardedThisTurn;
@@ -256,20 +231,17 @@ public class SaveState {
         AbstractDungeon.gridSelectScreen.selectedCards.clear();
         this.gridSelectedCards.forEach(index -> AbstractDungeon.gridSelectScreen.selectedCards
                 .add(allCards.get(index)));
+
         if (!this.gridSelectedCards.isEmpty()) {
             System.err
                     .println("there were selected cards " + this.gridSelectedCards + " " + allCards
                             .get(this.gridSelectedCards.get(0)));
         }
+
         DrawCardAction.drawnCards.clear();
         this.drawnCards.stream().filter(index -> index != -1)
                        .forEach(index -> DrawCardAction.drawnCards.add(allCards.get(index)));
 
-
-//        AbstractDungeon.actionManager.cardsPlayedThisTurn = this.cardsPlayedThisTurn.stream()
-//                                                                                    .map(CardState::loadCard)
-//                                                                                    .collect(Collectors
-//                                                                                            .toCollection(ArrayList::new));
 
         AbstractDungeon.getCurrRoom().monsters.monsters.forEach(AbstractMonster::applyPowers);
         AbstractDungeon.player.hand.applyPowers();
@@ -282,20 +254,8 @@ public class SaveState {
         return playerState.getCurrentHealth();
     }
 
-    public String getPlayerHand() {
-        return playerState.getHandString();
-    }
-
     public int getNumSlimes() {
         return playerState.getNumSlimes();
-    }
-
-    public int getNumBurns() {
-        return playerState.getNumBurns();
-    }
-
-    public int getNumInstances(String cardName) {
-        return playerState.getNumInstance(cardName);
     }
 
     public String encode() {

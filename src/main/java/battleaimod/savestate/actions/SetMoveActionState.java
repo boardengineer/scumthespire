@@ -1,7 +1,6 @@
-package battleaimod.savestate;
+package battleaimod.savestate.actions;
 
 import basemod.ReflectionHacks;
-import battleaimod.savestate.actions.ActionState;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.SetMoveAction;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;

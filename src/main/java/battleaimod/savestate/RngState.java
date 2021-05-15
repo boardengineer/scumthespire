@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Stores all RNG counters for the game as well as event chances.
+ */
 public class RngState {
     private final Random monsterRng;
     private final Random mapRng;

@@ -65,12 +65,8 @@ public class BattleAiController {
     public long stepTime;
     public long updateTime;
     public long loadstateTime;
-    public HashMap<Class, Long> actionClassTimes;
 
     public HashMap<String, Long> runTimes;
-
-    public long playerLoadTime;
-    public long roomLoadTime;
 
     public BattleAiController(SaveState state) {
         runTimes = new HashMap<>();
@@ -179,9 +175,6 @@ public class BattleAiController {
                 stepTime = 0;
                 updateTime = 0;
                 loadstateTime = 0;
-                playerLoadTime = 0;
-                roomLoadTime = 0;
-                actionClassTimes = new HashMap<>();
                 runTimes = new HashMap<>();
                 CardState.resetFreeCards();
             }
@@ -256,7 +249,7 @@ public class BattleAiController {
             }
 
             while (!turns
-                    .isEmpty() && (curTurn == null || (curTurn.isDone || curTurn.startingState.saveState.turn >= targetTurn))) {
+                    .isEmpty() && (curTurn == null || curTurn.isDone)) {
                 curTurn = turns.peek();
 
                 int turnNumber = curTurn.startingState.saveState.turn;
