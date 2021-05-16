@@ -28,7 +28,6 @@ import java.util.Iterator;
 public class MonsterPatch {
     public static boolean shouldGoFast() {
         return BattleAiMod.goFast;
-//        return true;
     }
 
     @SpirePatch(

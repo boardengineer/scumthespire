@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.Maw;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class MawState extends MonsterState {
     private final int turnCount;
@@ -74,7 +74,7 @@ public class MawState extends MonsterState {
 
         @SpireInsertPatch(loc = 45)
         public static SpireReturn Insert(Maw _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int strUp = 3;
                 int terrifyDur = 3;
                 int slamDmg;

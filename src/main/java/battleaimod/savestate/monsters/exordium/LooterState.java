@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Looter;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class LooterState extends MonsterState {
     private final int slashCount;
@@ -72,7 +72,7 @@ public class LooterState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 73)
         public static SpireReturn Looter(Looter _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

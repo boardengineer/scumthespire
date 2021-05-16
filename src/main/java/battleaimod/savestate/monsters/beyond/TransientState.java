@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.Transient;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class TransientState extends MonsterState {
     private final int count;
@@ -66,7 +66,7 @@ public class TransientState extends MonsterState {
     public static class YetNoAnimationsPatch {
         @SpireInsertPatch(loc = 38)
         public static SpireReturn Insert(Transient _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.gold = 1;
                 int startingDeathDmg;
 

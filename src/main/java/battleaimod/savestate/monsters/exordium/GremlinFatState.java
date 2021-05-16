@@ -9,7 +9,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.GremlinFat;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class GremlinFatState extends MonsterState {
     public GremlinFatState(AbstractMonster monster) {
@@ -39,7 +39,7 @@ public class GremlinFatState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 56)
         public static SpireReturn GremlinFat(GremlinFat _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

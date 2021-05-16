@@ -13,7 +13,7 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 import com.megacrit.cardcrawl.monsters.city.Byrd;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class ByrdState extends MonsterState {
     private final boolean firstMove;
@@ -69,7 +69,7 @@ public class ByrdState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 80)
         public static SpireReturn Byrd(Byrd _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }
@@ -84,7 +84,7 @@ public class ByrdState extends MonsterState {
     )
     public static class NoStateAnimationsPatch {
         public static SpireReturn Prefix(Byrd _instance, String stateName) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 if (stateName.equals("GROUNDED")) {
                     _instance.setMove((byte) 4, AbstractMonster.Intent.STUN);
                     EnemyMoveInfo move = ReflectionHacks

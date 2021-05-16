@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public abstract class MonsterState extends CreatureState {
     private static final String DAMAGE_DELIMETER = ";";
@@ -123,7 +123,7 @@ public abstract class MonsterState extends CreatureState {
     public void populateSharedFields(AbstractMonster monster) {
         super.loadCreature(monster);
 
-        if(!shouldGoFast()) {
+        if (!shouldGoFast) {
             monster.showHealthBar();
             monster.healthBarUpdatedEvent();
         }
@@ -154,12 +154,12 @@ public abstract class MonsterState extends CreatureState {
         monster.intentOffsetX = this.intentOffsetX;
         monster.moveName = this.moveName;
 
-        if (!shouldGoFast()) {
+        if (!shouldGoFast) {
             monster.showHealthBar();
             monster.createIntent();
         }
 
-        if (!shouldGoFast() && monster.currentBlock > 0) {
+        if (!shouldGoFast && monster.currentBlock > 0) {
             ReflectionHacks
                     .setPrivate(monster, AbstractCreature.class, "blockAnimTimer", 0.7F);
             ReflectionHacks
@@ -215,7 +215,7 @@ public abstract class MonsterState extends CreatureState {
     }
 
     public static MonsterState forMonster(AbstractMonster monster) {
-        if(StateFactories.monsterByIdMap.containsKey(monster.id)) {
+        if (StateFactories.monsterByIdMap.containsKey(monster.id)) {
             return StateFactories.monsterByIdMap.get(monster.id).factory.apply(monster);
         }
 

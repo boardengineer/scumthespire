@@ -9,7 +9,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.GremlinWarrior;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class GremlinWarriorState extends MonsterState {
     public GremlinWarriorState(AbstractMonster monster) {
@@ -39,7 +39,7 @@ public class GremlinWarriorState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 51)
         public static SpireReturn GremlinWarrior(GremlinWarrior _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

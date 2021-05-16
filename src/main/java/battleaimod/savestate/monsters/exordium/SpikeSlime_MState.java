@@ -9,7 +9,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.SpikeSlime_M;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SpikeSlime_MState extends MonsterState {
     public SpikeSlime_MState(AbstractMonster monster) {
@@ -39,7 +39,7 @@ public class SpikeSlime_MState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 62)
         public static SpireReturn SpikeSlime_M(SpikeSlime_M _instance, float x, float y, int poisonAmount, int newHealth) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

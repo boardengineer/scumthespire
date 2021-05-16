@@ -12,7 +12,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.SpireGrowth;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SpireGrowthState extends MonsterState {
 
@@ -45,7 +45,7 @@ public class SpireGrowthState extends MonsterState {
     public static class YetNoAnimationsPatch {
         @SpireInsertPatch(loc = 36)
         public static SpireReturn Insert(SpireGrowth _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int tackleDmgActual;
                 int smashDmgActual;
                 if (AbstractDungeon.ascensionLevel >= 7) {

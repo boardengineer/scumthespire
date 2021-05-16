@@ -1,7 +1,6 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
-import battleaimod.BattleAiMod;
 import battleaimod.savestate.orbs.OrbState;
 import battleaimod.savestate.relics.RelicState;
 import com.google.gson.JsonArray;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class PlayerState extends CreatureState {
     private static final String CARD_DELIMETER = ";;;";
@@ -39,7 +38,6 @@ public class PlayerState extends CreatureState {
     private final int damagedThisCombat;
     private final String title;
 
-    private final boolean isDead;
     private final boolean renderCorpse;
 
     public final ArrayList<CardState> masterDeck;
@@ -61,8 +59,6 @@ public class PlayerState extends CreatureState {
     public PlayerState(AbstractPlayer player) {
         super(player);
 
-        long startPlayerLoad = System.currentTimeMillis();
-
         this.chosenClass = player.chosenClass;
         this.gameHandSize = player.gameHandSize;
         this.masterHandSize = player.masterHandSize;
@@ -75,22 +71,9 @@ public class PlayerState extends CreatureState {
         this.exhaustPile = toCardStateArray(player.exhaustPile.group);
         this.limbo = toCardStateArray(player.limbo.group);
 
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Save Time Save Player Decks", System
-                    .currentTimeMillis() - startPlayerLoad);
-        }
-
-        long relicSaveStart = System.currentTimeMillis();
 
         this.relics = player.relics.stream().map(RelicState::forRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Save Time Save Player Relics", System
-                    .currentTimeMillis() - relicSaveStart);
-        }
-
-
         this.orbs = player.orbs.stream().map(OrbState::forOrb)
                                .collect(Collectors.toCollection(ArrayList::new));
         this.orbsChanneledThisCombat = AbstractDungeon.actionManager.orbsChanneledThisCombat
@@ -110,7 +93,6 @@ public class PlayerState extends CreatureState {
         this.viewingRelics = player.viewingRelics;
         this.inspectMode = player.inspectMode;
 
-        this.isDead = player.isDead;
         this.renderCorpse = ReflectionHacks
                 .getPrivate(player, AbstractPlayer.class, "renderCorpse");
 
@@ -178,7 +160,6 @@ public class PlayerState extends CreatureState {
                       .add(OrbState.forJsonString(orbElement.getAsString())));
 
         //TODO
-        this.isDead = false;
         this.renderCorpse = false;
     }
 
@@ -191,22 +172,12 @@ public class PlayerState extends CreatureState {
         player.masterHandSize = this.masterHandSize;
         player.startingMaxHP = this.startingMaxHP;
 
-        long freeCardStart = System.currentTimeMillis();
-
         CardState.freeCardList(player.masterDeck.group);
         CardState.freeCardList(player.drawPile.group);
         CardState.freeCardList(player.hand.group);
         CardState.freeCardList(player.discardPile.group);
         CardState.freeCardList(player.exhaustPile.group);
         CardState.freeCardList(player.limbo.group);
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController
-                    .addRuntime("Load Time Player Free Card", System
-                            .currentTimeMillis() - freeCardStart);
-        }
-
-        long loadDecksStart = System.currentTimeMillis();
 
         player.masterDeck.group = this.masterDeck.stream().map(CardState::loadCard)
                                                  .collect(Collectors.toCollection(ArrayList::new));
@@ -224,28 +195,14 @@ public class PlayerState extends CreatureState {
         player.limbo.group = this.limbo.stream().map(CardState::loadCard)
                                        .collect(Collectors.toCollection(ArrayList::new));
 
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController
-                    .addRuntime("Load Time Player Decks Populated", System
-                            .currentTimeMillis() - loadDecksStart);
-        }
-
-        long relicStartTime = System.currentTimeMillis();
-
         player.relics = this.relics.stream().map(RelicState::loadRelic)
                                    .collect(Collectors.toCollection(ArrayList::new));
 
-        if (!shouldGoFast()) {
+        if (!shouldGoFast) {
             AbstractDungeon.topPanel.adjustRelicHbs();
             for (int i = 0; i < player.relics.size(); i++) {
                 player.relics.get(i).instantObtain(player, i, false);
             }
-        }
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController
-                    .addRuntime("Load Time Player Relics", System
-                            .currentTimeMillis() - relicStartTime);
         }
 
         player.potions = this.potions.stream().map(PotionState::loadPotion)
@@ -280,7 +237,7 @@ public class PlayerState extends CreatureState {
                 .setPrivate(player, AbstractPlayer.class, "renderCorpse", this.renderCorpse);
 
 
-        if (!shouldGoFast()) {
+        if (!shouldGoFast) {
             for (int i = 0; i < player.orbs.size(); i++) {
                 player.orbs.get(i).setSlot(i, player.maxOrbs);
             }

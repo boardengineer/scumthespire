@@ -13,7 +13,7 @@ import com.megacrit.cardcrawl.cards.red.Immolate;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.AcidSlime_L;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class AcidSlime_LState extends MonsterState {
     private final boolean splitTriggered;
@@ -66,7 +66,7 @@ public class AcidSlime_LState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 85)
         public static SpireReturn AcidSlime_L(AcidSlime_L _instance, float x, float y, int poisonAmount, int newHealth) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

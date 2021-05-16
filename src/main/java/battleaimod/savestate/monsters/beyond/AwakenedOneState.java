@@ -15,7 +15,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.AwakenedOne;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class AwakenedOneState extends MonsterState {
     private final boolean form1;
@@ -72,7 +72,7 @@ public class AwakenedOneState extends MonsterState {
     public static class YetNoAnimationsPatch {
         @SpireInsertPatch(loc = 93)
         public static SpireReturn Insert(AwakenedOne _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 if (AbstractDungeon.ascensionLevel >= 9) {
                     MonsterState.setHp(_instance, 320, 320);
                 } else {
@@ -98,7 +98,7 @@ public class AwakenedOneState extends MonsterState {
     )
     public static class NoRenderPatch {
         public static SpireReturn Prefix(AwakenedOne _instance, SpriteBatch sb) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
@@ -112,7 +112,7 @@ public class AwakenedOneState extends MonsterState {
     )
     public static class NoUpdatePatch {
         public static SpireReturn Prefix(AwakenedOne _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

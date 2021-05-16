@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.GiantHead;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class GiantHeadState extends MonsterState {
     private final int count;
@@ -66,7 +66,7 @@ public class GiantHeadState extends MonsterState {
 
         @SpireInsertPatch(loc = 42)
         public static SpireReturn Insert(GiantHead _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.type = AbstractMonster.EnemyType.ELITE;
 
                 int startingDeathDmg;

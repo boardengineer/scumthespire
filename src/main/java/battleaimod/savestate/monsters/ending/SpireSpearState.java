@@ -13,7 +13,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.ending.SpireSpear;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SpireSpearState extends MonsterState {
     private final int moveCount;
@@ -65,7 +65,7 @@ public class SpireSpearState extends MonsterState {
     public static class NoAnimationConstructorPatch {
         @SpireInsertPatch(loc = 42)
         public static SpireReturn Insert(SpireSpear spireSpear) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int skewerCount;
 
                 if (AbstractDungeon.ascensionLevel >= 8) {

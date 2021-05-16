@@ -12,7 +12,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.GremlinLeader;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class GremlinLeaderState extends MonsterState {
     public GremlinLeaderState(AbstractMonster monster) {
@@ -42,7 +42,7 @@ public class GremlinLeaderState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 62)
         public static SpireReturn GremlinLeader(GremlinLeader _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 if (AbstractDungeon.ascensionLevel >= 8) {
                     MonsterState.setHp(_instance, 145, 155);
                 } else {

@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class DualWieldActionState implements CurrentActionState {
     private final ArrayList<CardState> cannotDuplicate;
@@ -58,7 +58,7 @@ public class DualWieldActionState implements CurrentActionState {
     public static class NoFxConstructorPatchOther {
         public static void Postfix(DualWieldAction _instance, AbstractCreature source, int amount) {
             // Duration isn't set correctly if you mess with ACTION_DUR_FAST force it right
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 ReflectionHacks
                         .setPrivate(_instance, AbstractGameAction.class, "duration", Settings.ACTION_DUR_FAST);
             }

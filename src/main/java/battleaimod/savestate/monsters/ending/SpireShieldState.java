@@ -13,7 +13,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.ending.SpireShield;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SpireShieldState extends MonsterState {
     private final int moveCount;
@@ -60,7 +60,7 @@ public class SpireShieldState extends MonsterState {
     public static class NoAnimationConstructorPatch {
         @SpireInsertPatch(loc = 43)
         public static SpireReturn Insert(SpireShield spireShield) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 if (AbstractDungeon.ascensionLevel >= 8) {
                     MonsterState.setHp(spireShield, 125, 125);
                 } else {

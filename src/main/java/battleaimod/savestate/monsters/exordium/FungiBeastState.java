@@ -11,7 +11,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.FungiBeast;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class FungiBeastState extends MonsterState {
     public FungiBeastState(AbstractMonster monster) {
@@ -49,7 +49,7 @@ public class FungiBeastState extends MonsterState {
                 biteDamage = 6;
             }
 
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 _instance.damage.add(new DamageInfo(_instance, biteDamage));
 

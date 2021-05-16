@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.Chosen;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class ChosenState extends MonsterState {
     private final boolean firstTurn;
@@ -70,7 +70,7 @@ public class ChosenState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 82)
         public static SpireReturn Chosen(Chosen _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

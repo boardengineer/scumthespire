@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.JawWorm;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class JawWormState extends MonsterState {
     private final boolean firstMove;
@@ -64,7 +64,7 @@ public class JawWormState extends MonsterState {
 
         @SpireInsertPatch(loc = 95)
         public static SpireReturn JawWorm(JawWorm _instance, float x, float y, boolean hard) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

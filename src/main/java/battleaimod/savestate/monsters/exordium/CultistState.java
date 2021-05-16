@@ -11,7 +11,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Cultist;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class CultistState extends MonsterState {
     private final boolean firstMove;
@@ -66,7 +66,7 @@ public class CultistState extends MonsterState {
 
         @SpireInsertPatch(loc = 67)
         public static SpireReturn Insert(Cultist _instance, float x, float y, boolean talk) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
@@ -80,7 +80,7 @@ public class CultistState extends MonsterState {
     )
     public static class CultistsDeathAnimationPatch {
         public static SpireReturn Prefix(Cultist _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.deathTimer = 0;
                 _instance.die(true);
                 return SpireReturn.Return(null);

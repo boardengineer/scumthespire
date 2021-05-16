@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.Donu;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class DonuState extends MonsterState {
     private final boolean isAttacking;
@@ -66,8 +66,7 @@ public class DonuState extends MonsterState {
     public static class YetNoAnimationsPatch {
         @SpireInsertPatch(loc = 46)
         public static SpireReturn Insert(Donu _instance) {
-            if (shouldGoFast()) {
-
+            if (shouldGoFast) {
                 int beamDmg;
 
                 _instance.type = AbstractMonster.EnemyType.BOSS;

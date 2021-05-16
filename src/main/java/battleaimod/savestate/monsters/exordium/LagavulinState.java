@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class LagavulinState extends MonsterState {
     private final int debuffTurnCount;
@@ -93,7 +93,7 @@ public class LagavulinState extends MonsterState {
     public static class YetNoAnimationsPatch {
         @SpireInsertPatch(loc = 76)
         public static SpireReturn Lagavulin(Lagavulin _instance, boolean setAsleep) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 if (!setAsleep) {
                     ReflectionHacks
                             .setPrivate(_instance, Lagavulin.class, "isOut", true);

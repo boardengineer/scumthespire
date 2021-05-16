@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.ShelledParasite;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class ShelledParasiteState extends MonsterState {
     private final boolean firstMove;
@@ -67,7 +67,7 @@ public class ShelledParasiteState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 52)
         public static SpireReturn ShelledParasite(ShelledParasite _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 if (AbstractDungeon.ascensionLevel >= 7) {
                     MonsterState.setHp(_instance, 70, 75);
                 } else {

@@ -15,7 +15,7 @@ import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.SnakeDagger;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SnakerDaggerState extends MonsterState {
     private final boolean firstMove;
@@ -68,7 +68,7 @@ public class SnakerDaggerState extends MonsterState {
 
         @SpireInsertPatch(loc = 33)
         public static SpireReturn Insert(SnakeDagger _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.damage.add(new DamageInfo(_instance, 9));
                 _instance.damage.add(new DamageInfo(_instance, 25));
                 _instance.damage.add(new DamageInfo(_instance, 25, DamageInfo.DamageType.HP_LOSS));

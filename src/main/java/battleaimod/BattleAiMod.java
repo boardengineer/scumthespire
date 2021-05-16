@@ -13,6 +13,7 @@ import battleaimod.fastobjects.ScreenShakeFast;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import battleaimod.savestate.SaveState;
+import battleaimod.savestate.SaveStateMod;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
@@ -88,6 +89,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             Settings.MASTER_VOLUME = 0;
             Settings.isDemo = true;
             goFast = true;
+            SaveStateMod.shouldGoFast = true;
         } else {
             Settings.MASTER_VOLUME = .0F;
         }

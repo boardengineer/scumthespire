@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.GremlinWizard;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class GremlinWizardState extends MonsterState {
     private final int currentCharge;
@@ -65,7 +65,7 @@ public class GremlinWizardState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 55)
         public static SpireReturn GremlinWizard(GremlinWizard _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

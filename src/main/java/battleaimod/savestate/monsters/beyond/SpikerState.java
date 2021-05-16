@@ -12,7 +12,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.Spiker;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SpikerState extends MonsterState {
     private final int thornsCount;
@@ -61,7 +61,7 @@ public class SpikerState extends MonsterState {
 
         @SpireInsertPatch(loc = 48)
         public static SpireReturn Insert(Spiker _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
 
                 int startingThorns;
                 int attackDmg;

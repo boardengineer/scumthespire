@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.Mugger;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class MuggerState extends MonsterState {
     private final int slashCount;
@@ -71,7 +71,7 @@ public class MuggerState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 70)
         public static SpireReturn Mugger(Mugger _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

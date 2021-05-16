@@ -9,7 +9,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.Healer;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class HealerState extends MonsterState {
     public HealerState(AbstractMonster monster) {
@@ -39,7 +39,7 @@ public class HealerState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 64)
         public static SpireReturn Healer(Healer _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

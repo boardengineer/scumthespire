@@ -17,7 +17,7 @@ import com.megacrit.cardcrawl.monsters.beyond.Darkling;
 import com.megacrit.cardcrawl.powers.AbstractPower;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class DarklingState extends MonsterState {
     private final int chompDmg;
@@ -81,7 +81,7 @@ public class DarklingState extends MonsterState {
     public static class YetNoAnimationsPatch {
         @SpireInsertPatch(loc = 53)
         public static SpireReturn Insert(Darkling _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int chompDmg;
                 int nipDmg;
 
@@ -119,7 +119,7 @@ public class DarklingState extends MonsterState {
     public static class SilentDamagePatch {
         @SpireInsertPatch(loc = 199)
         public static SpireReturn Insert(Darkling _instance, DamageInfo info) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
 
                 if (_instance.currentHealth <= 0 && !_instance.halfDead) {
                     _instance.halfDead = true;

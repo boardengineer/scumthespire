@@ -13,7 +13,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.ending.CorruptHeart;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class CorrputHeartState extends MonsterState {
     private final int bloodHitCount;
@@ -76,7 +76,7 @@ public class CorrputHeartState extends MonsterState {
     public static class NoAnimationConstructorPatch {
         @SpireInsertPatch(loc = 56)
         public static SpireReturn Insert(CorruptHeart corruptHeart) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int bloodHitCount;
 
                 if (AbstractDungeon.ascensionLevel >= 9) {

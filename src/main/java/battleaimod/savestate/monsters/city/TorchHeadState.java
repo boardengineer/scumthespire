@@ -10,7 +10,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.TorchHead;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class TorchHeadState extends MonsterState {
     public TorchHeadState(AbstractMonster monster) {
@@ -40,7 +40,7 @@ public class TorchHeadState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 40)
         public static SpireReturn TorchHead(TorchHead _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 if (AbstractDungeon.ascensionLevel >= 9) {
                     MonsterState.setHp(_instance, 40, 45);
                 } else {
@@ -62,7 +62,7 @@ public class TorchHeadState extends MonsterState {
     public static class NoUpdateAnimationsPatch {
         @SpireInsertPatch(loc = 71)
         public static SpireReturn TorchHead(TorchHead _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

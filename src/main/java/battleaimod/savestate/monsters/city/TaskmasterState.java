@@ -9,7 +9,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.Taskmaster;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class TaskmasterState extends MonsterState {
     public TaskmasterState(AbstractMonster monster) {
@@ -39,7 +39,7 @@ public class TaskmasterState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 55)
         public static SpireReturn Taskmaster(Taskmaster _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

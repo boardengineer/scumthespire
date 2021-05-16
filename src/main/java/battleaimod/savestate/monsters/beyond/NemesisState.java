@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.Nemesis;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class NemesisState extends MonsterState {
     private final int scytheCooldown;
@@ -72,7 +72,7 @@ public class NemesisState extends MonsterState {
 
         @SpireInsertPatch(loc = 55)
         public static SpireReturn Insert(Nemesis _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.type = AbstractMonster.EnemyType.ELITE;
                 int fireDmg;
 
@@ -105,7 +105,7 @@ public class NemesisState extends MonsterState {
     )
     public static class NoUpdatePatch {
         public static SpireReturn Prefix(Nemesis _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

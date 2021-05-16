@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.SlimeBoss;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SlimeBossState extends MonsterState {
     private final boolean firstTurn;
@@ -63,7 +63,7 @@ public class SlimeBossState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 90)
         public static SpireReturn SlimeBoss(SlimeBoss _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

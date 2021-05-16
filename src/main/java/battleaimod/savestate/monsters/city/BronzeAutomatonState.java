@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.BronzeAutomaton;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class BronzeAutomatonState extends MonsterState {
     private final int numTurns;
@@ -74,7 +74,7 @@ public class BronzeAutomatonState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 56)
         public static SpireReturn BronzeAutomaton(BronzeAutomaton _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.type = AbstractMonster.EnemyType.BOSS;
 
                 int blockAmt;

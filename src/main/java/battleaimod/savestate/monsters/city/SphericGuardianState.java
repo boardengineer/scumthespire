@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.SphericGuardian;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SphericGuardianState extends MonsterState {
     private final boolean firstMove;
@@ -73,7 +73,7 @@ public class SphericGuardianState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 54)
         public static SpireReturn SphericGuardian(SphericGuardian _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

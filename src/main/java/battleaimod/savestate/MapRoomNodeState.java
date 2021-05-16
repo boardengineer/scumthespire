@@ -1,7 +1,6 @@
 package battleaimod.savestate;
 
 import basemod.ReflectionHacks;
-import battleaimod.BattleAiMod;
 import battleaimod.savestate.monsters.MonsterState;
 import battleaimod.savestate.monsters.beyond.ReptomancerState;
 import com.google.gson.JsonObject;
@@ -61,11 +60,6 @@ public class MapRoomNodeState {
                 monsters.add(MonsterState.forMonster(monster));
             }
             this.monsterData = monsters;
-        }
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Save Time Monster Save", System
-                    .currentTimeMillis() - startMonsterSave);
         }
 
         this.isBattleOver = room.isBattleOver;
@@ -187,13 +181,6 @@ public class MapRoomNodeState {
                         ((ReptomancerState) monsterState).postMonstersLoad((Reptomancer) monster);
                     }
                 }
-            }
-        }
-
-        if (BattleAiMod.battleAiController != null) {
-            if (BattleAiMod.battleAiController.runTimes != null) {
-                BattleAiMod.battleAiController.addRuntime("Monster Load Time", System
-                        .currentTimeMillis() - monsterLoadStart);
             }
         }
 

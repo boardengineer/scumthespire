@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.TheGuardian;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class TheGuardianState extends MonsterState {
     private final int dmgThreshold;
@@ -96,7 +96,7 @@ public class TheGuardianState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 100)
         public static SpireReturn TheGuardian(TheGuardian _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
 
                 ReflectionHacks

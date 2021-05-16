@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.LouseDefensive;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class LouseDefensiveState extends MonsterState {
     private final boolean isOpen;
@@ -76,7 +76,7 @@ public class LouseDefensiveState extends MonsterState {
         @SpireInsertPatch(loc = 43)
         public static SpireReturn LouseDefensive(LouseDefensive _instance, float x, float y) {
             // ascension is hopefully handled in state setting
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 if (AbstractDungeon.ascensionLevel >= 7) {
                     MonsterState.setHp(_instance, 12, 18);
                 } else {

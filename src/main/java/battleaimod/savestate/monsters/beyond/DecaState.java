@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.Deca;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class DecaState extends MonsterState {
     private final boolean isAttacking;
@@ -66,7 +66,7 @@ public class DecaState extends MonsterState {
     public static class YetNoAnimationsPatch {
         @SpireInsertPatch(loc = 50)
         public static SpireReturn Insert(Deca _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int beamDmg;
 
                 _instance.type = AbstractMonster.EnemyType.BOSS;

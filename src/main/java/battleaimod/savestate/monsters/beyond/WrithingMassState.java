@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.WrithingMass;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class WrithingMassState extends MonsterState {
     private final boolean firstMove;
@@ -72,7 +72,7 @@ public class WrithingMassState extends MonsterState {
     public static class YetNoAnimationsPatch {
         @SpireInsertPatch(loc = 43)
         public static SpireReturn Insert(WrithingMass _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int normalDebuffAmt;
                 if (AbstractDungeon.ascensionLevel >= 7) {
                     MonsterState.setHp(_instance, 175, 175);

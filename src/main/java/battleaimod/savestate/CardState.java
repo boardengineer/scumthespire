@@ -7,7 +7,7 @@ import com.megacrit.cardcrawl.helpers.CardLibrary;
 
 import java.util.*;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class CardState {
     public final String cardId;
@@ -129,8 +129,6 @@ public class CardState {
     }
 
     public AbstractCard loadCard() {
-        long loadState = System.currentTimeMillis();
-
         AbstractCard result = getCard(cardId);
 
         result.upgraded = upgraded;
@@ -235,7 +233,7 @@ public class CardState {
         Optional<AbstractCard> resultOptional = getCachedCard(key);
 
         AbstractCard result;
-        if (resultOptional.isPresent() && shouldGoFast()) {
+        if (resultOptional.isPresent() && shouldGoFast) {
             result = resultOptional.get();
         } else {
             result = getFreshCard(key);

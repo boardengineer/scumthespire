@@ -10,7 +10,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.BronzeOrb;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class BronzeOrbState extends MonsterState {
     protected final int count;
@@ -66,7 +66,7 @@ public class BronzeOrbState extends MonsterState {
     )
     public static class NoImgPatch {
         public static void Postfix(BronzeOrb _instance, float x, float y, int count) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 Texture img = ReflectionHacks.getPrivate(_instance, AbstractMonster.class, "img");
                 ReflectionHacks.setPrivate(_instance, AbstractMonster.class, "img", null);
                 if (img != null) {

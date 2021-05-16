@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class HexaghostState extends MonsterState {
     private final boolean activated;
@@ -111,7 +111,7 @@ public class HexaghostState extends MonsterState {
     )
     public static class NoBodyCreationAnimationsPatch {
         public static SpireReturn Prefix(HexaghostBody _instance, AbstractMonster monster) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
@@ -125,7 +125,7 @@ public class HexaghostState extends MonsterState {
     )
     public static class NoHexaghostImagesPatch {
         public static SpireReturn Prefix(String imgUrl) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 if (imgUrl.equals(Hexaghost.IMAGE)) {
                     return SpireReturn.Return(null);
                 }
@@ -141,7 +141,7 @@ public class HexaghostState extends MonsterState {
     )
     public static class NoDisposeBodyCreationAnimationsPatch {
         public static void Postfix(Hexaghost _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 Texture img = ReflectionHacks.getPrivate(_instance, AbstractMonster.class, "img");
                 ReflectionHacks.setPrivate(_instance, AbstractMonster.class, "img", null);
                 if (img != null) {
@@ -161,7 +161,7 @@ public class HexaghostState extends MonsterState {
     )
     public static class NoRenderBodyPatch {
         public static SpireReturn Prefix(HexaghostBody _instance, SpriteBatch sb) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
@@ -175,7 +175,7 @@ public class HexaghostState extends MonsterState {
     )
     public static class NoUpdateBodyPatch {
         public static SpireReturn Prefix(HexaghostBody _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
@@ -189,7 +189,7 @@ public class HexaghostState extends MonsterState {
     )
     public static class BurnIncreasePatch {
         public static SpireReturn Prefix(BurnIncreaseAction _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 for(AbstractCard card: AbstractDungeon.player.discardPile.group) {
                     if(card instanceof Burn) {
                         card.upgrade();
@@ -226,7 +226,7 @@ public class HexaghostState extends MonsterState {
     )
     public static class NoDisposeBodyPatch {
         public static SpireReturn Prefix(HexaghostBody _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
@@ -240,7 +240,7 @@ public class HexaghostState extends MonsterState {
     )
     public static class NoOrbPatch {
         public static SpireReturn Prefix(Hexaghost _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();

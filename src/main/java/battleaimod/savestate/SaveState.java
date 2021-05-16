@@ -1,7 +1,5 @@
 package battleaimod.savestate;
 
-import battleaimod.BattleAiMod;
-import battleaimod.battleai.BattleAiController;
 import battleaimod.savestate.selectscreen.GridCardSelectScreenState;
 import battleaimod.savestate.selectscreen.HandSelectScreenState;
 import com.google.gson.JsonObject;
@@ -15,7 +13,7 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
 import java.util.ArrayList;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SaveState {
     private final boolean isScreenUp;
@@ -23,7 +21,6 @@ public class SaveState {
     boolean previousScreenUp;
     boolean myTurn = false;
     public int turn;
-    public String encounterName;
     private int totalDiscardedThisTurn;
 
 
@@ -46,8 +43,6 @@ public class SaveState {
     public MapRoomNodeState curMapNodeState;
 
     public SaveState() {
-        long startSave = System.currentTimeMillis();
-
         if (AbstractDungeon.isScreenUp) {
             if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT) {
                 handSelectScreenState = new HandSelectScreenState();
@@ -59,33 +54,13 @@ public class SaveState {
         }
 
         this.curMapNodeState = new MapRoomNodeState(AbstractDungeon.currMapNode);
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController
-                    .addRuntime("Save Time New Save Map Node", System
-                            .currentTimeMillis() - startSave);
-        }
-
-        long startPlayerSave = System.currentTimeMillis();
-
-        playerState = new PlayerState(AbstractDungeon.player);
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController
-                    .addRuntime("Save Time New Save Player", System
-                            .currentTimeMillis() - startPlayerSave);
-        }
-
-        long startRngLists = System.currentTimeMillis();
-
-        screen = AbstractDungeon.screen;
-        rngState = new RngState();
-        listState = new ListState();
-        floorNum = AbstractDungeon.floorNum;
-
+        this.playerState = new PlayerState(AbstractDungeon.player);
+        this.screen = AbstractDungeon.screen;
+        this.rngState = new RngState();
+        this.listState = new ListState();
+        this.floorNum = AbstractDungeon.floorNum;
         this.turn = GameActionManager.turn;
         this.isScreenUp = AbstractDungeon.isScreenUp;
-        encounterName = BattleAiController.currentEncounter;
         this.ascensionLevel = AbstractDungeon.ascensionLevel;
         this.totalDiscardedThisTurn = GameActionManager.totalDiscardedThisTurn;
 
@@ -134,9 +109,6 @@ public class SaveState {
 
         this.screen = AbstractDungeon.CurrentScreen
                 .valueOf(parsed.get("screen_name").getAsString());
-        this.encounterName = parsed.get("encounter_name").isJsonNull() ? null : parsed
-                .get("encounter_name").getAsString();
-
         this.listState = new ListState(parsed.get("list_state").getAsString());
 
         System.err.println("parsing player....");
@@ -151,7 +123,7 @@ public class SaveState {
         this.ascensionLevel = parsed.get("ascension_level").getAsInt();
 
         // TODO
-        handSelectScreenState = null;
+        this.handSelectScreenState = null;
         this.cardsPlayedThisTurn = new ArrayList<>();
         this.cardsPlayedThisTurnBackup = new ArrayList<>();
         this.gridSelectedCards = new ArrayList<>();
@@ -159,24 +131,13 @@ public class SaveState {
     }
 
     public void loadState() {
-        long loadStartTime = System.currentTimeMillis();
-
         AbstractDungeon.actionManager.currentAction = null;
         AbstractDungeon.actionManager.actions.clear();
 
         AbstractDungeon.ascensionLevel = this.ascensionLevel;
         GameActionManager.turn = this.turn;
 
-        long loadPlayerStartTime = System.currentTimeMillis();
-
         AbstractDungeon.player = playerState.loadPlayer();
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController
-                    .addRuntime("Load Time Player", System
-                            .currentTimeMillis() - loadPlayerStartTime);
-        }
-
         curMapNodeState.loadMapRoomNode(AbstractDungeon.currMapNode);
 
         AbstractDungeon.isScreenUp = isScreenUp;
@@ -195,7 +156,7 @@ public class SaveState {
             gridCardSelectScreenState.loadGridSelectScreen();
         }
 
-        if (!shouldGoFast() && !isScreenUp) {
+        if (!shouldGoFast && !isScreenUp) {
             CombatRewardScreenState.loadCombatRewardScreen();
         }
 
@@ -237,7 +198,6 @@ public class SaveState {
         AbstractDungeon.player.hand.applyPowers();
 
         rngState.loadRng();
-
     }
 
     public int getPlayerHealth() {
@@ -263,7 +223,6 @@ public class SaveState {
         saveStateJson.addProperty("rng_state", rngState.encode());
 
         saveStateJson.addProperty("cur_map_node_state", curMapNodeState.encode());
-        saveStateJson.addProperty("encounter_name", encounterName);
         saveStateJson.addProperty("is_screen_up", isScreenUp);
         saveStateJson.addProperty("ascension_level", ascensionLevel);
 

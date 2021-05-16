@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.GremlinNob;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class GremlinNobState extends MonsterState {
     private final boolean usedBellow;
@@ -68,7 +68,7 @@ public class GremlinNobState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 70)
         public static SpireReturn GremlinNob(GremlinNob _instance, float x, float y, boolean setVuln) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

@@ -15,7 +15,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.BookOfStabbing;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class BookOfStabbingState extends MonsterState {
     private final int stabCount;
@@ -65,9 +65,9 @@ public class BookOfStabbingState extends MonsterState {
             method = SpirePatch.CONSTRUCTOR
     )
     public static class NoAnimationsPatch {
-        @SpireInsertPatch(loc = 39 )
+        @SpireInsertPatch(loc = 39)
         public static SpireReturn BookOfStabbing(BookOfStabbing _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int stabDmg;
                 int bigStabDmg;
                 _instance.type = AbstractMonster.EnemyType.ELITE;
@@ -97,23 +97,6 @@ public class BookOfStabbingState extends MonsterState {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = BookOfStabbing.class,
-            paramtypez = {int.class},
-            method = "getMove"
-    )
-    public static class SpyOnStabCountFix {
-        public static void Postfix(BookOfStabbing _instance, int num) {
-            if(!shouldGoFast())
-            {
-                int stabCount = ReflectionHacks
-                        .getPrivate(_instance, BookOfStabbing.class, "stabCount");
-
-                System.err.println("Going up to " + stabCount + " Stabs");
-            }
         }
     }
 }

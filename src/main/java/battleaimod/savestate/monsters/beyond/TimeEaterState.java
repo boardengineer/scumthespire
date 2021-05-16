@@ -9,15 +9,12 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.megacrit.cardcrawl.actions.utility.UseCardAction;
-import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.TimeEater;
-import com.megacrit.cardcrawl.powers.TimeWarpPower;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class TimeEaterState extends MonsterState {
     private final boolean usedHaste;
@@ -74,7 +71,7 @@ public class TimeEaterState extends MonsterState {
     public static class YetNoAnimationsPatch {
         @SpireInsertPatch(loc = 65)
         public static SpireReturn Insert(TimeEater _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int reverbDmg;
                 int headSlamDmg;
 
@@ -106,19 +103,6 @@ public class TimeEaterState extends MonsterState {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = TimeWarpPower.class,
-            paramtypez = {AbstractCard.class, UseCardAction.class},
-            method = "onAfterUseCard"
-    )
-    public static class SpyOnPowerPatch {
-        public static void Postfix(TimeWarpPower _instance, AbstractCard card, UseCardAction action) {
-            if (shouldGoFast()) {
-//                System.err.println(_instance.amount + " " + GameActionManager.turn);
-            }
         }
     }
 }

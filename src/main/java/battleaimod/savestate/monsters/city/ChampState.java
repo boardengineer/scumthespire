@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.Champ;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class ChampState extends MonsterState {
     private final int numTurns;
@@ -95,7 +95,7 @@ public class ChampState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 73)
         public static SpireReturn Champ(Champ _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int slashDmg;
                 int executeDmg;
                 int slapDmg;

@@ -1,7 +1,6 @@
 package battleaimod.savestate.monsters.exordium;
 
 import basemod.ReflectionHacks;
-import battleaimod.BattleAiMod;
 import battleaimod.fastobjects.AnimationStateFast;
 import battleaimod.savestate.monsters.Monster;
 import battleaimod.savestate.monsters.MonsterState;
@@ -18,7 +17,7 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Sentry;
 import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SentryState extends MonsterState {
     private final boolean firstMove;
@@ -44,27 +43,11 @@ public class SentryState extends MonsterState {
 
     @Override
     public AbstractMonster loadMonster() {
-
-        long constructorStart = System.currentTimeMillis();
-
         Sentry result = new Sentry(offsetX, offsetY);
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController
-                    .addRuntime("Load Time Constructor Sentry", System.currentTimeMillis() - constructorStart);
-            BattleAiMod.battleAiController
-                    .addRuntime("Load Time Constructor Sentry Instance",1);
-        }
 
         populateSharedFields(result);
 
         ReflectionHacks.setPrivate(result, Sentry.class, "firstMove", firstMove);
-
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController
-                    .addRuntime("Load Time Sentry Complete", System.currentTimeMillis() - constructorStart);
-        }
 
         return result;
     }
@@ -86,7 +69,7 @@ public class SentryState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 66)
         public static SpireReturn Sentry(Sentry _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }
@@ -104,21 +87,9 @@ public class SentryState extends MonsterState {
         static int nextMove = 0;
 
         public static SpireReturn Prefix(Sentry _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 startTurn = System.currentTimeMillis();
                 nextMove = _instance.nextMove;
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(Sentry _instance) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController
-                            .addRuntime("Sentry Turn " + nextMove, System
-                                    .currentTimeMillis() - startTurn);
-                }
                 return SpireReturn.Continue();
             }
             return SpireReturn.Continue();
@@ -132,69 +103,11 @@ public class SentryState extends MonsterState {
     )
     public static class SpyOnRecharrgePatch {
         public static SpireReturn Prefix(EnergyManager _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 // TODO add conserver effects
                 EnergyPanel.setEnergy(_instance.energy);
 
                 return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = EnergyPanel.class,
-            paramtypez = {int.class},
-            method = "setEnergy"
-    )
-    public static class SpyOnSetEnergyPatch {
-        static long startEffect = 0;
-
-        public static SpireReturn Prefix(int energy) {
-            if (shouldGoFast()) {
-                startEffect = System.currentTimeMillis();
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(int energy) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController
-                            .addRuntime("SetEnergy", System
-                                    .currentTimeMillis() - startEffect);
-                }
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
-            clz = EnergyPanel.class,
-            paramtypez = {int.class},
-            method = "addEnergy"
-    )
-    public static class SpyOnAdsdEnergyPatch {
-        static long startEffect = 0;
-
-        public static SpireReturn Prefix(int e) {
-            if (shouldGoFast()) {
-                startEffect = System.currentTimeMillis();
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(int e) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController
-                            .addRuntime("addEnergy", System
-                                    .currentTimeMillis() - startEffect);
-                }
-                return SpireReturn.Continue();
             }
             return SpireReturn.Continue();
         }
@@ -206,11 +119,8 @@ public class SentryState extends MonsterState {
             method = SpirePatch.CONSTRUCTOR
     )
     public static class SpyOnMakeDazePatch {
-        static long startConstructor = 0;
-
         public static SpireReturn Prefix(MakeTempCardInDiscardAction _instance, AbstractCard card, int amount) {
-            if (shouldGoFast()) {
-                startConstructor = System.currentTimeMillis();
+            if (shouldGoFast) {
                 ReflectionHacks
                         .setPrivate(_instance, MakeTempCardInDiscardAction.class, "numCards", amount);
                 _instance.actionType = AbstractGameAction.ActionType.CARD_MANIPULATION;
@@ -225,18 +135,6 @@ public class SentryState extends MonsterState {
 
 
                 return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(MakeTempCardInDiscardAction _instance, AbstractCard card, int amount) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController
-                            .addRuntime("Make Temp Card Constructor", System
-                                    .currentTimeMillis() - startConstructor);
-                }
-                return SpireReturn.Continue();
             }
             return SpireReturn.Continue();
         }

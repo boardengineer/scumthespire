@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.Snecko;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SneckoState extends MonsterState {
     private final boolean firstTurn;
@@ -67,7 +67,7 @@ public class SneckoState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 53)
         public static SpireReturn Snecko(Snecko _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int biteDmg;
                 int tailDmg;
 

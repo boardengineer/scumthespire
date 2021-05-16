@@ -14,7 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.LouseNormal;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class LouseNormalState extends MonsterState {
     private final boolean isOpen;
@@ -75,7 +75,7 @@ public class LouseNormalState extends MonsterState {
         @SpireInsertPatch(loc = 40)
         public static SpireReturn LouseNormal(LouseNormal _instance, float x, float y) {
             // ascension is hopefully handled in state setting
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 if (AbstractDungeon.ascensionLevel >= 7) {
                     MonsterState.setHp(_instance, 11, 16);
                 } else {

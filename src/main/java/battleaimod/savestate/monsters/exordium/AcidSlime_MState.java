@@ -9,7 +9,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.AcidSlime_M;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class AcidSlime_MState extends MonsterState {
     public AcidSlime_MState(AbstractMonster monster) {
@@ -39,7 +39,7 @@ public class AcidSlime_MState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 65)
         public static SpireReturn AcidSlime_M(AcidSlime_M _instance, float x, float y, int poisonAmount, int newHealth) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

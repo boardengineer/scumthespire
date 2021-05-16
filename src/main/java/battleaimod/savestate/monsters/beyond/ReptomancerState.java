@@ -19,7 +19,7 @@ import com.megacrit.cardcrawl.monsters.beyond.Reptomancer;
 
 import java.util.ArrayList;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class ReptomancerState extends MonsterState {
     private final boolean firstMove;
@@ -111,7 +111,7 @@ public class ReptomancerState extends MonsterState {
 
         @SpireInsertPatch(loc = 48)
         public static SpireReturn Insert(Reptomancer _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int daggersPerSpawn;
 
                 if (AbstractDungeon.ascensionLevel >= 18) {

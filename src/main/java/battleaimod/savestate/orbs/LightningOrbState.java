@@ -11,7 +11,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.orbs.AbstractOrb;
 import com.megacrit.cardcrawl.orbs.Lightning;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class LightningOrbState extends OrbState {
     public LightningOrbState(AbstractOrb orb) {
@@ -34,7 +34,7 @@ public class LightningOrbState extends OrbState {
     public static class LightningEOTPatch {
         @SpirePrefixPatch
         public static SpireReturn doEOT(Lightning lightning) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 // TODO electro power
                 AbstractCreature m = AbstractDungeon.getRandomMonster();
                 DamageInfo info = new DamageInfo(AbstractDungeon.player, lightning.passiveAmount, DamageInfo.DamageType.THORNS);

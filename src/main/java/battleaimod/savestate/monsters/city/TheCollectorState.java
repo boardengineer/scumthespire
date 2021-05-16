@@ -12,7 +12,7 @@ import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.TheCollector;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class TheCollectorState extends MonsterState {
     private final int turnsTaken;
@@ -79,7 +79,7 @@ public class TheCollectorState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 98)
         public static SpireReturn TheCollector(TheCollector _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }
@@ -95,24 +95,10 @@ public class TheCollectorState extends MonsterState {
     public static class NoUpdateAnimationsPatch {
         @SpireInsertPatch(loc = 236)
         public static SpireReturn TheCollector(TheCollector _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 return SpireReturn.Return(null);
             }
             return SpireReturn.Continue();
         }
     }
-
-//    @SpirePatch(
-//            clz = TheCollector.class,
-//            paramtypez = {},
-//            method = "takeTurn"
-//    )
-//    public static class SpyOnCollectorTurnPatch {
-//        public static void Prefix(TheCollector _instance) {
-//            if (shouldGoFast()) {
-//                System.err.printf("%s %s\n", _instance.nextMove, AbstractDungeon
-//                        .getCurrRoom().monsters.monsters.size());
-//            }
-//        }
-//    }
 }

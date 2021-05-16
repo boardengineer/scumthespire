@@ -10,7 +10,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.Repulsor;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class RepulsorState extends MonsterState {
     public RepulsorState(AbstractMonster monster) {
@@ -39,10 +39,10 @@ public class RepulsorState extends MonsterState {
 
         @SpireInsertPatch(loc = 36)
         public static SpireReturn Insert(Repulsor _instance, float x, float y) {
-            if (shouldGoFast()) {
-
+            if (shouldGoFast) {
                 int dazeAmt = 2;
                 int attackDmg;
+
                 if (AbstractDungeon.ascensionLevel >= 7) {
                     MonsterState.setHp(_instance, 31, 38);
                 } else {

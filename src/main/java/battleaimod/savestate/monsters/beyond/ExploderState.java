@@ -12,7 +12,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.Exploder;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class ExploderState extends MonsterState {
     private final int turnCount;
@@ -61,7 +61,7 @@ public class ExploderState extends MonsterState {
 
         @SpireInsertPatch(loc = 45)
         public static SpireReturn Insert(Exploder _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int attackDmg;
                 if (AbstractDungeon.ascensionLevel >= 7) {
                     MonsterState.setHp(_instance, 30, 35);

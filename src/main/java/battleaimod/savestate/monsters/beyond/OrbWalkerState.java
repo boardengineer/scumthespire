@@ -9,7 +9,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.beyond.OrbWalker;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class OrbWalkerState extends MonsterState {
     public OrbWalkerState(AbstractMonster monster) {
@@ -39,7 +39,7 @@ public class OrbWalkerState extends MonsterState {
     public static class YetNoAnimationsPatch {
         @SpireInsertPatch(loc = 58)
         public static SpireReturn Insert(OrbWalker _instance, float x, float y) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 _instance.state = new AnimationStateFast();
                 return SpireReturn.Return(null);
             }

@@ -12,7 +12,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.city.SnakePlant;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.savestate.SaveStateMod.shouldGoFast;
 
 public class SnakePlantState extends MonsterState {
     public SnakePlantState(AbstractMonster monster) {
@@ -42,7 +42,7 @@ public class SnakePlantState extends MonsterState {
     public static class NoAnimationsPatch {
         @SpireInsertPatch(loc = 43)
         public static SpireReturn SnakePlant(SnakePlant _instance) {
-            if (shouldGoFast()) {
+            if (shouldGoFast) {
                 int rainBlowsDmg;
                 if (AbstractDungeon.ascensionLevel >= 7) {
                     MonsterState.setHp(_instance, 78, 82);
