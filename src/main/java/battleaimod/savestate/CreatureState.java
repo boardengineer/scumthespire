@@ -9,8 +9,14 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO: make encoderzz11aaSSSAAA
+/**
+ * State object analog of AbstractCreature
+ *
+ * At time of writing, there is no known use for this other than overrides in MonsterState and
+ * PlayerState.  Subclasses should have a load method that calls the load method of this class.
+ */
 public class CreatureState {
+    // TODO replace with json array
     private static final String POWER_DELIMETER = ";;;";
 
     private final String name;

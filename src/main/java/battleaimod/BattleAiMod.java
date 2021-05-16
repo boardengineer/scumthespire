@@ -67,8 +67,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             if (battleAiController.isDone) {
                 battleAiController = null;
             }
-        } else if (!BattleAiController.shouldStep()) {
-            System.err.println("Can't step yet");
         }
     }
 

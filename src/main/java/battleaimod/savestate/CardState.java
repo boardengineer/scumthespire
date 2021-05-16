@@ -1,6 +1,5 @@
 package battleaimod.savestate;
 
-import battleaimod.BattleAiMod;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.cards.AbstractCard;
@@ -87,11 +86,6 @@ public class CardState {
         this.targetDrawScale = card.targetDrawScale;
         this.timesUpgraded = card.timesUpgraded;
         this.dontTriggerOnUseCard = card.dontTriggerOnUseCard;
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Save Time CardState Constructor", System
-                    .currentTimeMillis() - cardConstructorStartTime);
-        }
     }
 
     public CardState(String jsonString) {
@@ -173,11 +167,6 @@ public class CardState {
         result.exhaust = exhaust;
         result.dontTriggerOnUseCard = dontTriggerOnUseCard;
 
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Load Time load Card Complete", System
-                    .currentTimeMillis() - loadState);
-        }
-
         return result;
     }
 
@@ -243,36 +232,13 @@ public class CardState {
     }
 
     public static AbstractCard getCard(String key) {
-        long startMethod = System.currentTimeMillis();
-
         Optional<AbstractCard> resultOptional = getCachedCard(key);
 
         AbstractCard result;
         if (resultOptional.isPresent() && shouldGoFast()) {
             result = resultOptional.get();
-            if (BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.addRuntime("Card Cache Hit", 1);
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController.addRuntime("Card Cache Hit-Time", System
-                            .currentTimeMillis() - startMethod);
-                }
-            }
         } else {
             result = getFreshCard(key);
-            if (BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.addRuntime("Card Cache Miss", 1);
-            }
-            if (BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.addRuntime("Card Cache Miss-Time", System
-                        .currentTimeMillis() - startMethod);
-            }
-        }
-
-        if (shouldGoFast()) {
-            if (BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.addRuntime("getCard", System
-                        .currentTimeMillis() - startMethod);
-            }
         }
 
         return result;
@@ -292,19 +258,5 @@ public class CardState {
 
     private static AbstractCard getFreshCard(String key) {
         return CardLibrary.getCard(key).makeCopy();
-    }
-
-    public static CardState makeNewCardState(AbstractCard card) {
-        if (card != null) {
-            return new CardState(card);
-        }
-        return null;
-    }
-
-    public static AbstractCard loadCardFromState(CardState card) {
-        if (card != null) {
-            return card.loadCard();
-        }
-        return null;
     }
 }

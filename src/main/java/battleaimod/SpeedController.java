@@ -1,10 +1,12 @@
 package battleaimod;
 
 import basemod.interfaces.PreUpdateSubscriber;
-import battleaimod.battleai.BattleAiController;
+import battleaimod.patches.FastActionsPatch;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import skrelpoid.superfastmode.SuperFastMode;
 
 import static battleaimod.patches.MonsterPatch.shouldGoFast;
@@ -41,7 +43,7 @@ public class SpeedController implements PreUpdateSubscriber {
         }
 
         if (!shouldGoFast()) {
-            if (BattleAiController.shouldStep()) {
+            if (shouldStep()) {
                 BattleAiMod.sendGameState();
             }
         }
@@ -55,5 +57,25 @@ public class SpeedController implements PreUpdateSubscriber {
         Settings.ACTION_DUR_MED = 0.005F;
         Settings.ACTION_DUR_LONG = .01F;
         Settings.ACTION_DUR_XLONG = .015F;
+    }
+
+    public static boolean shouldStep() {
+        return shouldCheckForPlays() || isEndCommandAvailable() || FastActionsPatch
+                .shouldStepAiController();
+    }
+
+    public static boolean isInDungeon() {
+        return CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY && AbstractDungeon
+                .isPlayerInDungeon() && AbstractDungeon.currMapNode != null;
+    }
+
+    private static boolean shouldCheckForPlays() {
+        return isInDungeon() && (AbstractDungeon
+                .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp);
+    }
+
+    private static boolean isEndCommandAvailable() {
+        return isInDungeon() && AbstractDungeon
+                .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp;
     }
 }

@@ -189,21 +189,11 @@ public class SaveState {
 
         GameActionManager.totalDiscardedThisTurn = totalDiscardedThisTurn;
 
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.loadstateTime += (System
-                    .currentTimeMillis() - loadStartTime);
-            if (BattleAiMod.battleAiController.runTimes != null) {
-                BattleAiMod.battleAiController.addRuntime("Total Load Time", System
-                        .currentTimeMillis() - loadStartTime);
-            }
-        }
-
         if (handSelectScreenState != null) {
             handSelectScreenState.loadHandSelectScreenState();
         } else if (gridCardSelectScreenState != null) {
             gridCardSelectScreenState.loadGridSelectScreen();
         }
-
 
         if (!shouldGoFast() && !isScreenUp) {
             CombatRewardScreenState.loadCombatRewardScreen();

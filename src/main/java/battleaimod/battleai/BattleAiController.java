@@ -1,12 +1,9 @@
 package battleaimod.battleai;
 
 import battleaimod.battleai.commands.Command;
-import battleaimod.patches.FastActionsPatch;
 import battleaimod.savestate.CardState;
 import battleaimod.savestate.SaveState;
-import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,7 +18,6 @@ public class BattleAiController {
     public int targetTurnJump;
 
     public PriorityQueue<TurnNode> turns = new PriorityQueue<>();
-    public StateNode root = null;
 
     public int minDamage = 5000;
     public StateNode bestEnd = null;
@@ -58,13 +54,7 @@ public class BattleAiController {
 
     private final boolean shouldRunWhenFound;
 
-    private TurnNode rootTurn = null;
-
     public long controllerStartTime;
-    public long actionTime;
-    public long stepTime;
-    public long updateTime;
-    public long loadstateTime;
 
     public HashMap<String, Long> runTimes;
 
@@ -79,25 +69,6 @@ public class BattleAiController {
         startingState = state;
         initialized = false;
         startingState.loadState();
-    }
-
-    public BattleAiController(SaveState state, boolean shouldRunWhenFound) {
-        runTimes = new HashMap<>();
-        minDamage = 5000;
-        bestEnd = null;
-        this.shouldRunWhenFound = shouldRunWhenFound;
-        startingState = state;
-        initialized = false;
-        startingState.loadState();
-    }
-
-    public BattleAiController(SaveState saveState, List<Command> commands) {
-        runTimes = new HashMap<>();
-        runCommandMode = true;
-        shouldRunWhenFound = true;
-        bestPath = commands;
-        bestPathRunner = commands.iterator();
-        startingState = saveState;
     }
 
     public BattleAiController(SaveState saveState, List<Command> commands, boolean isComplete) {
@@ -130,26 +101,6 @@ public class BattleAiController {
         this.runCommandMode = true;
     }
 
-    public static boolean shouldStep() {
-        return shouldCheckForPlays() || isEndCommandAvailable() || FastActionsPatch
-                .shouldStepAiController();
-    }
-
-    public static boolean isInDungeon() {
-        return CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY && AbstractDungeon
-                .isPlayerInDungeon() && AbstractDungeon.currMapNode != null;
-    }
-
-    private static boolean shouldCheckForPlays() {
-        return isInDungeon() && (AbstractDungeon
-                .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp);
-    }
-
-    private static boolean isEndCommandAvailable() {
-        return isInDungeon() && AbstractDungeon
-                .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp;
-    }
-
     public void step() {
         if (runCommandMode) {
             System.err.println("running after run command mode");
@@ -164,17 +115,11 @@ public class BattleAiController {
                 runCommandMode = false;
                 StateNode firstStateContainer = new StateNode(null, null, this);
                 startingHealth = startingState.getPlayerHealth();
-                root = firstStateContainer;
                 firstStateContainer.saveState = startingState;
                 turns = new PriorityQueue<>();
-                this.rootTurn = new TurnNode(firstStateContainer, this, null);
-                turns.add(rootTurn);
+                turns.add(new TurnNode(firstStateContainer, this, null));
 
                 controllerStartTime = System.currentTimeMillis();
-                actionTime = 0;
-                stepTime = 0;
-                updateTime = 0;
-                loadstateTime = 0;
                 runTimes = new HashMap<>();
                 CardState.resetFreeCards();
             }
@@ -193,7 +138,11 @@ public class BattleAiController {
                     bestPath = commandsToGetToNode(bestEnd);
                     bestPathRunner = bestPath.iterator();
                     return;
-                } else if (bestTurn != null) {
+                } else if (bestTurn != null || backupTurn != null) {
+                    if (bestTurn == null) {
+                        System.err.println("Loading for backup " + backupTurn);
+                        bestTurn = backupTurn;
+                    }
                     System.err.println("Loading for turn load threshold, best turn: " + bestTurn);
                     turnsLoaded = 0;
                     turns.clear();
@@ -229,27 +178,10 @@ public class BattleAiController {
                     minDamage = 5000;
 
                     return;
-                } else if (backupTurn != null) {
-                    System.err.println("Loading from backup: " + backupTurn);
-                    turnsLoaded = 0;
-                    turns.clear();
-                    TurnNode toAdd = makeResetCopy(backupTurn);
-                    committedTurn = toAdd;
-                    turns.add(toAdd);
-                    toAdd.startingState.saveState.loadState();
-                    bestTurn = null;
-                    backupTurn = null;
-
-                    // TODO this is here to prevent playback errors
-                    bestEnd = null;
-                    minDamage = 5000;
-
-                    return;
                 }
             }
 
-            while (!turns
-                    .isEmpty() && (curTurn == null || curTurn.isDone)) {
+            while (!turns.isEmpty() && curTurn == null) {
                 curTurn = turns.peek();
 
                 int turnNumber = curTurn.startingState.saveState.turn;
@@ -264,8 +196,6 @@ public class BattleAiController {
                     ++turnsLoaded;
                     turns.poll();
                 } else {
-//                    System.err.println("the best turn has damage " + curTurn + " " + turns
-//                            .size() + " " + (turnsLoaded));
                     if (curTurn.isDone) {
                         turns.poll();
                     }
@@ -348,7 +278,6 @@ public class BattleAiController {
             if (!bestPathRunner.hasNext()) {
                 System.err.println("no more commands to run");
                 turns = new PriorityQueue<>();
-                root = null;
                 minDamage = 5000;
                 bestEnd = null;
 

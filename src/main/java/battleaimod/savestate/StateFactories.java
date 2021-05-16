@@ -9,6 +9,10 @@ import battleaimod.savestate.relics.Relic;
 
 import java.util.HashMap;
 
+/**
+ * This class contains maps to state factories.  Modded content can be included in the state saver
+ * by adding keys and factories directly to these maps
+ */
 public class StateFactories {
     public static HashMap<String, Monster> monsterByIdMap = createMonsterMap();
     public static HashMap<String, Power> powerByIdMap = createPowerMap();
