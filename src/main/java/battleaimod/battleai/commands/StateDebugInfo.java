@@ -1,8 +1,8 @@
 package battleaimod.battleai.commands;
 
-import battleaimod.savestate.SaveState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import savestate.SaveState;
 
 public class StateDebugInfo {
     private final int playerHealth;

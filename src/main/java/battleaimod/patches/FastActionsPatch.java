@@ -1,7 +1,7 @@
 package battleaimod.patches;
 
+import battleaimod.ActionSimulator;
 import battleaimod.BattleAiMod;
-import battleaimod.fastobjects.ActionSimulator;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;

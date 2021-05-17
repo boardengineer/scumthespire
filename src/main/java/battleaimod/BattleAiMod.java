@@ -8,12 +8,8 @@ import basemod.interfaces.PostInitializeSubscriber;
 import basemod.interfaces.PostUpdateSubscriber;
 import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
-import battleaimod.battleai.commands.CardCommand;
-import battleaimod.fastobjects.ScreenShakeFast;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
-import battleaimod.savestate.SaveState;
-import battleaimod.savestate.SaveStateMod;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
@@ -25,6 +21,9 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
+import savestate.SaveState;
+import savestate.SaveStateMod;
+import savestate.fastobjects.ScreenShakeFast;
 
 import java.io.IOException;
 
@@ -75,6 +74,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         BattleAiMod mod = new BattleAiMod();
     }
 
+    @Override
     public void receivePostInitialize() {
         String isServerFlag = System.getProperty("isServer");
 
@@ -114,62 +114,11 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     }
 
     private void setUpOptionsMenu() {
-//        BaseMod.addTopPanelItem(new StartAIPanel());
-
-        BaseMod.addTopPanelItem(new StartAiServerTopPanel());
         BaseMod.addTopPanelItem(new StartAiClientTopPanel());
-
-//        BaseMod.addTopPanelItem(new SaveStateTopPanel());
-//        BaseMod.addTopPanelItem(new LoadStateTopPanel());
-    }
-
-
-    public class SaveStateTopPanel extends TopPanelItem {
-        public static final String ID = "yourmodname:SaveState";
-
-        public SaveStateTopPanel() {
-            super(new Texture("save.png"), ID);
-        }
-
-        @Override
-        protected void onClick() {
-            System.out.println("you clicked on save");
-            saveState = new SaveState();
-        }
-    }
-
-    public class StartAIPanel extends TopPanelItem {
-        public static final String ID = "yourmodname:SaveState";
-
-        public StartAIPanel() {
-            super(new Texture("save.png"), ID);
-        }
-
-        @Override
-        protected void onClick() {
-            new CardCommand(4, "").execute();
-        }
-    }
-
-    public class LoadStateTopPanel extends TopPanelItem {
-        public static final String ID = "yourmodname:LoadState";
-
-        public LoadStateTopPanel() {
-            super(new Texture("Icon.png"), ID);
-        }
-
-        @Override
-        protected void onClick() {
-            receivePostUpdate();
-
-            if (saveState != null) {
-                saveState.loadState();
-            }
-        }
     }
 
     public class StartAiClientTopPanel extends TopPanelItem {
-        public static final String ID = "yourmodname:Step";
+        public static final String ID = "battleaimod:startclient";
 
         public StartAiClientTopPanel() {
             super(new Texture("Icon.png"), ID);
@@ -187,21 +136,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
             if (aiClient != null) {
                 aiClient.sendState();
-            }
-        }
-    }
-
-    public class StartAiServerTopPanel extends TopPanelItem {
-        public static final String ID = "yourmodname:startAi";
-
-        public StartAiServerTopPanel() {
-            super(new Texture("save.png"), ID);
-        }
-
-        @Override
-        protected void onClick() {
-            if (aiServer == null) {
-                aiServer = new AiServer();
             }
         }
     }

@@ -3,9 +3,9 @@ package battleaimod.battleai;
 import battleaimod.battleai.commands.Command;
 import battleaimod.battleai.commands.EndCommand;
 import battleaimod.battleai.commands.StateDebugInfo;
-import battleaimod.savestate.PotionState;
-import battleaimod.savestate.SaveState;
-import battleaimod.savestate.powers.PowerState;
+import savestate.PotionState;
+import savestate.SaveState;
+import savestate.powers.PowerState;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -5,10 +5,10 @@ import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.StateNode;
 import battleaimod.battleai.TurnNode;
 import battleaimod.battleai.commands.Command;
-import battleaimod.savestate.SaveState;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import savestate.SaveState;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;

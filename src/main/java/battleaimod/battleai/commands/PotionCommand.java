@@ -1,6 +1,6 @@
 package battleaimod.battleai.commands;
 
-import battleaimod.fastobjects.ActionSimulator;
+import battleaimod.ActionSimulator;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;

@@ -2,7 +2,7 @@ package battleaimod.patches;
 
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
-import battleaimod.fastobjects.AnimationStateFast;
+import savestate.fastobjects.AnimationStateFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.animations.AnimateFastAttackAction;

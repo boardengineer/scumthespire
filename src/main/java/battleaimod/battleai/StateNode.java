@@ -4,9 +4,6 @@ import basemod.ReflectionHacks;
 import battleaimod.battleai.commands.*;
 import battleaimod.battleai.playorder.IronCladPlayOrder;
 import battleaimod.battleai.playorder.SilentPlayOrder;
-import battleaimod.savestate.PotionState;
-import battleaimod.savestate.SaveState;
-import battleaimod.savestate.powers.PowerState;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.red.TwinStrike;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
@@ -18,6 +15,9 @@ import com.megacrit.cardcrawl.potions.PotionSlot;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.screens.select.GridCardSelectScreen;
 import com.megacrit.cardcrawl.ui.buttons.CardSelectConfirmButton;
+import savestate.PotionState;
+import savestate.SaveState;
+import savestate.powers.PowerState;
 
 import java.util.*;
 

@@ -1,10 +1,10 @@
-package battleaimod.fastobjects;
+package battleaimod;
 
-import battleaimod.BattleAiMod;
-import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.ClearCardQueueAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
-import com.megacrit.cardcrawl.actions.common.*;
+import com.megacrit.cardcrawl.actions.common.DiscardAtEndOfTurnAction;
+import com.megacrit.cardcrawl.actions.common.DrawCardAction;
+import com.megacrit.cardcrawl.actions.common.EnableEndTurnButtonAction;
 import com.megacrit.cardcrawl.actions.defect.TriggerEndOfTurnOrbsAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
@@ -18,6 +18,7 @@ import com.megacrit.cardcrawl.orbs.AbstractOrb;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.relics.UnceasingTop;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import savestate.actions.EnqueueEndTurnAction;
 
 import java.util.Iterator;
 
@@ -290,19 +291,6 @@ public class ActionSimulator {
 
         AbstractDungeon.actionManager.addToBottom(new EnqueueEndTurnAction());
         AbstractDungeon.player.isEndingTurn = false;
-    }
-
-    public static class EnqueueEndTurnAction extends AbstractGameAction {
-        @Override
-        public void update() {
-            this.addToBot(new EndTurnAction());
-            if (!AbstractDungeon.getCurrRoom().skipMonsterTurn) {
-                this.addToBot(new MonsterStartTurnAction());
-            }
-
-            AbstractDungeon.actionManager.monsterAttacksQueued = false;
-            this.isDone = true;
-        }
     }
 
     public static void updateMonsters() {

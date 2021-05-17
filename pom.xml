@@ -5,7 +5,7 @@
 
     <groupId>autoplay</groupId>
     <artifactId>BattleAiMod</artifactId>
-    <version>1.1.0</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>Battle Ai Mod</name>
     <description>Server/Client setup allowing an AI to control the game</description>
@@ -39,6 +39,13 @@
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/../_ModTheSpire/mods/SuperFastMode.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>savestatemod</groupId>
+            <artifactId>savestatemod</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../_ModTheSpire/mods/SaveStateMod.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

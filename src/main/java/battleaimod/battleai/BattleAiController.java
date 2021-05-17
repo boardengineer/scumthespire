@@ -1,8 +1,8 @@
 package battleaimod.battleai;
 
 import battleaimod.battleai.commands.Command;
-import battleaimod.savestate.CardState;
-import battleaimod.savestate.SaveState;
+import savestate.CardState;
+import savestate.SaveState;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
 import java.util.*;
