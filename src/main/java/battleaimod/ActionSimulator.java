@@ -2,10 +2,14 @@ package battleaimod;
 
 import com.megacrit.cardcrawl.actions.ClearCardQueueAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
+import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.DiscardAtEndOfTurnAction;
 import com.megacrit.cardcrawl.actions.common.DrawCardAction;
 import com.megacrit.cardcrawl.actions.common.EnableEndTurnButtonAction;
+import com.megacrit.cardcrawl.actions.common.ShowMoveNameAction;
+import com.megacrit.cardcrawl.actions.utility.SFXAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
+import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardQueueItem;
 import com.megacrit.cardcrawl.daily.mods.Careless;
@@ -21,7 +25,6 @@ import savestate.actions.EnqueueEndTurnAction;
 
 import java.util.Iterator;
 
-import static battleaimod.patches.FastActionsPatch.runAndProfile;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 /**
@@ -29,6 +32,80 @@ import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
  * actions can use this variant to update faster
  */
 public class ActionSimulator {
+    /**
+     * A blocking loop that's meant to replace the logic from GameActionManager.  An attached
+     * controller should move the state forward until it reports that it is done at which point
+     * the loop will exit.
+     */
+    public static void actionLoop() {
+        if (actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS || !actionManager.monsterQueue
+                .isEmpty() || shouldStepAiController()) {
+
+            while (shouldWaitOnActions() || shouldStepAiController()) {
+                long startTime = System.currentTimeMillis();
+
+                AbstractDungeon.topLevelEffects.clear();
+                AbstractDungeon.effectList.clear();
+                AbstractDungeon.effectsQueue.clear();
+
+                // TODO this is going to have consequences
+                actionManager.cardsPlayedThisCombat.clear();
+
+                if (shouldWaitOnActions()) {
+                    while (actionManager.currentAction != null && !AbstractDungeon.isScreenUp) {
+                        if (actionManager.currentAction instanceof SetAnimationAction) {
+                            actionManager.currentAction = null;
+                        } else if (actionManager.currentAction instanceof ShowMoveNameAction) {
+                            actionManager.currentAction = null;
+                        } else if (actionManager.currentAction instanceof WaitAction) {
+                            actionManager.currentAction = null;
+                        } else if (actionManager.currentAction instanceof SFXAction) {
+                            actionManager.currentAction = null;
+                        }
+
+                        if (actionManager.currentAction != null) {
+                            if (!actionManager.currentAction.isDone) {
+                                actionManager.currentAction.update();
+                            }
+                        }
+
+                        if (actionManager.currentAction != null &&
+                                actionManager.currentAction.isDone && !AbstractDungeon.isScreenUp) {
+                            actionManager.currentAction = null;
+                        }
+
+                        if (!AbstractDungeon.isScreenUp) {
+                            ActionSimulator.ActionManageUpdate();
+                        }
+
+                    }
+                } else if (shouldStepAiController()) {
+                    BattleAiMod.battleAiController.step();
+                }
+
+                runAndProfile("Room Update", () -> {
+                    if (!AbstractDungeon.isScreenUp) {
+                        ActionSimulator.roomUpdate();
+                    }
+                });
+
+                if (BattleAiMod.battleAiController != null) {
+                    BattleAiMod.battleAiController.addRuntime("Update Loop Total", System
+                            .currentTimeMillis() - startTime);
+                }
+            }
+
+            System.err.println("exiting loop ");
+            if (actionManager.currentAction == null && !AbstractDungeon.isScreenUp) {
+                ActionSimulator.advanceActionQueue();
+                AbstractDungeon
+                        .getCurrRoom().phase = AbstractRoom.RoomPhase.COMBAT;
+            }
+
+        }
+    }
+
+
     public static void callEndOfTurnActions() {
         AbstractDungeon.getCurrRoom().applyEndOfTurnRelics();
         AbstractDungeon.getCurrRoom().applyEndOfTurnPreCardPowers();
@@ -47,7 +124,10 @@ public class ActionSimulator {
         }
     }
 
-    public static void ActionManagerNextAction() {
+    /**
+     * Based on ActionManager.getNextAction()
+     */
+    public static void advanceActionQueue() {
         if (!actionManager.actions.isEmpty()) {
             actionManager.currentAction = actionManager.actions.remove(0);
             actionManager.phase = GameActionManager.Phase.EXECUTING_ACTIONS;
@@ -208,7 +288,7 @@ public class ActionSimulator {
     public static void ActionManageUpdate() {
         switch (actionManager.phase) {
             case WAITING_ON_USER:
-                ActionSimulator.ActionManagerNextAction();
+                ActionSimulator.advanceActionQueue();
                 break;
             case EXECUTING_ACTIONS:
                 if (actionManager.currentAction != null && !actionManager.currentAction.isDone) {
@@ -216,7 +296,7 @@ public class ActionSimulator {
                 } else {
                     actionManager.previousAction = actionManager.currentAction;
                     actionManager.currentAction = null;
-                    ActionSimulator.ActionManagerNextAction();
+                    ActionSimulator.advanceActionQueue();
                     if (actionManager.currentAction == null && AbstractDungeon
                             .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !actionManager.usingCard) {
                         actionManager.phase = GameActionManager.Phase.WAITING_ON_USER;
@@ -288,5 +368,63 @@ public class ActionSimulator {
                 AbstractDungeon.getCurrRoom().endBattle();
             }
         });
+    }
+
+    public static boolean shouldStepAiController() {
+        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.isDone) {
+            return false;
+        }
+
+        if (shouldWaitOnActions()) {
+            return false;
+        }
+
+        if (AbstractDungeon.isScreenUp) {
+            return true;
+        }
+
+        return actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
+                !BattleAiMod.battleAiController.runCommandMode;
+    }
+
+    private static boolean shouldWaitOnActions() {
+        // Only freeze if the AI is pathing
+        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.runCommandMode) {
+            return false;
+        }
+
+        // Screens wait for users even though there are actions in the action manager
+        if (AbstractDungeon.isScreenUp) {
+            return false;
+        }
+
+        // Start of Turn
+        if (actionManager.turnHasEnded && !AbstractDungeon.getMonsters()
+                                                          .areMonstersBasicallyDead()) {
+            return true;
+        }
+
+        // Middle of Monster turn
+        if (!actionManager.monsterQueue.isEmpty()) {
+            return true;
+        }
+
+        if (actionManager.usingCard) {
+            return true;
+        }
+
+        return actionManager.currentAction != null || !actionManager.actions
+                .isEmpty() || !actionManager.actions
+                .isEmpty() || actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS;
+    }
+
+    public static void runAndProfile(String name, Runnable runnable) {
+        long start = System.currentTimeMillis();
+
+        runnable.run();
+
+        if (BattleAiMod.battleAiController != null) {
+            BattleAiMod.battleAiController.addRuntime(name, System.currentTimeMillis() - start);
+        }
     }
 }

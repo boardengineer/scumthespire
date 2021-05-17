@@ -1,7 +1,6 @@
 package battleaimod;
 
 import basemod.interfaces.PreUpdateSubscriber;
-import battleaimod.patches.FastActionsPatch;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
@@ -60,7 +59,7 @@ public class SpeedController implements PreUpdateSubscriber {
     }
 
     public static boolean shouldStep() {
-        return shouldCheckForPlays() || isEndCommandAvailable() || FastActionsPatch
+        return shouldCheckForPlays() || isEndCommandAvailable() || ActionSimulator
                 .shouldStepAiController();
     }
 

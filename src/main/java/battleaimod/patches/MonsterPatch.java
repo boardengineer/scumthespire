@@ -2,7 +2,6 @@ package battleaimod.patches;
 
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
-import savestate.fastobjects.AnimationStateFast;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.animations.AnimateFastAttackAction;
@@ -12,17 +11,13 @@ import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
 import com.megacrit.cardcrawl.actions.common.EscapeAction;
 import com.megacrit.cardcrawl.actions.common.SpawnMonsterAction;
 import com.megacrit.cardcrawl.actions.unique.SummonGremlinAction;
-import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.red.PommelStrike;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 import com.megacrit.cardcrawl.powers.AbstractPower;
-import com.megacrit.cardcrawl.relics.AbstractRelic;
-import com.megacrit.cardcrawl.vfx.cardManip.ExhaustCardEffect;
-
-import java.util.Iterator;
+import savestate.fastobjects.AnimationStateFast;
 
 
 public class MonsterPatch {
@@ -57,33 +52,17 @@ public class MonsterPatch {
 
                 if (!monster.isDying) {
                     monster.isDying = true;
-                    Iterator var2;
                     if (monster.currentHealth <= 0 && triggerRelics) {
-                        var2 = monster.powers.iterator();
-
-                        while(var2.hasNext()) {
-                            AbstractPower p = (AbstractPower)var2.next();
-                            p.onDeath();
-                        }
+                        monster.powers.forEach(AbstractPower::onDeath);
                     }
 
                     if (triggerRelics) {
-                        var2 = AbstractDungeon.player.relics.iterator();
-
-                        while(var2.hasNext()) {
-                            AbstractRelic r = (AbstractRelic)var2.next();
-                            r.onMonsterDeath(monster);
-                        }
+                        AbstractDungeon.player.relics
+                                .forEach(relic -> relic.onMonsterDeath(monster));
                     }
 
                     if (AbstractDungeon.getMonsters().areMonstersBasicallyDead()) {
                         AbstractDungeon.overlayMenu.endTurnButton.disable();
-                        var2 = AbstractDungeon.player.limbo.group.iterator();
-
-                        while(var2.hasNext()) {
-                            AbstractCard c = (AbstractCard)var2.next();
-                            AbstractDungeon.effectList.add(new ExhaustCardEffect(c));
-                        }
 
                         AbstractDungeon.player.limbo.clear();
                     }
