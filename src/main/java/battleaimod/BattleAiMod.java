@@ -90,6 +90,9 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             Settings.isDemo = true;
             goFast = true;
             SaveStateMod.shouldGoFast = true;
+
+            ReflectionHacks.setPrivateStaticFinal(BaseMod.class, "logger", new SilentLogger());
+
         } else {
             Settings.MASTER_VOLUME = .0F;
         }

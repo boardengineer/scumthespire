@@ -5,7 +5,6 @@ import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.common.DiscardAtEndOfTurnAction;
 import com.megacrit.cardcrawl.actions.common.DrawCardAction;
 import com.megacrit.cardcrawl.actions.common.EnableEndTurnButtonAction;
-import com.megacrit.cardcrawl.actions.defect.TriggerEndOfTurnOrbsAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardQueueItem;
@@ -31,8 +30,6 @@ import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
  */
 public class ActionSimulator {
     public static void callEndOfTurnActions() {
-        long localManagerCallEOT = System.currentTimeMillis();
-        TriggerEndOfTurnOrbsAction d;
         AbstractDungeon.getCurrRoom().applyEndOfTurnRelics();
         AbstractDungeon.getCurrRoom().applyEndOfTurnPreCardPowers();
 
@@ -48,11 +45,6 @@ public class ActionSimulator {
         if (!actionManager.actions.isEmpty()) {
             actionManager.phase = GameActionManager.Phase.EXECUTING_ACTIONS;
         }
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Local Manager Call EOT", System
-                    .currentTimeMillis() - localManagerCallEOT);
-        }
     }
 
     public static void ActionManagerNextAction() {
@@ -65,8 +57,6 @@ public class ActionSimulator {
             actionManager.phase = GameActionManager.Phase.EXECUTING_ACTIONS;
             actionManager.hasControl = true;
         } else if (!actionManager.cardQueue.isEmpty()) {
-            long startCardStuff = System.currentTimeMillis();
-
             actionManager.usingCard = true;
             CardQueueItem queueItem = actionManager.cardQueue.get(0);
             AbstractCard c = queueItem.card;
@@ -152,12 +142,6 @@ public class ActionSimulator {
                 c.dontTriggerOnUseCard = true;
                 actionManager.addToBottom(new UseCardAction(c));
             }
-
-            if (BattleAiMod.battleAiController != null) {
-                BattleAiMod.battleAiController.addRuntime("Local Action Manager Card Stuff", System
-                        .currentTimeMillis() - startCardStuff);
-            }
-
         } else if (!actionManager.monsterAttacksQueued) {
             runAndProfile("Local Action Manager Queue Monster Turn", () -> {
                 actionManager.monsterAttacksQueued = true;
@@ -222,7 +206,6 @@ public class ActionSimulator {
     }
 
     public static void ActionManageUpdate() {
-        long localManagerUpdateStart = System.currentTimeMillis();
         switch (actionManager.phase) {
             case WAITING_ON_USER:
                 ActionSimulator.ActionManagerNextAction();
@@ -245,11 +228,6 @@ public class ActionSimulator {
                 }
                 break;
             default:
-        }
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime("Local Manager Update", System
-                    .currentTimeMillis() - localManagerUpdateStart);
         }
     }
 
