@@ -1,6 +1,5 @@
 package battleaimod.simulator;
 
-import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.actions.ClearCardQueueAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
@@ -79,7 +78,7 @@ public class ActionSimulator {
 
                     }
                 } else if (shouldStepAiController()) {
-                    BattleAiMod.battleAiController.step();
+                    LudicrousSpeedMod.controller.step();
                 }
 
                 ActionSimulator.roomUpdate();
@@ -357,7 +356,7 @@ public class ActionSimulator {
     }
 
     public static boolean shouldStepAiController() {
-        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.isDone()) {
+        if (LudicrousSpeedMod.controller == null || LudicrousSpeedMod.controller.isDone()) {
             return false;
         }
 
@@ -370,12 +369,12 @@ public class ActionSimulator {
         }
 
         return actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
-                !BattleAiMod.battleAiController.runCommandMode();
+                !LudicrousSpeedMod.controller.isDone();
     }
 
     private static boolean shouldWaitOnActions() {
         // Only freeze if the AI is pathing
-        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.runCommandMode()) {
+        if (LudicrousSpeedMod.controller == null || LudicrousSpeedMod.controller.isDone()) {
             return false;
         }
 

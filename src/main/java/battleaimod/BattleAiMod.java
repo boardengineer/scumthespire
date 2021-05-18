@@ -59,10 +59,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     }
 
     public static void sendGameState() {
-        if (battleAiController == null && shouldStartAiFromServer) {
-            shouldStartAiFromServer = false;
-            battleAiController = new BattleAiController(saveState);
-        }
         if (battleAiController != null) {
             battleAiController.step();
 
@@ -83,7 +79,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         if (isServerFlag != null) {
             if (Boolean.parseBoolean(isServerFlag)) {
                 BattleAiMod.isServer = true;
-
             }
         }
 
@@ -92,6 +87,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             Settings.isDemo = true;
             goFast = true;
             SaveStateMod.shouldGoFast = true;
+            LudicrousSpeedMod.plaidMode = true;
 
             ReflectionHacks.setPrivateStaticFinal(BaseMod.class, "logger", new SilentLogger());
 
@@ -102,6 +98,9 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             Settings.ACTION_DUR_LONG = .01F;
             Settings.ACTION_DUR_XLONG = .015F;
 
+            if (aiServer == null) {
+                aiServer = new AiServer();
+            }
         } else {
             Settings.MASTER_VOLUME = .0F;
         }
@@ -121,7 +120,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         }
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
-            battleAiController = new BattleAiController(saveState);
+            LudicrousSpeedMod.controller = battleAiController = new BattleAiController(saveState);
         }
     }
 
@@ -159,6 +158,11 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     @Override
     public void receivePreUpdate() {
+        if (battleAiController == null && shouldStartAiFromServer) {
+            shouldStartAiFromServer = false;
+            LudicrousSpeedMod.controller = battleAiController = new BattleAiController(saveState);
+        }
+
         if (actionManager.actions.isEmpty() && actionManager.currentAction == null) {
             if (shouldStartClient) {
                 shouldStartClient = false;

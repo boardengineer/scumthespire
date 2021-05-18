@@ -1,7 +1,7 @@
 package battleaimod.simulator.patches;
 
 import basemod.ReflectionHacks;
-import battleaimod.BattleAiMod;
+import battleaimod.simulator.LudicrousSpeedMod;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.animations.AnimateFastAttackAction;
@@ -22,7 +22,7 @@ import savestate.fastobjects.AnimationStateFast;
 
 public class MonsterPatch {
     public static boolean shouldGoFast() {
-        return BattleAiMod.goFast;
+        return LudicrousSpeedMod.plaidMode;
     }
 
     @SpirePatch(

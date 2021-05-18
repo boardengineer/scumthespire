@@ -2,6 +2,7 @@ package battleaimod.networking;
 
 import battleaimod.BattleAiMod;
 import battleaimod.battleai.BattleAiController;
+import battleaimod.simulator.LudicrousSpeedMod;
 import battleaimod.simulator.commands.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -85,7 +86,7 @@ public class AiClient {
                             System.err.println(commandsFromServer);
 
                             if (BattleAiMod.battleAiController == null) {
-                                BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, true);
+                                LudicrousSpeedMod.controller = BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, true);
                                 BattleAiMod.forceStep = true;
                             } else {
                                 BattleAiMod.battleAiController
@@ -104,7 +105,7 @@ public class AiClient {
                                 }
 
                                 if (BattleAiMod.battleAiController == null) {
-                                    BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, false);
+                                    LudicrousSpeedMod.controller = BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, false);
                                     BattleAiMod.forceStep = true;
                                 } else {
                                     BattleAiMod.battleAiController

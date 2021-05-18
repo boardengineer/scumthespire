@@ -1,16 +1,14 @@
 package battleaimod.simulator;
 
 import basemod.interfaces.PreUpdateSubscriber;
-import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
-import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
-
 public class LudicrousSpeedMod implements PreUpdateSubscriber {
-
+    public static Controller controller = null;
+    public static boolean plaidMode = false;
 
     @Override
     public void receivePreUpdate() {
@@ -27,9 +25,9 @@ public class LudicrousSpeedMod implements PreUpdateSubscriber {
             }
         }
 
-        if (!shouldGoFast()) {
-            if (shouldStep()) {
-                BattleAiMod.sendGameState();
+        if (!LudicrousSpeedMod.plaidMode) {
+            if (shouldStep() && controller != null && !controller.isDone()) {
+                controller.step();
             }
         }
     }

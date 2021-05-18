@@ -4,6 +4,7 @@ import battleaimod.BattleAiMod;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.StateNode;
 import battleaimod.battleai.TurnNode;
+import battleaimod.simulator.LudicrousSpeedMod;
 import battleaimod.simulator.commands.Command;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -107,7 +108,7 @@ public class AiServer {
                             }
 
                             out.writeUTF(jsonToSend.toString());
-                            BattleAiMod.battleAiController = null;
+                            BattleAiMod.battleAiController = LudicrousSpeedMod.controller = null;
                         } else {
                             System.err.println("This shouldn't have happened");
                         }

@@ -1,7 +1,6 @@
 package battleaimod.simulator.patches;
 
-import battleaimod.BattleAiMod;
-import battleaimod.networking.AiServer;
+import battleaimod.simulator.LudicrousSpeedMod;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePostfixPatch;
@@ -16,14 +15,14 @@ import com.megacrit.cardcrawl.rooms.EmptyRoom;
 
 import java.util.ArrayList;
 
-import static battleaimod.BattleAiMod.aiServer;
+import static battleaimod.simulator.LudicrousSpeedMod.plaidMode;
 
 public class ServerStartupPatches {
     @SpirePatch(clz = CardCrawlGame.class, method = "create")
     public static class GameStartupPatch {
         @SpirePostfixPatch
         public static void afterStart(CardCrawlGame game) {
-            if (BattleAiMod.isServer) {
+            if (plaidMode) {
                 System.err.println("Skipping Splash Screen for Char Select");
 
                 // Sets the current dungeon
@@ -37,11 +36,6 @@ public class ServerStartupPatches {
                 CardCrawlGame.dungeon.currMapNode.room = new EmptyRoom();
 
                 CardCrawlGame.mode = CardCrawlGame.GameMode.GAMEPLAY;
-
-                if (aiServer == null) {
-                    aiServer = new AiServer();
-                }
-
             }
         }
     }
@@ -50,7 +44,7 @@ public class ServerStartupPatches {
     public static class SkipRenderBlackFadeScreen {
         @SpirePrefixPatch
         public static SpireReturn replaceOnServer(CardCrawlGame game, SpriteBatch sb) {
-            if (BattleAiMod.isServer) {
+            if (LudicrousSpeedMod.plaidMode) {
                 return SpireReturn.Return(null);
             }
 
@@ -62,7 +56,7 @@ public class ServerStartupPatches {
     public static class NoRenderDungeon {
         @SpirePrefixPatch
         public static SpireReturn replaceOnServer(AbstractDungeon dungeon, SpriteBatch sb) {
-            if (BattleAiMod.isServer) {
+            if (LudicrousSpeedMod.plaidMode) {
                 return SpireReturn.Return(null);
             }
 
