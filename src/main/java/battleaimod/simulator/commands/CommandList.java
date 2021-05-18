@@ -17,6 +17,10 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public final class CommandList {
+    public static List<Command> getAvailableCommands() {
+        return getAvailableCommands(null);
+    }
+
     public static List<Command> getAvailableCommands(Comparator<AbstractCard> cardComparator) {
         List<Command> commands = new ArrayList<>();
         AbstractPlayer player = AbstractDungeon.player;
