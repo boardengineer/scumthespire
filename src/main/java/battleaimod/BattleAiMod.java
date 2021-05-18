@@ -10,7 +10,6 @@ import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
-import battleaimod.simulator.Controller;
 import battleaimod.simulator.LudicrousSpeedMod;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
@@ -41,7 +40,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static AiServer aiServer = null;
     public static AiClient aiClient = null;
     public static boolean shouldStartAiFromServer = false;
-    public static Controller battleAiController = null;
+    public static BattleAiController battleAiController = null;
     public static SaveState saveState;
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;

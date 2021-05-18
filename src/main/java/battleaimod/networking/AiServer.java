@@ -108,7 +108,7 @@ public class AiServer {
                             }
 
                             out.writeUTF(jsonToSend.toString());
-                            BattleAiMod.battleAiController = LudicrousSpeedMod.controller = null;
+                            LudicrousSpeedMod.controller = BattleAiMod.battleAiController = null;
                         } else {
                             System.err.println("This shouldn't have happened");
                         }

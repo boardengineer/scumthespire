@@ -339,32 +339,26 @@ public class BattleAiController implements Controller {
         return isDone;
     }
 
-    @Override
     public boolean runCommandMode() {
         return runCommandMode;
     }
 
-    @Override
     public TurnNode committedTurn() {
         return committedTurn;
     }
 
-    @Override
     public int turnsLoaded() {
         return turnsLoaded;
     }
 
-    @Override
     public Iterator<Command> bestPathRunner() {
         return bestPathRunner;
     }
 
-    @Override
     public List<Command> bestPath() {
         return bestPath;
     }
 
-    @Override
     public int maxTurnLoads() {
         return maxTurnLoads;
     }

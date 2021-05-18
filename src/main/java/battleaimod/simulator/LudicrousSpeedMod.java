@@ -7,7 +7,16 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
 public class LudicrousSpeedMod implements PreUpdateSubscriber {
+
+    /**
+     * Set this controller to your own custom logic
+     */
     public static Controller controller = null;
+
+    /**
+     * If true, the game's action manager will be replaced with a fast-action blocking loop.  The
+     * only reliable way to interact with the game in this mode is via the controller
+     */
     public static boolean plaidMode = false;
 
     @Override
