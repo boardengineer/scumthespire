@@ -103,9 +103,6 @@ public class BattleAiController implements Controller {
     }
 
     public void step() {
-        if (runCommandMode) {
-            System.err.println("running after run command mode");
-        }
         if (isDone) {
             return;
         }

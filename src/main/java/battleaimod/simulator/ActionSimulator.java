@@ -372,7 +372,7 @@ public class ActionSimulator {
                 !LudicrousSpeedMod.controller.isDone();
     }
 
-    private static boolean shouldWaitOnActions() {
+    public static boolean shouldWaitOnActions() {
         // Only freeze if the AI is pathing
         if (LudicrousSpeedMod.controller == null || LudicrousSpeedMod.controller.isDone()) {
             return false;

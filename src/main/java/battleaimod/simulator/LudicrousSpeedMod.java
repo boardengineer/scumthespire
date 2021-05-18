@@ -12,32 +12,19 @@ public class LudicrousSpeedMod implements PreUpdateSubscriber {
 
     @Override
     public void receivePreUpdate() {
-        if (AbstractDungeon.actionManager == null || AbstractDungeon.player == null) {
-            return;
-        }
-
-        if (AbstractDungeon.actionManager.turnHasEnded
-                || (AbstractDungeon.actionManager.currentAction != null && AbstractDungeon.actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS)
-                || !AbstractDungeon.actionManager.isEmpty()) {
-            if (!(AbstractDungeon.isScreenUp
-                    && (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT || AbstractDungeon.screen == AbstractDungeon.CurrentScreen.GRID))) {
-                return;
-            }
-        }
-
-        if (!LudicrousSpeedMod.plaidMode) {
-            if (shouldStep() && controller != null && !controller.isDone()) {
-                controller.step();
-            }
+        if (LudicrousSpeedMod.plaidMode) {
+            ActionSimulator.actionLoop();
+        } else if (shouldNormalUpdate()) {
+            controller.step();
         }
     }
 
-    public static boolean shouldStep() {
+    private static boolean shouldStep() {
         return shouldCheckForPlays() || isEndCommandAvailable() || ActionSimulator
                 .shouldStepAiController();
     }
 
-    public static boolean isInDungeon() {
+    private static boolean isInDungeon() {
         return CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY && AbstractDungeon
                 .isPlayerInDungeon() && AbstractDungeon.currMapNode != null;
     }
@@ -50,5 +37,33 @@ public class LudicrousSpeedMod implements PreUpdateSubscriber {
     private static boolean isEndCommandAvailable() {
         return isInDungeon() && AbstractDungeon
                 .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !AbstractDungeon.isScreenUp;
+    }
+
+    private static boolean shouldNormalUpdate() {
+        if (controller == null) {
+            return false;
+        }
+
+        if (AbstractDungeon.actionManager == null || AbstractDungeon.player == null) {
+            return false;
+        }
+
+        if (plaidMode) {
+            return false;
+        }
+
+        /**
+         * If there are queued actions, only step is there is a selection screen up
+         */
+        if (AbstractDungeon.actionManager.turnHasEnded
+                || (AbstractDungeon.actionManager.currentAction != null && AbstractDungeon.actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS)
+                || !AbstractDungeon.actionManager.isEmpty()) {
+            if (!(AbstractDungeon.isScreenUp
+                    && (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT || AbstractDungeon.screen == AbstractDungeon.CurrentScreen.GRID))) {
+                return false;
+            }
+        }
+
+        return shouldStep();
     }
 }
