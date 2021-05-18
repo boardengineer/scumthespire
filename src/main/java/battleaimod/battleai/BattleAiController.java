@@ -1,5 +1,6 @@
 package battleaimod.battleai;
 
+import battleaimod.simulator.Controller;
 import battleaimod.simulator.commands.Command;
 import savestate.CardState;
 import savestate.SaveState;
@@ -10,7 +11,7 @@ import java.util.stream.Collectors;
 
 import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
-public class BattleAiController {
+public class BattleAiController implements Controller {
     public static String currentEncounter = null;
     public int maxTurnLoads = 10_000;
 
@@ -339,5 +340,35 @@ public class BattleAiController {
 
     public boolean isDone() {
         return isDone;
+    }
+
+    @Override
+    public boolean runCommandMode() {
+        return runCommandMode;
+    }
+
+    @Override
+    public TurnNode committedTurn() {
+        return committedTurn;
+    }
+
+    @Override
+    public int turnsLoaded() {
+        return turnsLoaded;
+    }
+
+    @Override
+    public Iterator<Command> bestPathRunner() {
+        return bestPathRunner;
+    }
+
+    @Override
+    public List<Command> bestPath() {
+        return bestPath;
+    }
+
+    @Override
+    public int maxTurnLoads() {
+        return maxTurnLoads;
     }
 }

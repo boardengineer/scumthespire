@@ -1,8 +1,6 @@
 package battleaimod.simulator.patches;
 
 import basemod.ReflectionHacks;
-import battleaimod.BattleAiMod;
-import savestate.fastobjects.AnimationStateFast;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -16,6 +14,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.powers.AbstractPower;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
+import savestate.fastobjects.AnimationStateFast;
 
 import java.util.Iterator;
 
@@ -23,48 +22,13 @@ import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class IroncladPatches {
     @SpirePatch(
-            clz = Ironclad.class,
-            paramtypez = {DamageInfo.class},
-            method = "damage"
-    )
-    public static class SpyOnPlayerDamageffectPatch {
-        static long startEffect = 0;
-
-        public static SpireReturn Prefix(Ironclad _instance, DamageInfo info) {
-            if (shouldGoFast()) {
-                startEffect = System.currentTimeMillis();
-//                System.err.println(info.base + " " + info.type);
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(Ironclad _instance, DamageInfo info) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController
-                            .addRuntime("Ironclad damage", System
-                                    .currentTimeMillis() - startEffect);
-                }
-                return SpireReturn.Continue();
-            }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(
             clz = AbstractMonster.class,
             paramtypez = {DamageInfo.class},
             method = "damage"
     )
     public static class SpyOnMonsterDamageffectPatch {
-        static long startEffect = 0;
-
         public static SpireReturn Prefix(AbstractMonster monster, DamageInfo info) {
             if (shouldGoFast()) {
-                startEffect = System.currentTimeMillis();
-
-
                 if (info.output > 0 && monster.hasPower("IntangiblePlayer")) {
                     info.output = 1;
                 }
@@ -165,18 +129,6 @@ public class IroncladPatches {
                 }
 
                 return SpireReturn.Return(null);
-            }
-            return SpireReturn.Continue();
-        }
-
-        public static SpireReturn Postfix(AbstractMonster _instance, DamageInfo info) {
-            if (shouldGoFast()) {
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController
-                            .addRuntime("AbstractMonster damage", System
-                                    .currentTimeMillis() - startEffect);
-                }
-                return SpireReturn.Continue();
             }
             return SpireReturn.Continue();
         }

@@ -54,12 +54,12 @@ public class AiServer {
                         System.err.println("Controller Initiated");
 
                         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                        while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode) {
+                        while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode()) {
                             // Send update
 
                             JsonObject jsonToSend = new JsonObject();
 
-                            TurnNode committedTurn = BattleAiMod.battleAiController.committedTurn;
+                            TurnNode committedTurn = BattleAiMod.battleAiController.committedTurn();
                             if (committedTurn != null) {
                                 JsonArray currentCommands = commandsForStateNode(committedTurn.startingState);
                                 jsonToSend.add("commands", currentCommands);
@@ -67,7 +67,7 @@ public class AiServer {
 
                             jsonToSend.addProperty("type", "STATUS_UPDATE");
                             jsonToSend.addProperty("message", String
-                                    .format("%d / %d", BattleAiMod.battleAiController.turnsLoaded, BattleAiMod.battleAiController.maxTurnLoads));
+                                    .format("%d / %d", BattleAiMod.battleAiController.turnsLoaded(), BattleAiMod.battleAiController.maxTurnLoads()));
                             out.writeUTF(jsonToSend.toString());
 
                             try {
@@ -79,12 +79,12 @@ public class AiServer {
 
                         System.err.println("BattleAI finished");
 
-                        if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.runCommandMode) {
+                        if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.runCommandMode()) {
                             JsonObject jsonToSend = new JsonObject();
                             JsonArray commands = new JsonArray();
 
 
-                            Iterator<Command> bestPath = BattleAiMod.battleAiController.bestPathRunner;
+                            Iterator<Command> bestPath = BattleAiMod.battleAiController.bestPathRunner();
                             while (bestPath.hasNext()) {
                                 Command nextCommand = bestPath.next();
                                 if (nextCommand != null) {
@@ -100,7 +100,7 @@ public class AiServer {
                             jsonToSend.add("commands", commands);
 
                             try {
-                                System.err.println(BattleAiMod.battleAiController.bestPath);
+                                System.err.println(BattleAiMod.battleAiController.bestPath());
                             } catch (NullPointerException e) {
                                 System.err
                                         .println("Can't print best path, it was already cleared " + commands);

@@ -10,6 +10,8 @@ import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
+import battleaimod.simulator.Controller;
+import battleaimod.simulator.LudicrousSpeedMod;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
@@ -39,7 +41,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static AiServer aiServer = null;
     public static AiClient aiClient = null;
     public static boolean shouldStartAiFromServer = false;
-    public static BattleAiController battleAiController = null;
+    public static Controller battleAiController = null;
     public static SaveState saveState;
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
@@ -47,7 +49,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     public BattleAiMod() {
         BaseMod.subscribe(this);
-        BaseMod.subscribe(new SpeedController());
+        BaseMod.subscribe(new LudicrousSpeedMod());
 
         // Shut off the MTS console window, It increasingly slows things down
         ModSelectWindow window = ReflectionHacks.getPrivateStatic(Loader.class, "ex");
@@ -92,6 +94,13 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             SaveStateMod.shouldGoFast = true;
 
             ReflectionHacks.setPrivateStaticFinal(BaseMod.class, "logger", new SilentLogger());
+
+            Settings.ACTION_DUR_XFAST = 0.001F;
+            Settings.ACTION_DUR_FASTER = 0.002F;
+            Settings.ACTION_DUR_FAST = 0.0025F;
+            Settings.ACTION_DUR_MED = 0.005F;
+            Settings.ACTION_DUR_LONG = .01F;
+            Settings.ACTION_DUR_XLONG = .015F;
 
         } else {
             Settings.MASTER_VOLUME = .0F;

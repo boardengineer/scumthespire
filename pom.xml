@@ -34,13 +34,6 @@
             <systemPath>${basedir}/../lib/ModTheSpire.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>superfast</groupId>
-            <artifactId>superfast</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../_ModTheSpire/mods/SuperFastMode.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>savestatemod</groupId>
             <artifactId>savestatemod</artifactId>
             <version>1.0</version>

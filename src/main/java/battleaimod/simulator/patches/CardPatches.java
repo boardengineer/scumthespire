@@ -1,7 +1,6 @@
 package battleaimod.simulator.patches;
 
 import basemod.ReflectionHacks;
-import battleaimod.BattleAiMod;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
@@ -240,8 +239,6 @@ public class CardPatches {
     public static class UseCardPoolForRandomCreationPatch {
         public static SpireReturn Prefix(AbstractCard _instance) {
             if (shouldGoFast()) {
-                long makeCardCopyStart = System.currentTimeMillis();
-
                 AbstractCard card = CardState.getCard(_instance.cardID);
                 for (int i = 0; i < _instance.timesUpgraded; ++i) {
                     card.upgrade();
@@ -265,13 +262,6 @@ public class CardPatches {
                 card.isLocked = _instance.isLocked;
                 card.misc = _instance.misc;
                 card.freeToPlayOnce = _instance.freeToPlayOnce;
-
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController.addRuntime("makeStatEquivalentCopy", System
-                            .currentTimeMillis() - makeCardCopyStart);
-                }
-
-//                System.out.println("Here i am!!!! " + card.cardID);
 
                 return SpireReturn.Return(card);
             }

@@ -1,7 +1,6 @@
 package battleaimod.simulator.patches;
 
 import basemod.ReflectionHacks;
-import battleaimod.BattleAiMod;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.common.DamageAction;
@@ -67,8 +66,6 @@ public class DamageActionPatches {
     public static class SpyOnDamageAllEnemiesUpdatePatch {
         public static SpireReturn Prefix(DamageAllEnemiesAction _instance) {
             if (shouldGoFast()) {
-                long startUpdate = System.currentTimeMillis();
-
                 for (AbstractPower power : AbstractDungeon.player.powers) {
                     power.onDamageAllEnemies(_instance.damage);
                 }
@@ -84,11 +81,6 @@ public class DamageActionPatches {
 
                 if (AbstractDungeon.getCurrRoom().monsters.areMonstersBasicallyDead()) {
                     AbstractDungeon.actionManager.clearPostCombatActions();
-                }
-
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController.addRuntime("All Damage Update", System
-                            .currentTimeMillis() - startUpdate);
                 }
 
                 _instance.isDone = true;

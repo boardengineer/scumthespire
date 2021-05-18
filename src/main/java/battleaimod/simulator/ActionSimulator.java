@@ -43,8 +43,6 @@ public class ActionSimulator {
                 .isEmpty() || shouldStepAiController()) {
 
             while (shouldWaitOnActions() || shouldStepAiController()) {
-                long startTime = System.currentTimeMillis();
-
                 AbstractDungeon.topLevelEffects.clear();
                 AbstractDungeon.effectList.clear();
                 AbstractDungeon.effectsQueue.clear();
@@ -84,16 +82,7 @@ public class ActionSimulator {
                     BattleAiMod.battleAiController.step();
                 }
 
-                runAndProfile("Room Update", () -> {
-                    if (!AbstractDungeon.isScreenUp) {
-                        ActionSimulator.roomUpdate();
-                    }
-                });
-
-                if (BattleAiMod.battleAiController != null) {
-                    BattleAiMod.battleAiController.addRuntime("Update Loop Total", System
-                            .currentTimeMillis() - startTime);
-                }
+                ActionSimulator.roomUpdate();
             }
 
             System.err.println("exiting loop ");
@@ -224,21 +213,17 @@ public class ActionSimulator {
                 actionManager.addToBottom(new UseCardAction(c));
             }
         } else if (!actionManager.monsterAttacksQueued) {
-            runAndProfile("Local Action Manager Queue Monster Turn", () -> {
-                actionManager.monsterAttacksQueued = true;
-                if (!AbstractDungeon.getCurrRoom().skipMonsterTurn) {
-                    AbstractDungeon.getCurrRoom().monsters.queueMonsters();
-                }
-            });
+            actionManager.monsterAttacksQueued = true;
+            if (!AbstractDungeon.getCurrRoom().skipMonsterTurn) {
+                AbstractDungeon.getCurrRoom().monsters.queueMonsters();
+            }
         } else if (!actionManager.monsterQueue.isEmpty()) {
-            runAndProfile("Monster Turn", () -> {
-                AbstractMonster m = actionManager.monsterQueue.get(0).monster;
-                if (!m.isDeadOrEscaped() || m.halfDead) {
-                    m.takeTurn();
-                    m.applyTurnPowers();
-                }
-                actionManager.monsterQueue.remove(0);
-            });
+            AbstractMonster m = actionManager.monsterQueue.get(0).monster;
+            if (!m.isDeadOrEscaped() || m.halfDead) {
+                m.takeTurn();
+                m.applyTurnPowers();
+            }
+            actionManager.monsterQueue.remove(0);
         } else if (actionManager.turnHasEnded && !AbstractDungeon.getMonsters()
                                                                  .areMonstersBasicallyDead()) {
             if (!AbstractDungeon.getCurrRoom().skipMonsterTurn) {
@@ -385,12 +370,12 @@ public class ActionSimulator {
         }
 
         return actionManager.phase == GameActionManager.Phase.WAITING_ON_USER &&
-                !BattleAiMod.battleAiController.runCommandMode;
+                !BattleAiMod.battleAiController.runCommandMode();
     }
 
     private static boolean shouldWaitOnActions() {
         // Only freeze if the AI is pathing
-        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.runCommandMode) {
+        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.runCommandMode()) {
             return false;
         }
 
@@ -417,15 +402,5 @@ public class ActionSimulator {
         return actionManager.currentAction != null || !actionManager.actions
                 .isEmpty() || !actionManager.actions
                 .isEmpty() || actionManager.phase == GameActionManager.Phase.EXECUTING_ACTIONS;
-    }
-
-    public static void runAndProfile(String name, Runnable runnable) {
-        long start = System.currentTimeMillis();
-
-        runnable.run();
-
-        if (BattleAiMod.battleAiController != null) {
-            BattleAiMod.battleAiController.addRuntime(name, System.currentTimeMillis() - start);
-        }
     }
 }
