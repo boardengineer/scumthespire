@@ -1,4 +1,4 @@
-package battleaimod.patches;
+package battleaimod.simulator.patches;
 
 import battleaimod.battleai.BattleAiController;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -9,7 +9,7 @@ import com.megacrit.cardcrawl.rooms.MonsterRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
 import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class RoomPatches {
     @SpirePatch(

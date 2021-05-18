@@ -1,4 +1,4 @@
-package battleaimod.patches;
+package battleaimod.simulator.patches;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -8,7 +8,7 @@ import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.screens.CombatRewardScreen;
 import com.megacrit.cardcrawl.screens.DeathScreen;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class ScreenPatches {
     @SpirePatch(

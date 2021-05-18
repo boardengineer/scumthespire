@@ -1,10 +1,10 @@
-package battleaimod.patches;
+package battleaimod.simulator.patches;
 
-import battleaimod.ActionSimulator;
+import battleaimod.simulator.ActionSimulator;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class FastActionsPatch {
     @SpirePatch(

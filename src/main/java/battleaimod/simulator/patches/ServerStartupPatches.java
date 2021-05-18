@@ -1,4 +1,4 @@
-package battleaimod.patches;
+package battleaimod.simulator.patches;
 
 import battleaimod.BattleAiMod;
 import battleaimod.networking.AiServer;

@@ -1,4 +1,4 @@
-package battleaimod.patches;
+package battleaimod.simulator.patches;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,7 +12,7 @@ import com.megacrit.cardcrawl.vfx.combat.ShockWaveEffect;
 import com.megacrit.cardcrawl.vfx.combat.SmallLaserEffect;
 import com.megacrit.cardcrawl.vfx.combat.StrikeEffect;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class FXPatches {
     @SpirePatch(

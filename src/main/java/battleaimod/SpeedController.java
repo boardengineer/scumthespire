@@ -1,6 +1,7 @@
 package battleaimod;
 
 import basemod.interfaces.PreUpdateSubscriber;
+import battleaimod.simulator.ActionSimulator;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
@@ -8,7 +9,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import skrelpoid.superfastmode.SuperFastMode;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class SpeedController implements PreUpdateSubscriber {
     @Override

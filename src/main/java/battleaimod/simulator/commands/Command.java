@@ -1,4 +1,4 @@
-package battleaimod.battleai.commands;
+package battleaimod.simulator.commands;
 
 public interface Command {
     void execute();

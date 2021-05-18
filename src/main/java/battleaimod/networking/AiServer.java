@@ -4,7 +4,7 @@ import battleaimod.BattleAiMod;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.StateNode;
 import battleaimod.battleai.TurnNode;
-import battleaimod.battleai.commands.Command;
+import battleaimod.simulator.commands.Command;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;

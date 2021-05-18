@@ -1,6 +1,6 @@
-package battleaimod.battleai.commands;
+package battleaimod.simulator.commands;
 
-import battleaimod.ActionSimulator;
+import battleaimod.simulator.ActionSimulator;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
@@ -10,7 +10,7 @@ import com.megacrit.cardcrawl.potions.AbstractPotion;
 
 import java.util.stream.Collectors;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class PotionCommand implements Command {
     private final int potionIndex;

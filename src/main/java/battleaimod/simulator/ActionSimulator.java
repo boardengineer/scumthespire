@@ -1,5 +1,6 @@
-package battleaimod;
+package battleaimod.simulator;
 
+import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.actions.ClearCardQueueAction;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.animations.SetAnimationAction;
@@ -371,7 +372,7 @@ public class ActionSimulator {
     }
 
     public static boolean shouldStepAiController() {
-        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.isDone) {
+        if (BattleAiMod.battleAiController == null || BattleAiMod.battleAiController.isDone()) {
             return false;
         }
 

@@ -2,7 +2,7 @@ package battleaimod.networking;
 
 import battleaimod.BattleAiMod;
 import battleaimod.battleai.BattleAiController;
-import battleaimod.battleai.commands.*;
+import battleaimod.simulator.commands.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

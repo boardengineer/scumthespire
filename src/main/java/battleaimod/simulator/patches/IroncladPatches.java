@@ -1,4 +1,4 @@
-package battleaimod.patches;
+package battleaimod.simulator.patches;
 
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;
@@ -19,7 +19,7 @@ import com.megacrit.cardcrawl.relics.AbstractRelic;
 
 import java.util.Iterator;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class IroncladPatches {
     @SpirePatch(

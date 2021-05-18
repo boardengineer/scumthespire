@@ -1,7 +1,7 @@
 package battleaimod.battleai;
 
 import basemod.ReflectionHacks;
-import battleaimod.battleai.commands.*;
+import battleaimod.simulator.commands.*;
 import battleaimod.battleai.playorder.IronCladPlayOrder;
 import battleaimod.battleai.playorder.SilentPlayOrder;
 import com.megacrit.cardcrawl.cards.AbstractCard;

@@ -1,4 +1,4 @@
-package battleaimod.battleai.commands;
+package battleaimod.simulator.commands;
 
 import com.google.gson.JsonObject;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;

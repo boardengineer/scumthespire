@@ -1,4 +1,4 @@
-package battleaimod.patches;
+package battleaimod.simulator.patches;
 
 import basemod.ReflectionHacks;
 import battleaimod.BattleAiMod;

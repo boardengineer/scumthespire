@@ -1,6 +1,6 @@
 package battleaimod.battleai;
 
-import battleaimod.battleai.commands.Command;
+import battleaimod.simulator.commands.Command;
 import savestate.CardState;
 import savestate.SaveState;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -8,7 +8,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class BattleAiController {
     public static String currentEncounter = null;
@@ -34,7 +34,7 @@ public class BattleAiController {
     public TurnNode backupTurn = null;
 
     public int startingHealth;
-    public boolean isDone = false;
+    private boolean isDone = false;
     public final SaveState startingState;
     private boolean initialized = false;
 
@@ -335,5 +335,9 @@ public class BattleAiController {
         } else {
             runTimes.put(name, amount + runTimes.get(name));
         }
+    }
+
+    public boolean isDone() {
+        return isDone;
     }
 }

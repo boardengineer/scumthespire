@@ -1,4 +1,4 @@
-package battleaimod.battleai.commands;
+package battleaimod.simulator.commands;
 
 import basemod.ReflectionHacks;
 import com.google.gson.JsonObject;

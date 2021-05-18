@@ -1,4 +1,4 @@
-package battleaimod.patches;
+package battleaimod.simulator.patches;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
@@ -10,7 +10,7 @@ import com.megacrit.cardcrawl.vfx.RelicAboveCreatureEffect;
 
 import java.util.ArrayList;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class RelicPatches {
     // Fast Mode doesn't load images which will NPE when trying to render, turn off rendering

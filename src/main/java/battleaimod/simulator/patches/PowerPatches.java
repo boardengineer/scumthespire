@@ -1,4 +1,4 @@
-package battleaimod.patches;
+package battleaimod.simulator.patches;
 
 import basemod.ReflectionHacks;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
@@ -13,7 +13,7 @@ import com.megacrit.cardcrawl.powers.NoDrawPower;
 
 import java.util.Collections;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class PowerPatches {
     @SpirePatch(

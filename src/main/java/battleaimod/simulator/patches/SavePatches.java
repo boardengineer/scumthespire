@@ -1,4 +1,4 @@
-package battleaimod.patches;
+package battleaimod.simulator.patches;
 
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
@@ -6,7 +6,7 @@ import com.megacrit.cardcrawl.helpers.File;
 import com.megacrit.cardcrawl.saveAndContinue.SaveAndContinue;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class SavePatches {
     @SpirePatch(

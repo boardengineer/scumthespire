@@ -1,4 +1,4 @@
-package battleaimod.battleai.commands;
+package battleaimod.simulator.commands;
 
 import basemod.ReflectionHacks;
 import com.google.gson.JsonObject;
@@ -9,7 +9,7 @@ import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.screens.select.GridCardSelectScreen;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class GridSelectCommand implements Command {
     private final int cardIndex;

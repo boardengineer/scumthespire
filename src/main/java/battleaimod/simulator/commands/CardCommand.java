@@ -1,4 +1,4 @@
-package battleaimod.battleai.commands;
+package battleaimod.simulator.commands;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -11,7 +11,7 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 
 import java.util.stream.Collectors;
 
-import static battleaimod.patches.MonsterPatch.shouldGoFast;
+import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
 
 public class CardCommand implements Command {
     private final int cardIndex;
