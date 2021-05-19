@@ -7,8 +7,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import ludicousspeed.LudicrousSpeedMod;
-import ludicousspeed.simulator.commands.*;
+import ludicrousspeed.LudicrousSpeedMod;
+import ludicrousspeed.simulator.commands.*;
 import savestate.SaveState;
 
 import java.io.BufferedInputStream;

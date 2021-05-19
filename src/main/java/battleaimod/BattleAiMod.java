@@ -21,7 +21,7 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
-import ludicousspeed.LudicrousSpeedMod;
+import ludicrousspeed.LudicrousSpeedMod;
 import savestate.SaveState;
 import savestate.SaveStateMod;
 import savestate.fastobjects.ScreenShakeFast;

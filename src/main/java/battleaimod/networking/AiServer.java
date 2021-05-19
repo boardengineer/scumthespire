@@ -7,8 +7,8 @@ import battleaimod.battleai.TurnNode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import ludicousspeed.LudicrousSpeedMod;
-import ludicousspeed.simulator.commands.Command;
+import ludicrousspeed.LudicrousSpeedMod;
+import ludicrousspeed.simulator.commands.Command;
 import savestate.SaveState;
 
 import java.io.BufferedInputStream;

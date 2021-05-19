@@ -2,8 +2,8 @@ package battleaimod.battleai;
 
 import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import ludicousspeed.Controller;
-import ludicousspeed.simulator.commands.Command;
+import ludicrousspeed.Controller;
+import ludicrousspeed.simulator.commands.Command;
 import savestate.CardState;
 import savestate.SaveState;
 

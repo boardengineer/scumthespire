@@ -3,8 +3,8 @@ package battleaimod.battleai;
 import battleaimod.battleai.playorder.IronCladPlayOrder;
 import battleaimod.battleai.playorder.SilentPlayOrder;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import ludicousspeed.simulator.commands.Command;
-import ludicousspeed.simulator.commands.CommandList;
+import ludicrousspeed.simulator.commands.Command;
+import ludicrousspeed.simulator.commands.CommandList;
 import savestate.SaveState;
 import savestate.powers.PowerState;
 
