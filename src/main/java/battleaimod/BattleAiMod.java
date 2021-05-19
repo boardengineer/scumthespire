@@ -10,7 +10,6 @@ import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
-import battleaimod.simulator.LudicrousSpeedMod;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
@@ -22,6 +21,7 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
+import ludicousspeed.LudicrousSpeedMod;
 import savestate.SaveState;
 import savestate.SaveStateMod;
 import savestate.fastobjects.ScreenShakeFast;
@@ -159,7 +159,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public void receivePreUpdate() {
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
-            LudicrousSpeedMod.controller = battleAiController = new BattleAiController(saveState);
+            battleAiController = new BattleAiController(saveState);
+            LudicrousSpeedMod.controller = battleAiController;
         }
 
         if (actionManager.actions.isEmpty() && actionManager.currentAction == null) {

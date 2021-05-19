@@ -1,18 +1,16 @@
 package battleaimod.battleai;
 
-import battleaimod.simulator.Controller;
-import battleaimod.simulator.commands.Command;
+import battleaimod.BattleAiMod;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import ludicousspeed.Controller;
+import ludicousspeed.simulator.commands.Command;
 import savestate.CardState;
 import savestate.SaveState;
-import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static battleaimod.simulator.patches.MonsterPatch.shouldGoFast;
-
 public class BattleAiController implements Controller {
-    public static String currentEncounter = null;
     public int maxTurnLoads = 10_000;
 
     public int targetTurn;
@@ -269,7 +267,7 @@ public class BattleAiController implements Controller {
                     startingState.loadState();
                 }
             }
-            if (!shouldGoFast()) {
+            if (!BattleAiMod.isServer) {
                 AbstractDungeon.player.hand.refreshHandLayout();
             }
 

@@ -1,8 +1,8 @@
 package battleaimod.battleai;
 
-import battleaimod.simulator.commands.Command;
-import battleaimod.simulator.commands.EndCommand;
-import battleaimod.simulator.commands.StateDebugInfo;
+import ludicousspeed.simulator.commands.Command;
+import ludicousspeed.simulator.commands.EndCommand;
+import ludicousspeed.simulator.commands.StateDebugInfo;
 import savestate.PotionState;
 import savestate.SaveState;
 import savestate.powers.PowerState;
