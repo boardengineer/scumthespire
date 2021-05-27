@@ -42,7 +42,7 @@ public class AiClient {
 
     public void sendState() {
         final SaveState state = new SaveState();
-        state.loadState();
+//        state.loadState();
         AbstractDungeon.player.hand.refreshHandLayout();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {

@@ -43,7 +43,7 @@
         <dependency>
             <groupId>LudicrousSpeed</groupId>
             <artifactId>LudicrousSpeed</artifactId>
-            <version>1.0</version>
+            <version>1.0.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/../_ModTheSpire/mods/LudicrousSpeed.jar</systemPath>
         </dependency>

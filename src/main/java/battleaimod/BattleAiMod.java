@@ -16,17 +16,28 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
+import com.megacrit.cardcrawl.cards.blue.Hologram;
+import com.megacrit.cardcrawl.cards.colorless.Forethought;
+import com.megacrit.cardcrawl.cards.colorless.SecretTechnique;
+import com.megacrit.cardcrawl.cards.colorless.SecretWeapon;
+import com.megacrit.cardcrawl.cards.colorless.TheBomb;
+import com.megacrit.cardcrawl.cards.red.Exhume;
+import com.megacrit.cardcrawl.cards.red.Havoc;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.CardLibrary;
+import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
 import ludicrousspeed.LudicrousSpeedMod;
+import savestate.PotionState;
 import savestate.SaveState;
 import savestate.SaveStateMod;
 import savestate.fastobjects.ScreenShakeFast;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
@@ -73,6 +84,31 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     @Override
     public void receivePostInitialize() {
+        // TODO these are missing implementations, add states, test and remove from here
+        CardLibrary.cards.remove(Hologram.ID);
+        CardLibrary.cards.remove(Exhume.ID);
+        CardLibrary.cards.remove(SecretTechnique.ID);
+        CardLibrary.cards.remove(TheBomb.ID);
+        CardLibrary.cards.remove(Forethought.ID);
+
+        // TODO check havoc into armaments
+        CardLibrary.cards.remove(Havoc.ID);
+
+        // TODO AttackFromDeckToHandAction
+        CardLibrary.cards.remove(SecretWeapon.ID);
+
+        Iterator<String> actualPotions = PotionHelper.potions.iterator();
+
+        while (actualPotions.hasNext()) {
+            String potionId = actualPotions.next();
+            for (String toRemove : PotionState.UNPLAYABLE_POTIONS) {
+                if (potionId.equals(toRemove)) {
+                    actualPotions.remove();
+                    continue;
+                }
+            }
+        }
+
         String isServerFlag = System.getProperty("isServer");
 
         if (isServerFlag != null) {

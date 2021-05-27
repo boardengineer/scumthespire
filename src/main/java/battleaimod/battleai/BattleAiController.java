@@ -33,7 +33,7 @@ public class BattleAiController implements Controller {
     public TurnNode backupTurn = null;
 
     public int startingHealth;
-    private boolean isDone = false;
+    public boolean isDone = false;
     public final SaveState startingState;
     private boolean initialized = false;
 
@@ -264,7 +264,7 @@ public class BattleAiController implements Controller {
                     command.execute();
                 } else {
                     foundCommand = true;
-                    startingState.loadState();
+//                    startingState.loadState();
                 }
             }
             if (!BattleAiMod.isServer) {
@@ -272,7 +272,6 @@ public class BattleAiController implements Controller {
             }
 
             if (!bestPathRunner.hasNext()) {
-                System.err.println("no more commands to run");
                 turns = new PriorityQueue<>();
                 minDamage = 5000;
                 bestEnd = null;
