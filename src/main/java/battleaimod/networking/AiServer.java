@@ -11,18 +11,19 @@ import ludicrousspeed.LudicrousSpeedMod;
 import ludicrousspeed.simulator.commands.Command;
 import savestate.SaveState;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class AiServer {
     public static final int PORT_NUMBER = 5000;
+    public static int fileIndex = 0;
 
     public AiServer() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -37,7 +38,18 @@ public class AiServer {
 
                 while (true) {
                     if (BattleAiMod.battleAiController == null) {
-                        BattleAiMod.saveState = new SaveState(in.readUTF());
+                        try {
+                            String fileName = in.readUTF();
+                            String startState = Files.lines(Paths.get(fileName)).collect(Collectors
+                                    .joining());
+
+                            BattleAiMod.saveState = new SaveState(startState);
+
+                            System.err.println("state parsed");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return;
+                        }
 
                         BattleAiMod.shouldStartAiFromServer = true;
                         BattleAiMod.goFast = true;
@@ -55,20 +67,23 @@ public class AiServer {
                         System.err.println("Controller Initiated");
 
                         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                        while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController.runCommandMode()) {
+                        while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController
+                                .runCommandMode()) {
                             // Send update
 
                             JsonObject jsonToSend = new JsonObject();
 
                             TurnNode committedTurn = BattleAiMod.battleAiController.committedTurn();
                             if (committedTurn != null) {
-                                JsonArray currentCommands = commandsForStateNode(committedTurn.startingState);
+                                JsonArray currentCommands = commandsForStateNodeExperimental(committedTurn.startingState);
                                 jsonToSend.add("commands", currentCommands);
                             }
 
                             jsonToSend.addProperty("type", "STATUS_UPDATE");
                             jsonToSend.addProperty("message", String
-                                    .format("%d / %d", BattleAiMod.battleAiController.turnsLoaded(), BattleAiMod.battleAiController.maxTurnLoads()));
+                                    .format("%d / %d", BattleAiMod.battleAiController
+                                            .turnsLoaded(), BattleAiMod.battleAiController
+                                            .maxTurnLoads()));
                             out.writeUTF(jsonToSend.toString());
 
                             try {
@@ -80,20 +95,26 @@ public class AiServer {
 
                         System.err.println("BattleAI finished");
 
-                        if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController.runCommandMode()) {
+                        if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController
+                                .runCommandMode()) {
                             JsonObject jsonToSend = new JsonObject();
-                            JsonArray commands = new JsonArray();
-
-
-                            Iterator<Command> bestPath = BattleAiMod.battleAiController.bestPathRunner();
-                            while (bestPath.hasNext()) {
-                                Command nextCommand = bestPath.next();
-                                if (nextCommand != null) {
-                                    commands.add(nextCommand.encode());
-                                } else {
-                                    commands.add(JsonNull.INSTANCE);
-                                }
+                            JsonArray commands = null;
+                            try {
+                                commands = commandsForStateNodeExperimental(BattleAiMod.battleAiController.bestEnd != null ? BattleAiMod.battleAiController.bestEnd : BattleAiMod.battleAiController.deathNode);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
+
+//                            Iterator<Command> bestPath = BattleAiMod.battleAiController
+//                                    .bestPathRunner();
+//                            while (bestPath.hasNext()) {
+//                                Command nextCommand = bestPath.next();
+//                                if (nextCommand != null) {
+//                                    commands.add(nextCommand.encode());
+//                                } else {
+//                                    commands.add(JsonNull.INSTANCE);
+//                                }
+//                            }
 
 
                             // Send Command List
@@ -120,6 +141,7 @@ public class AiServer {
 
 
             } catch (IOException e) {
+                e.printStackTrace();
                 System.err.println("Client Disconnected, clearing server for reset");
                 BattleAiMod.aiServer = null;
             }
@@ -134,6 +156,41 @@ public class AiServer {
             Command nextCommand = bestPath.next();
             if (nextCommand != null) {
                 commands.add(nextCommand.encode());
+            } else {
+                commands.add(JsonNull.INSTANCE);
+            }
+        }
+
+        return commands;
+    }
+
+    public static JsonArray commandsForStateNodeExperimental(StateNode root) {
+        JsonArray commands = new JsonArray();
+
+        Iterator<StateNode> bestPath = BattleAiController.stateNodesToGetToNode(root).iterator();
+
+        String stateDiffString = null;
+        while (bestPath.hasNext()) {
+            StateNode stateNode = bestPath.next();
+
+            if (stateNode != null && stateNode.lastCommand != null) {
+                JsonObject command = new JsonObject();
+
+                command.addProperty("command", stateNode.lastCommand.encode());
+                if (stateDiffString != null) {
+
+                    try {
+                        String fileName = String.format("savestates/%s.txt", fileIndex++);
+                        FileWriter writer = new FileWriter(fileName);
+                        writer.write(stateDiffString);
+                        writer.close();
+                        command.addProperty("state", fileName);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                stateDiffString = stateNode.saveState.diffEncode();
+                commands.add(command);
             } else {
                 commands.add(JsonNull.INSTANCE);
             }

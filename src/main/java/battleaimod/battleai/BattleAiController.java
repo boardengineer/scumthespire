@@ -259,7 +259,6 @@ public class BattleAiController implements Controller {
             while (bestPathRunner.hasNext() && !foundCommand) {
                 Command command = bestPathRunner.next();
                 if (command != null) {
-                    System.err.println(command);
                     foundCommand = true;
                     command.execute();
                 } else {
@@ -312,6 +311,17 @@ public class BattleAiController implements Controller {
         }
 
         return commands;
+    }
+
+    public static List<StateNode> stateNodesToGetToNode(StateNode endNode) {
+        ArrayList<StateNode> result = new ArrayList<>();
+        StateNode iterator = endNode;
+        while (iterator != null) {
+            result.add(0, iterator);
+            iterator = iterator.parent;
+        }
+
+        return result;
     }
 
     public void printRuntimeStats() {

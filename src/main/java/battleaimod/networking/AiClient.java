@@ -11,10 +11,7 @@ import ludicrousspeed.LudicrousSpeedMod;
 import ludicrousspeed.simulator.commands.*;
 import savestate.SaveState;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -25,6 +22,7 @@ import java.util.concurrent.Executors;
 public class AiClient {
     private static final String HOST_IP = "127.0.0.1";
     private static final int PORT = 5000;
+    public static int fileIndex = 0;
 
     private final Socket socket;
 
@@ -48,7 +46,21 @@ public class AiClient {
         executor.submit(() -> {
             try {
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                out.writeUTF(state.encode());
+
+                System.err.println("encoding state");
+                String encodedState = state.encode();
+
+                try {
+                    String fileName = String.format("startstates/%s.txt", fileIndex++);
+                    FileWriter writer = new FileWriter(fileName);
+                    writer.write(encodedState);
+                    writer.close();
+                    out.writeUTF(fileName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
+                System.err.println("encoded state sent");
                 BattleAiMod.battleAiController = null;
 
                 DataInputStream in = new DataInputStream(new BufferedInputStream(socket
@@ -59,6 +71,7 @@ public class AiClient {
                 String readLine = "";
 
                 while (!readLine.equals("DONE!!!")) {
+
                     try {
                         readLine = in.readUTF();
                     } catch (SocketTimeoutException e) {
@@ -69,21 +82,13 @@ public class AiClient {
                     try {
                         JsonObject parsed = new JsonParser().parse(readLine).getAsJsonObject();
 
-                        System.err.println("Server sent proper json message");
-
                         if (parsed.get("type").getAsString().equals("COMMAND_LIST")) {
-                            System.err.println("Received final commands");
-
                             ArrayList<Command> commandsFromServer = new ArrayList<>();
                             JsonArray jsonCommands = parsed.get("commands").getAsJsonArray();
                             for (JsonElement jsonCommand : jsonCommands) {
-                                System.err.println(jsonCommand);
                                 Command toAdd = toCommand(jsonCommand);
-                                System.err.println(toAdd);
                                 commandsFromServer.add(toAdd);
                             }
-
-                            System.err.println(commandsFromServer);
 
                             if (BattleAiMod.battleAiController == null) {
                                 LudicrousSpeedMod.controller = BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, true);
@@ -94,7 +99,6 @@ public class AiClient {
                             }
                         } else if (parsed.get("type").getAsString().equals("STATUS_UPDATE")) {
                             String message = parsed.get("message").getAsString();
-                            System.err.println(message);
 
                             if (parsed.has("commands")) {
                                 ArrayList<Command> commandsFromServer = new ArrayList<>();
@@ -111,7 +115,6 @@ public class AiClient {
                                     BattleAiMod.battleAiController
                                             .updateBestPath(commandsFromServer, false);
                                 }
-                                System.err.println("current commands: " + commandsFromServer);
                             }
 
                             BattleAiMod.steveMessage = message;
@@ -119,13 +122,13 @@ public class AiClient {
 //                                    .add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, 2.0F, parsed.get("message").getAsString(), true));
                         }
 
-                    } catch (IllegalStateException e) {
+                    } catch (Exception e) {
                         // Not a json string
                     }
                 }
 
                 System.err.println("Received done");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 System.err.println("Server disconnected; clearing client for reset.");
                 BattleAiMod.aiClient = null;
                 BattleAiMod.battleAiController = null;
@@ -137,16 +140,28 @@ public class AiClient {
         if (jsonElement.isJsonNull()) {
             return null;
         }
-        String commandString = jsonElement.getAsString();
-        String type = new JsonParser().parse(commandString).getAsJsonObject()
-                                      .get("type").getAsString();
+
+        JsonObject commandObject = new JsonParser()
+                .parse(jsonElement.getAsJsonObject().get("command").getAsString())
+                .getAsJsonObject();
+        String type = commandObject.get("type").getAsString();
+        String commandString = commandObject.toString();
 
         if (type.equals("CARD")) {
+            if (jsonElement.getAsJsonObject().has("state")) {
+                return new CardCommand(commandString, jsonElement.getAsJsonObject().get("state")
+                                                                 .getAsString());
+            }
             return new CardCommand(commandString);
         } else if (type.equals("POTION")) {
+            if (jsonElement.getAsJsonObject().has("state")) {
+                return new PotionCommand(commandString, jsonElement.getAsJsonObject().get("state")
+                                                                   .getAsString());
+            }
             return new PotionCommand(commandString);
         } else if (type.equals("END")) {
-            return new EndCommand(commandString);
+            return new EndCommand(commandString, jsonElement.getAsJsonObject().get("state")
+                                                            .getAsString());
         } else if (type.equals("HAND_SELECT")) {
             return new HandSelectCommand(commandString);
         } else if (type.equals("HAND_SELECT_CONFIRM")) {

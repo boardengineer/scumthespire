@@ -1,11 +1,13 @@
 package battleaimod.battleai;
 
+import com.megacrit.cardcrawl.relics.LizardTail;
 import ludicrousspeed.simulator.commands.Command;
 import ludicrousspeed.simulator.commands.EndCommand;
 import ludicrousspeed.simulator.commands.StateDebugInfo;
 import savestate.PotionState;
 import savestate.SaveState;
 import savestate.powers.PowerState;
+import savestate.relics.RelicState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -163,14 +165,19 @@ public class TurnNode implements Comparable<TurnNode> {
             } else {
 //                System.err.println("adding node for " + toExecute);
                 StateNode toAdd = new StateNode(curState, toExecute, controller);
-                states.push(toAdd);
 
-                long startExecute = System.currentTimeMillis();
 
-                toExecute.execute();
+                try {
+                    long startExecute = System.currentTimeMillis();
 
-                controller.addRuntime("Battle AI Execute Action", System
-                        .currentTimeMillis() - startExecute);
+                    toExecute.execute();
+                    states.push(toAdd);
+
+                    controller.addRuntime("Battle AI Execute Action", System
+                            .currentTimeMillis() - startExecute);
+                } catch (IndexOutOfBoundsException e) {
+                    System.err.println("desynced state, aborting state to recover");
+                }
             }
         }
 
@@ -212,6 +219,14 @@ public class TurnNode implements Comparable<TurnNode> {
             }
             return PotionState.POTION_VALUES.get(potionState.potionId);
         }).reduce(Integer::sum).get();
+    }
+
+    public static int getRelicScore(SaveState saveState) {
+        Optional<RelicState> optionalLizardTail = saveState.playerState.relics.stream()
+                                                                              .filter(relic -> relic.relicId
+                                                                                      .equals(LizardTail.ID) && relic.counter != -2)
+                                                                              .findAny();
+        return optionalLizardTail.isPresent() ? 400 : 0;
     }
 
     public static int getTurnScore(TurnNode turnNode) {
@@ -258,7 +273,7 @@ public class TurnNode implements Comparable<TurnNode> {
 
         int potionLoss = getPotionScore(turnNode.controller.startingState) - getPotionScore(turnNode.startingState.saveState);
 
-        return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity - potionLoss;
+        return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity - potionLoss + getRelicScore(turnNode.startingState.saveState);
     }
 
     @Override

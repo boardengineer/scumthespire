@@ -17,17 +17,21 @@ import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.blue.Hologram;
-import com.megacrit.cardcrawl.cards.colorless.Forethought;
-import com.megacrit.cardcrawl.cards.colorless.SecretTechnique;
-import com.megacrit.cardcrawl.cards.colorless.SecretWeapon;
-import com.megacrit.cardcrawl.cards.colorless.TheBomb;
+import com.megacrit.cardcrawl.cards.blue.MultiCast;
+import com.megacrit.cardcrawl.cards.blue.Seek;
+import com.megacrit.cardcrawl.cards.blue.ThunderStrike;
+import com.megacrit.cardcrawl.cards.colorless.*;
+import com.megacrit.cardcrawl.cards.green.Nightmare;
 import com.megacrit.cardcrawl.cards.red.Exhume;
 import com.megacrit.cardcrawl.cards.red.Havoc;
+import com.megacrit.cardcrawl.cards.red.Headbutt;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.PotionHelper;
+import com.megacrit.cardcrawl.helpers.RelicLibrary;
+import com.megacrit.cardcrawl.relics.*;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
 import ludicrousspeed.LudicrousSpeedMod;
@@ -37,6 +41,7 @@ import savestate.SaveStateMod;
 import savestate.fastobjects.ScreenShakeFast;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
@@ -90,12 +95,29 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         CardLibrary.cards.remove(SecretTechnique.ID);
         CardLibrary.cards.remove(TheBomb.ID);
         CardLibrary.cards.remove(Forethought.ID);
+        CardLibrary.cards.remove(Headbutt.ID);
 
         // TODO check havoc into armaments
         CardLibrary.cards.remove(Havoc.ID);
 
         // TODO AttackFromDeckToHandAction
         CardLibrary.cards.remove(SecretWeapon.ID);
+
+        CardLibrary.cards.remove(Nightmare.ID);
+
+        CardLibrary.cards.remove(MultiCast.ID);
+        CardLibrary.cards.remove(Seek.ID);
+        CardLibrary.cards.remove(ThunderStrike.ID);
+
+        CardLibrary.cards.remove(Discovery.ID);
+
+        HashMap<String, AbstractRelic> sharedRelics = ReflectionHacks
+                .getPrivateStatic(RelicLibrary.class, "sharedRelics");
+        sharedRelics.put(NilrysCodex.ID, RelicLibrary.getRelic("Enchiridion").makeCopy());
+        sharedRelics.put(Toolbox.ID, RelicLibrary.getRelic(MedicalKit.ID).makeCopy());
+        sharedRelics.put(PrismaticShard.ID, RelicLibrary.getRelic(Abacus.ID).makeCopy());
+        sharedRelics.remove(GamblingChip.ID);
+        sharedRelics.remove(PrayerWheel.ID);
 
         Iterator<String> actualPotions = PotionHelper.potions.iterator();
 
@@ -117,6 +139,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             }
         }
 
+        ReflectionHacks.setPrivateStaticFinal(BaseMod.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(TheSpecimen.class, "logger", new SilentLogger());
         if (isServer) {
             Settings.MASTER_VOLUME = 0;
             Settings.isDemo = true;
@@ -124,7 +148,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             SaveStateMod.shouldGoFast = true;
             LudicrousSpeedMod.plaidMode = true;
 
-            ReflectionHacks.setPrivateStaticFinal(BaseMod.class, "logger", new SilentLogger());
 
             Settings.ACTION_DUR_XFAST = 0.001F;
             Settings.ACTION_DUR_FASTER = 0.002F;

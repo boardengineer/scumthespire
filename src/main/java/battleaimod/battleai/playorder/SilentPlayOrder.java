@@ -1,6 +1,7 @@
 package battleaimod.battleai.playorder;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.colorless.Panache;
 import com.megacrit.cardcrawl.cards.green.*;
 import com.megacrit.cardcrawl.cards.tempCards.Shiv;
 
@@ -13,6 +14,7 @@ public class SilentPlayOrder {
     public static HashMap<String, Integer> makeRank() {
         uglyThing = new HashMap<>();
 
+        add(new Panache());
         add(new SneakyStrike());
         add(new GrandFinale());
 
@@ -43,6 +45,8 @@ public class SilentPlayOrder {
         add(new DeadlyPoison());
         add(new Catalyst());
 
+        add(new Terror());
+        add(new WellLaidPlans());
 
         add(new Backflip());
         add(new Acrobatics());
@@ -55,7 +59,6 @@ public class SilentPlayOrder {
         add(new SuckerPunch());
         add(new AllOutAttack());
         add(new Backstab());
-        add(new StormOfSteel());
         add(new HeelHook());
         add(new Bane());
         add(new FlyingKnee());
@@ -70,17 +73,18 @@ public class SilentPlayOrder {
         add(new Predator());
         add(new Unload());
         add(new CloakAndDagger());
+
+        add(new Shiv());
+
+        add(new StormOfSteel());
         add(new BladeDance());
         add(new Strike_Green());
 
         add(new Reflex());
         add(new Setup());
         add(new Tactician());
-        add(new Terror());
-        add(new WellLaidPlans());
         add(new WraithForm());
 
-        add(new Shiv());
 
         add(new Finisher());
 

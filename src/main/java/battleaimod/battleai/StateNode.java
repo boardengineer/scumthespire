@@ -1,5 +1,6 @@
 package battleaimod.battleai;
 
+import battleaimod.battleai.playorder.DefectPlayOrder;
 import battleaimod.battleai.playorder.IronCladPlayOrder;
 import battleaimod.battleai.playorder.SilentPlayOrder;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -16,10 +17,10 @@ import static battleaimod.battleai.TurnNode.getTotalMonsterHealth;
 public class StateNode {
     private final BattleAiController controller;
     public final StateNode parent;
-    final Command lastCommand;
+    public final Command lastCommand;
     public String stateString;
+    public SaveState saveState;
 
-    SaveState saveState;
     private int minDamage = 5000;
     private List<Command> commands;
     private boolean initialized = false;
@@ -107,6 +108,12 @@ public class StateNode {
                     .containsKey(card2.cardID)) {
                 return SilentPlayOrder.CARD_RANKS
                         .get(card1.cardID) - SilentPlayOrder.CARD_RANKS
+                        .get(card2.cardID);
+            } else if (DefectPlayOrder.CARD_RANKS
+                    .containsKey(card1.cardID) && DefectPlayOrder.CARD_RANKS
+                    .containsKey(card2.cardID)) {
+                return DefectPlayOrder.CARD_RANKS
+                        .get(card1.cardID) - DefectPlayOrder.CARD_RANKS
                         .get(card2.cardID);
             }
 
