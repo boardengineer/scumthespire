@@ -1,6 +1,8 @@
 package battleaimod.battleai.playorder;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.colorless.Madness;
+import com.megacrit.cardcrawl.cards.colorless.Transmutation;
 import com.megacrit.cardcrawl.cards.red.*;
 
 import java.util.HashMap;
@@ -12,9 +14,11 @@ public class IronCladPlayOrder {
     public static HashMap<String, Integer> makeRank() {
         uglyThing = new HashMap<>();
 
+        add(new Madness());
         add(new Shockwave());
         add(new SpotWeakness());
 
+        add(new Transmutation());
         add(new Whirlwind());
         add(new Rage());
         add(new Offering());

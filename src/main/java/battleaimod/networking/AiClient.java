@@ -47,7 +47,6 @@ public class AiClient {
             try {
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-                System.err.println("encoding state");
                 String encodedState = state.encode();
 
                 try {
@@ -60,7 +59,6 @@ public class AiClient {
                     e.printStackTrace();
                     throw e;
                 }
-                System.err.println("encoded state sent");
                 BattleAiMod.battleAiController = null;
 
                 DataInputStream in = new DataInputStream(new BufferedInputStream(socket
@@ -102,10 +100,15 @@ public class AiClient {
 
                             if (parsed.has("commands")) {
                                 ArrayList<Command> commandsFromServer = new ArrayList<>();
-                                JsonArray jsonCommands = parsed.get("commands").getAsJsonArray();
-                                for (JsonElement jsonCommand : jsonCommands) {
-                                    Command toAdd = toCommand(jsonCommand);
-                                    commandsFromServer.add(toAdd);
+                                try {
+                                    JsonArray jsonCommands = parsed.get("commands")
+                                                                   .getAsJsonArray();
+                                    for (JsonElement jsonCommand : jsonCommands) {
+                                        Command toAdd = toCommand(jsonCommand);
+                                        commandsFromServer.add(toAdd);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
 
                                 if (BattleAiMod.battleAiController == null) {
@@ -160,8 +163,11 @@ public class AiClient {
             }
             return new PotionCommand(commandString);
         } else if (type.equals("END")) {
-            return new EndCommand(commandString, jsonElement.getAsJsonObject().get("state")
-                                                            .getAsString());
+            if (jsonElement.getAsJsonObject().has("state")) {
+                return new EndCommand(commandString, jsonElement.getAsJsonObject().get("state")
+                                                                .getAsString());
+            }
+            return new EndCommand(commandString);
         } else if (type.equals("HAND_SELECT")) {
             return new HandSelectCommand(commandString);
         } else if (type.equals("HAND_SELECT_CONFIRM")) {

@@ -176,7 +176,7 @@ public class TurnNode implements Comparable<TurnNode> {
                     controller.addRuntime("Battle AI Execute Action", System
                             .currentTimeMillis() - startExecute);
                 } catch (IndexOutOfBoundsException e) {
-                    System.err.println("desynced state, aborting state to recover");
+//                    System.err.println("desynced state, aborting state to recover");
                 }
             }
         }

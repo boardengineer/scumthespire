@@ -2,6 +2,7 @@ package battleaimod.battleai.playorder;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.colorless.Panache;
+import com.megacrit.cardcrawl.cards.colorless.SadisticNature;
 import com.megacrit.cardcrawl.cards.green.*;
 import com.megacrit.cardcrawl.cards.tempCards.Shiv;
 
@@ -17,6 +18,7 @@ public class SilentPlayOrder {
         add(new Panache());
         add(new SneakyStrike());
         add(new GrandFinale());
+        add(new SadisticNature());
 
         add(new Flechettes());
         add(new Burst());
@@ -52,6 +54,7 @@ public class SilentPlayOrder {
         add(new Acrobatics());
         add(new BulletTime());
 
+        add(new Dash());
         add(new Skewer());
         add(new RiddleWithHoles());
         add(new Neutralize());
@@ -98,7 +101,6 @@ public class SilentPlayOrder {
         add(new DodgeAndRoll());
         add(new Blur());
         add(new EscapePlan());
-        add(new Dash());
         add(new Deflect());
         add(new Defend_Green());
 

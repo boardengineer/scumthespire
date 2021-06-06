@@ -31,6 +31,8 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.helpers.RelicLibrary;
+import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
+import com.megacrit.cardcrawl.monsters.exordium.SlimeBoss;
 import com.megacrit.cardcrawl.relics.*;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
@@ -141,6 +143,10 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         ReflectionHacks.setPrivateStaticFinal(BaseMod.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(TheSpecimen.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(AbstractDungeon.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(Lagavulin.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(SlimeBoss.class, "logger", new SilentLogger());
+
         if (isServer) {
             Settings.MASTER_VOLUME = 0;
             Settings.isDemo = true;
