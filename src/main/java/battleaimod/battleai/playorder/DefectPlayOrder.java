@@ -2,6 +2,9 @@ package battleaimod.battleai.playorder;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.*;
+import com.megacrit.cardcrawl.cards.colorless.Finesse;
+import com.megacrit.cardcrawl.cards.colorless.Panache;
+import com.megacrit.cardcrawl.cards.colorless.SadisticNature;
 
 import java.util.HashMap;
 
@@ -12,12 +15,15 @@ public class DefectPlayOrder {
     public static HashMap<String, Integer> makeRank() {
         uglyThing = new HashMap<>();
 
+        add(new SadisticNature());
         add(new Amplify());
         add(new Storm());
 
         // 0 costs
         add(new BeamCell());
         add(new FTL());
+        add(new Finesse());
+        add(new Panache());
         add(new Claw());
         add(new Zap());
         add(new Dualcast());
@@ -93,9 +99,8 @@ public class DefectPlayOrder {
         add(new AllForOne());
 
         add(new Reboot());
-        add(new Defend_Blue());
         add(new Strike_Blue());
-
+        add(new Defend_Blue());
         return uglyThing;
     }
 

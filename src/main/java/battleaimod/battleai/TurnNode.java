@@ -1,5 +1,7 @@
 package battleaimod.battleai;
 
+import com.megacrit.cardcrawl.monsters.exordium.GremlinNob;
+import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
 import com.megacrit.cardcrawl.relics.LizardTail;
 import ludicrousspeed.simulator.commands.Command;
 import ludicrousspeed.simulator.commands.EndCommand;
@@ -9,10 +11,7 @@ import savestate.SaveState;
 import savestate.powers.PowerState;
 import savestate.relics.RelicState;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
 
 public class TurnNode implements Comparable<TurnNode> {
     public final BattleAiController controller;
@@ -271,9 +270,19 @@ public class TurnNode implements Comparable<TurnNode> {
             }
         }
 
+        boolean shouldBrawl = turnNode.startingState.saveState.curMapNodeState.monsterData.stream()
+                                                                                          .filter(monsterState -> BRAWLY_MONSTER_IDS
+                                                                                                  .contains(monsterState.id))
+                                                                                          .findAny()
+                                                                                          .isPresent();
+
         int potionLoss = getPotionScore(turnNode.controller.startingState) - getPotionScore(turnNode.startingState.saveState);
 
-        return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity - potionLoss + getRelicScore(turnNode.startingState.saveState);
+        if (shouldBrawl) {
+            return monsterDamage - 2 * playerDamage + 3 * strength + 3 * dexterity - potionLoss + getRelicScore(turnNode.startingState.saveState);
+        } else {
+            return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity - potionLoss + getRelicScore(turnNode.startingState.saveState);
+        }
     }
 
     @Override
@@ -295,4 +304,9 @@ public class TurnNode implements Comparable<TurnNode> {
     private boolean isNewTurn(StateNode childNode) {
         return (childNode.saveState.turn > this.startingState.saveState.turn) || childNode.lastCommand instanceof EndCommand;
     }
+
+    public static HashSet<String> BRAWLY_MONSTER_IDS = new HashSet<String>() {{
+        add(Lagavulin.ID);
+        add(GremlinNob.ID);
+    }};
 }
