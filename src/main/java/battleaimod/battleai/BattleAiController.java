@@ -1,7 +1,5 @@
 package battleaimod.battleai;
 
-import battleaimod.BattleAiMod;
-import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import ludicrousspeed.Controller;
 import ludicrousspeed.simulator.commands.Command;
 import savestate.CardState;
@@ -51,8 +49,6 @@ public class BattleAiController implements Controller {
     public boolean runCommandMode = false;
     public boolean runPartialMode = false;
 
-    private final boolean shouldRunWhenFound;
-
     public long controllerStartTime;
 
     public HashMap<String, Long> runTimes;
@@ -64,40 +60,9 @@ public class BattleAiController implements Controller {
 
         minDamage = 5000;
         bestEnd = null;
-        shouldRunWhenFound = false;
         startingState = state;
         initialized = false;
         startingState.loadState();
-    }
-
-    public BattleAiController(SaveState saveState, List<Command> commands, boolean isComplete) {
-        runTimes = new HashMap<>();
-        runCommandMode = true;
-        this.isComplete = isComplete;
-        shouldRunWhenFound = true;
-        bestPath = commands;
-        bestPathRunner = commands.iterator();
-        startingState = saveState;
-    }
-
-    public void updateBestPath(List<Command> commands, boolean wouldComplete) {
-        queuedPath = commands;
-        if (!bestPathRunner.hasNext()) {
-            Iterator<Command> oldPath = bestPath.iterator();
-            Iterator<Command> newPath = commands.iterator();
-
-            while (oldPath.hasNext()) {
-                oldPath.next();
-                newPath.next();
-            }
-
-            bestPathRunner = newPath;
-            this.isComplete = wouldComplete;
-            bestPath = queuedPath;
-        }
-
-        this.wouldComplete = wouldComplete;
-        this.runCommandMode = true;
     }
 
     public void step() {
@@ -253,46 +218,6 @@ public class BattleAiController implements Controller {
                 return;
             }
 
-        }
-        if (runCommandMode && shouldRunWhenFound) {
-            boolean foundCommand = false;
-            while (bestPathRunner.hasNext() && !foundCommand) {
-                Command command = bestPathRunner.next();
-                if (command != null) {
-                    foundCommand = true;
-                    command.execute();
-                } else {
-                    foundCommand = true;
-//                    startingState.loadState();
-                }
-            }
-            if (!BattleAiMod.isServer) {
-                AbstractDungeon.player.hand.refreshHandLayout();
-            }
-
-            if (!bestPathRunner.hasNext()) {
-                turns = new PriorityQueue<>();
-                minDamage = 5000;
-                bestEnd = null;
-
-                if (isComplete) {
-                    isDone = true;
-                    runCommandMode = false;
-                } else if (queuedPath != null && queuedPath.size() > bestPath.size()) {
-                    System.err.println("Enqueueing path...");
-                    Iterator<Command> oldPath = bestPath.iterator();
-                    Iterator<Command> newPath = queuedPath.iterator();
-
-                    while (oldPath.hasNext()) {
-                        oldPath.next();
-                        newPath.next();
-                    }
-
-                    bestPathRunner = newPath;
-                    this.isComplete = wouldComplete;
-                    bestPath = queuedPath;
-                }
-            }
         }
     }
 

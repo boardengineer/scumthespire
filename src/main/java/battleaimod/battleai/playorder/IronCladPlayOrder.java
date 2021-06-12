@@ -83,7 +83,6 @@ public class IronCladPlayOrder {
         add(new Anger());
 
         // Block last
-
         add(new SeeingRed());
         add(new ShrugItOff());
         add(new GhostlyArmor());
@@ -94,9 +93,6 @@ public class IronCladPlayOrder {
         add(new BurningPact());
         add(new SecondWind());
         add(new TrueGrit());
-
-
-
 
         add(new Entrench());
         add(new BodySlam());

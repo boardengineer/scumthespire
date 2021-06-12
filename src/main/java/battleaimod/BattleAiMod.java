@@ -8,6 +8,7 @@ import basemod.interfaces.PostInitializeSubscriber;
 import basemod.interfaces.PostUpdateSubscriber;
 import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
+import battleaimod.battleai.CommandRunnerController;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,12 +24,12 @@ import com.megacrit.cardcrawl.cards.blue.ThunderStrike;
 import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.Nightmare;
 import com.megacrit.cardcrawl.cards.red.Exhume;
-import com.megacrit.cardcrawl.cards.red.Havoc;
 import com.megacrit.cardcrawl.cards.red.Headbutt;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
+import com.megacrit.cardcrawl.helpers.EventHelper;
 import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.helpers.RelicLibrary;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
@@ -59,6 +60,9 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static AiClient aiClient = null;
     public static boolean shouldStartAiFromServer = false;
     public static BattleAiController battleAiController = null;
+
+    public static CommandRunnerController rerunController = null;
+
     public static SaveState saveState;
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
@@ -99,9 +103,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         CardLibrary.cards.remove(Forethought.ID);
         CardLibrary.cards.remove(Headbutt.ID);
 
-        // TODO check havoc into armaments
-        CardLibrary.cards.remove(Havoc.ID);
-
         // TODO AttackFromDeckToHandAction
         CardLibrary.cards.remove(SecretWeapon.ID);
 
@@ -118,6 +119,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         sharedRelics.put(NilrysCodex.ID, RelicLibrary.getRelic("Enchiridion").makeCopy());
         sharedRelics.put(Toolbox.ID, RelicLibrary.getRelic(MedicalKit.ID).makeCopy());
         sharedRelics.put(PrismaticShard.ID, RelicLibrary.getRelic(Abacus.ID).makeCopy());
+
+        EventHelper eventHelper;
         sharedRelics.remove(GamblingChip.ID);
         sharedRelics.remove(PrayerWheel.ID);
 

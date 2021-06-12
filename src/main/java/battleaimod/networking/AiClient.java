@@ -1,7 +1,7 @@
 package battleaimod.networking;
 
 import battleaimod.BattleAiMod;
-import battleaimod.battleai.BattleAiController;
+import battleaimod.battleai.CommandRunnerController;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -59,7 +59,7 @@ public class AiClient {
                     e.printStackTrace();
                     throw e;
                 }
-                BattleAiMod.battleAiController = null;
+                BattleAiMod.rerunController = null;
 
                 DataInputStream in = new DataInputStream(new BufferedInputStream(socket
                         .getInputStream()));
@@ -88,11 +88,11 @@ public class AiClient {
                                 commandsFromServer.add(toAdd);
                             }
 
-                            if (BattleAiMod.battleAiController == null) {
-                                LudicrousSpeedMod.controller = BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, true);
+                            if (BattleAiMod.rerunController == null) {
+                                LudicrousSpeedMod.controller = BattleAiMod.rerunController = new CommandRunnerController(commandsFromServer, true);
                                 BattleAiMod.forceStep = true;
                             } else {
-                                BattleAiMod.battleAiController
+                                BattleAiMod.rerunController
                                         .updateBestPath(commandsFromServer, true);
                             }
                         } else if (parsed.get("type").getAsString().equals("STATUS_UPDATE")) {
@@ -111,11 +111,11 @@ public class AiClient {
                                     e.printStackTrace();
                                 }
 
-                                if (BattleAiMod.battleAiController == null) {
-                                    LudicrousSpeedMod.controller = BattleAiMod.battleAiController = new BattleAiController(new SaveState(), commandsFromServer, false);
+                                if (BattleAiMod.rerunController == null) {
+                                    LudicrousSpeedMod.controller = BattleAiMod.rerunController = new CommandRunnerController(commandsFromServer, false);
                                     BattleAiMod.forceStep = true;
                                 } else {
-                                    BattleAiMod.battleAiController
+                                    BattleAiMod.rerunController
                                             .updateBestPath(commandsFromServer, false);
                                 }
                             }
@@ -134,7 +134,7 @@ public class AiClient {
             } catch (Exception e) {
                 System.err.println("Server disconnected; clearing client for reset.");
                 BattleAiMod.aiClient = null;
-                BattleAiMod.battleAiController = null;
+                BattleAiMod.rerunController = null;
             }
         });
     }
