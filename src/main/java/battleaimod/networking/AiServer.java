@@ -68,7 +68,7 @@ public class AiServer {
 
                         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                         while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController
-                                .runCommandMode()) {
+                                .isDone()) {
                             // Send update
 
                             JsonObject jsonToSend = new JsonObject();
@@ -96,37 +96,18 @@ public class AiServer {
                         System.err.println("BattleAI finished");
 
                         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController
-                                .runCommandMode()) {
+                                .isDone()) {
                             JsonObject jsonToSend = new JsonObject();
                             JsonArray commands = null;
                             try {
-                                commands = commandsForStateNodeExperimental(BattleAiMod.battleAiController.bestEnd != null ? BattleAiMod.battleAiController.bestEnd : BattleAiMod.battleAiController.deathNode);
+                                commands = commandsForStateNodeExperimental(BattleAiMod.battleAiController.bestEnd);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
-//                            Iterator<Command> bestPath = BattleAiMod.battleAiController
-//                                    .bestPathRunner();
-//                            while (bestPath.hasNext()) {
-//                                Command nextCommand = bestPath.next();
-//                                if (nextCommand != null) {
-//                                    commands.add(nextCommand.encode());
-//                                } else {
-//                                    commands.add(JsonNull.INSTANCE);
-//                                }
-//                            }
-
-
                             // Send Command List
                             jsonToSend.addProperty("type", "COMMAND_LIST");
                             jsonToSend.add("commands", commands);
-
-                            try {
-                                System.err.println(BattleAiMod.battleAiController.bestPath());
-                            } catch (NullPointerException e) {
-                                System.err
-                                        .println("Can't print best path, it was already cleared " + commands);
-                            }
 
                             out.writeUTF(jsonToSend.toString());
                             LudicrousSpeedMod.controller = BattleAiMod.battleAiController = null;

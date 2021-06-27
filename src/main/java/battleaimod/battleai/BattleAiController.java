@@ -9,15 +9,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class BattleAiController implements Controller {
-    public int maxTurnLoads = 10_000;
+    public int maxTurnLoads = 15_000;
 
     public int targetTurn;
     public int targetTurnJump;
 
     public PriorityQueue<TurnNode> turns = new PriorityQueue<>();
 
-    public int minDamage = 5000;
-    public StateNode bestEnd = null;
+    public int minDamage;
+    public StateNode bestEnd;
 
     // If it doesn't work out just send back a path to kill the players o the game doesn't get
     // stuck.
@@ -33,21 +33,11 @@ public class BattleAiController implements Controller {
     public int startingHealth;
     public boolean isDone = false;
     public final SaveState startingState;
-    private boolean initialized = false;
+    private boolean initialized;
 
-    public List<Command> bestPath;
-    private List<Command> queuedPath;
-
-    public Iterator<Command> bestPathRunner;
     public TurnNode curTurn;
 
     public int turnsLoaded = 0;
-
-    boolean isComplete = true;
-    boolean wouldComplete = true;
-
-    public boolean runCommandMode = false;
-    public boolean runPartialMode = false;
 
     public long controllerStartTime;
 
@@ -69,11 +59,10 @@ public class BattleAiController implements Controller {
         if (isDone) {
             return;
         }
-        if (!runCommandMode && !runPartialMode) {
             if (!initialized) {
                 TurnNode.nodeIndex = 0;
                 initialized = true;
-                runCommandMode = false;
+                isDone = false;
                 StateNode firstStateContainer = new StateNode(null, null, this);
                 startingHealth = startingState.getPlayerHealth();
                 firstStateContainer.saveState = startingState;
@@ -88,16 +77,13 @@ public class BattleAiController implements Controller {
             if ((turns
                     .isEmpty() || turnsLoaded >= maxTurnLoads) && (curTurn == null || curTurn.isDone)) {
                 if (bestEnd != null) {
-                    System.err.println("Found end at turn treshold, going into rerun");
+                    System.err.println("Found end at turn threshold, going into rerun");
 
                     // uncomment to get tree files
                     // showTree();
                     printRuntimeStats();
 
-                    runCommandMode = true;
-                    startingState.loadState();
-                    bestPath = commandsToGetToNode(bestEnd);
-                    bestPathRunner = bestPath.iterator();
+                    isDone = true;
                     return;
                 } else if (bestTurn != null || backupTurn != null) {
                     if (bestTurn == null) {
@@ -124,7 +110,6 @@ public class BattleAiController implements Controller {
                     }
 
                     System.err.println("Backstepping to turn: " + bestTurn);
-
 
                     TurnNode toAdd = makeResetCopy(bestTurn);
                     turns.add(toAdd);
@@ -168,14 +153,12 @@ public class BattleAiController implements Controller {
                 if (curTurn != null && curTurn.isDone && bestEnd != null && (bestTurn == null || minDamage <= 0)) {
                     System.err.println("found end, going into rerunmode");
                     startingState.loadState();
-                    bestPath = commandsToGetToNode(bestEnd);
-                    bestPathRunner = bestPath.iterator();
 
                     // uncomment for tree files
                     //showTree();
                     printRuntimeStats();
 
-                    runCommandMode = true;
+                    isDone = true;
                     return;
                 } else {
                     System.err
@@ -211,14 +194,10 @@ public class BattleAiController implements Controller {
             if (deathNode != null && turns
                     .isEmpty() && bestTurn == null && (curTurn == null || curTurn.isDone)) {
                 System.err.println("Sending back death turn");
-                startingState.loadState();
-                bestPath = commandsToGetToNode(deathNode);
-                bestPathRunner = bestPath.iterator();
-                runCommandMode = true;
+                bestEnd = deathNode;
+                isDone = true;
                 return;
             }
-
-        }
     }
 
     private static TurnNode makeResetCopy(TurnNode node) {
@@ -271,24 +250,12 @@ public class BattleAiController implements Controller {
         return isDone;
     }
 
-    public boolean runCommandMode() {
-        return runCommandMode;
-    }
-
     public TurnNode committedTurn() {
         return committedTurn;
     }
 
     public int turnsLoaded() {
         return turnsLoaded;
-    }
-
-    public Iterator<Command> bestPathRunner() {
-        return bestPathRunner;
-    }
-
-    public List<Command> bestPath() {
-        return bestPath;
     }
 
     public int maxTurnLoads() {

@@ -1,14 +1,22 @@
 package battleaimod.battleai;
 
+import com.megacrit.cardcrawl.cards.colorless.RitualDagger;
+import com.megacrit.cardcrawl.cards.green.Catalyst;
+import com.megacrit.cardcrawl.cards.purple.ConjureBlade;
+import com.megacrit.cardcrawl.cards.purple.LessonLearned;
+import com.megacrit.cardcrawl.cards.red.Feed;
+import com.megacrit.cardcrawl.cards.tempCards.Expunger;
+import com.megacrit.cardcrawl.cards.tempCards.Miracle;
 import com.megacrit.cardcrawl.monsters.exordium.GremlinNob;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
+import com.megacrit.cardcrawl.powers.*;
 import com.megacrit.cardcrawl.relics.LizardTail;
 import ludicrousspeed.simulator.commands.Command;
 import ludicrousspeed.simulator.commands.EndCommand;
 import ludicrousspeed.simulator.commands.StateDebugInfo;
+import savestate.CardState;
 import savestate.PotionState;
 import savestate.SaveState;
-import savestate.powers.PowerState;
 import savestate.relics.RelicState;
 
 import java.util.*;
@@ -76,7 +84,10 @@ public class TurnNode implements Comparable<TurnNode> {
         }
 
         if (curState.getPlayerHealth() < 1) {
-            controller.deathNode = curState;
+            if (controller.deathNode == null ||
+                    (controller.deathNode != null && controller.deathNode.saveState.turn < curState.saveState.turn)) {
+                controller.deathNode = curState;
+            }
             isDone = true;
             return true;
         }
@@ -100,11 +111,6 @@ public class TurnNode implements Comparable<TurnNode> {
             if (curState.lastCommand instanceof EndCommand) {
                 ((EndCommand) curState.lastCommand).stateDebugInfo = new StateDebugInfo(curState.saveState);
             }
-
-//            if (controller.bestTurn == null || controller.bestTurn.startingState.saveState.turn < curState.saveState.turn || (controller.bestTurn.startingState.saveState.turn == curState.saveState.turn && this
-//                    .isBetterThan(controller.bestTurn))) {
-//                controller.bestTurn = this;
-//            }
 
             controller.addRuntime("Battle AI TurnStep early Return Total 2", System
                     .currentTimeMillis() - stepStart);
@@ -235,6 +241,10 @@ public class TurnNode implements Comparable<TurnNode> {
         return turnNode.cachedValue.get();
     }
 
+    /**
+     * Adds up monster health and accounts for powers that alter the effective health of the enemy
+     * such as barricade and unawakened.
+     */
     public static int getTotalMonsterHealth(SaveState saveState) {
         return saveState.curMapNodeState.monsterData.stream()
                                                     .map(monster -> {
@@ -260,15 +270,12 @@ public class TurnNode implements Comparable<TurnNode> {
         int playerDamage = getPlayerDamage(turnNode);
         int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealth(turnNode.startingState.saveState);
 
-        int strength = 0;
-        int dexterity = 0;
-        for (PowerState power : turnNode.startingState.saveState.playerState.powers) {
-            if (power.powerId.equals("Strength")) {
-                strength = power.amount;
-            } else if (power.powerId.equals("Dexterity")) {
-                dexterity = power.amount;
-            }
-        }
+        int powerScore = turnNode.startingState.saveState.playerState.powers.stream()
+                                                                            .map(powerState -> POWER_VALUES
+                                                                                    .getOrDefault(powerState.powerId, 0) * powerState.amount)
+                                                                            .reduce(Integer::sum)
+                                                                            .orElse(0);
+
 
         boolean shouldBrawl = turnNode.startingState.saveState.curMapNodeState.monsterData.stream()
                                                                                           .filter(monsterState -> BRAWLY_MONSTER_IDS
@@ -276,13 +283,119 @@ public class TurnNode implements Comparable<TurnNode> {
                                                                                           .findAny()
                                                                                           .isPresent();
 
-        int potionLoss = getPotionScore(turnNode.controller.startingState) - getPotionScore(turnNode.startingState.saveState);
+        int numRitualDaggers = 0;
+        int totalRitualDaggerDamage = 0;
+        int numMiracles = 0;
+        int numFeeds = 0;
+        int numCatalysts = 0;
 
-        if (shouldBrawl) {
-            return monsterDamage - 2 * playerDamage + 3 * strength + 3 * dexterity - potionLoss + getRelicScore(turnNode.startingState.saveState);
-        } else {
-            return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity - potionLoss + getRelicScore(turnNode.startingState.saveState);
+        int numLessonLearned = 0;
+
+        int numConjures = 0;
+        int conjureDamage = 0;
+
+        for (CardState card : turnNode.startingState.saveState.playerState.hand) {
+            switch (card.cardId) {
+                case RitualDagger.ID:
+                    numRitualDaggers++;
+                    totalRitualDaggerDamage += card.baseDamage;
+                    break;
+                case Miracle.ID:
+                    numMiracles++;
+                    break;
+                case Feed.ID:
+                    numFeeds++;
+                    break;
+                case ConjureBlade.ID:
+                    numConjures++;
+                    break;
+                case Expunger.ID:
+                    conjureDamage += card.baseMagicNumber;
+                    break;
+                case LessonLearned.ID:
+                    numLessonLearned++;
+                    break;
+                case Catalyst.ID:
+                    numCatalysts++;
+                    break;
+                default:
+                    break;
+            }
         }
+
+        for (CardState card : turnNode.startingState.saveState.playerState.drawPile) {
+            switch (card.cardId) {
+                case RitualDagger.ID:
+                    numRitualDaggers++;
+                    totalRitualDaggerDamage += card.baseDamage;
+                    break;
+                case Feed.ID:
+                    numFeeds++;
+                    break;
+                case ConjureBlade.ID:
+                    numConjures++;
+                    break;
+                case Expunger.ID:
+                    conjureDamage += card.baseMagicNumber;
+                    break;
+                case LessonLearned.ID:
+                    numLessonLearned++;
+                    break;
+                case Catalyst.ID:
+                    numCatalysts++;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        for (CardState card : turnNode.startingState.saveState.playerState.discardPile) {
+            switch (card.cardId) {
+                case RitualDagger.ID:
+                    numRitualDaggers++;
+                    totalRitualDaggerDamage += card.baseDamage;
+                    break;
+                case Feed.ID:
+                    numFeeds++;
+                    break;
+                case ConjureBlade.ID:
+                    numConjures++;
+                    break;
+                case Expunger.ID:
+                    conjureDamage += card.baseMagicNumber;
+                    break;
+                case LessonLearned.ID:
+                    numLessonLearned++;
+                    break;
+                case Catalyst.ID:
+                    numCatalysts++;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        for (CardState card : turnNode.startingState.saveState.playerState.exhaustPile) {
+            switch (card.cardId) {
+                case RitualDagger.ID:
+                    totalRitualDaggerDamage += card.baseDamage;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        int miracleScore = numMiracles * 20;
+        int ritualDaggerScore = numRitualDaggers * 20 + totalRitualDaggerDamage * 20;
+        int feedScore = numFeeds * 15;
+        int conjureBladeScore = numConjures * 25 + (conjureDamage * 15);
+        int lessonLearnedScore = numLessonLearned * 40 + turnNode.startingState.saveState.lessonLearnedCount * 100;
+        int parasiteScore = turnNode.startingState.saveState.lessonLearnedCount * -80;
+        int catalystScore = numCatalysts * 15;
+
+        int healthMultiplier = shouldBrawl ? 2 : 8;
+
+        return catalystScore + parasiteScore + lessonLearnedScore + feedScore + conjureBladeScore + turnNode.startingState.saveState.playerState.gold + ritualDaggerScore + miracleScore + monsterDamage - healthMultiplier * playerDamage + powerScore + getPotionScore(turnNode.startingState.saveState) + getRelicScore(turnNode.startingState.saveState);
     }
 
     @Override
@@ -308,5 +421,19 @@ public class TurnNode implements Comparable<TurnNode> {
     public static HashSet<String> BRAWLY_MONSTER_IDS = new HashSet<String>() {{
         add(Lagavulin.ID);
         add(GremlinNob.ID);
+    }};
+
+    public static final HashMap<String, Integer> POWER_VALUES = new HashMap<String, Integer>() {{
+        put(StrengthPower.POWER_ID, 3);
+        put(DexterityPower.POWER_ID, 3);
+        put(FocusPower.POWER_ID, 3);
+        put(DarkEmbracePower.POWER_ID, 4);
+        put(FeelNoPainPower.POWER_ID, 5);
+        put(DemonFormPower.POWER_ID, 6);
+        put(FireBreathingPower.POWER_ID, 2);
+        put(CombustPower.POWER_ID, 2);
+        put(EvolvePower.POWER_ID, 16);
+
+        put(AccuracyPower.POWER_ID, 3);
     }};
 }

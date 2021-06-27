@@ -1,9 +1,14 @@
 package battleaimod.battleai.playorder;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.blue.CreativeAI;
+import com.megacrit.cardcrawl.cards.colorless.Apotheosis;
+import com.megacrit.cardcrawl.cards.colorless.Apparition;
 import com.megacrit.cardcrawl.cards.colorless.Panache;
 import com.megacrit.cardcrawl.cards.colorless.SadisticNature;
 import com.megacrit.cardcrawl.cards.green.*;
+import com.megacrit.cardcrawl.cards.purple.LessonLearned;
+import com.megacrit.cardcrawl.cards.purple.WaveOfTheHand;
 import com.megacrit.cardcrawl.cards.tempCards.Shiv;
 
 import java.util.HashMap;
@@ -15,13 +20,18 @@ public class SilentPlayOrder {
     public static HashMap<String, Integer> makeRank() {
         uglyThing = new HashMap<>();
 
+
         add(new Panache());
-        add(new SneakyStrike());
         add(new GrandFinale());
         add(new SadisticNature());
+        add(new Apotheosis());
+        add(new CreativeAI());
+        add(new LessonLearned());
+        add(new WaveOfTheHand());
 
         add(new Flechettes());
         add(new Burst());
+        add(new Apparition());
         add(new Footwork());
         add(new Adrenaline());
         add(new Malaise());
@@ -45,6 +55,8 @@ public class SilentPlayOrder {
         add(new BouncingFlask());
         add(new CorpseExplosion());
         add(new DeadlyPoison());
+        add(new PoisonedStab());
+
         add(new Catalyst());
 
         add(new Terror());
@@ -70,12 +82,12 @@ public class SilentPlayOrder {
         add(new Slice());
         add(new DaggerSpray());
         add(new GlassKnife());
-        add(new PoisonedStab());
         add(new MasterfulStab());
         add(new Eviscerate());
         add(new Predator());
-        add(new Unload());
         add(new CloakAndDagger());
+
+        add(new SneakyStrike());
 
         add(new Shiv());
 
@@ -88,6 +100,7 @@ public class SilentPlayOrder {
         add(new Tactician());
         add(new WraithForm());
 
+        add(new Unload());
 
         add(new Finisher());
 

@@ -3,16 +3,14 @@ package battleaimod.battleai;
 import battleaimod.battleai.playorder.DefectPlayOrder;
 import battleaimod.battleai.playorder.IronCladPlayOrder;
 import battleaimod.battleai.playorder.SilentPlayOrder;
+import com.megacrit.cardcrawl.cards.colorless.RitualDagger;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import ludicrousspeed.simulator.commands.Command;
 import ludicrousspeed.simulator.commands.CommandList;
+import savestate.CardState;
 import savestate.SaveState;
-import savestate.powers.PowerState;
 
 import java.util.List;
-
-import static battleaimod.battleai.TurnNode.getPotionScore;
-import static battleaimod.battleai.TurnNode.getTotalMonsterHealth;
 
 public class StateNode {
     private final BattleAiController controller;
@@ -49,9 +47,12 @@ public class StateNode {
             initialized = true;
 
             if (AbstractDungeon.player.isDead || AbstractDungeon.player.isDying) {
-                controller.deathNode = this;
-                isDone = true;
-                return null;
+                if (controller.deathNode == null ||
+                        (controller.deathNode != null && controller.deathNode.saveState.turn < saveState.turn)) {
+                    controller.deathNode = this;
+                    isDone = true;
+                    return null;
+                }
             }
 
             int damage = controller.startingHealth - saveState.getPlayerHealth();
@@ -70,7 +71,11 @@ public class StateNode {
                         controller.bestEnd = this;
                     }
                 } else if (AbstractDungeon.player.isDead || AbstractDungeon.player.isDying) {
-                    controller.deathNode = this;
+                    if (controller.deathNode == null ||
+                            (controller.deathNode != null && controller.deathNode.saveState.turn < saveState.turn)) {
+                        controller.deathNode = this;
+                        isDone = true;
+                    }
                 }
 
                 minDamage = damage;
@@ -133,22 +138,60 @@ public class StateNode {
         return node.controller.startingHealth - node.saveState.getPlayerHealth();
     }
 
+    /**
+     * This is used for end of battle score, only health matters here
+     */
     public static int getStateScore(StateNode node) {
-        int playerDamage = getPlayerDamage(node);
-        int monsterDamage = getTotalMonsterHealth(node.controller.startingState) - getTotalMonsterHealth(node.saveState);
+        int totalRitualDaggerDamage = 0;
 
-        int strength = 0;
-        int dexterity = 0;
-        for (PowerState power : node.saveState.playerState.powers) {
-            if (power.powerId.equals("Strength")) {
-                strength = power.amount;
-            } else if (power.powerId.equals("Dexterity")) {
-                dexterity = power.amount;
+        for (CardState card : node.saveState.playerState.hand) {
+            switch (card.cardId) {
+                case RitualDagger.ID:
+                    totalRitualDaggerDamage += card.baseDamage;
+                    break;
+                default:
+                    break;
             }
         }
 
-        int potionLoss = getPotionScore(node.controller.startingState) - getPotionScore(node.saveState);
+        for (CardState card : node.saveState.playerState.drawPile) {
+            switch (card.cardId) {
+                case RitualDagger.ID:
+                    totalRitualDaggerDamage += card.baseDamage;
+                    break;
+                default:
+                    break;
+            }
+        }
 
-        return monsterDamage - 8 * playerDamage + 3 * strength + 3 * dexterity - potionLoss;
+        for (CardState card : node.saveState.playerState.discardPile) {
+            switch (card.cardId) {
+                case RitualDagger.ID:
+                    totalRitualDaggerDamage += card.baseDamage;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        for (CardState card : node.saveState.playerState.exhaustPile) {
+            switch (card.cardId) {
+                case RitualDagger.ID:
+                    totalRitualDaggerDamage += card.baseDamage;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        int ritualDaggerScore = totalRitualDaggerDamage * 20;
+        int lessonLearnedScore = node.saveState.lessonLearnedCount * 100;
+
+        return node.saveState.playerState.gold +
+                ritualDaggerScore +
+                getPlayerDamage(node) * -1 +
+                TurnNode.getPotionScore(node.saveState) +
+                TurnNode.getRelicScore(node.saveState) +
+                lessonLearnedScore;
     }
 }

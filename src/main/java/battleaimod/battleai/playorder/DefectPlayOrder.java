@@ -2,9 +2,8 @@ package battleaimod.battleai.playorder;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.*;
-import com.megacrit.cardcrawl.cards.colorless.Finesse;
-import com.megacrit.cardcrawl.cards.colorless.Panache;
-import com.megacrit.cardcrawl.cards.colorless.SadisticNature;
+import com.megacrit.cardcrawl.cards.colorless.*;
+import com.megacrit.cardcrawl.cards.green.GrandFinale;
 
 import java.util.HashMap;
 
@@ -15,9 +14,11 @@ public class DefectPlayOrder {
     public static HashMap<String, Integer> makeRank() {
         uglyThing = new HashMap<>();
 
+        add(new GrandFinale());
         add(new SadisticNature());
         add(new Amplify());
         add(new Storm());
+        add(new Apotheosis());
 
         // 0 costs
         add(new BeamCell());
@@ -26,13 +27,15 @@ public class DefectPlayOrder {
         add(new Panache());
         add(new Claw());
         add(new Zap());
-        add(new Dualcast());
         add(new GoForTheEyes());
         add(new SteamBarrier());
 
+        add(new DoubleEnergy());
         add(new Scrape());
 
         add(new GeneticAlgorithm());
+
+        add(new CoreSurge());
 
         add(new Defragment());
         add(new Aggregate());
@@ -50,14 +53,15 @@ public class DefectPlayOrder {
         add(new ConserveBattery());
         add(new Consume());
         add(new Coolheaded());
-        add(new CoreSurge());
         add(new CreativeAI());
         add(new Darkness());
         add(new DoomAndGloom());
-        add(new DoubleEnergy());
         add(new EchoForm());
         add(new Electrodynamics());
         add(new Fission());
+        add(new Apparition());
+
+        add(new Dualcast());
         add(new ForceField());
         add(new Fusion());
         add(new Glacier());

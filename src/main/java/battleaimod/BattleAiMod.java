@@ -17,19 +17,19 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
+import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.blue.Hologram;
-import com.megacrit.cardcrawl.cards.blue.MultiCast;
 import com.megacrit.cardcrawl.cards.blue.Seek;
-import com.megacrit.cardcrawl.cards.blue.ThunderStrike;
 import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.Nightmare;
+import com.megacrit.cardcrawl.cards.green.ToolsOfTheTrade;
+import com.megacrit.cardcrawl.cards.purple.*;
 import com.megacrit.cardcrawl.cards.red.Exhume;
 import com.megacrit.cardcrawl.cards.red.Headbutt;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
-import com.megacrit.cardcrawl.helpers.EventHelper;
 import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.helpers.RelicLibrary;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
@@ -95,37 +95,55 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     @Override
     public void receivePostInitialize() {
-        // TODO these are missing implementations, add states, test and remove from here
-        CardLibrary.cards.remove(Hologram.ID);
+        // Ironclad
         CardLibrary.cards.remove(Exhume.ID);
+        CardLibrary.cards.remove(Headbutt.ID);
+
+        // Silent
+        CardLibrary.cards.remove(Nightmare.ID);
+        CardLibrary.cards.remove(ToolsOfTheTrade.ID);
+
+        // Defect
+        CardLibrary.cards.remove(Hologram.ID);
+        CardLibrary.cards.remove(Seek.ID);
+
+        // Colorless
+        // TODO AttackFromDeckToHandAction
+        CardLibrary.cards.remove(SecretWeapon.ID);
         CardLibrary.cards.remove(SecretTechnique.ID);
         CardLibrary.cards.remove(TheBomb.ID);
         CardLibrary.cards.remove(Forethought.ID);
-        CardLibrary.cards.remove(Headbutt.ID);
-
-        // TODO AttackFromDeckToHandAction
-        CardLibrary.cards.remove(SecretWeapon.ID);
-
-        CardLibrary.cards.remove(Nightmare.ID);
-
-        CardLibrary.cards.remove(MultiCast.ID);
-        CardLibrary.cards.remove(Seek.ID);
-        CardLibrary.cards.remove(ThunderStrike.ID);
-
         CardLibrary.cards.remove(Discovery.ID);
+
+        // Watcher
+        // Scry
+        CardLibrary.cards.remove(CutThroughFate.ID);
+        CardLibrary.cards.remove(JustLucky.ID);
+        CardLibrary.cards.remove(ThirdEye.ID);
+        CardLibrary.cards.remove(Foresight.ID);
+        CardLibrary.cards.remove(Weave.ID);
+        CardLibrary.cards.remove(ForeignInfluence.ID);
+
+        CardLibrary.cards.remove(Wish.ID);
+        CardLibrary.cards.remove(Meditate.ID);
+        CardLibrary.cards.remove(Nirvana.ID);
+        CardLibrary.cards.remove(Blasphemy.ID);
+        CardLibrary.cards.remove(FearNoEvil.ID);
 
         HashMap<String, AbstractRelic> sharedRelics = ReflectionHacks
                 .getPrivateStatic(RelicLibrary.class, "sharedRelics");
         sharedRelics.put(NilrysCodex.ID, RelicLibrary.getRelic("Enchiridion").makeCopy());
         sharedRelics.put(Toolbox.ID, RelicLibrary.getRelic(MedicalKit.ID).makeCopy());
-        sharedRelics.put(PrismaticShard.ID, RelicLibrary.getRelic(Abacus.ID).makeCopy());
 
-        EventHelper eventHelper;
         sharedRelics.remove(GamblingChip.ID);
         sharedRelics.remove(PrayerWheel.ID);
 
-        Iterator<String> actualPotions = PotionHelper.potions.iterator();
+        HashMap<String, AbstractRelic> purpleRelics = ReflectionHacks
+                .getPrivateStatic(RelicLibrary.class, "purpleRelics");
+        purpleRelics.remove(GoldenEye.ID);
+        purpleRelics.remove(Melange.ID);
 
+        Iterator<String> actualPotions = PotionHelper.potions.iterator();
         while (actualPotions.hasNext()) {
             String potionId = actualPotions.next();
             for (String toRemove : PotionState.UNPLAYABLE_POTIONS) {
@@ -149,6 +167,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         ReflectionHacks.setPrivateStaticFinal(AbstractDungeon.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(Lagavulin.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(SlimeBoss.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(CardGroup.class, "logger", new SilentLogger());
 
         if (isServer) {
             Settings.MASTER_VOLUME = 0;
