@@ -6,7 +6,8 @@ Parts of the projects that are easily usable by others have been broken off into
 own projects and are available.
 
 Note that while many mods have Github repositories, these may not be up to date with the latest
-version on the steam workshop.
+version on the steam workshop. The precompiled JAR files can be gotten from the steam workshop
+links by using https://steamworkshopdownloader.io/.
 
 ## Common Requirements
 
