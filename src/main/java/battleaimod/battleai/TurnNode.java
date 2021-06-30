@@ -18,6 +18,7 @@ import savestate.CardState;
 import savestate.PotionState;
 import savestate.SaveState;
 import savestate.monsters.MonsterState;
+import savestate.powers.PowerState;
 import savestate.relics.RelicState;
 
 import java.util.*;
@@ -251,7 +252,7 @@ public class TurnNode implements Comparable<TurnNode> {
                                                     .map(monster -> {
                                                         if (monsterHasPower(monster, BarricadePower.POWER_ID)) {
                                                             return monster.currentHealth + monster.currentBlock;
-                                                        } else if (monsterHasPower(monster, BarricadePower.POWER_ID)) {
+                                                        } else if (monsterHasPower(monster, UnawakenedPower.POWER_ID)) {
                                                             return monster.currentHealth + monster.maxHealth;
                                                         }
                                                         return monster.currentHealth;
@@ -262,7 +263,7 @@ public class TurnNode implements Comparable<TurnNode> {
 
     public static int calculateTurnScore(TurnNode turnNode) {
         int playerDamage = getPlayerDamage(turnNode);
-        int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealth(turnNode.startingState.saveState);
+        int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealthWeighted(turnNode.startingState.saveState);
 
         int powerScore = turnNode.startingState.saveState.playerState.powers.stream()
                                                                             .map(powerState -> POWER_VALUES
@@ -430,8 +431,60 @@ public class TurnNode implements Comparable<TurnNode> {
     }};
 
     private static boolean monsterHasPower(MonsterState monster, String powerId) {
+        return getPower(monster, powerId).isPresent();
+    }
+
+    private static Optional<PowerState> getPower(MonsterState monster, String powerId) {
         return monster.powers.stream()
-                .map(power -> power.powerId)
-                .anyMatch(powerId::equals);
+                .filter(power -> power.powerId.equals(powerId))
+                .findFirst();
+    }
+
+    /**
+     * Calculates the total effective health of a monster, plus weighting to factor in modifiers like flight and curl up
+     * This is kept separate from getTotalMonsterHealth because it is not a truly accurate representation of remaining
+     * hp, and should only be used for scoring.
+     */
+    private static int getTotalMonsterHealthWeighted(SaveState saveState) {
+        return saveState.curMapNodeState.monsterData.stream()
+                .map(monster -> {
+                    int health = monster.currentHealth;
+                    if (monsterHasPower(monster, BarricadePower.POWER_ID)) {
+                        health += monster.currentBlock;
+                    } else if (monsterHasPower(monster, UnawakenedPower.POWER_ID)) {
+                        health += monster.maxHealth;
+                    }
+                    return monsterHealthWithModifiers(monster, health);
+                })
+                .reduce(Integer::sum)
+                .get();
+    }
+
+    /**
+     * Applies subjective modifiers to the total hp of the monster for calculating a turn's score. A monster with higher
+     * HP and no effects may be easier to kill than a monster with low HP and flight.
+     * The goal is to prompt the AI to treat these paths as preferable without over-biasing it
+     */
+    private static int monsterHealthWithModifiers(MonsterState monster, int totalHealth) {
+        if (totalHealth == 0) {
+            return 0;
+        }
+        // If vulnerability will be present in future turns, that means we will do more damage next turn (don't bother looking too far ahead).
+        Optional<PowerState> vulnerability = getPower(monster, VulnerablePower.POWER_ID);
+        if (vulnerability.isPresent() && vulnerability.get().amount > 1) {
+            // Guesstimation that the extra damage from Vulnerable will wind up accounting for about 5% of the monster's total health (no clue how much it actually would be)
+            totalHealth -= monster.maxHealth*0.05;
+        }
+
+        if (monsterHasPower(monster, CurlUpPower.POWER_ID)) {
+            // Lowball guess to factor in the possibility it gets oneshot/takes damage from purely skills
+            return totalHealth + 5;
+        }
+        if (monsterHasPower(monster, FlightPower.POWER_ID)) {
+            // Tentative value on the assumption that about a third of the total damage to the monster will be reduced.
+            // Will vary depending on deck of course, but this should help the AI prioritize knocking down flight.
+            return (int)(totalHealth * 1.3);
+        }
+        return totalHealth;
     }
 }
