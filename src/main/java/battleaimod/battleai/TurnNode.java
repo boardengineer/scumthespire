@@ -473,7 +473,7 @@ public class TurnNode implements Comparable<TurnNode> {
         Optional<PowerState> vulnerability = getPower(monster, VulnerablePower.POWER_ID);
         if (vulnerability.isPresent() && vulnerability.get().amount > 1) {
             // Guesstimation that the extra damage from Vulnerable will wind up accounting for about 5% of the monster's total health (no clue how much it actually would be)
-            totalHealth -= monster.maxHealth*0.05;
+            totalHealth -= monster.maxHealth*0.08;
         }
 
         if (monsterHasPower(monster, CurlUpPower.POWER_ID)) {
@@ -481,9 +481,9 @@ public class TurnNode implements Comparable<TurnNode> {
             return totalHealth + 5;
         }
         if (monsterHasPower(monster, FlightPower.POWER_ID)) {
-            // Tentative value on the assumption that about a third of the total damage to the monster will be reduced.
-            // Will vary depending on deck of course, but this should help the AI prioritize knocking down flight.
-            return (int)(totalHealth * 1.3);
+            // Tentative value on the assumption that about one half of the total damage to the monster will be halved.
+            // Will vary depending on deck of course, but this should help the AI prioritize taking down flight.
+            return (int)(totalHealth * 1.5);
         }
         return totalHealth;
     }
