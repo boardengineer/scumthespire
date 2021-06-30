@@ -472,7 +472,7 @@ public class TurnNode implements Comparable<TurnNode> {
         // If vulnerability will be present in future turns, that means we will do more damage next turn (don't bother looking too far ahead).
         Optional<PowerState> vulnerability = getPower(monster, VulnerablePower.POWER_ID);
         if (vulnerability.isPresent() && vulnerability.get().amount > 1) {
-            // Guesstimation that the extra damage from Vulnerable will wind up accounting for about 5% of the monster's total health (no clue how much it actually would be)
+            // Guesstimation that the extra damage from Vulnerable will wind up accounting for about 8% of the monster's max health next turn (no clue how much it actually would be)
             totalHealth -= monster.maxHealth*0.08;
         }
 
