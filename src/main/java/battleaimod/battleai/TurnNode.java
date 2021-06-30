@@ -17,6 +17,7 @@ import ludicrousspeed.simulator.commands.StateDebugInfo;
 import savestate.CardState;
 import savestate.PotionState;
 import savestate.SaveState;
+import savestate.monsters.MonsterState;
 import savestate.relics.RelicState;
 
 import java.util.*;
@@ -236,7 +237,7 @@ public class TurnNode implements Comparable<TurnNode> {
 
     public static int getTurnScore(TurnNode turnNode) {
         if (!turnNode.cachedValue.isPresent()) {
-            turnNode.cachedValue = Optional.of(caclculateTurnScore(turnNode));
+            turnNode.cachedValue = Optional.of(calculateTurnScore(turnNode));
         }
         return turnNode.cachedValue.get();
     }
@@ -248,16 +249,9 @@ public class TurnNode implements Comparable<TurnNode> {
     public static int getTotalMonsterHealth(SaveState saveState) {
         return saveState.curMapNodeState.monsterData.stream()
                                                     .map(monster -> {
-                                                        if (monster.powers.stream()
-                                                                          .filter(power -> power.powerId
-                                                                                  .equals("Barricade"))
-                                                                          .findAny().isPresent()) {
+                                                        if (monsterHasPower(monster, BarricadePower.POWER_ID)) {
                                                             return monster.currentHealth + monster.currentBlock;
-                                                        } else if (monster.powers.stream()
-                                                                                 .filter(power -> power.powerId
-                                                                                         .equals("Unawakened"))
-                                                                                 .findAny()
-                                                                                 .isPresent()) {
+                                                        } else if (monsterHasPower(monster, BarricadePower.POWER_ID)) {
                                                             return monster.currentHealth + monster.maxHealth;
                                                         }
                                                         return monster.currentHealth;
@@ -266,7 +260,7 @@ public class TurnNode implements Comparable<TurnNode> {
                                                     .get();
     }
 
-    public static int caclculateTurnScore(TurnNode turnNode) {
+    public static int calculateTurnScore(TurnNode turnNode) {
         int playerDamage = getPlayerDamage(turnNode);
         int monsterDamage = getTotalMonsterHealth(turnNode.controller.startingState) - getTotalMonsterHealth(turnNode.startingState.saveState);
 
@@ -278,10 +272,8 @@ public class TurnNode implements Comparable<TurnNode> {
 
 
         boolean shouldBrawl = turnNode.startingState.saveState.curMapNodeState.monsterData.stream()
-                                                                                          .filter(monsterState -> BRAWLY_MONSTER_IDS
-                                                                                                  .contains(monsterState.id))
-                                                                                          .findAny()
-                                                                                          .isPresent();
+                                                                                          .anyMatch(monsterState -> BRAWLY_MONSTER_IDS
+                                                                                                  .contains(monsterState.id));
 
         int numRitualDaggers = 0;
         int totalRitualDaggerDamage = 0;
@@ -436,4 +428,10 @@ public class TurnNode implements Comparable<TurnNode> {
 
         put(AccuracyPower.POWER_ID, 3);
     }};
+
+    private static boolean monsterHasPower(MonsterState monster, String powerId) {
+        return monster.powers.stream()
+                .map(power -> power.powerId)
+                .anyMatch(powerId::equals);
+    }
 }
