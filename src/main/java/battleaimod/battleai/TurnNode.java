@@ -1,5 +1,6 @@
 package battleaimod.battleai;
 
+import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.cards.colorless.RitualDagger;
 import com.megacrit.cardcrawl.cards.green.Catalyst;
 import com.megacrit.cardcrawl.cards.purple.ConjureBlade;
@@ -7,19 +8,21 @@ import com.megacrit.cardcrawl.cards.purple.LessonLearned;
 import com.megacrit.cardcrawl.cards.red.Feed;
 import com.megacrit.cardcrawl.cards.tempCards.Expunger;
 import com.megacrit.cardcrawl.cards.tempCards.Miracle;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.exordium.GremlinNob;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
 import com.megacrit.cardcrawl.powers.*;
 import com.megacrit.cardcrawl.relics.LizardTail;
 import ludicrousspeed.simulator.commands.Command;
 import ludicrousspeed.simulator.commands.EndCommand;
-import ludicrousspeed.simulator.commands.StateDebugInfo;
 import savestate.CardState;
 import savestate.PotionState;
 import savestate.SaveState;
 import savestate.relics.RelicState;
 
 import java.util.*;
+
+import static savestate.SaveStateMod.addRuntime;
 
 public class TurnNode implements Comparable<TurnNode> {
     public final BattleAiController controller;
@@ -73,55 +76,56 @@ public class TurnNode implements Comparable<TurnNode> {
         if (!runningCommands) {
             runningCommands = true;
             curState.saveState.loadState();
-            controller.addRuntime("Battle AI TurnStep Checkpoint 0", System
+            addRuntime("Battle AI TurnStep Checkpoint 0", System
                     .currentTimeMillis() - stepStart);
             return false;
         }
 
-
-        if (curState.saveState == null) {
+        if (AbstractDungeon.player.currentHealth < 1) {
             curState.saveState = new SaveState();
-        }
-
-        if (curState.getPlayerHealth() < 1) {
             if (controller.deathNode == null ||
                     (controller.deathNode != null && controller.deathNode.saveState.turn < curState.saveState.turn)) {
+//                System.err.println("dead 3");
                 controller.deathNode = curState;
             }
-            isDone = true;
-            return true;
+//            isDone = true;
+//            return true;
         }
 
-        controller.addRuntime("Battle AI TurnStep Checkpoint 1", System
+        addRuntime("Battle AI TurnStep Checkpoint 1", System
                 .currentTimeMillis() - stepStart);
 
         if (curState != startingState && isNewTurn(curState)) {
+            if (curState.saveState == null) {
+                curState.saveState = new SaveState();
+            }
+
+
             controller.turnsLoaded++;
-            controller.addRuntime("turnsLoaded", 1);
+            addRuntime("turnsLoaded", 1);
             TurnNode toAdd = new TurnNode(curState, controller, this);
             states.pop();
 
             while (!states.isEmpty() && states.peek().isDone()) {
                 states.pop();
             }
-            controller.addRuntime("Battle AI TurnStep early Return Total 1", System
+            addRuntime("Battle AI TurnStep early Return Total 1", System
                     .currentTimeMillis() - stepStart);
 
             runningCommands = false;
-            if (curState.lastCommand instanceof EndCommand) {
-                ((EndCommand) curState.lastCommand).stateDebugInfo = new StateDebugInfo(curState.saveState);
-            }
+//            if (curState.lastCommand instanceof EndCommand) {
+//                ((EndCommand) curState.lastCommand).stateDebugInfo = new StateDebugInfo(curState.saveState);
+//            }
 
-            controller.addRuntime("Battle AI TurnStep early Return Total 2", System
+            addRuntime("Battle AI TurnStep early Return Total 2", System
                     .currentTimeMillis() - stepStart);
 
-            int turnNumber = curState.saveState.turn;
-            if (curState.saveState.getPlayerHealth() >= 1) {
+            int turnNumber = GameActionManager.turn;
+            if (AbstractDungeon.player.currentHealth >= 1) {
                 if (turnNumber >= controller.targetTurn) {
                     if (controller.bestTurn == null || toAdd.isBetterThan(controller.bestTurn)) {
                         controller.bestTurn = toAdd;
                     }
-
                 } else {
                     if (controller.backupTurn == null ||
                             controller.backupTurn.startingState.saveState.turn < toAdd.startingState.saveState.turn ||
@@ -134,19 +138,19 @@ public class TurnNode implements Comparable<TurnNode> {
 
                     controller.turns.add(toAdd);
 
-                    controller.addRuntime("Battle AI TurnStep Add Turn", System
+                    addRuntime("Battle AI TurnStep Add Turn", System
                             .currentTimeMillis() - startAdd);
                 }
             }
 
             turnIndex++;
 
-            controller.addRuntime("Battle AI TurnStep early Return Total", System
+            addRuntime("Battle AI TurnStep early Return Total", System
                     .currentTimeMillis() - stepStart);
 
             return true;
         }
-        controller.addRuntime("Battle AI TurnStep Checkpoint 2", System
+        addRuntime("Battle AI TurnStep Checkpoint 2", System
                 .currentTimeMillis() - stepStart);
 
         if (curState.isDone()) {
@@ -159,7 +163,7 @@ public class TurnNode implements Comparable<TurnNode> {
 
             Command toExecute = curState.step();
 
-            controller.addRuntime("Battle AI StateNode Step", System
+            addRuntime("Battle AI StateNode Step", System
                     .currentTimeMillis() - startNodeSep);
 
             if (toExecute == null) {
@@ -171,22 +175,21 @@ public class TurnNode implements Comparable<TurnNode> {
 //                System.err.println("adding node for " + toExecute);
                 StateNode toAdd = new StateNode(curState, toExecute, controller);
 
-
                 try {
                     long startExecute = System.currentTimeMillis();
-
                     toExecute.execute();
                     states.push(toAdd);
 
-                    controller.addRuntime("Battle AI Execute Action", System
+                    addRuntime("Battle AI Execute Action", System
                             .currentTimeMillis() - startExecute);
                 } catch (IndexOutOfBoundsException e) {
+//                    e.printStackTrace();
 //                    System.err.println("desynced state, aborting state to recover");
                 }
             }
         }
 
-        controller.addRuntime("Battle AI TurnStep Checkpoint 3", System
+        addRuntime("Battle AI TurnStep Checkpoint 3", System
                 .currentTimeMillis() - stepStart);
 
         if (states.isEmpty()) {
@@ -386,16 +389,16 @@ public class TurnNode implements Comparable<TurnNode> {
         }
 
         int miracleScore = numMiracles * 20;
-        int ritualDaggerScore = numRitualDaggers * 20 + totalRitualDaggerDamage * 20;
+        int ritualDaggerScore = numRitualDaggers * 20 + totalRitualDaggerDamage * 60;
         int feedScore = numFeeds * 15;
         int conjureBladeScore = numConjures * 25 + (conjureDamage * 15);
-        int lessonLearnedScore = numLessonLearned * 40 + turnNode.startingState.saveState.lessonLearnedCount * 100;
+        int lessonLearnedScore = numLessonLearned * 40 + turnNode.startingState.saveState.lessonLearnedCount * 200;
         int parasiteScore = turnNode.startingState.saveState.lessonLearnedCount * -80;
-        int catalystScore = numCatalysts * 15;
+        int catalystScore = numCatalysts * 40;
 
         int healthMultiplier = shouldBrawl ? 2 : 8;
 
-        return catalystScore + parasiteScore + lessonLearnedScore + feedScore + conjureBladeScore + turnNode.startingState.saveState.playerState.gold + ritualDaggerScore + miracleScore + monsterDamage - healthMultiplier * playerDamage + powerScore + getPotionScore(turnNode.startingState.saveState) + getRelicScore(turnNode.startingState.saveState);
+        return catalystScore + parasiteScore + lessonLearnedScore + feedScore + conjureBladeScore + turnNode.startingState.saveState.playerState.gold * 2 + ritualDaggerScore + miracleScore + monsterDamage - healthMultiplier * playerDamage + powerScore + getPotionScore(turnNode.startingState.saveState) + getRelicScore(turnNode.startingState.saveState);
     }
 
     @Override
@@ -404,8 +407,8 @@ public class TurnNode implements Comparable<TurnNode> {
 
         int result = getTurnScore(otherTurn) - getTurnScore(this);
 
-        controller.addRuntime("Comparing Turns", System.currentTimeMillis() - startCompare);
-        controller.addRuntime("Comparing Turns instance", 1);
+        addRuntime("Comparing Turns", System.currentTimeMillis() - startCompare);
+        addRuntime("Comparing Turns instance", 1);
 
         return result;
     }
@@ -415,7 +418,7 @@ public class TurnNode implements Comparable<TurnNode> {
     }
 
     private boolean isNewTurn(StateNode childNode) {
-        return (childNode.saveState.turn > this.startingState.saveState.turn) || childNode.lastCommand instanceof EndCommand;
+        return (GameActionManager.turn > this.startingState.saveState.turn) || childNode.lastCommand instanceof EndCommand;
     }
 
     public static HashSet<String> BRAWLY_MONSTER_IDS = new HashSet<String>() {{

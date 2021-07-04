@@ -18,14 +18,11 @@ import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.CardGroup;
-import com.megacrit.cardcrawl.cards.blue.Hologram;
 import com.megacrit.cardcrawl.cards.blue.Seek;
 import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.Nightmare;
 import com.megacrit.cardcrawl.cards.green.ToolsOfTheTrade;
 import com.megacrit.cardcrawl.cards.purple.*;
-import com.megacrit.cardcrawl.cards.red.Exhume;
-import com.megacrit.cardcrawl.cards.red.Headbutt;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -95,16 +92,11 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     @Override
     public void receivePostInitialize() {
-        // Ironclad
-        CardLibrary.cards.remove(Exhume.ID);
-        CardLibrary.cards.remove(Headbutt.ID);
-
         // Silent
         CardLibrary.cards.remove(Nightmare.ID);
         CardLibrary.cards.remove(ToolsOfTheTrade.ID);
 
         // Defect
-        CardLibrary.cards.remove(Hologram.ID);
         CardLibrary.cards.remove(Seek.ID);
 
         // Colorless
@@ -127,8 +119,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         CardLibrary.cards.remove(Wish.ID);
         CardLibrary.cards.remove(Meditate.ID);
         CardLibrary.cards.remove(Nirvana.ID);
-        CardLibrary.cards.remove(Blasphemy.ID);
-        CardLibrary.cards.remove(FearNoEvil.ID);
 
         HashMap<String, AbstractRelic> sharedRelics = ReflectionHacks
                 .getPrivateStatic(RelicLibrary.class, "sharedRelics");
@@ -137,6 +127,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         sharedRelics.remove(GamblingChip.ID);
         sharedRelics.remove(PrayerWheel.ID);
+        sharedRelics.remove(Orrery.ID);
 
         HashMap<String, AbstractRelic> purpleRelics = ReflectionHacks
                 .getPrivateStatic(RelicLibrary.class, "purpleRelics");

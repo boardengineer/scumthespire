@@ -4,12 +4,18 @@ import ludicrousspeed.Controller;
 import ludicrousspeed.simulator.commands.Command;
 import savestate.CardState;
 import savestate.SaveState;
+import savestate.SaveStateMod;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
+import static savestate.SaveStateMod.addRuntime;
+
 public class BattleAiController implements Controller {
-    public int maxTurnLoads = 15_000;
+    public int maxTurnLoads = 10_000;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -40,11 +46,10 @@ public class BattleAiController implements Controller {
     public int turnsLoaded = 0;
 
     public long controllerStartTime;
-
-    public HashMap<String, Long> runTimes;
+    private long startTime = 0;
 
     public BattleAiController(SaveState state) {
-        runTimes = new HashMap<>();
+        SaveStateMod.runTimes = new HashMap<>();
         targetTurn = 8;
         targetTurnJump = 6;
 
@@ -52,6 +57,8 @@ public class BattleAiController implements Controller {
         bestEnd = null;
         startingState = state;
         initialized = false;
+
+        System.err.println("loading state from constructor");
         startingState.loadState();
     }
 
@@ -61,6 +68,7 @@ public class BattleAiController implements Controller {
         }
             if (!initialized) {
                 TurnNode.nodeIndex = 0;
+                startTime = System.currentTimeMillis();
                 initialized = true;
                 isDone = false;
                 StateNode firstStateContainer = new StateNode(null, null, this);
@@ -70,7 +78,7 @@ public class BattleAiController implements Controller {
                 turns.add(new TurnNode(firstStateContainer, this, null));
 
                 controllerStartTime = System.currentTimeMillis();
-                runTimes = new HashMap<>();
+                SaveStateMod.runTimes = new HashMap<>();
                 CardState.resetFreeCards();
             }
 
@@ -114,6 +122,7 @@ public class BattleAiController implements Controller {
                     TurnNode toAdd = makeResetCopy(bestTurn);
                     turns.add(toAdd);
                     targetTurn = bestTurn.startingState.saveState.turn + targetTurnJump;
+                    System.err.println("loading state PANIC?");
                     toAdd.startingState.saveState.loadState();
                     committedTurn = toAdd;
                     bestTurn = null;
@@ -230,20 +239,13 @@ public class BattleAiController implements Controller {
 
     public void printRuntimeStats() {
         System.err.println("-------------------------------------------------------------------");
-        System.err.println(runTimes.entrySet()
-                                   .stream()
-                                   .map(entry -> entry.toString())
-                                   .sorted()
-                                   .collect(Collectors.joining("\n")));
+        System.err.println("total time: " + (System.currentTimeMillis() - startTime));
+        System.err.println(SaveStateMod.runTimes.entrySet()
+                                                     .stream()
+                                                     .map(entry -> entry.toString())
+                                                     .sorted()
+                                                     .collect(Collectors.joining("\n")));
         System.err.println("-------------------------------------------------------------------");
-    }
-
-    public void addRuntime(String name, long amount) {
-        if (!runTimes.containsKey(name)) {
-            runTimes.put(name, amount);
-        } else {
-            runTimes.put(name, amount + runTimes.get(name));
-        }
     }
 
     public boolean isDone() {

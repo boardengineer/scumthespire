@@ -4,6 +4,7 @@ import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.*;
 import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.GrandFinale;
+import com.megacrit.cardcrawl.cards.red.Corruption;
 
 import java.util.HashMap;
 
@@ -18,6 +19,7 @@ public class DefectPlayOrder {
         add(new SadisticNature());
         add(new Amplify());
         add(new Storm());
+        add(new Corruption());
         add(new Apotheosis());
 
         // 0 costs
@@ -29,6 +31,8 @@ public class DefectPlayOrder {
         add(new Zap());
         add(new GoForTheEyes());
         add(new SteamBarrier());
+
+        add(new MeteorStrike());
 
         add(new DoubleEnergy());
         add(new Scrape());
@@ -74,7 +78,6 @@ public class DefectPlayOrder {
         add(new Loop());
         add(new MachineLearning());
         add(new Melter());
-        add(new MeteorStrike());
         add(new MultiCast());
         add(new Overclock());
         add(new Rainbow());

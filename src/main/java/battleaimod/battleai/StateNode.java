@@ -20,7 +20,7 @@ public class StateNode {
     public SaveState saveState;
 
     private int minDamage = 5000;
-    private List<Command> commands;
+    public List<Command> commands;
     private boolean initialized = false;
     private int commandIndex = -1;
     private boolean isDone = false;
@@ -49,6 +49,7 @@ public class StateNode {
             if (AbstractDungeon.player.isDead || AbstractDungeon.player.isDying) {
                 if (controller.deathNode == null ||
                         (controller.deathNode != null && controller.deathNode.saveState.turn < saveState.turn)) {
+                    System.err.println("dead 1");
                     controller.deathNode = this;
                     isDone = true;
                     return null;
@@ -73,6 +74,7 @@ public class StateNode {
                 } else if (AbstractDungeon.player.isDead || AbstractDungeon.player.isDying) {
                     if (controller.deathNode == null ||
                             (controller.deathNode != null && controller.deathNode.saveState.turn < saveState.turn)) {
+                        System.err.println("dead 2");
                         controller.deathNode = this;
                         isDone = true;
                     }
@@ -88,6 +90,7 @@ public class StateNode {
             isDone = true;
             return null;
         }
+
 
         Command toExecute = commands.get(commandIndex);
         commandIndex++;
@@ -184,10 +187,10 @@ public class StateNode {
             }
         }
 
-        int ritualDaggerScore = totalRitualDaggerDamage * 20;
+        int ritualDaggerScore = totalRitualDaggerDamage * 60;
         int lessonLearnedScore = node.saveState.lessonLearnedCount * 100;
 
-        return node.saveState.playerState.gold +
+        return node.saveState.playerState.gold * 2 +
                 ritualDaggerScore +
                 getPlayerDamage(node) * -1 +
                 TurnNode.getPotionScore(node.saveState) +

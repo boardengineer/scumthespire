@@ -2,10 +2,7 @@ package battleaimod.battleai.playorder;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.CreativeAI;
-import com.megacrit.cardcrawl.cards.colorless.Apotheosis;
-import com.megacrit.cardcrawl.cards.colorless.Apparition;
-import com.megacrit.cardcrawl.cards.colorless.Panache;
-import com.megacrit.cardcrawl.cards.colorless.SadisticNature;
+import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.*;
 import com.megacrit.cardcrawl.cards.purple.LessonLearned;
 import com.megacrit.cardcrawl.cards.purple.WaveOfTheHand;
@@ -28,6 +25,11 @@ public class SilentPlayOrder {
         add(new CreativeAI());
         add(new LessonLearned());
         add(new WaveOfTheHand());
+
+        add(new Backflip());
+        add(new Acrobatics());
+        add(new BulletTime());
+        add(new Transmutation());
 
         add(new Flechettes());
         add(new Burst());
@@ -62,9 +64,6 @@ public class SilentPlayOrder {
         add(new Terror());
         add(new WellLaidPlans());
 
-        add(new Backflip());
-        add(new Acrobatics());
-        add(new BulletTime());
 
         add(new Dash());
         add(new Skewer());

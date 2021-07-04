@@ -1,9 +1,8 @@
 package battleaimod.battleai.playorder;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
-import com.megacrit.cardcrawl.cards.colorless.Madness;
-import com.megacrit.cardcrawl.cards.colorless.Panacea;
-import com.megacrit.cardcrawl.cards.colorless.Transmutation;
+import com.megacrit.cardcrawl.cards.colorless.*;
+import com.megacrit.cardcrawl.cards.green.PhantasmalKiller;
 import com.megacrit.cardcrawl.cards.purple.*;
 import com.megacrit.cardcrawl.cards.red.*;
 
@@ -16,7 +15,10 @@ public class IronCladPlayOrder {
     public static HashMap<String, Integer> makeRank() {
         uglyThing = new HashMap<>();
 
+        add(new Omniscience());
+        add(new Headbutt());
         add(new MasterReality());
+        add(new Worship());
         add(new Panacea());
         add(new Madness());
         add(new Shockwave());
@@ -37,6 +39,9 @@ public class IronCladPlayOrder {
         add(new Whirlwind());
 
         add(new Armaments());
+        add(new Feed());
+        add(new Enlightenment());
+        add(new HandOfGreed());
 
         // Powers first
         add(new Inflame());
@@ -53,6 +58,7 @@ public class IronCladPlayOrder {
         add(new DarkEmbrace());
         add(new LimitBreak());
         add(new Metallicize());
+        add(new PhantasmalKiller());
 
         // damage
         add(new ThunderClap());
@@ -70,8 +76,6 @@ public class IronCladPlayOrder {
         add(new Carnage());
         add(new InfernalBlade());
         add(new Immolate());
-        add(new Headbutt());
-        add(new Feed());
         add(new IronWave());
         add(new FiendFire());
         add(new Dropkick());
@@ -137,6 +141,7 @@ public class IronCladPlayOrder {
         add(new Alpha());
         add(new Blasphemy());
 
+        add(new WaveOfTheHand());
         add(new BowlingBash());
         add(new Brilliance());
         add(new CarveReality());
@@ -162,7 +167,6 @@ public class IronCladPlayOrder {
         add(new LessonLearned());
         add(new Meditate());
         add(new Nirvana());
-        add(new Omniscience());
         add(new Pray());
         add(new PressurePoints());
         add(new ReachHeaven());
@@ -176,11 +180,9 @@ public class IronCladPlayOrder {
         add(new Tranquility());
         add(new Vault());
         add(new Wallop());
-        add(new WaveOfTheHand());
         add(new Weave());
         add(new WheelKick());
         add(new Wish());
-        add(new Worship());
 
         // blocks
         add(new DeceiveReality());
