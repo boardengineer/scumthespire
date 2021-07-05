@@ -24,6 +24,7 @@ public class DefectPlayOrder {
 
         // 0 costs
         add(new BeamCell());
+        add(new Trip());
         add(new FTL());
         add(new Finesse());
         add(new Panache());

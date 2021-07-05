@@ -389,7 +389,7 @@ public class TurnNode implements Comparable<TurnNode> {
         }
 
         int miracleScore = numMiracles * 20;
-        int ritualDaggerScore = numRitualDaggers * 20 + totalRitualDaggerDamage * 60;
+        int ritualDaggerScore = numRitualDaggers * 40 + totalRitualDaggerDamage * 80;
         int feedScore = numFeeds * 15;
         int conjureBladeScore = numConjures * 25 + (conjureDamage * 15);
         int lessonLearnedScore = numLessonLearned * 40 + turnNode.startingState.saveState.lessonLearnedCount * 200;

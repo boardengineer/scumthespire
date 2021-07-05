@@ -187,7 +187,7 @@ public class StateNode {
             }
         }
 
-        int ritualDaggerScore = totalRitualDaggerDamage * 60;
+        int ritualDaggerScore = totalRitualDaggerDamage * 80;
         int lessonLearnedScore = node.saveState.lessonLearnedCount * 100;
 
         return node.saveState.playerState.gold * 2 +

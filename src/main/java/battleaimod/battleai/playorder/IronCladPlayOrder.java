@@ -1,6 +1,7 @@
 package battleaimod.battleai.playorder;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.blue.WhiteNoise;
 import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.PhantasmalKiller;
 import com.megacrit.cardcrawl.cards.purple.*;
@@ -137,6 +138,7 @@ public class IronCladPlayOrder {
         add(new DevaForm());
         add(new Devotion());
         add(new Establishment());
+        add(new WhiteNoise());
 
         add(new Alpha());
         add(new Blasphemy());
