@@ -141,8 +141,6 @@ public class IronCladPlayOrder {
         add(new WhiteNoise());
 
         add(new Alpha());
-        add(new Blasphemy());
-
         add(new WaveOfTheHand());
         add(new BowlingBash());
         add(new Brilliance());
@@ -185,6 +183,8 @@ public class IronCladPlayOrder {
         add(new Weave());
         add(new WheelKick());
         add(new Wish());
+        add(new Blasphemy());
+
 
         // blocks
         add(new DeceiveReality());

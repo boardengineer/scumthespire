@@ -146,7 +146,6 @@ public class StateNode {
      */
     public static int getStateScore(StateNode node) {
         int totalRitualDaggerDamage = 0;
-
         for (CardState card : node.saveState.playerState.hand) {
             switch (card.cardId) {
                 case RitualDagger.ID:
@@ -189,8 +188,10 @@ public class StateNode {
 
         int ritualDaggerScore = totalRitualDaggerDamage * 80;
         int lessonLearnedScore = node.saveState.lessonLearnedCount * 100;
+        int feedScore = node.saveState.playerState.maxHealth * 30;
 
-        return node.saveState.playerState.gold * 2 +
+        return feedScore +
+                node.saveState.playerState.gold * 2 +
                 ritualDaggerScore +
                 getPlayerDamage(node) * -1 +
                 TurnNode.getPotionScore(node.saveState) +

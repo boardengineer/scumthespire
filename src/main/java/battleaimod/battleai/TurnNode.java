@@ -183,6 +183,7 @@ public class TurnNode implements Comparable<TurnNode> {
                     addRuntime("Battle AI Execute Action", System
                             .currentTimeMillis() - startExecute);
                 } catch (IndexOutOfBoundsException e) {
+                    addRuntime("Execution Exception", 1);
 //                    e.printStackTrace();
 //                    System.err.println("desynced state, aborting state to recover");
                 }
@@ -390,7 +391,7 @@ public class TurnNode implements Comparable<TurnNode> {
 
         int miracleScore = numMiracles * 20;
         int ritualDaggerScore = numRitualDaggers * 40 + totalRitualDaggerDamage * 80;
-        int feedScore = numFeeds * 15;
+        int feedScore = numFeeds * 40 + turnNode.startingState.saveState.playerState.maxHealth * 30;
         int conjureBladeScore = numConjures * 25 + (conjureDamage * 15);
         int lessonLearnedScore = numLessonLearned * 40 + turnNode.startingState.saveState.lessonLearnedCount * 200;
         int parasiteScore = turnNode.startingState.saveState.lessonLearnedCount * -80;
@@ -438,5 +439,6 @@ public class TurnNode implements Comparable<TurnNode> {
         put(EvolvePower.POWER_ID, 16);
 
         put(AccuracyPower.POWER_ID, 3);
+        put(EchoPower.POWER_ID, 40);
     }};
 }
