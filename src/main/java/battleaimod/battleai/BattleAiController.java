@@ -122,7 +122,6 @@ public class BattleAiController implements Controller {
                     TurnNode toAdd = makeResetCopy(bestTurn);
                     turns.add(toAdd);
                     targetTurn = bestTurn.startingState.saveState.turn + targetTurnJump;
-                    System.err.println("loading state PANIC?");
                     toAdd.startingState.saveState.loadState();
                     committedTurn = toAdd;
                     bestTurn = null;

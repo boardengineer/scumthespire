@@ -21,6 +21,7 @@ public class DefectPlayOrder {
         add(new Storm());
         add(new Corruption());
         add(new Apotheosis());
+        add(new Sunder());
 
         // 0 costs
         add(new BeamCell());
@@ -94,7 +95,6 @@ public class DefectPlayOrder {
         add(new Stack());
         add(new StaticDischarge());
         add(new Streamline());
-        add(new Sunder());
         add(new SweepingBeam());
         add(new Tempest());
         add(new ThunderStrike());

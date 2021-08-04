@@ -9,7 +9,7 @@ import com.megacrit.cardcrawl.cards.red.*;
 
 import java.util.HashMap;
 
-public class IronCladPlayOrder {
+public class    IronCladPlayOrder {
     public static HashMap<String, Integer> uglyThing;
     public static final HashMap<String, Integer> CARD_RANKS = makeRank();
 
@@ -18,6 +18,7 @@ public class IronCladPlayOrder {
 
         add(new Omniscience());
         add(new Headbutt());
+        add(new SadisticNature());
         add(new MasterReality());
         add(new Worship());
         add(new Panacea());

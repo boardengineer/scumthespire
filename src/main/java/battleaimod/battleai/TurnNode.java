@@ -395,7 +395,7 @@ public class TurnNode implements Comparable<TurnNode> {
         int conjureBladeScore = numConjures * 25 + (conjureDamage * 15);
         int lessonLearnedScore = numLessonLearned * 40 + turnNode.startingState.saveState.lessonLearnedCount * 200;
         int parasiteScore = turnNode.startingState.saveState.lessonLearnedCount * -80;
-        int catalystScore = numCatalysts * 40;
+        int catalystScore = numCatalysts * 25;
 
         int healthMultiplier = shouldBrawl ? 2 : 8;
 

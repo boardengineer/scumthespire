@@ -52,6 +52,7 @@ public class CommandRunnerController implements Controller {
         if (isDone) {
             return;
         }
+
         boolean foundCommand = false;
         while (bestPathRunner.hasNext() && !foundCommand) {
             Command command = bestPathRunner.next();

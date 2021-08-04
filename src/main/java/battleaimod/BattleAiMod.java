@@ -24,6 +24,7 @@ import com.megacrit.cardcrawl.cards.purple.*;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.CardHelper;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.helpers.RelicLibrary;
@@ -46,7 +47,7 @@ import java.util.Iterator;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 @SpireInitializer
-public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber, EditStringsSubscriber, EditRelicsSubscriber {
+public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber, EditStringsSubscriber {
     public final static long MESSAGE_TIME_MILLIS = 1500L;
 
     public static String steveMessage = null;
@@ -92,6 +93,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     @Override
     public void receivePostInitialize() {
 //        CardLibrary.cards.remove(Headbutt.ID);
+//        CardLibrary.cards.remove(Exhume.ID);
 
         // Silent
 //        CardLibrary.cards.remove(Nightmare.ID);
@@ -162,6 +164,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         ReflectionHacks.setPrivateStaticFinal(Lagavulin.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(SlimeBoss.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(CardGroup.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(CardHelper.class, "logger", new SilentLogger());
 
         if (isServer) {
             Settings.MASTER_VOLUME = 0;
@@ -185,7 +188,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             Settings.MASTER_VOLUME = .0F;
         }
 
-        PrismaticBranch.initializeCardPools();
         CardCrawlGame.sound.update();
         setUpOptionsMenu();
     }
@@ -280,10 +282,5 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     @Override
     public void receiveEditStrings() {
         BaseMod.loadCustomStringsFile(RelicStrings.class, "localization/memerelics.json");
-    }
-
-    @Override
-    public void receiveEditRelics() {
-//        BaseMod.addRelic(new PrismaticBranch(), RelicType.SHARED);
     }
 }
