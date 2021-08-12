@@ -7,6 +7,7 @@ import battleaimod.battleai.TurnNode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import ludicrousspeed.LudicrousSpeedMod;
 import ludicrousspeed.simulator.commands.Command;
 import savestate.SaveState;
@@ -39,10 +40,16 @@ public class AiServer {
                 while (true) {
                     if (BattleAiMod.battleAiController == null) {
                         try {
-                            String fileName = in.readUTF();
-                            String startState = Files.lines(Paths.get(fileName)).collect(Collectors
-                                    .joining());
+                            String runRequestString = in.readUTF();
+                            JsonObject runRequest = new JsonParser().parse(runRequestString)
+                                                                    .getAsJsonObject();
 
+                            String startState = Files
+                                    .lines(Paths.get(runRequest.get("fileName").getAsString()))
+                                    .collect(Collectors
+                                            .joining());
+
+                            BattleAiMod.requestedTurnNum = runRequest.get("num_turns").getAsInt();
                             BattleAiMod.saveState = new SaveState(startState);
 
                             System.err.println("state parsed");

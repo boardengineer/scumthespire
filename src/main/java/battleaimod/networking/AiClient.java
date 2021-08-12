@@ -39,8 +39,12 @@ public class AiClient {
     }
 
     public void sendState() {
+        sendState(10_000);
+    }
+
+    public void sendState(int numTurns) {
         final SaveState state = new SaveState();
-//        state.loadState();
+
         AbstractDungeon.player.hand.refreshHandLayout();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
@@ -54,7 +58,13 @@ public class AiClient {
                     FileWriter writer = new FileWriter(fileName);
                     writer.write(encodedState);
                     writer.close();
-                    out.writeUTF(fileName);
+
+                    JsonObject runRequest = new JsonObject();
+                    runRequest.addProperty("fileName", fileName);
+
+                    runRequest.addProperty("num_turns", numTurns);
+
+                    out.writeUTF(runRequest.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw e;

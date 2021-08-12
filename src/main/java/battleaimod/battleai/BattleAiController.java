@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import static savestate.SaveStateMod.addRuntime;
 
 public class BattleAiController implements Controller {
-    public int maxTurnLoads = 10_000;
+    private int maxTurnLoads;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -48,7 +48,7 @@ public class BattleAiController implements Controller {
     public long controllerStartTime;
     private long startTime = 0;
 
-    public BattleAiController(SaveState state) {
+    public BattleAiController(SaveState state, int maxTurnLoads) {
         SaveStateMod.runTimes = new HashMap<>();
         targetTurn = 8;
         targetTurnJump = 6;
@@ -60,152 +60,153 @@ public class BattleAiController implements Controller {
 
         System.err.println("loading state from constructor");
         startingState.loadState();
+        this.maxTurnLoads = maxTurnLoads;
     }
 
     public void step() {
         if (isDone) {
             return;
         }
-            if (!initialized) {
-                TurnNode.nodeIndex = 0;
-                startTime = System.currentTimeMillis();
-                initialized = true;
-                isDone = false;
-                StateNode firstStateContainer = new StateNode(null, null, this);
-                startingHealth = startingState.getPlayerHealth();
-                firstStateContainer.saveState = startingState;
-                turns = new PriorityQueue<>();
-                turns.add(new TurnNode(firstStateContainer, this, null));
+        if (!initialized) {
+            TurnNode.nodeIndex = 0;
+            startTime = System.currentTimeMillis();
+            initialized = true;
+            isDone = false;
+            StateNode firstStateContainer = new StateNode(null, null, this);
+            startingHealth = startingState.getPlayerHealth();
+            firstStateContainer.saveState = startingState;
+            turns = new PriorityQueue<>();
+            turns.add(new TurnNode(firstStateContainer, this, null));
 
-                controllerStartTime = System.currentTimeMillis();
-                SaveStateMod.runTimes = new HashMap<>();
-                CardState.resetFreeCards();
-            }
+            controllerStartTime = System.currentTimeMillis();
+            SaveStateMod.runTimes = new HashMap<>();
+            CardState.resetFreeCards();
+        }
 
-            if ((turns
-                    .isEmpty() || turnsLoaded >= maxTurnLoads) && (curTurn == null || curTurn.isDone)) {
-                if (bestEnd != null) {
-                    System.err.println("Found end at turn threshold, going into rerun");
+        if ((turns
+                .isEmpty() || turnsLoaded >= maxTurnLoads) && (curTurn == null || curTurn.isDone)) {
+            if (bestEnd != null) {
+                System.err.println("Found end at turn threshold, going into rerun");
 
-                    // uncomment to get tree files
-                    // showTree();
-                    printRuntimeStats();
+                // uncomment to get tree files
+                // showTree();
+                printRuntimeStats();
 
-                    isDone = true;
-                    return;
-                } else if (bestTurn != null || backupTurn != null) {
-                    if (bestTurn == null) {
-                        System.err.println("Loading for backup " + backupTurn);
-                        bestTurn = backupTurn;
-                    }
-                    System.err.println("Loading for turn load threshold, best turn: " + bestTurn);
-                    turnsLoaded = 0;
-                    turns.clear();
-
-                    int backStep = targetTurnJump / 2;
-
-                    TurnNode backStepTurn = bestTurn;
-                    for (int i = 0; i < backStep; i++) {
-                        if (backStepTurn == null) {
-                            break;
-                        }
-
-                        backStepTurn = backStepTurn.parent;
-                    }
-
-                    if (backStepTurn != null && (committedTurn == null || backStepTurn.startingState.saveState.turn > committedTurn.startingState.saveState.turn)) {
-                        bestTurn = backStepTurn;
-                    }
-
-                    System.err.println("Backstepping to turn: " + bestTurn);
-
-                    TurnNode toAdd = makeResetCopy(bestTurn);
-                    turns.add(toAdd);
-                    targetTurn = bestTurn.startingState.saveState.turn + targetTurnJump;
-                    toAdd.startingState.saveState.loadState();
-                    committedTurn = toAdd;
-                    bestTurn = null;
-                    backupTurn = null;
-
-                    // TODO this is here to prevent playback errors
-                    bestEnd = null;
-                    minDamage = 5000;
-
-                    return;
-                }
-            }
-
-            while (!turns.isEmpty() && curTurn == null) {
-                curTurn = turns.peek();
-
-                int turnNumber = curTurn.startingState.saveState.turn;
-
-                if (turnNumber >= targetTurn) {
-                    if (bestTurn == null || curTurn.isBetterThan(bestTurn)) {
-                        bestTurn = curTurn;
-                    }
-
-                    addRuntime("turnsLoaded", 1);
-                    curTurn = null;
-                    ++turnsLoaded;
-                    turns.poll();
-                } else {
-                    if (curTurn.isDone) {
-                        turns.poll();
-                    }
-                }
-            }
-
-            if (turns.isEmpty()) {
-                System.err.println("turns is empty");
-                if (curTurn != null && curTurn.isDone && bestEnd != null && (bestTurn == null || minDamage <= 0)) {
-                    System.err.println("found end, going into rerunmode");
-                    startingState.loadState();
-
-                    // uncomment for tree files
-                    //showTree();
-                    printRuntimeStats();
-
-                    isDone = true;
-                    return;
-                } else {
-                    System.err
-                            .println("not done yet death node:" + deathNode + "\nbest turn:" + bestTurn + "\ncurTurn:" + curTurn);
-                }
-            } else if (curTurn != null) {
-                long startTurnStep = System.currentTimeMillis();
-
-                boolean reachedNewTurn = curTurn.step();
-                if (reachedNewTurn) {
-                    curTurn = null;
-                }
-
-                addRuntime("Battle AI TurnNode Step", System.currentTimeMillis() - startTurnStep);
-            }
-
-            if ((curTurn == null || curTurn.isDone || bestTurn != null) && turns.isEmpty()) {
-                if (curTurn == null || TurnNode
-                        .getTotalMonsterHealth(curTurn) != 0 && bestTurn != null) {
-                    System.err
-                            .println("Loading for turn completion threshold, best turn: " + bestTurn);
-                    turnsLoaded = 0;
-                    turns.clear();
-                    turns.add(bestTurn);
-                    targetTurn += targetTurnJump;
-                    bestTurn.startingState.saveState.loadState();
-                    committedTurn = bestTurn;
-                    bestTurn = null;
-                    backupTurn = null;
-                }
-            }
-
-            if (deathNode != null && turns
-                    .isEmpty() && bestTurn == null && (curTurn == null || curTurn.isDone)) {
-                System.err.println("Sending back death turn");
-                bestEnd = deathNode;
                 isDone = true;
                 return;
+            } else if (bestTurn != null || backupTurn != null) {
+                if (bestTurn == null) {
+                    System.err.println("Loading for backup " + backupTurn);
+                    bestTurn = backupTurn;
+                }
+                System.err.println("Loading for turn load threshold, best turn: " + bestTurn);
+                turnsLoaded = 0;
+                turns.clear();
+
+                int backStep = targetTurnJump / 2;
+
+                TurnNode backStepTurn = bestTurn;
+                for (int i = 0; i < backStep; i++) {
+                    if (backStepTurn == null) {
+                        break;
+                    }
+
+                    backStepTurn = backStepTurn.parent;
+                }
+
+                if (backStepTurn != null && (committedTurn == null || backStepTurn.startingState.saveState.turn > committedTurn.startingState.saveState.turn)) {
+                    bestTurn = backStepTurn;
+                }
+
+                System.err.println("Backstepping to turn: " + bestTurn);
+
+                TurnNode toAdd = makeResetCopy(bestTurn);
+                turns.add(toAdd);
+                targetTurn = bestTurn.startingState.saveState.turn + targetTurnJump;
+                toAdd.startingState.saveState.loadState();
+                committedTurn = toAdd;
+                bestTurn = null;
+                backupTurn = null;
+
+                // TODO this is here to prevent playback errors
+                bestEnd = null;
+                minDamage = 5000;
+
+                return;
             }
+        }
+
+        while (!turns.isEmpty() && curTurn == null) {
+            curTurn = turns.peek();
+
+            int turnNumber = curTurn.startingState.saveState.turn;
+
+            if (turnNumber >= targetTurn) {
+                if (bestTurn == null || curTurn.isBetterThan(bestTurn)) {
+                    bestTurn = curTurn;
+                }
+
+                addRuntime("turnsLoaded", 1);
+                curTurn = null;
+                ++turnsLoaded;
+                turns.poll();
+            } else {
+                if (curTurn.isDone) {
+                    turns.poll();
+                }
+            }
+        }
+
+        if (turns.isEmpty()) {
+            System.err.println("turns is empty");
+            if (curTurn != null && curTurn.isDone && bestEnd != null && (bestTurn == null || minDamage <= 0)) {
+                System.err.println("found end, going into rerunmode");
+                startingState.loadState();
+
+                // uncomment for tree files
+                //showTree();
+                printRuntimeStats();
+
+                isDone = true;
+                return;
+            } else {
+                System.err
+                        .println("not done yet death node:" + deathNode + "\nbest turn:" + bestTurn + "\ncurTurn:" + curTurn);
+            }
+        } else if (curTurn != null) {
+            long startTurnStep = System.currentTimeMillis();
+
+            boolean reachedNewTurn = curTurn.step();
+            if (reachedNewTurn) {
+                curTurn = null;
+            }
+
+            addRuntime("Battle AI TurnNode Step", System.currentTimeMillis() - startTurnStep);
+        }
+
+        if ((curTurn == null || curTurn.isDone || bestTurn != null) && turns.isEmpty()) {
+            if (curTurn == null || TurnNode
+                    .getTotalMonsterHealth(curTurn) != 0 && bestTurn != null) {
+                System.err
+                        .println("Loading for turn completion threshold, best turn: " + bestTurn);
+                turnsLoaded = 0;
+                turns.clear();
+                turns.add(bestTurn);
+                targetTurn += targetTurnJump;
+                bestTurn.startingState.saveState.loadState();
+                committedTurn = bestTurn;
+                bestTurn = null;
+                backupTurn = null;
+            }
+        }
+
+        if (deathNode != null && turns
+                .isEmpty() && bestTurn == null && (curTurn == null || curTurn.isDone)) {
+            System.err.println("Sending back death turn");
+            bestEnd = deathNode;
+            isDone = true;
+            return;
+        }
     }
 
     private static TurnNode makeResetCopy(TurnNode node) {
@@ -240,10 +241,10 @@ public class BattleAiController implements Controller {
         System.err.println("-------------------------------------------------------------------");
         System.err.println("total time: " + (System.currentTimeMillis() - startTime));
         System.err.println(SaveStateMod.runTimes.entrySet()
-                                                     .stream()
-                                                     .map(entry -> entry.toString())
-                                                     .sorted()
-                                                     .collect(Collectors.joining("\n")));
+                                                .stream()
+                                                .map(entry -> entry.toString())
+                                                .sorted()
+                                                .collect(Collectors.joining("\n")));
         System.err.println("-------------------------------------------------------------------");
     }
 

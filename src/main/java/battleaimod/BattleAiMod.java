@@ -61,6 +61,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static CommandRunnerController rerunController = null;
 
     public static SaveState saveState;
+    public static int requestedTurnNum;
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
     public static boolean isServer;
@@ -131,8 +132,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         sharedRelics.put(Toolbox.ID, RelicLibrary.getRelic(MedicalKit.ID).makeCopy());
 
         sharedRelics.remove(GamblingChip.ID);
-        sharedRelics.remove(PrayerWheel.ID);
-        sharedRelics.remove(Orrery.ID);
 
         HashMap<String, AbstractRelic> purpleRelics = ReflectionHacks
                 .getPrivateStatic(RelicLibrary.class, "purpleRelics");
@@ -203,7 +202,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         }
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
-            LudicrousSpeedMod.controller = battleAiController = new BattleAiController(saveState);
+            LudicrousSpeedMod.controller = battleAiController = new BattleAiController(saveState, requestedTurnNum);
         }
     }
 
@@ -243,7 +242,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public void receivePreUpdate() {
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
-            battleAiController = new BattleAiController(saveState);
+            battleAiController = new BattleAiController(saveState, requestedTurnNum);
             LudicrousSpeedMod.controller = battleAiController;
         }
 
