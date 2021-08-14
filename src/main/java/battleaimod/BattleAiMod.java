@@ -214,7 +214,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         public static final String ID = "battleaimod:startclient";
 
         public StartAiClientTopPanel() {
-            super(new Texture("Icon.png"), ID);
+            super(new Texture("img/StartSteve.png"), ID);
         }
 
         @Override
