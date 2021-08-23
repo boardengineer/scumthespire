@@ -22,6 +22,7 @@ public class DefectPlayOrder {
         add(new Corruption());
         add(new Apotheosis());
         add(new Sunder());
+        add(new Seek());
 
         // 0 costs
         add(new BeamCell());
@@ -89,7 +90,6 @@ public class DefectPlayOrder {
         add(new ReinforcedBody());
         add(new Reprogram());
         add(new RipAndTear());
-        add(new Seek());
         add(new SelfRepair());
         add(new Skim());
         add(new Stack());

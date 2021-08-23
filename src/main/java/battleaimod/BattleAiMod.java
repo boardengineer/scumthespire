@@ -15,12 +15,10 @@ import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.CardGroup;
-import com.megacrit.cardcrawl.cards.blue.Seek;
 import com.megacrit.cardcrawl.cards.colorless.Discovery;
 import com.megacrit.cardcrawl.cards.colorless.Forethought;
-import com.megacrit.cardcrawl.cards.colorless.SecretTechnique;
-import com.megacrit.cardcrawl.cards.colorless.SecretWeapon;
-import com.megacrit.cardcrawl.cards.purple.*;
+import com.megacrit.cardcrawl.cards.purple.ForeignInfluence;
+import com.megacrit.cardcrawl.cards.purple.Wish;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -93,49 +91,37 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     @Override
     public void receivePostInitialize() {
-//        CardLibrary.cards.remove(Headbutt.ID);
-//        CardLibrary.cards.remove(Exhume.ID);
-
-        // Silent
-//        CardLibrary.cards.remove(Nightmare.ID);
-//        CardLibrary.cards.remove(ToolsOfTheTrade.ID);
-
-        // Defect
-        CardLibrary.cards.remove(Seek.ID);
-//        CardLibrary.cards.remove(Hologram.ID);
-
         // Colorless
         // TODO AttackFromDeckToHandAction
-        CardLibrary.cards.remove(SecretWeapon.ID);
-        CardLibrary.cards.remove(SecretTechnique.ID);
+//        CardLibrary.cards.remove(SecretWeapon.ID);
+//        CardLibrary.cards.remove(SecretTechnique.ID);
 //        CardLibrary.cards.remove(TheBomb.ID);
         CardLibrary.cards.remove(Forethought.ID);
         CardLibrary.cards.remove(Discovery.ID);
 
         // Watcher
         // Scry
-        CardLibrary.cards.remove(CutThroughFate.ID);
-        CardLibrary.cards.remove(JustLucky.ID);
-        CardLibrary.cards.remove(ThirdEye.ID);
-        CardLibrary.cards.remove(Foresight.ID);
-        CardLibrary.cards.remove(Weave.ID);
+//        CardLibrary.cards.remove(CutThroughFate.ID);
+//        CardLibrary.cards.remove(JustLucky.ID);
+//        CardLibrary.cards.remove(ThirdEye.ID);
+//        CardLibrary.cards.remove(Foresight.ID);
+//        CardLibrary.cards.remove(Weave.ID);
         CardLibrary.cards.remove(ForeignInfluence.ID);
 //        CardLibrary.cards.remove(Omniscience.ID);
 
         CardLibrary.cards.remove(Wish.ID);
-        CardLibrary.cards.remove(Meditate.ID);
-        CardLibrary.cards.remove(Nirvana.ID);
+//        CardLibrary.cards.remove(Meditate.ID);
+//        CardLibrary.cards.remove(Nirvana.ID);
 
         HashMap<String, AbstractRelic> sharedRelics = ReflectionHacks
                 .getPrivateStatic(RelicLibrary.class, "sharedRelics");
         sharedRelics.put(NilrysCodex.ID, RelicLibrary.getRelic("Enchiridion").makeCopy());
-        sharedRelics.put(Toolbox.ID, RelicLibrary.getRelic(MedicalKit.ID).makeCopy());
 
         sharedRelics.remove(GamblingChip.ID);
 
         HashMap<String, AbstractRelic> purpleRelics = ReflectionHacks
                 .getPrivateStatic(RelicLibrary.class, "purpleRelics");
-        purpleRelics.remove(GoldenEye.ID);
+//        purpleRelics.remove(GoldenEye.ID);
         purpleRelics.remove(Melange.ID);
 
         Iterator<String> actualPotions = PotionHelper.potions.iterator();
