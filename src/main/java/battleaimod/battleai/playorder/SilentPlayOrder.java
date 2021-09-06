@@ -1,6 +1,7 @@
 package battleaimod.battleai.playorder;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.blue.Claw;
 import com.megacrit.cardcrawl.cards.blue.CreativeAI;
 import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.*;
@@ -30,6 +31,7 @@ public class SilentPlayOrder {
         add(new Acrobatics());
         add(new BulletTime());
         add(new Transmutation());
+        add(new Claw());
 
         add(new Flechettes());
         add(new Burst());

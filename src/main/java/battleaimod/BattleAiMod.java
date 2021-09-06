@@ -3,7 +3,10 @@ package battleaimod;
 import basemod.BaseMod;
 import basemod.ReflectionHacks;
 import basemod.TopPanelItem;
-import basemod.interfaces.*;
+import basemod.interfaces.OnStartBattleSubscriber;
+import basemod.interfaces.PostInitializeSubscriber;
+import basemod.interfaces.PostUpdateSubscriber;
+import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.CommandRunnerController;
 import battleaimod.networking.AiClient;
@@ -15,10 +18,10 @@ import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.cards.CardGroup;
+import com.megacrit.cardcrawl.cards.blue.Seek;
 import com.megacrit.cardcrawl.cards.colorless.Discovery;
 import com.megacrit.cardcrawl.cards.colorless.Forethought;
-import com.megacrit.cardcrawl.cards.purple.ForeignInfluence;
-import com.megacrit.cardcrawl.cards.purple.Wish;
+import com.megacrit.cardcrawl.cards.purple.*;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -26,7 +29,6 @@ import com.megacrit.cardcrawl.helpers.CardHelper;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.helpers.RelicLibrary;
-import com.megacrit.cardcrawl.localization.RelicStrings;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
 import com.megacrit.cardcrawl.monsters.exordium.SlimeBoss;
 import com.megacrit.cardcrawl.relics.*;
@@ -45,7 +47,7 @@ import java.util.Iterator;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 @SpireInitializer
-public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber, EditStringsSubscriber {
+public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber {
     public final static long MESSAGE_TIME_MILLIS = 1500L;
 
     public static String steveMessage = null;
@@ -101,17 +103,18 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         // Watcher
         // Scry
-//        CardLibrary.cards.remove(CutThroughFate.ID);
-//        CardLibrary.cards.remove(JustLucky.ID);
-//        CardLibrary.cards.remove(ThirdEye.ID);
-//        CardLibrary.cards.remove(Foresight.ID);
-//        CardLibrary.cards.remove(Weave.ID);
+        CardLibrary.cards.remove(CutThroughFate.ID);
+        CardLibrary.cards.remove(JustLucky.ID);
+        CardLibrary.cards.remove(ThirdEye.ID);
+        CardLibrary.cards.remove(Seek.ID);
+        CardLibrary.cards.remove(Foresight.ID);
+        CardLibrary.cards.remove(Weave.ID);
         CardLibrary.cards.remove(ForeignInfluence.ID);
 //        CardLibrary.cards.remove(Omniscience.ID);
 
         CardLibrary.cards.remove(Wish.ID);
-//        CardLibrary.cards.remove(Meditate.ID);
-//        CardLibrary.cards.remove(Nirvana.ID);
+        CardLibrary.cards.remove(Meditate.ID);
+        CardLibrary.cards.remove(Nirvana.ID);
 
         HashMap<String, AbstractRelic> sharedRelics = ReflectionHacks
                 .getPrivateStatic(RelicLibrary.class, "sharedRelics");
@@ -121,7 +124,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         HashMap<String, AbstractRelic> purpleRelics = ReflectionHacks
                 .getPrivateStatic(RelicLibrary.class, "purpleRelics");
-//        purpleRelics.remove(GoldenEye.ID);
+        purpleRelics.remove(GoldenEye.ID);
         purpleRelics.remove(Melange.ID);
 
         Iterator<String> actualPotions = PotionHelper.potions.iterator();
@@ -262,10 +265,5 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
                 });
             }
         }
-    }
-
-    @Override
-    public void receiveEditStrings() {
-        BaseMod.loadCustomStringsFile(RelicStrings.class, "localization/memerelics.json");
     }
 }
