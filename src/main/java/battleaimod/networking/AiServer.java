@@ -84,6 +84,7 @@ public class AiServer {
                             if (committedTurn != null) {
                                 JsonArray currentCommands = commandsForStateNodeExperimental(committedTurn.startingState);
                                 jsonToSend.add("commands", currentCommands);
+                                System.err.println(currentCommands);
                             }
 
                             jsonToSend.addProperty("type", "STATUS_UPDATE");
@@ -108,6 +109,7 @@ public class AiServer {
                             JsonArray commands = null;
                             try {
                                 commands = commandsForStateNodeExperimental(BattleAiMod.battleAiController.bestEnd);
+                                System.err.println(commands);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
