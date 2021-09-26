@@ -3,8 +3,12 @@ package battleaimod.battleai.playorder;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.*;
 import com.megacrit.cardcrawl.cards.colorless.*;
+import com.megacrit.cardcrawl.cards.green.AfterImage;
+import com.megacrit.cardcrawl.cards.green.CalculatedGamble;
 import com.megacrit.cardcrawl.cards.green.GrandFinale;
+import com.megacrit.cardcrawl.cards.purple.TalkToTheHand;
 import com.megacrit.cardcrawl.cards.red.Corruption;
+import com.megacrit.cardcrawl.cards.red.Rage;
 
 import java.util.HashMap;
 
@@ -15,6 +19,7 @@ public class DefectPlayOrder {
     public static HashMap<String, Integer> makeRank() {
         uglyThing = new HashMap<>();
 
+        add(new AfterImage());
         add(new GrandFinale());
         add(new SadisticNature());
         add(new Amplify());
@@ -23,8 +28,11 @@ public class DefectPlayOrder {
         add(new Apotheosis());
         add(new Sunder());
         add(new Seek());
+        add(new TalkToTheHand());
 
         // 0 costs
+        add(new Rage());
+        add(new CalculatedGamble());
         add(new BeamCell());
         add(new Trip());
         add(new FTL());
@@ -33,6 +41,9 @@ public class DefectPlayOrder {
         add(new Claw());
         add(new Zap());
         add(new GoForTheEyes());
+
+        add(new AllForOne());
+        add(new CalculatedGamble());
         add(new SteamBarrier());
 
         add(new MeteorStrike());
@@ -103,8 +114,6 @@ public class DefectPlayOrder {
         add(new WhiteNoise());
 
         add(new Barrage());
-
-        add(new AllForOne());
 
         add(new Reboot());
         add(new Strike_Blue());
