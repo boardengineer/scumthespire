@@ -21,7 +21,6 @@ import java.util.concurrent.Executors;
 
 public class AiClient {
     private static final String HOST_IP = "127.0.0.1";
-    private static final int PORT = 5000;
     public static int fileIndex = 0;
 
     private final Socket socket;
@@ -31,7 +30,7 @@ public class AiClient {
         socket.setSoTimeout(3000);
 
         try {
-            socket.connect(new InetSocketAddress(HOST_IP, PORT));
+            socket.connect(new InetSocketAddress(HOST_IP, AiServer.PORT_NUMBER));
         } catch (SocketTimeoutException e) {
             System.err.println("Failed on connect timeout");
             socket.close();
@@ -61,7 +60,6 @@ public class AiClient {
 
                     JsonObject runRequest = new JsonObject();
                     runRequest.addProperty("fileName", fileName);
-
                     runRequest.addProperty("num_turns", numTurns);
 
                     out.writeUTF(runRequest.toString());
@@ -78,7 +76,7 @@ public class AiClient {
 
                 String readLine = "";
 
-                while (!readLine.equals("DONE!!!")) {
+                while (!readLine.equals(AiServer.doneString)) {
 
                     try {
                         readLine = in.readUTF();
@@ -89,50 +87,10 @@ public class AiClient {
 
                     try {
                         JsonObject parsed = new JsonParser().parse(readLine).getAsJsonObject();
+                        updateControllerForCommands(parsed);
 
-                        if (parsed.get("type").getAsString().equals("COMMAND_LIST")) {
-                            ArrayList<Command> commandsFromServer = new ArrayList<>();
-                            JsonArray jsonCommands = parsed.get("commands").getAsJsonArray();
-                            for (JsonElement jsonCommand : jsonCommands) {
-                                Command toAdd = toCommand(jsonCommand);
-                                commandsFromServer.add(toAdd);
-                            }
-
-                            if (BattleAiMod.rerunController == null) {
-                                LudicrousSpeedMod.controller = BattleAiMod.rerunController = new CommandRunnerController(commandsFromServer, true);
-                                BattleAiMod.forceStep = true;
-                            } else {
-                                BattleAiMod.rerunController
-                                        .updateBestPath(commandsFromServer, true);
-                            }
-                        } else if (parsed.get("type").getAsString().equals("STATUS_UPDATE")) {
-                            String message = parsed.get("message").getAsString();
-
-                            if (parsed.has("commands")) {
-                                ArrayList<Command> commandsFromServer = new ArrayList<>();
-                                try {
-                                    JsonArray jsonCommands = parsed.get("commands")
-                                                                   .getAsJsonArray();
-                                    for (JsonElement jsonCommand : jsonCommands) {
-                                        Command toAdd = toCommand(jsonCommand);
-                                        commandsFromServer.add(toAdd);
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-                                if (BattleAiMod.rerunController == null) {
-                                    LudicrousSpeedMod.controller = BattleAiMod.rerunController = new CommandRunnerController(commandsFromServer, false);
-                                    BattleAiMod.forceStep = true;
-                                } else {
-                                    BattleAiMod.rerunController
-                                            .updateBestPath(commandsFromServer, false);
-                                }
-                            }
-
-                            BattleAiMod.steveMessage = message;
-//                            AbstractDungeon.effectList
-//                                    .add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, 2.0F, parsed.get("message").getAsString(), true));
+                        if (parsed.has("message")) {
+                            BattleAiMod.steveMessage = parsed.get("message").getAsString();
                         }
 
                     } catch (Exception e) {
@@ -187,5 +145,28 @@ public class AiClient {
         }
 
         return null;
+    }
+
+    private static void updateControllerForCommands(JsonObject jsonMessage) {
+        if (!jsonMessage.has("commands")) {
+            return;
+        }
+
+        ArrayList<Command> commandsFromServer = new ArrayList<>();
+        JsonArray jsonCommands = jsonMessage.get("commands").getAsJsonArray();
+        for (JsonElement jsonCommand : jsonCommands) {
+            Command toAdd = toCommand(jsonCommand);
+            commandsFromServer.add(toAdd);
+        }
+
+        boolean complete = jsonMessage.get("type").getAsString()
+                                      .equals(AiServer.commandListString);
+        if (BattleAiMod.rerunController == null) {
+            LudicrousSpeedMod.controller = BattleAiMod.rerunController = new CommandRunnerController(commandsFromServer, complete);
+            BattleAiMod.forceStep = true;
+        } else {
+            BattleAiMod.rerunController
+                    .updateBestPath(commandsFromServer, complete);
+        }
     }
 }

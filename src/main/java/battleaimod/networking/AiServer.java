@@ -9,7 +9,6 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import ludicrousspeed.LudicrousSpeedMod;
-import ludicrousspeed.simulator.commands.Command;
 import savestate.SaveState;
 
 import java.io.*;
@@ -24,6 +23,11 @@ import java.util.stream.Collectors;
 
 public class AiServer {
     public static final int PORT_NUMBER = 5000;
+    public static final String doneString = "DONE";
+
+    public static final String statusUpdateString = "STATUS_UPDATE";
+    public static final String commandListString = "COMMAND_LIST";
+
     public static int fileIndex = 0;
 
     public AiServer() {
@@ -74,20 +78,21 @@ public class AiServer {
                         System.err.println("Controller Initiated");
 
                         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+                        // Still looking for route
                         while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController
                                 .isDone()) {
-                            // Send update
 
+                            // Send update
                             JsonObject jsonToSend = new JsonObject();
+                            jsonToSend.addProperty("type", statusUpdateString);
 
                             TurnNode committedTurn = BattleAiMod.battleAiController.committedTurn();
                             if (committedTurn != null) {
                                 JsonArray currentCommands = commandsForStateNodeExperimental(committedTurn.startingState);
                                 jsonToSend.add("commands", currentCommands);
-                                System.err.println(currentCommands);
                             }
 
-                            jsonToSend.addProperty("type", "STATUS_UPDATE");
                             jsonToSend.addProperty("message", String
                                     .format("%d / %d", BattleAiMod.battleAiController
                                             .turnsLoaded(), BattleAiMod.battleAiController
@@ -106,16 +111,10 @@ public class AiServer {
                         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController
                                 .isDone()) {
                             JsonObject jsonToSend = new JsonObject();
-                            JsonArray commands = null;
-                            try {
-                                commands = commandsForStateNodeExperimental(BattleAiMod.battleAiController.bestEnd);
-                                System.err.println(commands);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            JsonArray commands = commandsForStateNodeExperimental(BattleAiMod.battleAiController.bestEnd);
 
                             // Send Command List
-                            jsonToSend.addProperty("type", "COMMAND_LIST");
+                            jsonToSend.addProperty("type", commandListString);
                             jsonToSend.add("commands", commands);
 
                             out.writeUTF(jsonToSend.toString());
@@ -125,7 +124,7 @@ public class AiServer {
                         }
 
                         System.err.println("Sending done");
-                        out.writeUTF("DONE!!!");
+                        out.writeUTF(doneString);
                     }
                 }
 
@@ -136,22 +135,6 @@ public class AiServer {
                 BattleAiMod.aiServer = null;
             }
         });
-    }
-
-    public static JsonArray commandsForStateNode(StateNode stateNode) {
-        JsonArray commands = new JsonArray();
-
-        Iterator<Command> bestPath = BattleAiController.commandsToGetToNode(stateNode).iterator();
-        while (bestPath.hasNext()) {
-            Command nextCommand = bestPath.next();
-            if (nextCommand != null) {
-                commands.add(nextCommand.encode());
-            } else {
-                commands.add(JsonNull.INSTANCE);
-            }
-        }
-
-        return commands;
     }
 
     public static JsonArray commandsForStateNodeExperimental(StateNode root) {
