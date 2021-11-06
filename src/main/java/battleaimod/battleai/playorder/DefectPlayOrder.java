@@ -1,9 +1,9 @@
 package battleaimod.battleai.playorder;
 
-import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.*;
 import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.AfterImage;
+import com.megacrit.cardcrawl.cards.green.Burst;
 import com.megacrit.cardcrawl.cards.green.CalculatedGamble;
 import com.megacrit.cardcrawl.cards.green.GrandFinale;
 import com.megacrit.cardcrawl.cards.purple.TalkToTheHand;
@@ -13,115 +13,108 @@ import com.megacrit.cardcrawl.cards.red.Rage;
 import java.util.HashMap;
 
 public class DefectPlayOrder {
-    public static HashMap<String, Integer> uglyThing;
-    public static final HashMap<String, Integer> CARD_RANKS = makeRank();
+    public static final HashMap<String, Integer> CARD_RANKS = new HashMap<String, Integer>() {{
+        int size = 0;
 
-    public static HashMap<String, Integer> makeRank() {
-        uglyThing = new HashMap<>();
-
-        add(new AfterImage());
-        add(new GrandFinale());
-        add(new SadisticNature());
-        add(new Amplify());
-        add(new Storm());
-        add(new Corruption());
-        add(new Apotheosis());
-        add(new Sunder());
-        add(new Seek());
-        add(new TalkToTheHand());
+        put(new AfterImage().cardID, size++);
+        put(new GrandFinale().cardID, size++);
+        put(new SadisticNature().cardID, size++);
+        put(new Amplify().cardID, size++);
+        put(new Storm().cardID, size++);
+        put(new Corruption().cardID, size++);
+        put(new Apotheosis().cardID, size++);
+        put(new Sunder().cardID, size++);
+        put(new Seek().cardID, size++);
+        put(new TalkToTheHand().cardID, size++);
 
         // 0 costs
-        add(new Rage());
-        add(new CalculatedGamble());
-        add(new BeamCell());
-        add(new Trip());
-        add(new FTL());
-        add(new Finesse());
-        add(new Panache());
-        add(new Claw());
-        add(new Zap());
-        add(new GoForTheEyes());
+        put(new Rage().cardID, size++);
+        put(new CalculatedGamble().cardID, size++);
+        put(new BeamCell().cardID, size++);
+        put(new Trip().cardID, size++);
+        put(new FTL().cardID, size++);
+        put(new Finesse().cardID, size++);
+        put(new Panache().cardID, size++);
+        put(new Claw().cardID, size++);
+        put(new Zap().cardID, size++);
+        put(new GoForTheEyes().cardID, size++);
 
-        add(new AllForOne());
-        add(new CalculatedGamble());
-        add(new SteamBarrier());
+        put(new AllForOne().cardID, size++);
+        put(new CalculatedGamble().cardID, size++);
+        put(new SteamBarrier().cardID, size++);
 
-        add(new MeteorStrike());
+        put(new MeteorStrike().cardID, size++);
 
-        add(new DoubleEnergy());
-        add(new Scrape());
+        put(new DoubleEnergy().cardID, size++);
+        put(new Scrape().cardID, size++);
 
-        add(new GeneticAlgorithm());
+        put(new GeneticAlgorithm().cardID, size++);
 
-        add(new CoreSurge());
+        put(new CoreSurge().cardID, size++);
 
-        add(new Defragment());
-        add(new Aggregate());
-        add(new AutoShields());
-        add(new BallLightning());
-        add(new BiasedCognition());
-        add(new Blizzard());
-        add(new BootSequence());
-        add(new Buffer());
-        add(new Capacitor());
-        add(new Chaos());
-        add(new Chill());
-        add(new ColdSnap());
-        add(new CompileDriver());
-        add(new ConserveBattery());
-        add(new Consume());
-        add(new Coolheaded());
-        add(new CreativeAI());
-        add(new Darkness());
-        add(new DoomAndGloom());
-        add(new EchoForm());
-        add(new Electrodynamics());
-        add(new Fission());
-        add(new Apparition());
+        put(new Defragment().cardID, size++);
+        put(new Aggregate().cardID, size++);
+        put(new AutoShields().cardID, size++);
+        put(new BallLightning().cardID, size++);
+        put(new BiasedCognition().cardID, size++);
+        put(new Blizzard().cardID, size++);
+        put(new BootSequence().cardID, size++);
+        put(new Buffer().cardID, size++);
+        put(new Capacitor().cardID, size++);
+        put(new Chaos().cardID, size++);
+        put(new Chill().cardID, size++);
+        put(new ColdSnap().cardID, size++);
+        put(new CompileDriver().cardID, size++);
+        put(new ConserveBattery().cardID, size++);
+        put(new Consume().cardID, size++);
+        put(new Coolheaded().cardID, size++);
+        put(new CreativeAI().cardID, size++);
+        put(new Darkness().cardID, size++);
+        put(new DoomAndGloom().cardID, size++);
+        put(new EchoForm().cardID, size++);
+        put(new Electrodynamics().cardID, size++);
+        put(new Fission().cardID, size++);
+        put(new Apparition().cardID, size++);
 
-        add(new Dualcast());
-        add(new ForceField());
-        add(new Fusion());
-        add(new Glacier());
-        add(new Heatsinks());
-        add(new HelloWorld());
-        add(new Hologram());
-        add(new Hyperbeam());
-        add(new Leap());
-        add(new LockOn());
-        add(new Loop());
-        add(new MachineLearning());
-        add(new Melter());
-        add(new MultiCast());
-        add(new Overclock());
-        add(new Rainbow());
-        add(new Rebound());
-        add(new Recursion());
-        add(new Recycle());
-        add(new ReinforcedBody());
-        add(new Reprogram());
-        add(new RipAndTear());
-        add(new SelfRepair());
-        add(new Skim());
-        add(new Stack());
-        add(new StaticDischarge());
-        add(new Streamline());
-        add(new SweepingBeam());
-        add(new Tempest());
-        add(new ThunderStrike());
-        add(new Turbo());
-        add(new Equilibrium());
-        add(new WhiteNoise());
+        put(new Burst().cardID, size++);
+        put(new Dualcast().cardID, size++);
+        put(new ForceField().cardID, size++);
+        put(new Fusion().cardID, size++);
+        put(new Glacier().cardID, size++);
+        put(new Heatsinks().cardID, size++);
+        put(new HelloWorld().cardID, size++);
+        put(new Hologram().cardID, size++);
+        put(new Hyperbeam().cardID, size++);
+        put(new Leap().cardID, size++);
+        put(new LockOn().cardID, size++);
+        put(new Loop().cardID, size++);
+        put(new MachineLearning().cardID, size++);
+        put(new Melter().cardID, size++);
+        put(new MultiCast().cardID, size++);
+        put(new Overclock().cardID, size++);
+        put(new Rainbow().cardID, size++);
+        put(new Rebound().cardID, size++);
+        put(new Recursion().cardID, size++);
+        put(new Recycle().cardID, size++);
+        put(new ReinforcedBody().cardID, size++);
+        put(new Reprogram().cardID, size++);
+        put(new RipAndTear().cardID, size++);
+        put(new SelfRepair().cardID, size++);
+        put(new Skim().cardID, size++);
+        put(new Stack().cardID, size++);
+        put(new StaticDischarge().cardID, size++);
+        put(new Streamline().cardID, size++);
+        put(new SweepingBeam().cardID, size++);
+        put(new Tempest().cardID, size++);
+        put(new ThunderStrike().cardID, size++);
+        put(new Turbo().cardID, size++);
+        put(new Equilibrium().cardID, size++);
+        put(new WhiteNoise().cardID, size++);
 
-        add(new Barrage());
+        put(new Barrage().cardID, size++);
 
-        add(new Reboot());
-        add(new Strike_Blue());
-        add(new Defend_Blue());
-        return uglyThing;
-    }
-
-    private static void add(AbstractCard card) {
-        uglyThing.put(card.cardID, uglyThing.size());
-    }
+        put(new Reboot().cardID, size++);
+        put(new Strike_Blue().cardID, size++);
+        put(new Defend_Blue().cardID, size++);
+    }};
 }
