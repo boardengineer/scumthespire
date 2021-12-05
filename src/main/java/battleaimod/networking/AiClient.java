@@ -16,6 +16,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,14 +27,20 @@ public class AiClient {
     private final Socket socket;
 
     public AiClient() throws IOException {
+        this(true);
+    }
+
+    public AiClient(boolean connect) throws IOException {
         socket = new Socket();
         socket.setSoTimeout(3000);
 
-        try {
-            socket.connect(new InetSocketAddress(HOST_IP, AiServer.PORT_NUMBER));
-        } catch (SocketTimeoutException e) {
-            System.err.println("Failed on connect timeout");
-            socket.close();
+        if (connect) {
+            try {
+                socket.connect(new InetSocketAddress(HOST_IP, AiServer.PORT_NUMBER));
+            } catch (SocketTimeoutException e) {
+                System.err.println("Failed on connect timeout");
+                socket.close();
+            }
         }
     }
 
@@ -107,7 +114,25 @@ public class AiClient {
         });
     }
 
-    private static Command toCommand(JsonElement jsonElement) {
+    public void runQueriedCommands(List<Command> commandsFromServer) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            try {
+                BattleAiMod.rerunController = null;
+
+                updateControllerForCommands(commandsFromServer);
+
+
+                System.err.println("Received done");
+            } catch (Exception e) {
+                System.err.println("Server disconnected; clearing client for reset.");
+                BattleAiMod.aiClient = null;
+                BattleAiMod.rerunController = null;
+            }
+        });
+    }
+
+    public static Command toCommand(JsonElement jsonElement) {
         if (jsonElement.isJsonNull()) {
             return null;
         }
@@ -147,6 +172,29 @@ public class AiClient {
         return null;
     }
 
+    public static Command toCommand(String commandString) {
+        JsonObject commandObject = new JsonParser()
+                .parse(commandString)
+                .getAsJsonObject();
+        String type = commandObject.get("type").getAsString();
+
+        if (type.equals("CARD")) {
+            return new CardCommand(commandString);
+        } else if (type.equals("POTION")) {
+            return new PotionCommand(commandString);
+        } else if (type.equals("END")) {
+            return new EndCommand(commandString);
+        } else if (type.equals("HAND_SELECT")) {
+            return new HandSelectCommand(commandString);
+        } else if (type.equals("HAND_SELECT_CONFIRM")) {
+            return HandSelectConfirmCommand.INSTANCE;
+        } else if (type.equals("GRID_SELECT")) {
+            return new GridSelectCommand(commandString);
+        }
+
+        return null;
+    }
+
     private static void updateControllerForCommands(JsonObject jsonMessage) {
         if (!jsonMessage.has("commands")) {
             return;
@@ -161,6 +209,17 @@ public class AiClient {
 
         boolean complete = jsonMessage.get("type").getAsString()
                                       .equals(AiServer.commandListString);
+        if (BattleAiMod.rerunController == null) {
+            LudicrousSpeedMod.controller = BattleAiMod.rerunController = new CommandRunnerController(commandsFromServer, complete);
+            BattleAiMod.forceStep = true;
+        } else {
+            BattleAiMod.rerunController
+                    .updateBestPath(commandsFromServer, complete);
+        }
+    }
+
+    private static void updateControllerForCommands(List<Command> commandsFromServer) {
+        boolean complete = true;
         if (BattleAiMod.rerunController == null) {
             LudicrousSpeedMod.controller = BattleAiMod.rerunController = new CommandRunnerController(commandsFromServer, complete);
             BattleAiMod.forceStep = true;

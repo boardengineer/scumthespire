@@ -69,6 +69,8 @@ public class CommandRunnerController implements Controller {
 
         if (!bestPathRunner.hasNext()) {
             if (isComplete) {
+                System.err.println("Rerun Controller reporting done");
+
                 isDone = true;
             } else if (queuedPath != null && queuedPath.size() > bestPath.size()) {
                 System.err.println("Enqueueing path...");

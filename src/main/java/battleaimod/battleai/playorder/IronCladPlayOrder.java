@@ -12,6 +12,8 @@ public class IronCladPlayOrder {
     public static final HashMap<String, Integer> CARD_RANKS = new HashMap<String, Integer>() {{
         int size = 0;
 
+        put(new Apotheosis().cardID, size++);
+
         put(new Omniscience().cardID, size++);
         put(new Headbutt().cardID, size++);
         put(new SadisticNature().cardID, size++);

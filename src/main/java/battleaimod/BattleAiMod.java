@@ -25,14 +25,13 @@ import com.megacrit.cardcrawl.cards.purple.*;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.helpers.CardHelper;
-import com.megacrit.cardcrawl.helpers.CardLibrary;
-import com.megacrit.cardcrawl.helpers.PotionHelper;
-import com.megacrit.cardcrawl.helpers.RelicLibrary;
+import com.megacrit.cardcrawl.helpers.*;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
 import com.megacrit.cardcrawl.monsters.exordium.SlimeBoss;
 import com.megacrit.cardcrawl.relics.*;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import com.megacrit.cardcrawl.unlock.UnlockTracker;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
 import ludicrousspeed.LudicrousSpeedMod;
 import savestate.PotionState;
@@ -153,6 +152,9 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         ReflectionHacks.setPrivateStaticFinal(SlimeBoss.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(CardGroup.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(CardHelper.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(UnlockTracker.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(ImageMaster.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(AbstractMonster.class, "logger", new SilentLogger());
 
         if (isServer) {
             Settings.MASTER_VOLUME = 0;
@@ -180,6 +182,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         setUpOptionsMenu();
     }
 
+    @Override
     public void receivePostUpdate() {
         if (steveMessage != null) {
             String messageToDisplay = " Processing... NL " + steveMessage;
