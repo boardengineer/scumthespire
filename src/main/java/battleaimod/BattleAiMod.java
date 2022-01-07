@@ -145,6 +145,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             }
         }
 
+        ReflectionHacks.setPrivateStaticFinal(MummifiedHand.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(BaseMod.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(TheSpecimen.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(AbstractDungeon.class, "logger", new SilentLogger());

@@ -5,6 +5,7 @@ import com.megacrit.cardcrawl.cards.blue.CreativeAI;
 import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.*;
 import com.megacrit.cardcrawl.cards.purple.LessonLearned;
+import com.megacrit.cardcrawl.cards.purple.TalkToTheHand;
 import com.megacrit.cardcrawl.cards.purple.WaveOfTheHand;
 import com.megacrit.cardcrawl.cards.tempCards.Shiv;
 
@@ -28,6 +29,7 @@ public class SilentPlayOrder {
         put(new Transmutation().cardID, size++);
         put(new Claw().cardID, size++);
 
+        put(new TalkToTheHand().cardID, size++);
         put(new Flechettes().cardID, size++);
         put(new Burst().cardID, size++);
         put(new Apparition().cardID, size++);
