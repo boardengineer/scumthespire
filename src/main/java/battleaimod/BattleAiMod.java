@@ -17,6 +17,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
+import com.megacrit.cardcrawl.audio.MainMusic;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.blue.Seek;
 import com.megacrit.cardcrawl.cards.colorless.Discovery;
@@ -94,18 +95,15 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public void receivePostInitialize() {
         // Colorless
         // TODO AttackFromDeckToHandAction
-//        CardLibrary.cards.remove(SecretWeapon.ID);
-//        CardLibrary.cards.remove(SecretTechnique.ID);
-//        CardLibrary.cards.remove(TheBomb.ID);
         CardLibrary.cards.remove(Forethought.ID);
         CardLibrary.cards.remove(Discovery.ID);
+        CardLibrary.cards.remove(Seek.ID);
 
         // Watcher
         // Scry
         CardLibrary.cards.remove(CutThroughFate.ID);
         CardLibrary.cards.remove(JustLucky.ID);
         CardLibrary.cards.remove(ThirdEye.ID);
-        CardLibrary.cards.remove(Seek.ID);
         CardLibrary.cards.remove(Foresight.ID);
         CardLibrary.cards.remove(Weave.ID);
         CardLibrary.cards.remove(ForeignInfluence.ID);
@@ -156,6 +154,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         ReflectionHacks.setPrivateStaticFinal(UnlockTracker.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(ImageMaster.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(AbstractMonster.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(MainMusic.class, "logger", new SilentLogger());
+
 
         if (isServer) {
             Settings.MASTER_VOLUME = 0;

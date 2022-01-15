@@ -89,7 +89,7 @@ public class BattleAiController implements Controller {
                 System.err.println("Found end at turn threshold, going into rerun");
 
                 // uncomment to get tree files
-                // showTree();
+//                 showTree();
                 printRuntimeStats();
 
                 isDone = true;

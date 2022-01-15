@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -89,7 +90,7 @@ public class AiServer {
 
                             TurnNode committedTurn = BattleAiMod.battleAiController.committedTurn();
                             if (committedTurn != null) {
-                                JsonArray currentCommands = commandsForStateNodeExperimental(committedTurn.startingState);
+                                JsonArray currentCommands = commandsForStateNode(committedTurn.startingState);
                                 jsonToSend.add("commands", currentCommands);
                             }
 
@@ -111,7 +112,7 @@ public class AiServer {
                         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController
                                 .isDone()) {
                             JsonObject jsonToSend = new JsonObject();
-                            JsonArray commands = commandsForStateNodeExperimental(BattleAiMod.battleAiController.bestEnd);
+                            JsonArray commands = commandsForStateNode(BattleAiMod.battleAiController.bestEnd);
 
                             // Send Command List
                             jsonToSend.addProperty("type", commandListString);
@@ -137,10 +138,21 @@ public class AiServer {
         });
     }
 
-    public static JsonArray commandsForStateNodeExperimental(StateNode root) {
+    public static JsonArray commandsForStateNode(StateNode root) {
         JsonArray commands = new JsonArray();
 
-        Iterator<StateNode> bestPath = BattleAiController.stateNodesToGetToNode(root).iterator();
+        List<StateNode> stateNodes = BattleAiController.stateNodesToGetToNode(root);
+
+
+        // Print the best path for debugging
+        Iterator<StateNode> printIterator = stateNodes.iterator();
+
+        while (printIterator.hasNext()) {
+            StateNode stateNode = printIterator.next();
+            System.err.print(stateNode.lastCommand);
+        }
+
+        Iterator<StateNode> bestPath = stateNodes.iterator();
 
         String stateDiffString = null;
         while (bestPath.hasNext()) {

@@ -3,10 +3,12 @@ package battleaimod.battleai.playorder;
 import com.megacrit.cardcrawl.cards.blue.Claw;
 import com.megacrit.cardcrawl.cards.blue.CreativeAI;
 import com.megacrit.cardcrawl.cards.colorless.*;
+import com.megacrit.cardcrawl.cards.curses.Pain;
 import com.megacrit.cardcrawl.cards.green.*;
 import com.megacrit.cardcrawl.cards.purple.LessonLearned;
 import com.megacrit.cardcrawl.cards.purple.TalkToTheHand;
 import com.megacrit.cardcrawl.cards.purple.WaveOfTheHand;
+import com.megacrit.cardcrawl.cards.red.DarkEmbrace;
 import com.megacrit.cardcrawl.cards.tempCards.Shiv;
 
 import java.util.HashMap;
@@ -15,6 +17,7 @@ public class SilentPlayOrder {
     public static final HashMap<String, Integer> CARD_RANKS = new HashMap<String, Integer>() {{
         int size = 0;
 
+        put(new Pain().cardID, size++);
         put(new Panache().cardID, size++);
         put(new GrandFinale().cardID, size++);
         put(new SadisticNature().cardID, size++);
@@ -24,6 +27,7 @@ public class SilentPlayOrder {
         put(new WaveOfTheHand().cardID, size++);
 
         put(new Backflip().cardID, size++);
+        put(new DarkEmbrace().cardID, size++);
         put(new Acrobatics().cardID, size++);
         put(new BulletTime().cardID, size++);
         put(new Transmutation().cardID, size++);
