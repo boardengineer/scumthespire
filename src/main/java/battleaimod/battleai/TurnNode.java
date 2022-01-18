@@ -49,9 +49,9 @@ public class TurnNode implements Comparable<TurnNode> {
         this.turnLabel = nodeIndex++;
         children = new ArrayList<>();
 
-//        if (parent != null) {
-//            parent.children.add(this);
-//        }
+        if (parent != null && BattleAiController.SHOULD_SHOW_TREE) {
+            parent.children.add(this);
+        }
     }
 
     public boolean step() {

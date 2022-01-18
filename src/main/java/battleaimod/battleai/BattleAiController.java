@@ -6,16 +6,15 @@ import savestate.CardState;
 import savestate.SaveState;
 import savestate.SaveStateMod;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static savestate.SaveStateMod.addRuntime;
 
 public class BattleAiController implements Controller {
-    private int maxTurnLoads;
+    private final int maxTurnLoads;
 
     public int targetTurn;
     public int targetTurnJump;
@@ -29,7 +28,7 @@ public class BattleAiController implements Controller {
     // stuck.
     public StateNode deathNode = null;
 
-    // The state the AI is currentl processing from
+    // The state the AI is currently processing from
     public TurnNode committedTurn = null;
 
     // The target turn that will be loaded if/when the max turn loads is hit
@@ -40,6 +39,10 @@ public class BattleAiController implements Controller {
     public boolean isDone = false;
     public final SaveState startingState;
     private boolean initialized;
+
+    // EXPERIMENTAL
+    private TurnNode startNode = null;
+    public static final boolean SHOULD_SHOW_TREE = false;
 
     public TurnNode curTurn;
 
@@ -76,7 +79,8 @@ public class BattleAiController implements Controller {
             startingHealth = startingState.getPlayerHealth();
             firstStateContainer.saveState = startingState;
             turns = new PriorityQueue<>();
-            turns.add(new TurnNode(firstStateContainer, this, null));
+            startNode = new TurnNode(firstStateContainer, this, null);
+            turns.add(startNode);
 
             controllerStartTime = System.currentTimeMillis();
             SaveStateMod.runTimes = new HashMap<>();
@@ -89,7 +93,11 @@ public class BattleAiController implements Controller {
                 System.err.println("Found end at turn threshold, going into rerun");
 
                 // uncomment to get tree files
-//                 showTree();
+                try {
+                    showTree();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 printRuntimeStats();
 
                 isDone = true;
@@ -262,5 +270,88 @@ public class BattleAiController implements Controller {
 
     public int maxTurnLoads() {
         return maxTurnLoads;
+    }
+
+    private void showTree() throws IOException {
+        try {
+            FileWriter writer = new FileWriter("out.dot");
+
+            writer.write("digraph battleTurns {\n");
+            TurnNode start = startNode;
+            LinkedList<TurnNode> bfs = new LinkedList<>();
+            bfs.add(start);
+            while (!bfs.isEmpty()) {
+                TurnNode node = bfs.pollFirst();
+
+                int playerDamage = TurnNode.getPlayerDamage(node);
+                int monsterHealth = TurnNode.getTotalMonsterHealth(node);
+
+                String nodeLabel = String
+                        .format("player damage:%d monster health:%d", playerDamage, monsterHealth);
+
+
+                double f = (double) node.turnLabel / 100.;
+
+                int r = 0;
+                int g = 0;
+                int b = 0;
+                double a = (1 - f) / 0.25;    //invert and group
+                int X = (int) Math.floor(a);    //this is the integer part
+                int Y = (int) Math.floor(255 * (a - X)); //fractional part from 0 to 255
+                switch (X) {
+                    case 0:
+                        r = 255;
+                        g = Y;
+                        b = 0;
+                        break;
+                    case 1:
+                        r = 255 - Y;
+                        g = 255;
+                        b = 0;
+                        break;
+                    case 2:
+                        r = 0;
+                        g = 255;
+                        b = Y;
+                        break;
+                    case 3:
+                        r = 0;
+                        g = 255 - Y;
+                        b = 255;
+                        break;
+                    case 4:
+                        r = 0;
+                        g = 0;
+                        b = 255;
+                        break;
+                }
+
+                writer.write(String
+                        .format("%s [label=\"%s\" color=\"#%02X%02X%02X\" style=\"filled\"]\n", node.turnLabel, nodeLabel, r, g, b));
+                node.children.forEach(child -> {
+                    try {
+                        ArrayList<Command> commands = new ArrayList<>();
+                        StateNode iterator = child.startingState;
+                        while (iterator != node.startingState) {
+                            commands.add(0, iterator.lastCommand);
+                            iterator = iterator.parent;
+                        }
+                        writer.write(String
+                                .format("%s->%s [label=\"%s\"]\n", node.turnLabel, child.turnLabel, commands));
+                    } catch (IOException e) {
+                        System.err.println("writing failed");
+                        e.printStackTrace();
+                    }
+                    bfs.add(child);
+                });
+            }
+
+            writer.write("}\n");
+            writer.close();
+
+        } catch (IOException e) {
+            System.err.println("file writing failed");
+            e.printStackTrace();
+        }
     }
 }
