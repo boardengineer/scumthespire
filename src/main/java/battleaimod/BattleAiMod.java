@@ -19,10 +19,7 @@ import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.audio.MainMusic;
 import com.megacrit.cardcrawl.cards.CardGroup;
-import com.megacrit.cardcrawl.cards.blue.Seek;
-import com.megacrit.cardcrawl.cards.colorless.Discovery;
-import com.megacrit.cardcrawl.cards.colorless.Forethought;
-import com.megacrit.cardcrawl.cards.purple.*;
+import com.megacrit.cardcrawl.cards.purple.Weave;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -30,11 +27,17 @@ import com.megacrit.cardcrawl.helpers.*;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
 import com.megacrit.cardcrawl.monsters.exordium.SlimeBoss;
-import com.megacrit.cardcrawl.relics.*;
+import com.megacrit.cardcrawl.relics.AbstractRelic;
+import com.megacrit.cardcrawl.relics.GamblingChip;
+import com.megacrit.cardcrawl.relics.MummifiedHand;
+import com.megacrit.cardcrawl.relics.TheSpecimen;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
 import ludicrousspeed.LudicrousSpeedMod;
+import ludicrousspeed.simulator.commands.CardRewardSelectCommand;
+import ludicrousspeed.simulator.commands.GridSelectCommand;
+import ludicrousspeed.simulator.commands.GridSelectConfrimCommand;
 import savestate.PotionState;
 import savestate.SaveState;
 import savestate.SaveStateMod;
@@ -93,36 +96,13 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     @Override
     public void receivePostInitialize() {
-        // Colorless
-        // TODO AttackFromDeckToHandAction
-        CardLibrary.cards.remove(Forethought.ID);
-        CardLibrary.cards.remove(Discovery.ID);
-        CardLibrary.cards.remove(Seek.ID);
-
-        // Watcher
-        // Scry
-        CardLibrary.cards.remove(CutThroughFate.ID);
-        CardLibrary.cards.remove(JustLucky.ID);
-        CardLibrary.cards.remove(ThirdEye.ID);
-        CardLibrary.cards.remove(Foresight.ID);
+        // Sometimes doesn't come back to hand for some reason
         CardLibrary.cards.remove(Weave.ID);
-        CardLibrary.cards.remove(ForeignInfluence.ID);
-//        CardLibrary.cards.remove(Omniscience.ID);
 
-        CardLibrary.cards.remove(Wish.ID);
-        CardLibrary.cards.remove(Meditate.ID);
-        CardLibrary.cards.remove(Nirvana.ID);
-
+        // Current behavior would make this a chat option, it won't be interesting out of the box
         HashMap<String, AbstractRelic> sharedRelics = ReflectionHacks
                 .getPrivateStatic(RelicLibrary.class, "sharedRelics");
-        sharedRelics.put(NilrysCodex.ID, RelicLibrary.getRelic("Enchiridion").makeCopy());
-
         sharedRelics.remove(GamblingChip.ID);
-
-        HashMap<String, AbstractRelic> purpleRelics = ReflectionHacks
-                .getPrivateStatic(RelicLibrary.class, "purpleRelics");
-        purpleRelics.remove(GoldenEye.ID);
-        purpleRelics.remove(Melange.ID);
 
         Iterator<String> actualPotions = PotionHelper.potions.iterator();
         while (actualPotions.hasNext()) {
@@ -201,6 +181,9 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     private void setUpOptionsMenu() {
         BaseMod.addTopPanelItem(new StartAiClientTopPanel());
+//        BaseMod.addTopPanelItem(new TryButtonPanel());
+//        BaseMod.addTopPanelItem(new TryButtonPanel2());
+//        BaseMod.addTopPanelItem(new TryButtonPanel3());
     }
 
     public class StartAiClientTopPanel extends TopPanelItem {
@@ -223,6 +206,45 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             if (aiClient != null) {
                 aiClient.sendState();
             }
+        }
+    }
+
+    public class TryButtonPanel extends TopPanelItem {
+        public static final String ID = "battleaimod:tryButton";
+
+        public TryButtonPanel() {
+            super(new Texture("img/ClimbLives.png"), ID);
+        }
+
+        @Override
+        protected void onClick() {
+            new CardRewardSelectCommand(0).execute();
+        }
+    }
+
+    public class TryButtonPanel2 extends TopPanelItem {
+        public static final String ID = "battleaimod:tryButton";
+
+        public TryButtonPanel2() {
+            super(new Texture("img/ClimbLives.png"), ID);
+        }
+
+        @Override
+        protected void onClick() {
+            new GridSelectCommand(1).execute();
+        }
+    }
+
+    public class TryButtonPanel3 extends TopPanelItem {
+        public static final String ID = "battleaimod:tryButton";
+
+        public TryButtonPanel3() {
+            super(new Texture("img/ClimbLives.png"), ID);
+        }
+
+        @Override
+        protected void onClick() {
+            GridSelectConfrimCommand.INSTANCE.execute();
         }
     }
 

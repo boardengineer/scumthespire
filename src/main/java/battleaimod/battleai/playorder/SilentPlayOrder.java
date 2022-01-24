@@ -20,6 +20,7 @@ public class SilentPlayOrder {
         put(new Pain().cardID, size++);
         put(new Panache().cardID, size++);
         put(new GrandFinale().cardID, size++);
+        put(new MasterOfStrategy().cardID, size++);
         put(new SadisticNature().cardID, size++);
         put(new Apotheosis().cardID, size++);
         put(new CreativeAI().cardID, size++);

@@ -45,7 +45,7 @@ public class AiClient {
     }
 
     public void sendState() {
-        sendState(5000);
+        sendState(10000);
     }
 
     public void sendState(int numTurns) {
@@ -167,6 +167,10 @@ public class AiClient {
             return HandSelectConfirmCommand.INSTANCE;
         } else if (type.equals("GRID_SELECT")) {
             return new GridSelectCommand(commandString);
+        } else if (type.equals("GRID_SELECT_CONFIRM")) {
+            return GridSelectConfrimCommand.INSTANCE;
+        } else if (type.equals("CARD_REWARD_SELECT")) {
+            return new CardRewardSelectCommand(commandString);
         }
 
         return null;

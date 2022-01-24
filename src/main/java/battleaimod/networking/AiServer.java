@@ -90,7 +90,7 @@ public class AiServer {
 
                             TurnNode committedTurn = BattleAiMod.battleAiController.committedTurn();
                             if (committedTurn != null) {
-                                JsonArray currentCommands = commandsForStateNode(committedTurn.startingState);
+                                JsonArray currentCommands = commandsForStateNode(committedTurn.startingState, false);
                                 jsonToSend.add("commands", currentCommands);
                             }
 
@@ -112,7 +112,7 @@ public class AiServer {
                         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController
                                 .isDone()) {
                             JsonObject jsonToSend = new JsonObject();
-                            JsonArray commands = commandsForStateNode(BattleAiMod.battleAiController.bestEnd);
+                            JsonArray commands = commandsForStateNode(BattleAiMod.battleAiController.bestEnd, true);
 
                             // Send Command List
                             jsonToSend.addProperty("type", commandListString);
@@ -138,7 +138,7 @@ public class AiServer {
         });
     }
 
-    public static JsonArray commandsForStateNode(StateNode root) {
+    public static JsonArray commandsForStateNode(StateNode root, boolean shouldPrint) {
         JsonArray commands = new JsonArray();
 
         List<StateNode> stateNodes = BattleAiController.stateNodesToGetToNode(root);
@@ -147,9 +147,9 @@ public class AiServer {
         // Print the best path for debugging
         Iterator<StateNode> printIterator = stateNodes.iterator();
 
-        while (printIterator.hasNext()) {
+        while (printIterator.hasNext() && shouldPrint) {
             StateNode stateNode = printIterator.next();
-            System.err.print(stateNode.lastCommand);
+            System.err.print(stateNode.lastCommand + " ");
         }
 
         Iterator<StateNode> bestPath = stateNodes.iterator();

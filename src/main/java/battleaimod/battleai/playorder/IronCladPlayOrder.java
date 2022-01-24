@@ -1,5 +1,7 @@
 package battleaimod.battleai.playorder;
 
+import com.megacrit.cardcrawl.cards.blue.Hologram;
+import com.megacrit.cardcrawl.cards.blue.Seek;
 import com.megacrit.cardcrawl.cards.blue.WhiteNoise;
 import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.PhantasmalKiller;
@@ -12,7 +14,12 @@ public class IronCladPlayOrder {
     public static final HashMap<String, Integer> CARD_RANKS = new HashMap<String, Integer>() {{
         int size = 0;
 
+
+        put(new Seek().cardID, size++);
+        put(new Hologram().cardID, size++);
+
         put(new Apotheosis().cardID, size++);
+        put(new Discovery().cardID, size++);
 
         put(new Omniscience().cardID, size++);
         put(new Headbutt().cardID, size++);
@@ -116,6 +123,7 @@ public class IronCladPlayOrder {
 
         // These are the watcher cards, the combined play order will be here
         put(new WreathOfFlame().cardID, size++);
+        put(new Weave().cardID, size++);
 
         put(new Ragnarok().cardID, size++);
         put(new TalkToTheHand().cardID, size++);
@@ -177,7 +185,6 @@ public class IronCladPlayOrder {
         put(new Tranquility().cardID, size++);
         put(new Vault().cardID, size++);
         put(new Wallop().cardID, size++);
-        put(new Weave().cardID, size++);
         put(new WheelKick().cardID, size++);
         put(new Wish().cardID, size++);
         put(new Blasphemy().cardID, size++);
