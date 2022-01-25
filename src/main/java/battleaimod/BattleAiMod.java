@@ -9,6 +9,9 @@ import basemod.interfaces.PostUpdateSubscriber;
 import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.CommandRunnerController;
+import battleaimod.battleai.playorder.DefectPlayOrder;
+import battleaimod.battleai.playorder.IronCladPlayOrder;
+import battleaimod.battleai.playorder.SilentPlayOrder;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import com.badlogic.gdx.graphics.Texture;
@@ -44,6 +47,7 @@ import savestate.SaveStateMod;
 import savestate.fastobjects.ScreenShakeFast;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -69,6 +73,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static boolean shouldStartClient = false;
     public static boolean isServer;
 
+    public static ArrayList<HashMap<String, Integer>> cardRankMaps = new ArrayList<>();
+
     public BattleAiMod() {
         BaseMod.subscribe(this);
         BaseMod.subscribe(new LudicrousSpeedMod());
@@ -78,6 +84,10 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         window.removeAll();
 
         CardCrawlGame.screenShake = new ScreenShakeFast();
+
+        cardRankMaps.add(IronCladPlayOrder.CARD_RANKS);
+        cardRankMaps.add(DefectPlayOrder.CARD_RANKS);
+        cardRankMaps.add(SilentPlayOrder.CARD_RANKS);
     }
 
     public static void sendGameState() {

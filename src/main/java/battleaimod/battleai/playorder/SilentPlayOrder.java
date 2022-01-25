@@ -17,109 +17,109 @@ public class SilentPlayOrder {
     public static final HashMap<String, Integer> CARD_RANKS = new HashMap<String, Integer>() {{
         int size = 0;
 
-        put(new Pain().cardID, size++);
-        put(new Panache().cardID, size++);
-        put(new GrandFinale().cardID, size++);
-        put(new MasterOfStrategy().cardID, size++);
-        put(new SadisticNature().cardID, size++);
-        put(new Apotheosis().cardID, size++);
-        put(new CreativeAI().cardID, size++);
-        put(new LessonLearned().cardID, size++);
-        put(new WaveOfTheHand().cardID, size++);
+        put(Pain.ID, size++);
+        put(Panache.ID, size++);
+        put(GrandFinale.ID, size++);
+        put(MasterOfStrategy.ID, size++);
+        put(SadisticNature.ID, size++);
+        put(Apotheosis.ID, size++);
+        put(CreativeAI.ID, size++);
+        put(LessonLearned.ID, size++);
+        put(WaveOfTheHand.ID, size++);
 
-        put(new Backflip().cardID, size++);
-        put(new DarkEmbrace().cardID, size++);
-        put(new Acrobatics().cardID, size++);
-        put(new BulletTime().cardID, size++);
-        put(new Transmutation().cardID, size++);
-        put(new Claw().cardID, size++);
+        put(Backflip.ID, size++);
+        put(DarkEmbrace.ID, size++);
+        put(Acrobatics.ID, size++);
+        put(BulletTime.ID, size++);
+        put(Transmutation.ID, size++);
+        put(Claw.ID, size++);
 
-        put(new TalkToTheHand().cardID, size++);
-        put(new Flechettes().cardID, size++);
-        put(new Burst().cardID, size++);
-        put(new Apparition().cardID, size++);
-        put(new Footwork().cardID, size++);
-        put(new Adrenaline().cardID, size++);
-        put(new Malaise().cardID, size++);
-        put(new ToolsOfTheTrade().cardID, size++);
-        put(new Choke().cardID, size++);
-        put(new AfterImage().cardID, size++);
-        put(new Caltrops().cardID, size++);
-        put(new InfiniteBlades().cardID, size++);
-        put(new LegSweep().cardID, size++);
-        put(new NoxiousFumes().cardID, size++);
-        put(new CripplingPoison().cardID, size++);
-        put(new Envenom().cardID, size++);
-        put(new AThousandCuts().cardID, size++);
-        put(new Nightmare().cardID, size++);
-        put(new Alchemize().cardID, size++);
-        put(new PhantasmalKiller().cardID, size++);
-        put(new Outmaneuver().cardID, size++);
-        put(new Accuracy().cardID, size++);
-        put(new CalculatedGamble().cardID, size++);
+        put(TalkToTheHand.ID, size++);
+        put(Flechettes.ID, size++);
+        put(Burst.ID, size++);
+        put(Apparition.ID, size++);
+        put(Footwork.ID, size++);
+        put(Adrenaline.ID, size++);
+        put(Malaise.ID, size++);
+        put(ToolsOfTheTrade.ID, size++);
+        put(Choke.ID, size++);
+        put(AfterImage.ID, size++);
+        put(Caltrops.ID, size++);
+        put(InfiniteBlades.ID, size++);
+        put(LegSweep.ID, size++);
+        put(NoxiousFumes.ID, size++);
+        put(CripplingPoison.ID, size++);
+        put(Envenom.ID, size++);
+        put(AThousandCuts.ID, size++);
+        put(Nightmare.ID, size++);
+        put(Alchemize.ID, size++);
+        put(PhantasmalKiller.ID, size++);
+        put(Outmaneuver.ID, size++);
+        put(Accuracy.ID, size++);
+        put(CalculatedGamble.ID, size++);
 
-        put(new BouncingFlask().cardID, size++);
-        put(new CorpseExplosion().cardID, size++);
-        put(new DeadlyPoison().cardID, size++);
-        put(new PoisonedStab().cardID, size++);
+        put(BouncingFlask.ID, size++);
+        put(CorpseExplosion.ID, size++);
+        put(DeadlyPoison.ID, size++);
+        put(PoisonedStab.ID, size++);
 
-        put(new Catalyst().cardID, size++);
+        put(Catalyst.ID, size++);
 
-        put(new Terror().cardID, size++);
-        put(new WellLaidPlans().cardID, size++);
+        put(Terror.ID, size++);
+        put(WellLaidPlans.ID, size++);
 
-        put(new Dash().cardID, size++);
-        put(new Skewer().cardID, size++);
-        put(new RiddleWithHoles().cardID, size++);
-        put(new Neutralize().cardID, size++);
-        put(new QuickSlash().cardID, size++);
-        put(new SuckerPunch().cardID, size++);
-        put(new AllOutAttack().cardID, size++);
-        put(new Backstab().cardID, size++);
-        put(new HeelHook().cardID, size++);
-        put(new Bane().cardID, size++);
-        put(new FlyingKnee().cardID, size++);
-        put(new DaggerThrow().cardID, size++);
-        put(new DieDieDie().cardID, size++);
-        put(new Slice().cardID, size++);
-        put(new DaggerSpray().cardID, size++);
-        put(new GlassKnife().cardID, size++);
-        put(new MasterfulStab().cardID, size++);
-        put(new Eviscerate().cardID, size++);
-        put(new Predator().cardID, size++);
-        put(new CloakAndDagger().cardID, size++);
+        put(Dash.ID, size++);
+        put(Skewer.ID, size++);
+        put(RiddleWithHoles.ID, size++);
+        put(Neutralize.ID, size++);
+        put(QuickSlash.ID, size++);
+        put(SuckerPunch.ID, size++);
+        put(AllOutAttack.ID, size++);
+        put(Backstab.ID, size++);
+        put(HeelHook.ID, size++);
+        put(Bane.ID, size++);
+        put(FlyingKnee.ID, size++);
+        put(DaggerThrow.ID, size++);
+        put(DieDieDie.ID, size++);
+        put(Slice.ID, size++);
+        put(DaggerSpray.ID, size++);
+        put(GlassKnife.ID, size++);
+        put(MasterfulStab.ID, size++);
+        put(Eviscerate.ID, size++);
+        put(Predator.ID, size++);
+        put(CloakAndDagger.ID, size++);
 
-        put(new SneakyStrike().cardID, size++);
+        put(SneakyStrike.ID, size++);
 
-        put(new Shiv().cardID, size++);
+        put(Shiv.ID, size++);
 
-        put(new StormOfSteel().cardID, size++);
-        put(new BladeDance().cardID, size++);
-        put(new Strike_Green().cardID, size++);
+        put(StormOfSteel.ID, size++);
+        put(BladeDance.ID, size++);
+        put(Strike_Green.ID, size++);
 
-        put(new Reflex().cardID, size++);
-        put(new Setup().cardID, size++);
-        put(new Tactician().cardID, size++);
-        put(new WraithForm().cardID, size++);
+        put(Reflex.ID, size++);
+        put(Setup.ID, size++);
+        put(Tactician.ID, size++);
+        put(WraithForm.ID, size++);
 
-        put(new Unload().cardID, size++);
+        put(Unload.ID, size++);
 
-        put(new Finisher().cardID, size++);
+        put(Finisher.ID, size++);
 
-        put(new Doppelganger().cardID, size++);
+        put(Doppelganger.ID, size++);
 
-        put(new Survivor().cardID, size++);
-        put(new Prepared().cardID, size++);
-        put(new PiercingWail().cardID, size++);
-        put(new Distraction().cardID, size++);
-        put(new EndlessAgony().cardID, size++);
-        put(new DodgeAndRoll().cardID, size++);
-        put(new Blur().cardID, size++);
-        put(new EscapePlan().cardID, size++);
-        put(new Deflect().cardID, size++);
-        put(new Defend_Green().cardID, size++);
+        put(Survivor.ID, size++);
+        put(Prepared.ID, size++);
+        put(PiercingWail.ID, size++);
+        put(Distraction.ID, size++);
+        put(EndlessAgony.ID, size++);
+        put(DodgeAndRoll.ID, size++);
+        put(Blur.ID, size++);
+        put(EscapePlan.ID, size++);
+        put(Deflect.ID, size++);
+        put(Defend_Green.ID, size++);
 
-        put(new Expertise().cardID, size++);
-        put(new Concentrate().cardID, size++);
+        put(Expertise.ID, size++);
+        put(Concentrate.ID, size++);
     }};
 }

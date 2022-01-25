@@ -1,8 +1,6 @@
 package battleaimod.battleai;
 
-import battleaimod.battleai.playorder.DefectPlayOrder;
-import battleaimod.battleai.playorder.IronCladPlayOrder;
-import battleaimod.battleai.playorder.SilentPlayOrder;
+import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.cards.colorless.RitualDagger;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import ludicrousspeed.simulator.commands.Command;
@@ -10,6 +8,7 @@ import ludicrousspeed.simulator.commands.CommandList;
 import savestate.CardState;
 import savestate.SaveState;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class StateNode {
@@ -105,26 +104,11 @@ public class StateNode {
 
     private void populateCommands() {
         commands = CommandList.getAvailableCommands((card1, card2) -> {
-            if (IronCladPlayOrder.CARD_RANKS.containsKey(card1
-                    .cardID) && IronCladPlayOrder.CARD_RANKS
-                    .containsKey(card2.cardID)) {
-                return IronCladPlayOrder.CARD_RANKS
-                        .get(card1.cardID) - IronCladPlayOrder.CARD_RANKS
-                        .get(card2.cardID);
-            } else if (SilentPlayOrder.CARD_RANKS.containsKey(card1
-                    .cardID) && SilentPlayOrder.CARD_RANKS
-                    .containsKey(card2.cardID)) {
-                return SilentPlayOrder.CARD_RANKS
-                        .get(card1.cardID) - SilentPlayOrder.CARD_RANKS
-                        .get(card2.cardID);
-            } else if (DefectPlayOrder.CARD_RANKS
-                    .containsKey(card1.cardID) && DefectPlayOrder.CARD_RANKS
-                    .containsKey(card2.cardID)) {
-                return DefectPlayOrder.CARD_RANKS
-                        .get(card1.cardID) - DefectPlayOrder.CARD_RANKS
-                        .get(card2.cardID);
+            for (HashMap<String, Integer> rankMap : BattleAiMod.cardRankMaps) {
+                if (rankMap.containsKey(card1.cardID) && rankMap.containsKey(card2.cardID)) {
+                    return rankMap.get(card1.cardID) - rankMap.get(card2.cardID);
+                }
             }
-
             return card2.costForTurn - card1.costForTurn;
         });
     }
