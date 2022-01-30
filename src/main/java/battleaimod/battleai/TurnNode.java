@@ -398,8 +398,9 @@ public class TurnNode implements Comparable<TurnNode> {
         int catalystScore = numCatalysts * 25;
 
         int healthMultiplier = shouldBrawl ? 2 : 8;
+        int numOrbScore = turnNode.startingState.saveState.playerState.maxOrbs == 0 ? -1000 : 0;
 
-        return catalystScore + parasiteScore + lessonLearnedScore + feedScore + conjureBladeScore + turnNode.startingState.saveState.playerState.gold * 2 + ritualDaggerScore + miracleScore + monsterDamage - healthMultiplier * playerDamage + powerScore + getPotionScore(turnNode.startingState.saveState) + getRelicScore(turnNode.startingState.saveState);
+        return numOrbScore + catalystScore + parasiteScore + lessonLearnedScore + feedScore + conjureBladeScore + turnNode.startingState.saveState.playerState.gold * 2 + ritualDaggerScore + miracleScore + monsterDamage - healthMultiplier * playerDamage + powerScore + getPotionScore(turnNode.startingState.saveState) + getRelicScore(turnNode.startingState.saveState);
     }
 
     @Override

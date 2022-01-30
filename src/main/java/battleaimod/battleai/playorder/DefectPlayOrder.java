@@ -50,6 +50,7 @@ public class DefectPlayOrder {
 
         put(GeneticAlgorithm.ID, size++);
 
+
         put(CoreSurge.ID, size++);
 
         put(Defragment.ID, size++);

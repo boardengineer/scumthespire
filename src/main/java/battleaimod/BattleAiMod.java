@@ -22,6 +22,7 @@ import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.audio.MainMusic;
 import com.megacrit.cardcrawl.cards.CardGroup;
+import com.megacrit.cardcrawl.cards.colorless.Forethought;
 import com.megacrit.cardcrawl.cards.purple.Weave;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
@@ -108,6 +109,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public void receivePostInitialize() {
         // Sometimes doesn't come back to hand for some reason
         CardLibrary.cards.remove(Weave.ID);
+        CardLibrary.cards.remove(Forethought.ID);
 
         // Current behavior would make this a chat option, it won't be interesting out of the box
         HashMap<String, AbstractRelic> sharedRelics = ReflectionHacks
