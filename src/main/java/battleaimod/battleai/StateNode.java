@@ -10,6 +10,7 @@ import savestate.SaveState;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StateNode {
     private final BattleAiController controller;
@@ -174,12 +175,20 @@ public class StateNode {
         int lessonLearnedScore = node.saveState.lessonLearnedCount * 100;
         int feedScore = node.saveState.playerState.maxHealth * 30;
 
+        int additonalHeuristicScore =
+                BattleAiMod.additionalValueFunctions.stream()
+                                                    .map(function -> function
+                                                            .apply(node.saveState))
+                                                    .collect(Collectors
+                                                            .summingInt(Integer::intValue));
+
         return feedScore +
                 node.saveState.playerState.gold * 2 +
                 ritualDaggerScore +
                 getPlayerDamage(node) * -1 +
                 TurnNode.getPotionScore(node.saveState) +
                 TurnNode.getRelicScore(node.saveState) +
-                lessonLearnedScore;
+                lessonLearnedScore +
+                additonalHeuristicScore;
     }
 }

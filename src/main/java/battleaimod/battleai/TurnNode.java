@@ -1,5 +1,6 @@
 package battleaimod.battleai;
 
+import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.cards.colorless.RitualDagger;
 import com.megacrit.cardcrawl.cards.green.Catalyst;
@@ -21,6 +22,7 @@ import savestate.SaveState;
 import savestate.relics.RelicState;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static savestate.SaveStateMod.addRuntime;
 
@@ -400,7 +402,14 @@ public class TurnNode implements Comparable<TurnNode> {
         int healthMultiplier = shouldBrawl ? 2 : 8;
         int numOrbScore = turnNode.startingState.saveState.playerState.maxOrbs == 0 ? -1000 : 0;
 
-        return numOrbScore + catalystScore + parasiteScore + lessonLearnedScore + feedScore + conjureBladeScore + turnNode.startingState.saveState.playerState.gold * 2 + ritualDaggerScore + miracleScore + monsterDamage - healthMultiplier * playerDamage + powerScore + getPotionScore(turnNode.startingState.saveState) + getRelicScore(turnNode.startingState.saveState);
+        int additonalHeuristicScore =
+                BattleAiMod.additionalValueFunctions.stream()
+                                                    .map(function -> function
+                                                            .apply(turnNode.startingState.saveState))
+                                                    .collect(Collectors
+                                                            .summingInt(Integer::intValue));
+
+        return numOrbScore + catalystScore + parasiteScore + lessonLearnedScore + feedScore + conjureBladeScore + turnNode.startingState.saveState.playerState.gold * 2 + ritualDaggerScore + miracleScore + monsterDamage - healthMultiplier * playerDamage + powerScore + getPotionScore(turnNode.startingState.saveState) + getRelicScore(turnNode.startingState.saveState) + additonalHeuristicScore;
     }
 
     @Override

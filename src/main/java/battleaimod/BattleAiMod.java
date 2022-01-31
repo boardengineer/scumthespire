@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.function.Function;
 
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
@@ -75,6 +76,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static boolean isServer;
 
     public static ArrayList<HashMap<String, Integer>> cardRankMaps = new ArrayList<>();
+
+    public static ArrayList<Function<SaveState, Integer>> additionalValueFunctions = new ArrayList<>();
 
     public BattleAiMod() {
         BaseMod.subscribe(this);
