@@ -5,6 +5,7 @@ import com.megacrit.cardcrawl.cards.colorless.RitualDagger;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import ludicrousspeed.simulator.commands.Command;
 import ludicrousspeed.simulator.commands.CommandList;
+import ludicrousspeed.simulator.commands.EndCommand;
 import savestate.CardState;
 import savestate.SaveState;
 
@@ -24,6 +25,7 @@ public class StateNode {
     private boolean initialized = false;
     private int commandIndex = -1;
     private boolean isDone = false;
+    int turnDepth;
 
     public StateNode(StateNode parent, Command lastCommand, BattleAiController controller) {
         this.parent = parent;
@@ -39,8 +41,31 @@ public class StateNode {
             saveState = new SaveState();
         }
 
+        if (parent == null || parent.saveState.turn < saveState.turn) {
+            turnDepth = 0;
+        } else {
+            turnDepth = parent.turnDepth + 1;
+        }
+
         if (commands == null) {
             populateCommands();
+        }
+
+        if (turnDepth > 50) {
+            boolean hasEnd = false;
+            for (Command command : commands) {
+                if (command instanceof EndCommand) {
+                    hasEnd = true;
+                    break;
+                }
+            }
+
+            if(hasEnd) {
+                commands.clear();
+                commands.add(new EndCommand());
+            }
+
+
         }
 
         if (!initialized) {

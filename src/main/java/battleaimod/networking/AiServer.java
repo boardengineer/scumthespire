@@ -174,6 +174,7 @@ public class AiServer {
                         e.printStackTrace();
                     }
                 }
+
                 stateDiffString = stateNode.saveState.diffEncode();
                 commands.add(command);
             } else {

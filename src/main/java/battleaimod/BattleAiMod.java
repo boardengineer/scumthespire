@@ -24,6 +24,7 @@ import com.megacrit.cardcrawl.audio.MainMusic;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.colorless.Forethought;
 import com.megacrit.cardcrawl.cards.purple.Weave;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -39,9 +40,9 @@ import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
 import ludicrousspeed.LudicrousSpeedMod;
-import ludicrousspeed.simulator.commands.CardRewardSelectCommand;
-import ludicrousspeed.simulator.commands.GridSelectCommand;
 import ludicrousspeed.simulator.commands.GridSelectConfrimCommand;
+import ludicrousspeed.simulator.commands.HandSelectCommand;
+import ludicrousspeed.simulator.commands.HandSelectConfirmCommand;
 import savestate.PotionState;
 import savestate.SaveState;
 import savestate.SaveStateMod;
@@ -150,7 +151,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         ReflectionHacks.setPrivateStaticFinal(ImageMaster.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(AbstractMonster.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(MainMusic.class, "logger", new SilentLogger());
-
+        ReflectionHacks.setPrivateStaticFinal(AbstractPlayer.class, "logger", new SilentLogger());
 
         if (isServer) {
             Settings.MASTER_VOLUME = 0;
@@ -233,7 +234,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         @Override
         protected void onClick() {
-            new CardRewardSelectCommand(0).execute();
+            new HandSelectCommand(0).execute();
         }
     }
 
@@ -246,7 +247,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         @Override
         protected void onClick() {
-            new GridSelectCommand(1).execute();
+            HandSelectConfirmCommand.INSTANCE.execute();
         }
     }
 
