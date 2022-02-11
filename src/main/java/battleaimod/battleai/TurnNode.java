@@ -169,6 +169,7 @@ public class TurnNode implements Comparable<TurnNode> {
                     .currentTimeMillis() - startNodeSep);
 
             if (toExecute == null) {
+                controller.turnsLoaded++;
                 states.pop();
                 if (!states.isEmpty()) {
                     states.peek().saveState.loadState();
