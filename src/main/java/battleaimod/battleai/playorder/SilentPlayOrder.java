@@ -27,6 +27,8 @@ public class SilentPlayOrder {
         put(LessonLearned.ID, size++);
         put(WaveOfTheHand.ID, size++);
 
+        put(CorpseExplosion.ID, size++);
+
         put(Backflip.ID, size++);
         put(DarkEmbrace.ID, size++);
         put(Acrobatics.ID, size++);
@@ -59,7 +61,6 @@ public class SilentPlayOrder {
         put(CalculatedGamble.ID, size++);
 
         put(BouncingFlask.ID, size++);
-        put(CorpseExplosion.ID, size++);
         put(DeadlyPoison.ID, size++);
         put(PoisonedStab.ID, size++);
 
