@@ -1,6 +1,11 @@
 package battleaimod.battleai;
 
 import battleaimod.BattleAiMod;
+import battleaimod.battleai.playorder.DiscardOrder;
+import battleaimod.battleai.playorder.ExhaustOrder;
+import com.megacrit.cardcrawl.actions.common.DiscardAction;
+import com.megacrit.cardcrawl.actions.common.ExhaustAction;
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.colorless.RitualDagger;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import ludicrousspeed.simulator.commands.Command;
@@ -9,6 +14,7 @@ import ludicrousspeed.simulator.commands.EndCommand;
 import savestate.CardState;
 import savestate.SaveState;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,7 +66,7 @@ public class StateNode {
                 }
             }
 
-            if(hasEnd) {
+            if (hasEnd) {
                 commands.clear();
                 commands.add(new EndCommand());
             }
@@ -129,14 +135,39 @@ public class StateNode {
     }
 
     private void populateCommands() {
-        commands = CommandList.getAvailableCommands((card1, card2) -> {
+        Comparator<AbstractCard> playComparator = (card1, card2) -> {
             for (HashMap<String, Integer> rankMap : BattleAiMod.cardRankMaps) {
                 if (rankMap.containsKey(card1.cardID) && rankMap.containsKey(card2.cardID)) {
                     return rankMap.get(card1.cardID) - rankMap.get(card2.cardID);
                 }
             }
             return card2.costForTurn - card1.costForTurn;
-        });
+        };
+
+        Comparator<AbstractCard> discardComparator = (card1, card2) -> {
+            if (DiscardOrder.CARD_RANKS.containsKey(card1.cardID) && DiscardOrder.CARD_RANKS
+                    .containsKey(card2.cardID)) {
+                return DiscardOrder.CARD_RANKS.get(card1.cardID) - DiscardOrder.CARD_RANKS
+                        .get(card2.cardID);
+            }
+            return 0;
+        };
+
+        Comparator<AbstractCard> exhaustComparator = (card1, card2) -> {
+            if (ExhaustOrder.CARD_RANKS.containsKey(card1.cardID) && ExhaustOrder.CARD_RANKS
+                    .containsKey(card2.cardID)) {
+                return ExhaustOrder.CARD_RANKS.get(card1.cardID) - ExhaustOrder.CARD_RANKS
+                        .get(card2.cardID);
+            }
+            return 0;
+        };
+
+        HashMap<Class, Comparator<AbstractCard>> actionComparators = new HashMap<>();
+
+        actionComparators.put(DiscardAction.class, discardComparator);
+        actionComparators.put(ExhaustAction.class, exhaustComparator);
+
+        commands = CommandList.getAvailableCommands(playComparator, actionComparators);
     }
 
     public boolean isDone() {
