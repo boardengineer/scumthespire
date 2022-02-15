@@ -1,5 +1,6 @@
 package battleaimod.battleai.playorder;
 
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.*;
 import com.megacrit.cardcrawl.cards.colorless.*;
 import com.megacrit.cardcrawl.cards.green.AfterImage;
@@ -10,6 +11,7 @@ import com.megacrit.cardcrawl.cards.purple.TalkToTheHand;
 import com.megacrit.cardcrawl.cards.red.Corruption;
 import com.megacrit.cardcrawl.cards.red.Rage;
 
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class DefectPlayOrder {
@@ -118,4 +120,13 @@ public class DefectPlayOrder {
         put(Strike_Blue.ID, size++);
         put(Defend_Blue.ID, size++);
     }};
+
+    public static final Comparator<AbstractCard> COMPARATOR = (card1, card2) -> {
+        if (CARD_RANKS.containsKey(card1.cardID) && CARD_RANKS
+                .containsKey(card2.cardID)) {
+            return CARD_RANKS.get(card1.cardID) - CARD_RANKS
+                    .get(card2.cardID);
+        }
+        return 0;
+    };
 }

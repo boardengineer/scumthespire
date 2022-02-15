@@ -1,5 +1,6 @@
 package battleaimod.battleai.playorder;
 
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.Hologram;
 import com.megacrit.cardcrawl.cards.blue.Seek;
 import com.megacrit.cardcrawl.cards.blue.WhiteNoise;
@@ -8,6 +9,7 @@ import com.megacrit.cardcrawl.cards.green.PhantasmalKiller;
 import com.megacrit.cardcrawl.cards.purple.*;
 import com.megacrit.cardcrawl.cards.red.*;
 
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class IronCladPlayOrder {
@@ -206,4 +208,13 @@ public class IronCladPlayOrder {
         put(Protect.ID, size++);
         put(Perseverance.ID, size++);
     }};
+
+    public static final Comparator<AbstractCard> COMPARATOR = (card1, card2) -> {
+        if (CARD_RANKS.containsKey(card1.cardID) && CARD_RANKS
+                .containsKey(card2.cardID)) {
+            return CARD_RANKS.get(card1.cardID) - CARD_RANKS
+                    .get(card2.cardID);
+        }
+        return 0;
+    };
 }

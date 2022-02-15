@@ -9,9 +9,7 @@ import basemod.interfaces.PostUpdateSubscriber;
 import basemod.interfaces.PreUpdateSubscriber;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.CommandRunnerController;
-import battleaimod.battleai.playorder.DefectPlayOrder;
-import battleaimod.battleai.playorder.IronCladPlayOrder;
-import battleaimod.battleai.playorder.SilentPlayOrder;
+import battleaimod.battleai.playorder.*;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import com.badlogic.gdx.graphics.Texture;
@@ -19,8 +17,11 @@ import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
+import com.megacrit.cardcrawl.actions.common.DiscardAction;
+import com.megacrit.cardcrawl.actions.common.ExhaustAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.audio.MainMusic;
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.colorless.Forethought;
 import com.megacrit.cardcrawl.cards.purple.Weave;
@@ -50,6 +51,7 @@ import savestate.fastobjects.ScreenShakeFast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.function.Function;
@@ -76,7 +78,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static boolean shouldStartClient = false;
     public static boolean isServer;
 
-    public static ArrayList<HashMap<String, Integer>> cardRankMaps = new ArrayList<>();
+    public static ArrayList<Comparator<AbstractCard>> cardPlayHeuristics = new ArrayList<>();
+    public static HashMap<Class, Comparator<AbstractCard>> actionHeuristics = new HashMap<>();
 
     public static ArrayList<Function<SaveState, Integer>> additionalValueFunctions = new ArrayList<>();
 
@@ -90,9 +93,12 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         CardCrawlGame.screenShake = new ScreenShakeFast();
 
-        cardRankMaps.add(IronCladPlayOrder.CARD_RANKS);
-        cardRankMaps.add(DefectPlayOrder.CARD_RANKS);
-        cardRankMaps.add(SilentPlayOrder.CARD_RANKS);
+        cardPlayHeuristics.add(IronCladPlayOrder.COMPARATOR);
+        cardPlayHeuristics.add(DefectPlayOrder.COMPARATOR);
+        cardPlayHeuristics.add(SilentPlayOrder.COMPARATOR);
+
+        actionHeuristics.put(DiscardAction.class, DiscardOrder.COMPARATOR);
+        actionHeuristics.put(ExhaustAction.class, ExhaustOrder.COMPARATOR);
     }
 
     public static void sendGameState() {

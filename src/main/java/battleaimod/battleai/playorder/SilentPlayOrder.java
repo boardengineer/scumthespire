@@ -1,5 +1,6 @@
 package battleaimod.battleai.playorder;
 
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.Claw;
 import com.megacrit.cardcrawl.cards.blue.CreativeAI;
 import com.megacrit.cardcrawl.cards.colorless.*;
@@ -11,6 +12,7 @@ import com.megacrit.cardcrawl.cards.purple.WaveOfTheHand;
 import com.megacrit.cardcrawl.cards.red.DarkEmbrace;
 import com.megacrit.cardcrawl.cards.tempCards.Shiv;
 
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class SilentPlayOrder {
@@ -123,4 +125,13 @@ public class SilentPlayOrder {
         put(Expertise.ID, size++);
         put(Concentrate.ID, size++);
     }};
+
+    public static final Comparator<AbstractCard> COMPARATOR = (card1, card2) -> {
+        if (CARD_RANKS.containsKey(card1.cardID) && CARD_RANKS
+                .containsKey(card2.cardID)) {
+            return CARD_RANKS.get(card1.cardID) - CARD_RANKS
+                    .get(card2.cardID);
+        }
+        return 0;
+    };
 }

@@ -1,5 +1,6 @@
 package battleaimod.battleai.playorder;
 
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.colorless.Madness;
 import com.megacrit.cardcrawl.cards.colorless.Transmutation;
 import com.megacrit.cardcrawl.cards.curses.*;
@@ -8,6 +9,7 @@ import com.megacrit.cardcrawl.cards.status.Burn;
 import com.megacrit.cardcrawl.cards.status.Slimed;
 import com.megacrit.cardcrawl.cards.status.Wound;
 
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class ExhaustOrder {
@@ -118,4 +120,13 @@ public class ExhaustOrder {
         put(Havoc.ID, size++);
         put(Warcry.ID, size++);
     }};
+
+    public static final Comparator<AbstractCard> COMPARATOR = (card1, card2) -> {
+        if (CARD_RANKS.containsKey(card1.cardID) && CARD_RANKS
+                .containsKey(card2.cardID)) {
+            return CARD_RANKS.get(card1.cardID) - CARD_RANKS
+                    .get(card2.cardID);
+        }
+        return 0;
+    };
 }
