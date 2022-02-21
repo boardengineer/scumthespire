@@ -22,6 +22,9 @@ public class BattleAiController implements Controller {
     public PriorityQueue<TurnNode> turns = new PriorityQueue<>();
 
     public int minDamage;
+
+    // The best winning result unless the AI gave up in which case it will contain the chosen death
+    // path
     public StateNode bestEnd;
 
     // If it doesn't work out just send back a path to kill the players o the game doesn't get

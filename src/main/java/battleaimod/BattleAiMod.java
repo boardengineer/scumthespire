@@ -3,6 +3,7 @@ package battleaimod;
 import basemod.BaseMod;
 import basemod.ReflectionHacks;
 import basemod.TopPanelItem;
+import basemod.eventUtil.EventUtils;
 import basemod.interfaces.OnStartBattleSubscriber;
 import basemod.interfaces.PostInitializeSubscriber;
 import basemod.interfaces.PostUpdateSubscriber;
@@ -76,7 +77,9 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static int requestedTurnNum;
     public static boolean goFast = false;
     public static boolean shouldStartClient = false;
+
     public static boolean isServer;
+    public static boolean isClient;
 
     public static ArrayList<Comparator<AbstractCard>> cardPlayHeuristics = new ArrayList<>();
     public static HashMap<Class, Comparator<AbstractCard>> actionHeuristics = new HashMap<>();
@@ -145,6 +148,14 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             }
         }
 
+        String isClientFlag = System.getProperty("isClient");
+
+        if (isClientFlag != null) {
+            if (Boolean.parseBoolean(isClientFlag)) {
+                BattleAiMod.isClient = true;
+            }
+        }
+
         ReflectionHacks.setPrivateStaticFinal(MummifiedHand.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(BaseMod.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(TheSpecimen.class, "logger", new SilentLogger());
@@ -158,6 +169,9 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         ReflectionHacks.setPrivateStaticFinal(AbstractMonster.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(MainMusic.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(AbstractPlayer.class, "logger", new SilentLogger());
+
+
+        ReflectionHacks.setPrivateStaticFinal(EventUtils.class, "eventLogger", new SilentLogger());
 
         if (isServer) {
             Settings.MASTER_VOLUME = 0;
@@ -177,6 +191,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             if (aiServer == null) {
                 aiServer = new AiServer();
             }
+        } else if (isClient) {
+            Settings.MASTER_VOLUME = .7F;
         } else {
             Settings.MASTER_VOLUME = .0F;
         }
