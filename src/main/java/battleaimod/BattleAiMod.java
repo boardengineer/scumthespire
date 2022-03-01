@@ -4,10 +4,7 @@ import basemod.BaseMod;
 import basemod.ReflectionHacks;
 import basemod.TopPanelItem;
 import basemod.eventUtil.EventUtils;
-import basemod.interfaces.OnStartBattleSubscriber;
-import basemod.interfaces.PostInitializeSubscriber;
-import basemod.interfaces.PostUpdateSubscriber;
-import basemod.interfaces.PreUpdateSubscriber;
+import basemod.interfaces.*;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.CommandRunnerController;
 import battleaimod.battleai.playorder.*;
@@ -34,10 +31,7 @@ import com.megacrit.cardcrawl.helpers.*;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
 import com.megacrit.cardcrawl.monsters.exordium.SlimeBoss;
-import com.megacrit.cardcrawl.relics.AbstractRelic;
-import com.megacrit.cardcrawl.relics.GamblingChip;
-import com.megacrit.cardcrawl.relics.MummifiedHand;
-import com.megacrit.cardcrawl.relics.TheSpecimen;
+import com.megacrit.cardcrawl.relics.*;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
@@ -60,7 +54,7 @@ import java.util.function.Function;
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
 
 @SpireInitializer
-public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber {
+public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber, EditRelicsSubscriber {
     public final static long MESSAGE_TIME_MILLIS = 1500L;
 
     public static String steveMessage = null;
@@ -329,5 +323,12 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
                 });
             }
         }
+    }
+
+    @Override
+    public void receiveEditRelics() {
+        // Skipping the card seems to kick the player back to character select (the main menu?)
+        // for some reason.
+        BaseMod.removeRelic(new TinyHouse());
     }
 }
