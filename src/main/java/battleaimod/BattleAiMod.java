@@ -19,6 +19,7 @@ import com.megacrit.cardcrawl.actions.common.DiscardAction;
 import com.megacrit.cardcrawl.actions.common.ExhaustAction;
 import com.megacrit.cardcrawl.actions.utility.WaitAction;
 import com.megacrit.cardcrawl.audio.MainMusic;
+import com.megacrit.cardcrawl.audio.Sfx;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.colorless.Forethought;
@@ -163,6 +164,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         ReflectionHacks.setPrivateStaticFinal(AbstractMonster.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(MainMusic.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(AbstractPlayer.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(Sfx.class, "logger", new SilentLogger());
 
 
         ReflectionHacks.setPrivateStaticFinal(EventUtils.class, "eventLogger", new SilentLogger());
