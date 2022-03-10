@@ -401,7 +401,7 @@ public class TurnNode implements Comparable<TurnNode> {
         int catalystScore = numCatalysts * 25;
 
         int healthMultiplier = shouldBrawl ? 2 : 8;
-        int numOrbScore = 0;//turnNode.startingState.saveState.playerState.maxOrbs == 0 ? -1000 : 0;
+        int numOrbScore = turnNode.startingState.saveState.playerState.maxOrbs == 0 ? -1000 : 0;
 
         int additonalHeuristicScore =
                 BattleAiMod.additionalValueFunctions.stream()
