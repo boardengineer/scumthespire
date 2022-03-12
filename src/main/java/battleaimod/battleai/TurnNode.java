@@ -102,7 +102,6 @@ public class TurnNode implements Comparable<TurnNode> {
                 curState.saveState = new SaveState();
             }
 
-
             controller.turnsLoaded++;
             addRuntime("turnsLoaded", 1);
             TurnNode toAdd = new TurnNode(curState, controller, this);
@@ -174,6 +173,7 @@ public class TurnNode implements Comparable<TurnNode> {
                 if (!states.isEmpty()) {
                     states.peek().saveState.loadState();
                 }
+                return true;
             } else {
 //                System.err.println("adding node for " + toExecute);
                 StateNode toAdd = new StateNode(curState, toExecute, controller);

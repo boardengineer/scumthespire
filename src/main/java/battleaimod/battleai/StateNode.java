@@ -85,7 +85,7 @@ public class StateNode {
             int damage = controller.startingHealth - saveState.getPlayerHealth();
 
             boolean isBattleWon = isBattleOver();
-            if (!isBattleWon && damage < (controller.minDamage + 6)) {
+            if (!(isBattleWon && damage < (controller.minDamage + 6))) {
                 commandIndex = 0;
             } else {
 //                System.err
