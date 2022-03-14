@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class AiServer {
@@ -32,10 +34,9 @@ public class AiServer {
     public static int fileIndex = 0;
 
     public AiServer() {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(() -> {
-            try {
-                ServerSocket serverSocket = new ServerSocket(PORT_NUMBER);
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleWithFixedDelay(() -> {
+            try (ServerSocket serverSocket = new ServerSocket(PORT_NUMBER)) {
 
                 Socket socket = serverSocket.accept();
 
@@ -134,8 +135,9 @@ public class AiServer {
                 e.printStackTrace();
                 System.err.println("Client Disconnected, clearing server for reset");
                 BattleAiMod.aiServer = null;
+                BattleAiMod.battleAiController = null;
             }
-        });
+        }, 0,5, TimeUnit.SECONDS);
     }
 
     public static JsonArray commandsForStateNode(StateNode root, boolean shouldPrint) {
