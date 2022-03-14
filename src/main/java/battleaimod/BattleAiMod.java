@@ -40,11 +40,14 @@ import ludicrousspeed.LudicrousSpeedMod;
 import ludicrousspeed.simulator.commands.GridSelectConfrimCommand;
 import ludicrousspeed.simulator.commands.HandSelectCommand;
 import ludicrousspeed.simulator.commands.HandSelectConfirmCommand;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 import savestate.PotionState;
 import savestate.SaveState;
 import savestate.SaveStateMod;
 import savestate.fastobjects.ScreenShakeFast;
 
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -53,6 +56,7 @@ import java.util.Iterator;
 import java.util.function.Function;
 
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
+import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 @SpireInitializer
 public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber, EditRelicsSubscriber {
@@ -88,6 +92,9 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         // Shut off the MTS console window, It increasingly slows things down
         ModSelectWindow window = ReflectionHacks.getPrivateStatic(Loader.class, "ex");
         window.removeAll();
+        window.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+        window.setVisible(false);
 
         CardCrawlGame.screenShake = new ScreenShakeFast();
 
