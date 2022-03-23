@@ -2,110 +2,36 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>autoplay</groupId>
+    <groupId>autoplay.battleaimod</groupId>
     <artifactId>BattleAiMod</artifactId>
     <version>1.0.0</version>
-    <packaging>jar</packaging>
+    <modules>
+        <module>server</module>
+        <module>client</module>
+        <module>core</module>
+    </modules>
+    <packaging>pom</packaging>
     <name>Battle Ai Mod</name>
     <description>Server/Client setup allowing an AI to control the game</description>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>autoplay.battleaimod</groupId>
+                <artifactId>core</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <SlayTheSpire.version>11-30-2020</SlayTheSpire.version>
         <ModTheSpire.version>3.18.1</ModTheSpire.version>
-        <BaseMod.version>5.32.0</BaseMod.version>
+        <BaseMod.version>5.38.0</BaseMod.version>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.megacrit.cardcrawl</groupId>
-            <artifactId>slaythespire</artifactId>
-            <version>${SlayTheSpire.version}</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../lib/desktop-1.0.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.evacipated.cardcrawl</groupId>
-            <artifactId>ModTheSpire</artifactId>
-            <version>${ModTheSpire.version}</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../lib/ModTheSpire.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>savestatemod</groupId>
-            <artifactId>savestatemod</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../_ModTheSpire/mods/SaveStateMod.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>LudicrousSpeed</groupId>
-            <artifactId>LudicrousSpeed</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../_ModTheSpire/mods/LudicrousSpeed.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>30.1.1-jre</version>
-        </dependency>
-        <dependency>
-            <groupId>basemod</groupId>
-            <artifactId>BaseMod-root</artifactId>
-            <version>${BaseMod.version}</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../_ModTheSpire/mods/BaseMod.jar</systemPath>
-        </dependency>
-    </dependencies>
-
     <build>
-        <finalName>BattleAiMod</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.2</version>
-                <executions>
-                    <execution>
-                        <id>BattleAiMod</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <filters>
-                                <filter>
-                                    <artifact>autoplay:BattleAiMod</artifact>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <copy file="target/BattleAiMod.jar" tofile="../_ModTheSpire/mods/BattleAiMod.jar"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -125,7 +51,6 @@
                 </includes>
             </resource>
         </resources>
-
     </build>
 
 </project>

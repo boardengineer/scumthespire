@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Server" type="JarApplication">
+    <option name="JAR_PATH" value="$PROJECT_DIR$/../_ModTheSpire/ModTheSpire.jar" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=none.xml -Droot.log.level=ERROR" />
+    <option name="PROGRAM_PARAMETERS" value="--skip-intro --profile server-ai --skip-intro --mods server,SaveStateMod,stslib,basemod,LudicrousSpeed,CommunicationMod" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../_ModTheSpire" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+    <method v="2">
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/pom.xml" goal="package --projects server,core" />
+    </method>
+  </configuration>
+</component>
