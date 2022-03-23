@@ -6,6 +6,8 @@ import autoplay.battleaimod.server.BattleAiServerMod;
 import autoplay.battleaimod.server.battleai.BattleAiController;
 import autoplay.battleaimod.server.battleai.StateNode;
 import autoplay.battleaimod.server.battleai.TurnNode;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.LifecycleListener;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -133,7 +135,8 @@ public class AiServer {
                 BattleAiServerMod.aiServer = null;
                 BattleAiServerMod.battleAiController = null;
             }
-        }, 0,1, TimeUnit.MILLISECONDS);
+        }, 0, 1, TimeUnit.SECONDS);
+        Gdx.app.addLifecycleListener(new ShutdownListener(executor));
     }
 
     public static JsonArray commandsForStateNode(StateNode root, boolean shouldPrint) {
@@ -181,5 +184,28 @@ public class AiServer {
         }
 
         return commands;
+    }
+
+    private static class ShutdownListener implements LifecycleListener {
+        private final ScheduledExecutorService executor;
+
+        public ShutdownListener(ScheduledExecutorService executor) {
+            this.executor = executor;
+        }
+
+        @Override
+        public void dispose() {
+               executor.shutdown();
+        }
+
+        @Override
+        public void pause() {
+
+        }
+
+        @Override
+        public void resume() {
+
+        }
     }
 }
