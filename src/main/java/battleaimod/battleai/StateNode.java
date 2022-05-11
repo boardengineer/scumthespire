@@ -2,30 +2,37 @@ package battleaimod.battleai;
 
 import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.cards.AbstractCard;
-import com.megacrit.cardcrawl.cards.colorless.RitualDagger;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import ludicrousspeed.simulator.commands.Command;
 import ludicrousspeed.simulator.commands.CommandList;
 import ludicrousspeed.simulator.commands.EndCommand;
-import savestate.CardState;
 import savestate.SaveState;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static battleaimod.ValueFunctions.getStateScore;
 
 public class StateNode {
     private final BattleAiController controller;
-    public final StateNode parent;
-    public final Command lastCommand;
+
     public String stateString;
     public SaveState saveState;
-
-    private int minDamage = 5000;
-    public List<Command> commands;
     private boolean initialized = false;
-    private int commandIndex = -1;
     private boolean isDone = false;
+
+    // The list of lastCommands obtained by iterating up the parents will be the backwards sequence
+    // of commands to get to this state.
+    public final StateNode parent;
+    public final Command lastCommand;
+
+    // List of commands available from the current state, ordered by guessed result from best to
+    // worst.
+    public List<Command> commands;
+    private int commandIndex = -1;
+
+    // The number of actions taken in this turn, used to limit the total number of actions to
+    // prevent infinite loops.
     int turnDepth;
 
     public StateNode(StateNode parent, Command lastCommand, BattleAiController controller) {
@@ -35,7 +42,7 @@ public class StateNode {
     }
 
     /**
-     * Does the next step and returns true iff the parent should load state
+     * Performs the next step and returns true iff the parent should load state
      */
     public Command step() {
         if (saveState == null) {
@@ -65,50 +72,32 @@ public class StateNode {
                 commands.clear();
                 commands.add(new EndCommand());
             }
-
-
         }
 
         if (!initialized) {
             initialized = true;
 
             if (AbstractDungeon.player.isDead || AbstractDungeon.player.isDying) {
-                if (controller.deathNode == null ||
+                if (controller.deathNode == null || saveState.getPlayerHealth() < 1 ||
                         (controller.deathNode != null && controller.deathNode.saveState.turn < saveState.turn)) {
-                    System.err.println("dead 1");
                     controller.deathNode = this;
-                    isDone = true;
-                    return null;
-                }
-            }
-
-            int damage = controller.startingHealth - saveState.getPlayerHealth();
-
-            boolean isBattleWon = isBattleOver();
-            if (!(isBattleWon && damage < (controller.minDamage + 6))) {
-                commandIndex = 0;
-            } else {
-//                System.err
-//                        .printf("Found terminal state on init: damage this combat:%s; best damage: %s\n", damage, controller.minDamage);
-
-                if (isBattleWon) {
-                    if (controller.bestEnd == null || (getStateScore(this) > getStateScore(controller.bestEnd))
-                            && saveState.getPlayerHealth() >= 1) {
-                        controller.minDamage = damage;
-                        controller.bestEnd = this;
-                    }
-                } else if (AbstractDungeon.player.isDead || AbstractDungeon.player.isDying) {
-                    if (controller.deathNode == null ||
-                            (controller.deathNode != null && controller.deathNode.saveState.turn < saveState.turn)) {
-                        System.err.println("dead 2");
-                        controller.deathNode = this;
-                        isDone = true;
-                    }
                 }
 
-                minDamage = damage;
                 isDone = true;
                 return null;
+            }
+
+            if (isBattleOver()) {
+                boolean isBestWin = controller.bestEnd == null ||
+                        getStateScore(this) > getStateScore(controller.bestEnd);
+                if (isBestWin) {
+                    controller.bestEnd = this;
+                }
+
+                isDone = true;
+                return null;
+            } else {
+                commandIndex = 0;
             }
         }
 
@@ -156,69 +145,5 @@ public class StateNode {
         return node.controller.startingHealth - node.saveState.getPlayerHealth();
     }
 
-    /**
-     * This is used for end of battle score, only health matters here
-     */
-    public static int getStateScore(StateNode node) {
-        int totalRitualDaggerDamage = 0;
-        for (CardState card : node.saveState.playerState.hand) {
-            switch (card.cardId) {
-                case RitualDagger.ID:
-                    totalRitualDaggerDamage += card.baseDamage;
-                    break;
-                default:
-                    break;
-            }
-        }
 
-        for (CardState card : node.saveState.playerState.drawPile) {
-            switch (card.cardId) {
-                case RitualDagger.ID:
-                    totalRitualDaggerDamage += card.baseDamage;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        for (CardState card : node.saveState.playerState.discardPile) {
-            switch (card.cardId) {
-                case RitualDagger.ID:
-                    totalRitualDaggerDamage += card.baseDamage;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        for (CardState card : node.saveState.playerState.exhaustPile) {
-            switch (card.cardId) {
-                case RitualDagger.ID:
-                    totalRitualDaggerDamage += card.baseDamage;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        int ritualDaggerScore = totalRitualDaggerDamage * 80;
-        int lessonLearnedScore = node.saveState.lessonLearnedCount * 100;
-        int feedScore = node.saveState.playerState.maxHealth * 30;
-
-        int additonalHeuristicScore =
-                BattleAiMod.additionalValueFunctions.stream()
-                                                    .map(function -> function
-                                                            .apply(node.saveState))
-                                                    .collect(Collectors
-                                                            .summingInt(Integer::intValue));
-
-        return feedScore +
-                node.saveState.playerState.gold * 2 +
-                ritualDaggerScore +
-                getPlayerDamage(node) * -1 +
-                TurnNode.getPotionScore(node.saveState) +
-                TurnNode.getRelicScore(node.saveState) +
-                lessonLearnedScore +
-                additonalHeuristicScore;
-    }
 }

@@ -1,5 +1,6 @@
 package battleaimod.battleai;
 
+import battleaimod.ValueFunctions;
 import ludicrousspeed.Controller;
 import ludicrousspeed.simulator.commands.Command;
 import savestate.CardState;
@@ -20,8 +21,6 @@ public class BattleAiController implements Controller {
     public int targetTurnJump;
 
     public PriorityQueue<TurnNode> turns = new PriorityQueue<>();
-
-    public int minDamage;
 
     // The best winning result unless the AI gave up in which case it will contain the chosen death
     // path
@@ -47,11 +46,13 @@ public class BattleAiController implements Controller {
     private TurnNode startNode = null;
     public static final boolean SHOULD_SHOW_TREE = false;
 
+    // The turn we're currently processing, if this is null then a turn will be polled from the
+    // pqueue.
     public TurnNode curTurn;
 
+    // The count of turns restricted by a turn limit.
     public int turnsLoaded = 0;
 
-    public long controllerStartTime;
     private long startTime = 0;
 
     public BattleAiController(SaveState state, int maxTurnLoads) {
@@ -59,7 +60,6 @@ public class BattleAiController implements Controller {
         targetTurn = 8;
         targetTurnJump = 6;
 
-        minDamage = 5000;
         bestEnd = null;
         startingState = state;
         initialized = false;
@@ -85,7 +85,6 @@ public class BattleAiController implements Controller {
             startNode = new TurnNode(firstStateContainer, this, null);
             turns.add(startNode);
 
-            controllerStartTime = System.currentTimeMillis();
             SaveStateMod.runTimes = new HashMap<>();
             CardState.resetFreeCards();
         }
@@ -134,7 +133,6 @@ public class BattleAiController implements Controller {
 
                     // TODO this is here to prevent playback errors
                     bestEnd = null;
-                    minDamage = 5000;
 
                     return;
                 } else if (turns.isEmpty() || turnsLoaded >= maxTurnLoads * 10) {
@@ -248,7 +246,7 @@ public class BattleAiController implements Controller {
             while (!bfs.isEmpty()) {
                 TurnNode node = bfs.pollFirst();
 
-                int playerDamage = TurnNode.getPlayerDamage(node);
+                int playerDamage = ValueFunctions.getPlayerDamage(node);
                 int monsterHealth = TurnNode.getTotalMonsterHealth(node);
 
                 String nodeLabel = String

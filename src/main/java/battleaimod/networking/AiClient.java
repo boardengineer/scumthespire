@@ -45,7 +45,7 @@ public class AiClient {
     }
 
     public void sendState() {
-        sendState(10000);
+        sendState(15000);
     }
 
     public void sendState(int numTurns) {
