@@ -26,7 +26,7 @@ public class BattleAiController implements Controller {
     // path
     public StateNode bestEnd;
 
-    // If it doesn't work out just send back a path to kill the players o the game doesn't get
+    // If it doesn't work out just send back a path to kill the players so the game doesn't get
     // stuck.
     public StateNode deathNode = null;
 

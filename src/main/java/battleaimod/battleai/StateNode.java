@@ -16,7 +16,6 @@ import static battleaimod.ValueFunctions.getStateScore;
 public class StateNode {
     private final BattleAiController controller;
 
-    public String stateString;
     public SaveState saveState;
     private boolean initialized = false;
     private boolean isDone = false;
@@ -77,8 +76,9 @@ public class StateNode {
         if (!initialized) {
             initialized = true;
 
-            if (AbstractDungeon.player.isDead || AbstractDungeon.player.isDying) {
-                if (controller.deathNode == null || saveState.getPlayerHealth() < 1 ||
+            if (AbstractDungeon.player.isDead || AbstractDungeon.player.isDying || saveState
+                    .getPlayerHealth() < 1) {
+                if (controller.deathNode == null ||
                         (controller.deathNode != null && controller.deathNode.saveState.turn < saveState.turn)) {
                     controller.deathNode = this;
                 }
@@ -137,13 +137,7 @@ public class StateNode {
         return isDone;
     }
 
-    public int getPlayerHealth() {
-        return saveState.getPlayerHealth();
-    }
-
     public static int getPlayerDamage(StateNode node) {
         return node.controller.startingHealth - node.saveState.getPlayerHealth();
     }
-
-
 }

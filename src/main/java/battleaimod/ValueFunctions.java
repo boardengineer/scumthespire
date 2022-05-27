@@ -227,7 +227,8 @@ public class ValueFunctions {
     }
 
     /**
-     * This is used for end of battle score, only health matters here
+     * This is used for end of battle score.  Only effects that last between battles such as health,
+     * potions, and scaling effects matter here.
      */
     public static int getStateScore(StateNode node) {
         int totalRitualDaggerDamage = 0;
