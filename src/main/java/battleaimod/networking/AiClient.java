@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import ludicrousspeed.LudicrousSpeedMod;
 import ludicrousspeed.simulator.commands.*;
@@ -60,7 +61,13 @@ public class AiClient {
                 String encodedState = state.encode();
 
                 try {
-                    String fileName = String.format("startstates/%s.txt", fileIndex++);
+                    String directoryName = String
+                            .format("C:/stuff/_ModTheSpire/startstates/%s/%02d", Settings.seed, AbstractDungeon.floorNum, fileIndex++);
+                    File directory = new File(directoryName);
+                    directory.mkdirs();
+
+                    String fileName = directoryName + "/start.txt";
+
                     FileWriter writer = new FileWriter(fileName);
                     writer.write(encodedState);
                     writer.close();

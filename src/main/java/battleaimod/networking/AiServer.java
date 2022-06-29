@@ -15,6 +15,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
@@ -49,10 +50,11 @@ public class AiServer {
                             JsonObject runRequest = new JsonParser().parse(runRequestString)
                                                                     .getAsJsonObject();
 
-                            String startState = Files
-                                    .lines(Paths.get(runRequest.get("fileName").getAsString()))
-                                    .collect(Collectors
-                                            .joining());
+                            Path filePath = Paths.get(runRequest.get("fileName").getAsString());
+
+                            String startState = Files.lines(filePath)
+                                                     .collect(Collectors
+                                                             .joining());
 
                             BattleAiMod.requestedTurnNum = runRequest.get("num_turns").getAsInt();
                             BattleAiMod.saveState = new SaveState(startState);
