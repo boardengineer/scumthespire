@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.SeedHelper;
 import ludicrousspeed.LudicrousSpeedMod;
 import ludicrousspeed.simulator.commands.*;
 import savestate.SaveState;
@@ -61,8 +62,9 @@ public class AiClient {
                 String encodedState = state.encode();
 
                 try {
+
                     String directoryName = String
-                            .format("C:/stuff/_ModTheSpire/startstates/%s/%02d", Settings.seed, AbstractDungeon.floorNum, fileIndex++);
+                            .format("C:/stuff/_ModTheSpire/startstates/%s/%02d", SeedHelper.getString(Settings.seed), AbstractDungeon.floorNum, fileIndex++);
                     File directory = new File(directoryName);
                     directory.mkdirs();
 
