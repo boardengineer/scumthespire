@@ -45,19 +45,25 @@ public class AiServer {
 
                 while (true) {
                     if (BattleAiMod.battleAiController == null) {
+                        String requestFilePath = "";
+                        String endSuffix = "\\end.txt";
                         try {
                             String runRequestString = in.readUTF();
                             JsonObject runRequest = new JsonParser().parse(runRequestString)
                                                                     .getAsJsonObject();
 
-                            Path filePath = Paths.get(runRequest.get("fileName").getAsString());
+                            requestFilePath = runRequest.get("fileName").getAsString();
+                            Path filePath = Paths.get(requestFilePath);
 
-                            String startState = Files.lines(filePath)
-                                                     .collect(Collectors
-                                                             .joining());
+                            if (runRequest.has("end_suffix")) {
+                                endSuffix = runRequest.get("end_suffix").getAsString();
+                            }
+
+                            String startState = Files.lines(filePath).collect(Collectors.joining());
 
                             BattleAiMod.requestedTurnNum = runRequest.get("num_turns").getAsInt();
                             BattleAiMod.saveState = new SaveState(startState);
+                            BattleAiMod.saveState.initPlayerAndCardPool();
 
                             System.err.println("state parsed");
                         } catch (Exception e) {
@@ -83,14 +89,15 @@ public class AiServer {
                         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
                         // Still looking for route
-                        while (BattleAiMod.battleAiController != null && !BattleAiMod.battleAiController
-                                .isDone()) {
+                        while (BattleAiMod.battleAiController != null &&
+                                !BattleAiMod.battleAiController.isDone()) {
 
                             // Send update
                             JsonObject jsonToSend = new JsonObject();
                             jsonToSend.addProperty("type", statusUpdateString);
 
                             TurnNode committedTurn = BattleAiMod.battleAiController.committedTurn();
+
                             if (committedTurn != null) {
                                 JsonArray currentCommands = commandsForStateNode(committedTurn.startingState, false);
                                 jsonToSend.add("commands", currentCommands);
@@ -115,6 +122,12 @@ public class AiServer {
                                 .isDone()) {
                             JsonObject jsonToSend = new JsonObject();
                             JsonArray commands = commandsForStateNode(BattleAiMod.battleAiController.bestEnd, true);
+
+                            String endFileName = Paths.get(requestFilePath).getParent() + endSuffix;
+
+                            FileWriter writer = new FileWriter(endFileName);
+                            writer.write(BattleAiMod.battleAiController.bestEnd.saveState.encode());
+                            writer.close();
 
                             // Send Command List
                             jsonToSend.addProperty("type", commandListString);
