@@ -299,9 +299,12 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     @Override
     public void receivePreUpdate() {
-        if (controller != null && controller.isDone()) {
-            controller = null;
-        }
+
+//        if (controller != null && controller.isDone()) {
+//            controller = null;
+//        }
+
+        
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
             battleAiController = new BattleAiController(saveState, requestedTurnNum);
