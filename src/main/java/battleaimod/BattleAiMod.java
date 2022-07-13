@@ -5,6 +5,7 @@ import basemod.ReflectionHacks;
 import basemod.TopPanelItem;
 import basemod.eventUtil.EventUtils;
 import basemod.interfaces.*;
+import basemod.patches.com.megacrit.cardcrawl.helpers.PotionLibrary.PotionHelperGetPotion;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.CommandRunnerController;
 import battleaimod.battleai.playorder.*;
@@ -54,6 +55,8 @@ import java.util.Iterator;
 import java.util.function.Function;
 
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
+import static ludicrousspeed.LudicrousSpeedMod.controller;
+import static ludicrousspeed.LudicrousSpeedMod.plaidMode;
 
 @SpireInitializer
 public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber, EditRelicsSubscriber {
@@ -168,6 +171,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         ReflectionHacks.setPrivateStaticFinal(MainMusic.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(AbstractPlayer.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(Sfx.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(PotionHelper.class, "logger", new SilentLogger());
+        ReflectionHacks.setPrivateStaticFinal(PotionHelperGetPotion.class, "logger", new SilentLogger());
 
 
         ReflectionHacks.setPrivateStaticFinal(EventUtils.class, "eventLogger", new SilentLogger());
@@ -177,7 +182,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             Settings.isDemo = true;
             goFast = true;
             SaveStateMod.shouldGoFast = true;
-            LudicrousSpeedMod.plaidMode = true;
+            plaidMode = true;
 
 
             Settings.ACTION_DUR_XFAST = 0.001F;
@@ -212,7 +217,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         }
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
-            LudicrousSpeedMod.controller = battleAiController = new BattleAiController(saveState, requestedTurnNum);
+            controller = battleAiController = new BattleAiController(saveState, requestedTurnNum);
         }
     }
 
@@ -243,6 +248,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             if (aiClient != null) {
                 aiClient.sendState();
             }
+
+//            controller = new InPlaceAiController();
         }
     }
 
@@ -292,10 +299,13 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     @Override
     public void receivePreUpdate() {
+        if (controller != null && controller.isDone()) {
+            controller = null;
+        }
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
             battleAiController = new BattleAiController(saveState, requestedTurnNum);
-            LudicrousSpeedMod.controller = battleAiController;
+            controller = battleAiController;
         }
 
         if (actionManager.actions.isEmpty() && actionManager.currentAction == null) {

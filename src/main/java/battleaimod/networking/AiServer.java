@@ -65,6 +65,8 @@ public class AiServer {
                             BattleAiMod.saveState = new SaveState(startState);
                             BattleAiMod.saveState.initPlayerAndCardPool();
 
+                            System.gc();
+
                             System.err.println("state parsed");
                         } catch (Exception e) {
                             e.printStackTrace();

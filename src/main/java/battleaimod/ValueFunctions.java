@@ -16,6 +16,7 @@ import com.megacrit.cardcrawl.relics.LizardTail;
 import savestate.CardState;
 import savestate.PotionState;
 import savestate.SaveState;
+import savestate.StateFactories;
 import savestate.relics.RelicState;
 
 import java.util.HashMap;
@@ -101,7 +102,7 @@ public class ValueFunctions {
         int conjureDamage = 0;
 
         for (CardState card : turnNode.startingState.saveState.playerState.hand) {
-            switch (card.cardId) {
+            switch (StateFactories.cardIds[card.cardIdIndex]) {
                 case RitualDagger.ID:
                     numRitualDaggers++;
                     totalRitualDaggerDamage += card.baseDamage;
@@ -130,7 +131,7 @@ public class ValueFunctions {
         }
 
         for (CardState card : turnNode.startingState.saveState.playerState.drawPile) {
-            switch (card.cardId) {
+            switch (StateFactories.cardIds[card.cardIdIndex]) {
                 case RitualDagger.ID:
                     numRitualDaggers++;
                     totalRitualDaggerDamage += card.baseDamage;
@@ -156,7 +157,7 @@ public class ValueFunctions {
         }
 
         for (CardState card : turnNode.startingState.saveState.playerState.discardPile) {
-            switch (card.cardId) {
+            switch (StateFactories.cardIds[card.cardIdIndex]) {
                 case RitualDagger.ID:
                     numRitualDaggers++;
                     totalRitualDaggerDamage += card.baseDamage;
@@ -182,7 +183,7 @@ public class ValueFunctions {
         }
 
         for (CardState card : turnNode.startingState.saveState.playerState.exhaustPile) {
-            switch (card.cardId) {
+            switch (StateFactories.cardIds[card.cardIdIndex]) {
                 case RitualDagger.ID:
                     totalRitualDaggerDamage += card.baseDamage;
                     break;
@@ -233,7 +234,7 @@ public class ValueFunctions {
     public static int getStateScore(StateNode node) {
         int totalRitualDaggerDamage = 0;
         for (CardState card : node.saveState.playerState.hand) {
-            switch (card.cardId) {
+            switch (StateFactories.cardIds[card.cardIdIndex]) {
                 case RitualDagger.ID:
                     totalRitualDaggerDamage += card.baseDamage;
                     break;
@@ -243,7 +244,7 @@ public class ValueFunctions {
         }
 
         for (CardState card : node.saveState.playerState.drawPile) {
-            switch (card.cardId) {
+            switch (StateFactories.cardIds[card.cardIdIndex]) {
                 case RitualDagger.ID:
                     totalRitualDaggerDamage += card.baseDamage;
                     break;
@@ -253,7 +254,7 @@ public class ValueFunctions {
         }
 
         for (CardState card : node.saveState.playerState.discardPile) {
-            switch (card.cardId) {
+            switch (StateFactories.cardIds[card.cardIdIndex]) {
                 case RitualDagger.ID:
                     totalRitualDaggerDamage += card.baseDamage;
                     break;
@@ -263,7 +264,7 @@ public class ValueFunctions {
         }
 
         for (CardState card : node.saveState.playerState.exhaustPile) {
-            switch (card.cardId) {
+            switch (StateFactories.cardIds[card.cardIdIndex]) {
                 case RitualDagger.ID:
                     totalRitualDaggerDamage += card.baseDamage;
                     break;
