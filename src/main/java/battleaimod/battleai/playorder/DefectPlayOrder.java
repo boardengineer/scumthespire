@@ -3,6 +3,7 @@ package battleaimod.battleai.playorder;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.*;
 import com.megacrit.cardcrawl.cards.colorless.*;
+import com.megacrit.cardcrawl.cards.curses.*;
 import com.megacrit.cardcrawl.cards.green.AfterImage;
 import com.megacrit.cardcrawl.cards.green.Burst;
 import com.megacrit.cardcrawl.cards.green.CalculatedGamble;
@@ -10,6 +11,9 @@ import com.megacrit.cardcrawl.cards.green.GrandFinale;
 import com.megacrit.cardcrawl.cards.purple.TalkToTheHand;
 import com.megacrit.cardcrawl.cards.red.Corruption;
 import com.megacrit.cardcrawl.cards.red.Rage;
+import com.megacrit.cardcrawl.cards.status.Burn;
+import com.megacrit.cardcrawl.cards.status.Dazed;
+import com.megacrit.cardcrawl.cards.status.Wound;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -40,6 +44,16 @@ public class DefectPlayOrder {
         put(Claw.ID, size++);
         put(Zap.ID, size++);
         put(GoForTheEyes.ID, size++);
+
+        put(Wound.ID, size++);
+        put(Burn.ID, size++);
+        put(Dazed.ID, size++);
+        put(Pain.ID, size++);
+        put(Doubt.ID, size++);
+        put(Normality.ID, size++);
+        put(Shame.ID, size++);
+        put(AscendersBane.ID, size++);
+        put(CurseOfTheBell.ID, size++);
 
         put(AllForOne.ID, size++);
         put(CalculatedGamble.ID, size++);

@@ -134,6 +134,14 @@ public class TurnNode implements Comparable<TurnNode> {
                 StateNode toAdd = new StateNode(curState, toExecute, controller);
 
                 try {
+//                    System.err.println("commands " + states.peek().commands);
+//                    String hand = AbstractDungeon.player.hand.group.stream().map(card -> card.name)
+//                                                                    .collect(Collectors
+//                                                                           .joining(","));
+//
+//                    System.err.println("hand " + hand);
+//                    System.err.println("executing " + toExecute);
+
                     toExecute.execute();
                     states.push(toAdd);
                 } catch (IndexOutOfBoundsException e) {
@@ -171,6 +179,9 @@ public class TurnNode implements Comparable<TurnNode> {
 
     public static int getTurnScore(TurnNode turnNode) {
         if (!turnNode.cachedValue.isPresent()) {
+//            System.err.println("Turn Value " + turnNode.turnLabel + " " + ValueFunctions
+//                    .caclculateTurnScore(turnNode));
+
             turnNode.cachedValue = Optional.of(ValueFunctions.caclculateTurnScore(turnNode));
         }
         return turnNode.cachedValue.get();
@@ -181,10 +192,21 @@ public class TurnNode implements Comparable<TurnNode> {
     public int compareTo(TurnNode otherTurn) {
         long startCompare = System.currentTimeMillis();
 
-        int result = getTurnScore(otherTurn) - getTurnScore(this);
+        int otherScore = getTurnScore(otherTurn);
+        int thisScore = getTurnScore(this);
+
+        if (otherScore == thisScore) {
+            return otherTurn.turnLabel - this.turnLabel;
+        }
+
+        int result = otherScore - thisScore;
 
         addRuntime("Comparing Turns", System.currentTimeMillis() - startCompare);
         addRuntime("Comparing Turns instance", 1);
+
+        if(result == 0) {
+            return otherTurn.turnLabel - this.turnLabel;
+        }
 
         return result;
     }

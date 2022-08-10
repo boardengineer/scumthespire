@@ -17,10 +17,13 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class AiClient {
     private static final String HOST_IP = "127.0.0.1";
@@ -47,7 +50,18 @@ public class AiClient {
     }
 
     public void sendState() {
-        sendState(15000);
+        sendState(15_000);
+    }
+
+    public void sendState(String readFile) {
+        try {
+            JsonObject response = new JsonParser()
+                    .parse(Files.lines(Paths.get(readFile)).collect(Collectors.joining()))
+                    .getAsJsonObject();
+            updateControllerForCommands(response);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendState(int numTurns) {
@@ -64,7 +78,8 @@ public class AiClient {
                 try {
 
                     String directoryName = String
-                            .format("C:/stuff/_ModTheSpire/startstates/%s/%02d", SeedHelper.getString(Settings.seed), AbstractDungeon.floorNum, fileIndex++);
+                            .format("C:/stuff/_ModTheSpire/startstates/%s/%02d", SeedHelper
+                                    .getString(Settings.seed), AbstractDungeon.floorNum, fileIndex++);
                     File directory = new File(directoryName);
                     directory.mkdirs();
 
@@ -116,6 +131,7 @@ public class AiClient {
 
                 System.err.println("Received done");
             } catch (Exception e) {
+                e.printStackTrace();
                 System.err.println("Server disconnected; clearing client for reset.");
                 BattleAiMod.aiClient = null;
                 BattleAiMod.rerunController = null;

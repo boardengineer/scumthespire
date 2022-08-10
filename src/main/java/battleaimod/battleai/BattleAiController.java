@@ -171,6 +171,7 @@ public class BattleAiController implements Controller {
         if (curTurn != null) {
             long startTurnStep = System.currentTimeMillis();
 
+//            System.err.println("Stepping Turn " + curTurn.turnLabel);
             boolean reachedNewTurn = curTurn.step();
             if (reachedNewTurn) {
                 curTurn = null;

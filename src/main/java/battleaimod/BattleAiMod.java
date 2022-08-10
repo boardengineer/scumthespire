@@ -172,7 +172,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         ReflectionHacks.setPrivateStaticFinal(AbstractPlayer.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(Sfx.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(PotionHelper.class, "logger", new SilentLogger());
-        ReflectionHacks.setPrivateStaticFinal(PotionHelperGetPotion.class, "logger", new SilentLogger());
+        ReflectionHacks
+                .setPrivateStaticFinal(PotionHelperGetPotion.class, "logger", new SilentLogger());
 
 
         ReflectionHacks.setPrivateStaticFinal(EventUtils.class, "eventLogger", new SilentLogger());
@@ -237,6 +238,19 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         @Override
         protected void onClick() {
+//            if (aiClient == null) {
+//                try {
+//                    aiClient = new AiClient(false);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+
+//            aiClient.sendState("C:\\stuff\\_ModTheSpire\\startstates\\5F6NSV520STJZ\\40\\01\\commands.txt");
+
+//            aiClient.sendState();
+
+
             if (aiClient == null) {
                 try {
                     aiClient = new AiClient();
@@ -248,8 +262,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             if (aiClient != null) {
                 aiClient.sendState();
             }
-
-//            controller = new InPlaceAiController();
         }
     }
 
@@ -304,7 +316,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 //            controller = null;
 //        }
 
-        
+
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
             battleAiController = new BattleAiController(saveState, requestedTurnNum);

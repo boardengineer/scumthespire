@@ -3,6 +3,7 @@ package battleaimod.battleai;
 import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import ludicrousspeed.simulator.commands.CardCommand;
 import ludicrousspeed.simulator.commands.Command;
 import ludicrousspeed.simulator.commands.CommandList;
 import ludicrousspeed.simulator.commands.EndCommand;
@@ -122,15 +123,43 @@ public class StateNode {
         Comparator<AbstractCard> combinedPlayHeuristic = (card1, card2) -> {
             for (Comparator<AbstractCard> heuristic : BattleAiMod.cardPlayHeuristics) {
                 int heuristicResult = heuristic.compare(card1, card2);
+
                 if (heuristicResult != 0) {
                     return heuristicResult;
                 }
             }
+            if (card1.upgraded && !card2.upgraded) {
+                return -1;
+            }
+
             return 0;
         };
 
-        commands = CommandList
-                .getAvailableCommands(combinedPlayHeuristic, BattleAiMod.actionHeuristics);
+        Comparator<Command> commandComparator = (command1, command2) -> {
+            if (command1 instanceof CardCommand && command2 instanceof CardCommand) {
+                CardCommand cardCommand1 = (CardCommand) command1;
+                CardCommand cardCommand2 = (CardCommand) command2;
+
+                AbstractCard card1 = AbstractDungeon.player.hand.group.get(cardCommand1.cardIndex);
+                AbstractCard card2 = AbstractDungeon.player.hand.group.get(cardCommand2.cardIndex);
+
+                int cardHeuristic = combinedPlayHeuristic.compare(card1, card2);
+                if (cardHeuristic != 0) {
+                    return cardHeuristic;
+                } else {
+                    return cardCommand1.cardIndex - cardCommand2.cardIndex;
+                }
+            }
+
+            return 0;
+        };
+
+        commands = CommandList.getAvailableCommands(null, BattleAiMod.actionHeuristics);
+
+        commands.sort(commandComparator);
+//
+//        System.err.println("Commands" + commands);
+//
     }
 
     public boolean isDone() {

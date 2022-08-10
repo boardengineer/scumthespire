@@ -4,12 +4,15 @@ import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.blue.Claw;
 import com.megacrit.cardcrawl.cards.blue.CreativeAI;
 import com.megacrit.cardcrawl.cards.colorless.*;
-import com.megacrit.cardcrawl.cards.curses.Pain;
+import com.megacrit.cardcrawl.cards.curses.*;
 import com.megacrit.cardcrawl.cards.green.*;
 import com.megacrit.cardcrawl.cards.purple.LessonLearned;
 import com.megacrit.cardcrawl.cards.purple.TalkToTheHand;
 import com.megacrit.cardcrawl.cards.purple.WaveOfTheHand;
 import com.megacrit.cardcrawl.cards.red.DarkEmbrace;
+import com.megacrit.cardcrawl.cards.status.Burn;
+import com.megacrit.cardcrawl.cards.status.Dazed;
+import com.megacrit.cardcrawl.cards.status.Wound;
 import com.megacrit.cardcrawl.cards.tempCards.Shiv;
 
 import java.util.Comparator;
@@ -28,6 +31,16 @@ public class SilentPlayOrder {
         put(CreativeAI.ID, size++);
         put(LessonLearned.ID, size++);
         put(WaveOfTheHand.ID, size++);
+
+        put(Wound.ID, size++);
+        put(Burn.ID, size++);
+        put(Dazed.ID, size++);
+        put(Pain.ID, size++);
+        put(Doubt.ID, size++);
+        put(Normality.ID, size++);
+        put(Shame.ID, size++);
+        put(AscendersBane.ID, size++);
+        put(CurseOfTheBell.ID, size++);
 
         put(CorpseExplosion.ID, size++);
 

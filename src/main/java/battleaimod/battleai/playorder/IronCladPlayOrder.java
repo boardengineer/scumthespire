@@ -5,9 +5,11 @@ import com.megacrit.cardcrawl.cards.blue.Hologram;
 import com.megacrit.cardcrawl.cards.blue.Seek;
 import com.megacrit.cardcrawl.cards.blue.WhiteNoise;
 import com.megacrit.cardcrawl.cards.colorless.*;
+import com.megacrit.cardcrawl.cards.curses.*;
 import com.megacrit.cardcrawl.cards.green.PhantasmalKiller;
 import com.megacrit.cardcrawl.cards.purple.*;
 import com.megacrit.cardcrawl.cards.red.*;
+import com.megacrit.cardcrawl.cards.status.*;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,6 +24,21 @@ public class IronCladPlayOrder {
         put(Apotheosis.ID, size++);
         put(Discovery.ID, size++);
 
+        put(MasterOfStrategy.ID, size++);
+        put(Wound.ID, size++);
+        put(Burn.ID, size++);
+        put(Dazed.ID, size++);
+        put(VoidCard.ID, size++);
+        put(Pain.ID, size++);
+        put(Doubt.ID, size++);
+        put(Clumsy.ID, size++);
+        put(Normality.ID, size++);
+        put(Shame.ID, size++);
+        put(AscendersBane.ID, size++);
+        put(CurseOfTheBell.ID, size++);
+
+        put(Apparition.ID, size++);
+        put(DeepBreath.ID, size++);
         put(Omniscience.ID, size++);
         put(Headbutt.ID, size++);
         put(SadisticNature.ID, size++);
@@ -32,6 +49,37 @@ public class IronCladPlayOrder {
         put(Shockwave.ID, size++);
         put(SpotWeakness.ID, size++);
 
+        put(BandageUp.ID, size++);
+        put(Blind.ID, size++);
+        put(DarkShackles.ID, size++);
+        put(DeepBreath.ID, size++);
+        put(Discovery.ID, size++);
+        put(DramaticEntrance.ID, size++);
+        put(Enlightenment.ID, size++);
+        put(Finesse.ID, size++);
+        put(FlashOfSteel.ID, size++);
+        put(Forethought.ID, size++);
+        put(GoodInstincts.ID, size++);
+        put(Impatience.ID, size++);
+        put(JackOfAllTrades.ID, size++);
+        put(MindBlast.ID, size++);
+        put(Panacea.ID, size++);
+        put(SwiftStrike.ID, size++);
+        put(Trip.ID, size++);
+        put(Chrysalis.ID, size++);
+        put(Mayhem.ID, size++);
+        put(Magnetism.ID, size++);
+        put(Metamorphosis.ID, size++);
+        put(Panache.ID, size++);
+        put(SecretTechnique.ID, size++);
+        put(SecretWeapon.ID, size++);
+        put(TheBomb.ID, size++);
+        put(Transmutation.ID, size++);
+        put(Violence.ID, size++);
+        put(Bite.ID, size++);
+        put(RitualDagger.ID, size++);
+
+
         put(Transmutation.ID, size++);
         put(Rage.ID, size++);
         put(Offering.ID, size++);
@@ -40,6 +88,7 @@ public class IronCladPlayOrder {
         put(DoubleTap.ID, size++);
         put(DualWield.ID, size++);
         put(Clash.ID, size++);
+        put(GoodInstincts.ID, size++);
 
         put(Bloodletting.ID, size++);
         put(Berserk.ID, size++);
@@ -145,6 +194,7 @@ public class IronCladPlayOrder {
         put(Devotion.ID, size++);
         put(Establishment.ID, size++);
         put(WhiteNoise.ID, size++);
+        put(Purity.ID, size++);
 
         put(Alpha.ID, size++);
         put(WaveOfTheHand.ID, size++);
@@ -189,6 +239,7 @@ public class IronCladPlayOrder {
         put(WheelKick.ID, size++);
         put(Wish.ID, size++);
         put(Blasphemy.ID, size++);
+        put(PanicButton.ID, size++);
 
         // blocks
         put(DeceiveReality.ID, size++);
@@ -206,7 +257,9 @@ public class IronCladPlayOrder {
         put(Strike_Purple.ID, size++);
         put(Defend_Watcher.ID, size++);
         put(Protect.ID, size++);
-        put(Perseverance.ID, size++);
+
+        put(Slimed.ID, size++);
+        put(Parasite.ID, size++);
     }};
 
     public static final Comparator<AbstractCard> COMPARATOR = (card1, card2) -> {
