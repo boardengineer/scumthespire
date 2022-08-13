@@ -52,6 +52,9 @@ public class AiServer {
                         String requestFilePath = "";
                         String endSuffix = "\\end.txt";
                         String commandFileName = null;
+                        boolean statesMatch = true;
+                        boolean shouldWrite = false;
+                        String newContents = "";
                         try {
                             String runRequestString = in.readUTF();
                             JsonObject runRequest = new JsonParser().parse(runRequestString)
@@ -68,22 +71,32 @@ public class AiServer {
                                 commandFileName = runRequest.get("command_file").getAsString();
                             }
 
-                            String startState = Files.lines(filePath).collect(Collectors.joining());
+                            try {
+                                String startState = Files.lines(filePath)
+                                                         .collect(Collectors.joining());
+                                SaveState originalState = new SaveState(new JsonParser()
+                                        .parse(startState).getAsJsonObject());
 
-                            BattleAiMod.requestedTurnNum = runRequest.get("num_turns").getAsInt();
+                                BattleAiMod.requestedTurnNum = runRequest.get("num_turns")
+                                                                         .getAsInt();
+                                BattleAiMod.saveState = originalState;
+                                BattleAiMod.saveState.initPlayerAndCardPool();
 
-                            System.err.println("starting parse");
+//                                System.err.println("start state equals: " + shouldWrite);
+                                System.gc();
 
-                            BattleAiMod.saveState = new SaveState(startState);
-                            BattleAiMod.saveState.initPlayerAndCardPool();
-
-                            System.gc();
-
-                            System.err.println("state parsed");
+                                System.err.println("state parsed");
+                            } catch (UnsupportedOperationException e) {
+                                System.err
+                                        .println("Skipping, already converted " + requestFilePath);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                             return;
                         }
+
+
+                        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
                         BattleAiMod.shouldStartAiFromServer = true;
                         BattleAiMod.goFast = true;
@@ -98,9 +111,8 @@ public class AiServer {
                             }
                         }
 
-//                        System.err.println("Controller Initiated");
+                        System.err.println("Battle Controller Started");
 
-                        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                         int latestWrittenTurn = 0;
 
                         // Still looking for route
@@ -226,7 +238,6 @@ public class AiServer {
                 commands.add(JsonNull.INSTANCE);
             }
         }
-
 
 
         return commands;

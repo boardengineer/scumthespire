@@ -73,7 +73,7 @@ public class AiClient {
             try {
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-                String encodedState = state.encode();
+                String encodedState = state.jsonEncode().toString();
 
                 try {
 
