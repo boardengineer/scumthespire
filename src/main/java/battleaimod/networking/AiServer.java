@@ -223,7 +223,11 @@ public class AiServer {
                 if (stateDiffString != null) {
                     try {
                         String fileName = String.format("savestates/%s.txt", fileIndex++);
+                        File toWrite = new File(fileName);
+                        new File(toWrite.getParent()).mkdirs();
+
                         FileWriter writer = new FileWriter(fileName);
+
                         writer.write(stateDiffString);
                         writer.close();
                         command.addProperty("state", fileName);

@@ -1,8 +1,6 @@
 package battleaimod;
 
-import basemod.BaseMod;
-import basemod.ReflectionHacks;
-import basemod.TopPanelItem;
+import basemod.*;
 import basemod.eventUtil.EventUtils;
 import basemod.interfaces.*;
 import basemod.patches.com.megacrit.cardcrawl.helpers.PotionLibrary.PotionHelperGetPotion;
@@ -14,7 +12,9 @@ import battleaimod.networking.AiServer;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
+import com.evacipated.cardcrawl.modthespire.steam.SteamSearch;
 import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.DiscardAction;
 import com.megacrit.cardcrawl.actions.common.ExhaustAction;
@@ -47,20 +47,29 @@ import savestate.SaveState;
 import savestate.SaveStateMod;
 import savestate.fastobjects.ScreenShakeFast;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Function;
 
 import static com.megacrit.cardcrawl.dungeons.AbstractDungeon.actionManager;
+import static java.lang.Thread.currentThread;
 import static ludicrousspeed.LudicrousSpeedMod.controller;
 import static ludicrousspeed.LudicrousSpeedMod.plaidMode;
 
 @SpireInitializer
 public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber, EditRelicsSubscriber {
     public final static long MESSAGE_TIME_MILLIS = 1500L;
+    private static final int SERVER_GAME_PORT = 5124;
 
     public static String steveMessage = null;
 
@@ -84,6 +93,9 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static HashMap<Class, Comparator<AbstractCard>> actionHeuristics = new HashMap<>();
 
     public static ArrayList<Function<SaveState, Integer>> additionalValueFunctions = new ArrayList<>();
+
+    static ServerSocket serverGameServerSocket = null;
+    static Socket serverGameSocket = null;
 
     public BattleAiMod() {
         BaseMod.subscribe(this);
@@ -125,7 +137,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         // Sometimes doesn't come back to hand for some reason
         CardLibrary.cards.remove(Forethought.ID);
 
-        // Current behavior would make this a chat option, it won't be interesting out of the box
+        // Current behavior would make this a chat opti on, it won't be interesting out of the box
         HashMap<String, AbstractRelic> sharedRelics = ReflectionHacks
                 .getPrivateStatic(RelicLibrary.class, "sharedRelics");
         sharedRelics.remove(GamblingChip.ID);
@@ -185,7 +197,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             SaveStateMod.shouldGoFast = true;
             plaidMode = true;
 
-
             Settings.ACTION_DUR_XFAST = 0.001F;
             Settings.ACTION_DUR_FASTER = 0.002F;
             Settings.ACTION_DUR_FAST = 0.0025F;
@@ -224,9 +235,130 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
     private void setUpOptionsMenu() {
         BaseMod.addTopPanelItem(new StartAiClientTopPanel());
-//        BaseMod.addTopPanelItem(new TryButtonPanel());
-//        BaseMod.addTopPanelItem(new TryButtonPanel2());
-//        BaseMod.addTopPanelItem(new TryButtonPanel3());
+
+        ModPanel settingsPanel = new ModPanel();
+
+
+        final Thread masterThread = currentThread();
+
+        ModButton startProcessButton = new ModButton(
+                350, 650, settingsPanel, modButton -> {
+            ThreadFactory namedThreadFactory =
+                    new ThreadFactoryBuilder().setNameFormat("server-thread-%d").build();
+            ExecutorService executor = Executors.newSingleThreadExecutor(namedThreadFactory);
+            executor.submit(() -> {
+                BaseMod.modSettingsUp = false;
+                startExternalProcess(masterThread);
+            });
+        });
+        settingsPanel.addUIElement(startProcessButton);
+
+        ModLabel startProcessLabel = new ModLabel(
+                "(Re)start external process",
+                475, 700, Settings.CREAM_COLOR, FontHelper.charDescFont,
+                settingsPanel, modLabel -> {
+            modLabel.text = "Start external process";
+        });
+        settingsPanel.addUIElement(startProcessLabel);
+
+        BaseMod.registerModBadge(ImageMaster
+                .loadImage("Icon.png"), "Battle Ai Mod", "Board Engineer", "Plays the Battle for yourself", settingsPanel);
+    }
+
+    private void startExternalProcess(Thread masterThread) {
+        String mtsPath = "";
+        try {
+            try {
+                mtsPath = new File(Loader.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+            String[] command = {SteamSearch.findJRE(), "-Xms1024m", "-Xmx2048m", "-jar", "-DisServer=true", mtsPath, "--profile", "Server", "--skip-launcher", "--skip-intro"};
+            // ProcessBuilder will execute process named 'CMD' and will provide '/C' and 'dir' as command line arguments to 'CMD'
+
+            ProcessBuilder pbuilder = new ProcessBuilder(command);
+
+            System.out.println("Starting server game");
+            Process process = pbuilder.start();
+
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(process
+                    .getErrorStream()));
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(process
+                    .getInputStream()));
+
+            new Thread(() -> {
+                String s = "";
+                while (true) {
+                    try {
+                        if (!((s = stdError.readLine()) != null))
+                            break;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    System.err.println(s);
+                }
+            }).start();
+
+            new Thread(() -> {
+                String s = "";
+                while (true) {
+                    try {
+                        if (!((s = stdInput.readLine()) != null))
+                            break;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(s);
+                }
+            }).start();
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println("Shutting Down External Process");
+                process.destroy();
+            }, "Shutdown-thread"));
+
+            waitForServerSuccessSignal();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private static void waitForServerSuccessSignal() {
+        new Thread(() -> {
+            try {
+                if (serverGameServerSocket != null) {
+                    serverGameServerSocket.close();
+                }
+
+                if (serverGameSocket != null) {
+                    serverGameSocket.close();
+                }
+
+                System.out.println("Waiting for server to start... ");
+                serverGameServerSocket = new ServerSocket(SERVER_GAME_PORT);
+
+                serverGameSocket = serverGameServerSocket.accept();
+
+                DataInputStream serverInputStream = new DataInputStream(new BufferedInputStream(serverGameSocket
+                        .getInputStream()));
+                DataOutputStream serverOutputStream = new DataOutputStream(serverGameSocket
+                        .getOutputStream());
+
+                System.out.println("Waiting for game to start...");
+
+                String serverResponse = serverInputStream.readUTF();
+
+                System.out.println("server wrote " + serverResponse);
+                if (serverResponse.equals("SUCCESS")) {
+                    System.out.println("we did it!!!");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public class StartAiClientTopPanel extends TopPanelItem {
