@@ -129,7 +129,7 @@ public class AiServer {
 
                                 if (latestWrittenTurn < committedTurnNumber) {
                                     latestWrittenTurn = committedTurnNumber;
-                                    JsonArray currentCommands = commandsForStateNode(committedTurn.startingState, false, null);
+                                    JsonArray currentCommands = commandsForStateNode(committedTurn.startingState, false);
                                     jsonToSend.add("commands", currentCommands);
                                 }
                             }
@@ -153,7 +153,7 @@ public class AiServer {
                         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController
                                 .isDone()) {
                             JsonObject jsonToSend = new JsonObject();
-                            JsonArray commands = commandsForStateNode(BattleAiMod.battleAiController.bestEnd, true, commandFileName);
+                            JsonArray commands = commandsForStateNode(BattleAiMod.battleAiController.bestEnd, true);
 
                             String endFileName = Paths.get(requestFilePath).getParent() + endSuffix;
 
@@ -197,7 +197,7 @@ public class AiServer {
         });
     }
 
-    public static JsonArray commandsForStateNode(StateNode root, boolean shouldPrint, String filePath) {
+    public static JsonArray commandsForStateNode(StateNode root, boolean shouldPrint) {
         JsonArray commands = new JsonArray();
 
         List<StateNode> stateNodes = BattleAiController.stateNodesToGetToNode(root);

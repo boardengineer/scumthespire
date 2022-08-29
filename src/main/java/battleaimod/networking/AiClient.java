@@ -187,8 +187,17 @@ public class AiClient {
             }
             return new EndCommand(commandString);
         } else if (type.equals("HAND_SELECT")) {
+            if (jsonElement.getAsJsonObject().has("state")) {
+                return new HandSelectCommand(commandString, jsonElement.getAsJsonObject()
+                                                                       .get("state")
+                                                                       .getAsString());
+            }
             return new HandSelectCommand(commandString);
         } else if (type.equals("HAND_SELECT_CONFIRM")) {
+            if (jsonElement.getAsJsonObject().has("state")) {
+                return new HandSelectConfirmCommand(jsonElement.getAsJsonObject().get("state")
+                                                               .getAsString());
+            }
             return HandSelectConfirmCommand.INSTANCE;
         } else if (type.equals("GRID_SELECT")) {
             return new GridSelectCommand(commandString);

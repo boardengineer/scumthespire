@@ -234,7 +234,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     }
 
     private void setUpOptionsMenu() {
-        BaseMod.addTopPanelItem(new StartAiClientTopPanel());
+//        BaseMod.addTopPanelItem(new StartAiClientTopPanel());
 
         ModPanel settingsPanel = new ModPanel();
 
