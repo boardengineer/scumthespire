@@ -5,7 +5,7 @@
 
     <groupId>autoplay</groupId>
     <artifactId>BattleAiMod</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
     <name>Battle Ai Mod</name>
     <description>Server/Client setup allowing an AI to control the game</description>

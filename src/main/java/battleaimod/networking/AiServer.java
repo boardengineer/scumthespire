@@ -71,25 +71,20 @@ public class AiServer {
                                 commandFileName = runRequest.get("command_file").getAsString();
                             }
 
-                            try {
-                                String startState = Files.lines(filePath)
-                                                         .collect(Collectors.joining());
-                                SaveState originalState = new SaveState(new JsonParser()
-                                        .parse(startState).getAsJsonObject());
+                            String startState = Files.lines(filePath)
+                                                     .collect(Collectors.joining());
+                            SaveState originalState = new SaveState(new JsonParser()
+                                    .parse(startState).getAsJsonObject());
 
-                                BattleAiMod.requestedTurnNum = runRequest.get("num_turns")
-                                                                         .getAsInt();
-                                BattleAiMod.saveState = originalState;
-                                BattleAiMod.saveState.initPlayerAndCardPool();
+                            BattleAiMod.requestedTurnNum = runRequest.get("num_turns")
+                                                                     .getAsInt();
+                            BattleAiMod.saveState = originalState;
+                            BattleAiMod.saveState.initPlayerAndCardPool();
 
 //                                System.err.println("start state equals: " + shouldWrite);
-                                System.gc();
+                            System.gc();
 
-                                System.err.println("state parsed");
-                            } catch (UnsupportedOperationException e) {
-                                System.err
-                                        .println("Skipping, already converted " + requestFilePath);
-                            }
+                            System.err.println("state parsed");
                         } catch (Exception e) {
                             e.printStackTrace();
                             return;
