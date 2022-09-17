@@ -12,15 +12,17 @@ import com.megacrit.cardcrawl.screens.options.DropdownMenuListener;
 import java.util.Arrays;
 
 public class BattleAiModOptionsPanel extends ModPanel implements DropdownMenuListener {
+    private static final float LABEL_X_POS = Settings.WIDTH / 5.0F;
+    private static final float LABEL_Y_POS = Settings.HEIGHT * 2.0F / 3.0F;
     public static DropdownMenu characters;
 
     public BattleAiModOptionsPanel() {
-        ModLabel helloWorldLabel = new ModLabel(
-                "", 350, 600, Settings.CREAM_COLOR, FontHelper.charDescFont,
+        ModLabel controllerModeLabel = new ModLabel(
+                "", LABEL_X_POS / Settings.scale, LABEL_Y_POS / Settings.scale, Settings.CREAM_COLOR, FontHelper.charDescFont,
                 this, modLabel -> {
-            modLabel.text = "hello world";
+            modLabel.text = "Client Controller Mode";
         });
-        this.addUIElement(helloWorldLabel);
+        this.addUIElement(controllerModeLabel);
 
         String[] values = Arrays.stream(BattleClientController.ControllerMode.values())
                                 .map(BattleClientController.ControllerMode::toString)
@@ -39,7 +41,7 @@ public class BattleAiModOptionsPanel extends ModPanel implements DropdownMenuLis
     public void render(SpriteBatch sb) {
         super.render(sb);
 
-        characters.render(sb, 500, 500);
+        characters.render(sb, LABEL_X_POS + 350 * Settings.scale, LABEL_Y_POS + 22 * Settings.scale);
     }
 
     @Override

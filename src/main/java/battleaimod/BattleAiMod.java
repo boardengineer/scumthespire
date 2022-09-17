@@ -64,7 +64,7 @@ import static ludicrousspeed.LudicrousSpeedMod.controller;
 import static ludicrousspeed.LudicrousSpeedMod.plaidMode;
 
 @SpireInitializer
-public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber, EditRelicsSubscriber, PostRenderSubscriber, RenderSubscriber {
+public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber, RenderSubscriber {
     public final static long MESSAGE_TIME_MILLIS = 1500L;
     private static final int SERVER_GAME_PORT = 5124;
 
@@ -377,17 +377,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
                 });
             }
         }
-    }
-
-    @Override
-    public void receiveEditRelics() {
-        // Skipping the card seems to kick the player back to character select (the main menu?)
-        // for some reason.
-        BaseMod.removeRelic(new TinyHouse());
-    }
-
-    @Override
-    public void receivePostRender(SpriteBatch spriteBatch) {
     }
 
     @Override

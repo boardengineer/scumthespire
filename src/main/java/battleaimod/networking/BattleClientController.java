@@ -31,10 +31,12 @@ public class BattleClientController {
     private static final String HOST_IP = "127.0.0.1";
 
     private static final float X_POSITION = 10F * Settings.scale;
-    private static final float Y_POSITION = (Settings.HEIGHT - 300F) * Settings.scale;
+    private static final float Y_POSITION = (Settings.HEIGHT - Settings.HEIGHT / 5);
 
     private static final Texture START_BUTTON_TEXTURE = new Texture("img/StartSteve.png");
     private static final Texture BLUE_BUTTON_TEXTURE = new Texture("img/blueball.png");
+
+    private static final float BANNER_WIDTH = (float) (START_BUTTON_TEXTURE.getWidth()) * 4f;
 
     StartUIButton startButton;
     BackendButton backendButton;
@@ -65,8 +67,8 @@ public class BattleClientController {
                 sb.setColor(Color.WHITE);
 
                 // double the height for reasons?
-                float height = (float) (START_BUTTON_TEXTURE.getHeight() * 2.4);
-                float width = (float) (START_BUTTON_TEXTURE.getWidth()) * 4f;
+                float height = (float) (START_BUTTON_TEXTURE.getHeight() * 2.2);
+                float width = BANNER_WIDTH;
 
                 float y = Y_POSITION - (height / 1.9f);
                 float x = X_POSITION;
@@ -83,7 +85,7 @@ public class BattleClientController {
         public StartUIButton() {
             super(START_BUTTON_TEXTURE);
             x = 10F * Settings.scale;
-            y = (Settings.HEIGHT - 300F) * Settings.scale;
+            y = Y_POSITION;
             hitbox = new Hitbox(x, y, START_BUTTON_TEXTURE.getWidth(), START_BUTTON_TEXTURE
                     .getHeight());
         }
@@ -143,8 +145,8 @@ public class BattleClientController {
         public BackendButton() {
             super(BLUE_BUTTON_TEXTURE);
 
-            x = 10F * Settings.scale + 150F * Settings.scale;
-            y = (Settings.HEIGHT - 300F) * Settings.scale;
+            x = BANNER_WIDTH - START_BUTTON_TEXTURE.getWidth() * .75F;
+            y = Y_POSITION;
 
             width = START_BUTTON_TEXTURE.getWidth();
             height = START_BUTTON_TEXTURE.getHeight();
