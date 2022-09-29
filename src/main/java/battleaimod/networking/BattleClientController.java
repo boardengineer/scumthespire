@@ -15,7 +15,6 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.Hitbox;
-import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.helpers.MathHelper;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
@@ -35,6 +34,8 @@ public class BattleClientController {
 
     private static final Texture START_BUTTON_TEXTURE = new Texture("img/StartSteve.png");
     private static final Texture BLUE_BUTTON_TEXTURE = new Texture("img/blueball.png");
+
+    private static final Texture CONTROLLER_BACKGROUND = new Texture("img/controllerbackground.png");
 
     private static final float BANNER_WIDTH = (float) (START_BUTTON_TEXTURE.getWidth()) * 4f;
 
@@ -67,13 +68,13 @@ public class BattleClientController {
                 sb.setColor(Color.WHITE);
 
                 // double the height for reasons?
-                float height = (float) (START_BUTTON_TEXTURE.getHeight() * 2.2);
+                float height = (float) (START_BUTTON_TEXTURE.getHeight() * 1.2);
                 float width = BANNER_WIDTH;
 
-                float y = Y_POSITION - (height / 1.9f);
+                float y = Y_POSITION - START_BUTTON_TEXTURE.getHeight() / 8.f;
                 float x = X_POSITION;
 
-                sb.draw(ImageMaster.TOP_PANEL_BAR, x, y, width, height);
+                sb.draw(CONTROLLER_BACKGROUND, x, y, width, height);
 
                 startButton.render(sb);
                 backendButton.render(sb);
@@ -145,7 +146,7 @@ public class BattleClientController {
         public BackendButton() {
             super(BLUE_BUTTON_TEXTURE);
 
-            x = BANNER_WIDTH - START_BUTTON_TEXTURE.getWidth() * .75F;
+            x = BANNER_WIDTH - START_BUTTON_TEXTURE.getWidth() * .9F;
             y = Y_POSITION;
 
             width = START_BUTTON_TEXTURE.getWidth();
