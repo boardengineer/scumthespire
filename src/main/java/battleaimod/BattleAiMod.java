@@ -215,10 +215,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             if (aiServer == null) {
                 aiServer = new AiServer();
             }
-        } else if (isClient) {
-//            Settings.MASTER_VOLUME = .7F;
-        } else {
-            Settings.MASTER_VOLUME = .0F;
         }
 
         CardCrawlGame.sound.update();

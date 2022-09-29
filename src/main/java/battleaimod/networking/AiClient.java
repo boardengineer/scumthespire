@@ -17,6 +17,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -77,17 +78,21 @@ public class AiClient {
 
                 try {
 
+                    // TODO: This was hardcoded, making lots of bad things happen
                     String directoryName = String
-                            .format("C:/stuff/_ModTheSpire/startstates/%s/%02d", SeedHelper
+                            .format("startstates/%s/%02d", SeedHelper
                                     .getString(Settings.seed), AbstractDungeon.floorNum, fileIndex++);
                     File directory = new File(directoryName);
                     directory.mkdirs();
 
                     String fileName = directoryName + "/start.txt";
 
-                    FileWriter writer = new FileWriter(fileName);
-                    writer.write(encodedState);
-                    writer.close();
+                    System.err.println("writing to " + fileName);
+
+                    try (OutputStreamWriter writer =
+                                 new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8)) {
+                        writer.write(encodedState);
+                    }
 
                     JsonObject runRequest = new JsonObject();
                     runRequest.addProperty("fileName", fileName);

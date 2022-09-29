@@ -15,7 +15,7 @@ import savestate.SaveState;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.stream.Collectors;
 
 public class AiServer {
     public static final int PORT_NUMBER = 5000;
@@ -60,8 +59,12 @@ public class AiServer {
                             JsonObject runRequest = new JsonParser().parse(runRequestString)
                                                                     .getAsJsonObject();
 
+
                             requestFilePath = runRequest.get("fileName").getAsString();
                             Path filePath = Paths.get(requestFilePath);
+
+                            System.err.println("reading from " + requestFilePath);
+                            System.err.println("filePath is " + filePath);
 
                             if (runRequest.has("end_suffix")) {
                                 endSuffix = runRequest.get("end_suffix").getAsString();
@@ -71,10 +74,7 @@ public class AiServer {
                                 commandFileName = runRequest.get("command_file").getAsString();
                             }
 
-                            String startState = Files.lines(filePath)
-                                                     .collect(Collectors.joining());
-                            SaveState originalState = new SaveState(new JsonParser()
-                                    .parse(startState).getAsJsonObject());
+                            SaveState originalState = SaveState.forFile(filePath.toString());
 
                             BattleAiMod.requestedTurnNum = runRequest.get("num_turns")
                                                                      .getAsInt();
@@ -221,10 +221,11 @@ public class AiServer {
                         File toWrite = new File(fileName);
                         new File(toWrite.getParent()).mkdirs();
 
-                        FileWriter writer = new FileWriter(fileName);
+                        try (OutputStreamWriter writer =
+                                     new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8)) {
+                            writer.write(stateDiffString);
+                        }
 
-                        writer.write(stateDiffString);
-                        writer.close();
                         command.addProperty("state", fileName);
                     } catch (IOException e) {
                         e.printStackTrace();
