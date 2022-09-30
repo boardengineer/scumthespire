@@ -130,6 +130,7 @@ public class BattleAiController implements Controller {
                     committedTurn = toAdd;
                     bestTurn = null;
                     backupTurn = null;
+                    deathNode = null;
 
                     // TODO this is here to prevent playback errors
                     bestEnd = null;
