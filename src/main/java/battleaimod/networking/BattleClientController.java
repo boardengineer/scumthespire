@@ -37,7 +37,8 @@ public class BattleClientController {
 
     private static final Texture CONTROLLER_BACKGROUND = new Texture("img/controllerbackground.png");
 
-    private static final float BANNER_WIDTH = (float) (START_BUTTON_TEXTURE.getWidth()) * 4f;
+    private static final float BANNER_WIDTH = (float) (START_BUTTON_TEXTURE
+            .getWidth()) * 4f * Settings.scale;
 
     StartUIButton startButton;
     BackendButton backendButton;
@@ -68,7 +69,7 @@ public class BattleClientController {
                 sb.setColor(Color.WHITE);
 
                 // double the height for reasons?
-                float height = (float) (START_BUTTON_TEXTURE.getHeight() * 1.2);
+                float height = (float) (START_BUTTON_TEXTURE.getHeight() * 1.2) * Settings.scale;
                 float width = BANNER_WIDTH;
 
                 float y = Y_POSITION - START_BUTTON_TEXTURE.getHeight() / 8.f;
@@ -146,7 +147,7 @@ public class BattleClientController {
         public BackendButton() {
             super(BLUE_BUTTON_TEXTURE);
 
-            x = BANNER_WIDTH - START_BUTTON_TEXTURE.getWidth() * .9F;
+            x = BANNER_WIDTH - (START_BUTTON_TEXTURE.getWidth() * .9F) * Settings.scale;
             y = Y_POSITION;
 
             width = START_BUTTON_TEXTURE.getWidth();
