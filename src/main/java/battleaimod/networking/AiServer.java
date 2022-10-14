@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 public class AiServer {
-    public static final int PORT_NUMBER = 5000;
+    public static final int PORT_NUMBER = 5125;
     public static final String doneString = "DONE";
 
     public static final String statusUpdateString = "STATUS_UPDATE";
@@ -49,7 +49,7 @@ public class AiServer {
                 while (true) {
                     if (BattleAiMod.battleAiController == null) {
                         String requestFilePath = "";
-                        String endSuffix = "\\end.txt";
+                        String endSuffix = "/end.txt";
                         String commandFileName = null;
                         boolean statesMatch = true;
                         boolean shouldWrite = false;
