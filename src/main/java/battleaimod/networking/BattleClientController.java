@@ -324,7 +324,7 @@ public class BattleClientController {
         return serverReady && !controllerRunning && readyForUpdate();
     }
 
-    private static boolean readyForUpdate() {
+    public static boolean readyForUpdate() {
         if (AbstractDungeon.actionManager == null || AbstractDungeon.player == null) {
             return false;
         }

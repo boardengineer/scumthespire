@@ -119,6 +119,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         cardPlayHeuristics.add(DefectPlayOrder.COMPARATOR);
         cardPlayHeuristics.add(SilentPlayOrder.COMPARATOR);
 
+        //Settings.hideTopBar = true;
+
         actionHeuristics.put(DiscardAction.class, DiscardOrder.COMPARATOR);
         actionHeuristics.put(ExhaustAction.class, ExhaustOrder.COMPARATOR);
 
@@ -177,6 +179,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             }
         }
 
+        CardCrawlGame.displayVersion = false;
         ReflectionHacks.setPrivateStaticFinal(MummifiedHand.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(BaseMod.class, "logger", new SilentLogger());
         ReflectionHacks.setPrivateStaticFinal(TheSpecimen.class, "logger", new SilentLogger());
@@ -237,6 +240,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
                     .add(new ThoughtBubble(AbstractDungeon.player.dialogX, AbstractDungeon.player.dialogY, (float) MESSAGE_TIME_MILLIS / 1000.F, messageToDisplay, true));
 
         }
+
         if (battleAiController == null && shouldStartAiFromServer) {
             shouldStartAiFromServer = false;
             controller = battleAiController = new BattleAiController(saveState, requestedTurnNum);

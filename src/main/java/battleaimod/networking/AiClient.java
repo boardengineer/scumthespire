@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 public class AiClient {
     private static final String HOST_IP = "127.0.0.1";
     public static int fileIndex = 0;
+    public static boolean waiting = false;
+    public static String preferreCommandFilename = null;
 
     private final Socket socket;
 
@@ -70,6 +72,7 @@ public class AiClient {
 
         AbstractDungeon.player.hand.refreshHandLayout();
         ExecutorService executor = Executors.newSingleThreadExecutor();
+        waiting = true;
         executor.submit(() -> {
             try {
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -87,6 +90,13 @@ public class AiClient {
 
                     String fileName = directoryName + "/start.txt";
 
+                    String commandFileName = directoryName + "/commands.txt";
+
+                    if (preferreCommandFilename != null) {
+                        commandFileName = preferreCommandFilename;
+                        preferreCommandFilename = null;
+                    }
+
                     System.err.println("writing to " + fileName);
 
                     try (OutputStreamWriter writer =
@@ -95,8 +105,10 @@ public class AiClient {
                     }
 
                     JsonObject runRequest = new JsonObject();
+
                     runRequest.addProperty("fileName", fileName);
                     runRequest.addProperty("num_turns", numTurns);
+                    runRequest.addProperty("command_file", commandFileName);
 
                     out.writeUTF(runRequest.toString());
                 } catch (Exception e) {
@@ -104,6 +116,7 @@ public class AiClient {
                     throw e;
                 }
                 BattleAiMod.rerunController = null;
+                waiting = false;
 
                 DataInputStream in = new DataInputStream(new BufferedInputStream(socket
                         .getInputStream()));
@@ -113,7 +126,6 @@ public class AiClient {
                 String readLine = "";
 
                 while (!readLine.equals(AiServer.doneString)) {
-
                     try {
                         readLine = in.readUTF();
                     } catch (SocketTimeoutException e) {
@@ -140,6 +152,7 @@ public class AiClient {
                 System.err.println("Server disconnected; clearing client for reset.");
                 BattleAiMod.aiClient = null;
                 BattleAiMod.rerunController = null;
+                waiting = false;
             }
         });
     }
@@ -239,12 +252,27 @@ public class AiClient {
     }
 
     private static void updateControllerForCommands(JsonObject jsonMessage) {
-        if (!jsonMessage.has("commands")) {
+
+        JsonArray jsonCommands = null;
+        if (jsonMessage.has("commands")) {
+            jsonCommands = jsonMessage.get("commands").getAsJsonArray();
+        } else if (jsonMessage.has("command_path")) {
+            try {
+                JsonObject readResponse = new JsonParser()
+                        .parse(Files.lines(Paths.get(jsonMessage.get("command_path").getAsString()))
+                                    .collect(Collectors.joining())).getAsJsonObject();
+                jsonCommands = readResponse.get("commands").getAsJsonArray();
+
+                System.err.println("should have read the thing, hopefully this works");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
             return;
         }
 
         ArrayList<Command> commandsFromServer = new ArrayList<>();
-        JsonArray jsonCommands = jsonMessage.get("commands").getAsJsonArray();
+
         for (JsonElement jsonCommand : jsonCommands) {
             Command toAdd = toCommand(jsonCommand);
             commandsFromServer.add(toAdd);

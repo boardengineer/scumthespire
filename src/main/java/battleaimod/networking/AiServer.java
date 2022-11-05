@@ -47,6 +47,7 @@ public class AiServer {
                         .getInputStream()));
 
                 while (true) {
+                    fileIndex = 0;
                     if (BattleAiMod.battleAiController == null) {
                         String requestFilePath = "";
                         String endSuffix = "/end.txt";
@@ -59,6 +60,7 @@ public class AiServer {
                             JsonObject runRequest = new JsonParser().parse(runRequestString)
                                                                     .getAsJsonObject();
 
+                            System.err.println("runRequest is " + runRequest);
 
                             requestFilePath = runRequest.get("fileName").getAsString();
                             Path filePath = Paths.get(requestFilePath);
@@ -72,6 +74,8 @@ public class AiServer {
 
                             if (runRequest.has("command_file")) {
                                 commandFileName = runRequest.get("command_file").getAsString();
+                            } else {
+                                System.err.println("no command file path");
                             }
 
                             SaveState originalState = SaveState.forFile(filePath.toString());
@@ -84,7 +88,7 @@ public class AiServer {
 //                                System.err.println("start state equals: " + shouldWrite);
                             System.gc();
 
-                            System.err.println("state parsed");
+                            System.err.println("state parsed " + commandFileName);
                         } catch (Exception e) {
                             e.printStackTrace();
                             return;
@@ -106,7 +110,7 @@ public class AiServer {
                             }
                         }
 
-                        System.err.println("Battle Controller Started");
+                        System.err.println("Battle Controller Started "+ commandFileName);
 
                         int latestWrittenTurn = 0;
 
@@ -133,7 +137,12 @@ public class AiServer {
                                     .format("%d / %d", BattleAiMod.battleAiController
                                             .turnsLoaded(), BattleAiMod.battleAiController
                                             .maxTurnLoads()));
-                            out.writeUTF(jsonToSend.toString());
+
+                            try {
+                                out.writeUTF(jsonToSend.toString());
+                            } catch (UTFDataFormatException e) {
+                                // If the messages get too long just don't send.
+                            }
 
                             try {
                                 Thread.sleep(BattleAiMod.MESSAGE_TIME_MILLIS);
@@ -143,7 +152,7 @@ public class AiServer {
                         }
 
 
-                        System.err.println("BattleAI finished");
+                        System.err.println("BattleAI finished " + commandFileName);
 
                         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController
                                 .isDone()) {
@@ -162,6 +171,7 @@ public class AiServer {
 
                             if (commandFileName != null) {
                                 try {
+                                    System.err.println("should be writing file to " + commandFileName);
                                     Path parent = Paths.get(commandFileName).getParent();
                                     new File(parent.toString()).mkdirs();
                                     FileWriter commandWriter = new FileWriter(commandFileName);
@@ -172,7 +182,20 @@ public class AiServer {
                                 }
                             }
 
-                            out.writeUTF(jsonToSend.toString());
+                            try {
+                                out.writeUTF(jsonToSend.toString());
+                            } catch (UTFDataFormatException e) {
+                                System.err.println("Result too big, removing commands");
+                                jsonToSend.remove("commands");
+
+                                if (commandFileName != null) {
+                                    System.err.println("returning with command path");
+                                    jsonToSend.addProperty("command_path", commandFileName);
+                                    out.writeUTF(jsonToSend.toString());
+                                } else {
+                                    System.err.println("commandFileName is null");
+                                }
+                            }
                             LudicrousSpeedMod.controller = BattleAiMod.battleAiController = null;
                         } else {
                             System.err.println("This shouldn't have happened");
