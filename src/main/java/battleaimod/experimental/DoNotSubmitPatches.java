@@ -5,13 +5,12 @@ import battleaimod.networking.AiClient;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePostfixPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePrefixPatch;
-import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.GameCursor;
 import com.megacrit.cardcrawl.helpers.input.InputActionSet;
-import savestate.patches.SavesPatches;
 
 import java.io.IOException;
+
 public class DoNotSubmitPatches {
     public static boolean hideCursor = false;
 
@@ -20,22 +19,12 @@ public class DoNotSubmitPatches {
         @SpirePostfixPatch
         public static void Debug(CardCrawlGame cardCrawlGame) {
             if (InputActionSet.down.isJustPressed()) {
-                hideCursor = !hideCursor;
+                //hideCursor = !hideCursor;
             }
 
             if (InputActionSet.up.isJustPressed()) {
-                startClient();
+                //startClient();
             }
-
-            if (InputActionSet.left.isJustPressed()) {
-
-                SavesPatches.load("C:\\stuff\\rundata\\runs\\1AKSS9RQDC910\\01\\IRONCLAD.autosave", AbstractPlayer.PlayerClass.IRONCLAD);
-            }
-
-            if (InputActionSet.right.isJustPressed()) {
-                SavesPatches.load("C:\\stuff\\rundata\\runs\\1FRM2ANT7KA53\\16\\DEFECT.autosave", AbstractPlayer.PlayerClass.WATCHER);
-            }
-//            __instance.
         }
     }
 
