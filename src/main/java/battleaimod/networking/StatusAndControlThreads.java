@@ -112,8 +112,8 @@ public class StatusAndControlThreads {
                         serverOutputStream.writeUTF(response.toString());
                     } else if (command.equals("startAi")) {
                         if (parsedRequest.has("command_file_out")) {
-                            AiClient.preferreCommandFilename = parsedRequest.get("command_file_out")
-                                                                            .getAsString();
+                            AiClient.preferredCommandFilename = parsedRequest.get("command_file_out")
+                                                                             .getAsString();
                         }
                         if (canSendState()) {
                             if (BattleAiMod.aiClient == null) {

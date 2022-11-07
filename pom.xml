@@ -59,6 +59,13 @@
             <scope>system</scope>
             <systemPath>${basedir}/../_ModTheSpire/mods/BaseMod.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>fightpredictor</groupId>
+            <artifactId>FightPredictor</artifactId>
+            <version>1.0.4</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../_ModTheSpire/mods/FightPredictor.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>

@@ -30,7 +30,8 @@ public class AiClient {
     private static final String HOST_IP = "127.0.0.1";
     public static int fileIndex = 0;
     public static boolean waiting = false;
-    public static String preferreCommandFilename = null;
+    public static String preferredCommandFilename = null;
+    public static String preferredStartFilename = null;
 
     private final Socket socket;
 
@@ -83,18 +84,22 @@ public class AiClient {
 
                     // TODO: This was hardcoded, making lots of bad things happen
                     String directoryName = String
-                            .format("startstates/%s/%02d", SeedHelper
-                                    .getString(Settings.seed), AbstractDungeon.floorNum, fileIndex++);
+                            .format("startstates/%s/%02d", SeedHelper.getString(Settings.seed),
+                                    AbstractDungeon.floorNum, fileIndex++);
                     File directory = new File(directoryName);
                     directory.mkdirs();
 
                     String fileName = directoryName + "/start.txt";
+                    if (preferredStartFilename != null) {
+                        fileName = preferredStartFilename;
+                        preferredStartFilename = null;
+                    }
 
                     String commandFileName = directoryName + "/commands.txt";
 
-                    if (preferreCommandFilename != null) {
-                        commandFileName = preferreCommandFilename;
-                        preferreCommandFilename = null;
+                    if (preferredCommandFilename != null) {
+                        commandFileName = preferredCommandFilename;
+                        preferredCommandFilename = null;
                     }
 
                     System.err.println("writing to " + fileName);

@@ -110,7 +110,7 @@ public class AiServer {
                             }
                         }
 
-                        System.err.println("Battle Controller Started "+ commandFileName);
+                        System.err.println("Battle Controller Started " + commandFileName);
 
                         int latestWrittenTurn = 0;
 
@@ -168,10 +168,13 @@ public class AiServer {
                             // Send Command List
                             jsonToSend.addProperty("type", commandListString);
                             jsonToSend.add("commands", commands);
+                            jsonToSend
+                                    .addProperty("predictor_damage", BattleAiMod.battleAiController.expectedDamage);
 
                             if (commandFileName != null) {
                                 try {
-                                    System.err.println("should be writing file to " + commandFileName);
+                                    System.err
+                                            .println("should be writing file to " + commandFileName);
                                     Path parent = Paths.get(commandFileName).getParent();
                                     new File(parent.toString()).mkdirs();
                                     FileWriter commandWriter = new FileWriter(commandFileName);
@@ -185,7 +188,8 @@ public class AiServer {
                             try {
                                 out.writeUTF(jsonToSend.toString());
                             } catch (UTFDataFormatException e) {
-                                System.err.println("Result too big, removing commands");
+                                System.err
+                                        .println("Result too big, removing commands and writing to file instead");
                                 jsonToSend.remove("commands");
 
                                 if (commandFileName != null) {
