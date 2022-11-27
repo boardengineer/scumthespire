@@ -12,6 +12,7 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import ludicrousspeed.LudicrousSpeedMod;
 import ludicrousspeed.simulator.patches.ServerStartupPatches;
+import savestate.SaveStateMod;
 import savestate.patches.SavesPatches;
 
 import java.io.BufferedInputStream;
@@ -100,6 +101,11 @@ public class StatusAndControlThreads {
                         AbstractPlayer.PlayerClass playerClass = AbstractPlayer.PlayerClass
                                 .valueOf(parsedRequest.get("playerClass").getAsString());
 
+                        SaveStateMod.curFloorToDisplay = parsedRequest.get("replay_floor_start")
+                                                                      .getAsInt();
+                        SaveStateMod.lastFloorToDisplay = parsedRequest.get("replay_floor_end")
+                                                                       .getAsInt();
+
                         SavesPatches.load(path, playerClass);
 
                         JsonObject response = new JsonObject();
@@ -112,9 +118,16 @@ public class StatusAndControlThreads {
                         serverOutputStream.writeUTF(response.toString());
                     } else if (command.equals("startAi")) {
                         if (parsedRequest.has("command_file_out")) {
-                            AiClient.preferredCommandFilename = parsedRequest.get("command_file_out")
-                                                                             .getAsString();
+                            AiClient.preferredCommandFilename = parsedRequest
+                                    .get("command_file_out")
+                                    .getAsString();
                         }
+
+                        if (parsedRequest.has("start_file")) {
+                            AiClient.preferredStartFilename = parsedRequest.get("start_file")
+                                                                           .getAsString();
+                        }
+
                         if (canSendState()) {
                             if (BattleAiMod.aiClient == null) {
                                 try {

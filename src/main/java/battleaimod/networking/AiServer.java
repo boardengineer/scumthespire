@@ -162,7 +162,8 @@ public class AiServer {
                             String endFileName = Paths.get(requestFilePath).getParent() + endSuffix;
 
                             FileWriter writer = new FileWriter(endFileName);
-                            writer.write(BattleAiMod.battleAiController.bestEnd.saveState.encode());
+                            writer.write(BattleAiMod.battleAiController.bestEnd.saveState
+                                    .jsonEncode().toString());
                             writer.close();
 
                             // Send Command List
