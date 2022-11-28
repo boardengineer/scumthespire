@@ -2,6 +2,7 @@ package battleaimod.battleai;
 
 import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.red.BodySlam;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import ludicrousspeed.simulator.commands.CardCommand;
 import ludicrousspeed.simulator.commands.Command;
@@ -9,7 +10,9 @@ import ludicrousspeed.simulator.commands.CommandList;
 import ludicrousspeed.simulator.commands.EndCommand;
 import savestate.SaveState;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import static battleaimod.ValueFunctions.getStateScore;
@@ -156,10 +159,46 @@ public class StateNode {
 
         commands = CommandList.getAvailableCommands(null, BattleAiMod.actionHeuristics);
 
-        commands.sort(commandComparator);
-//
-//        System.err.println("Commands" + commands);
-//
+        HashMap<Integer, ArrayList<Command>> byCardIndex = new HashMap<>();
+        ArrayList<Command> otherCommands = new ArrayList<>();
+
+        for (Command command : commands) {
+            if (command instanceof CardCommand) {
+                CardCommand cardCommand = (CardCommand) command;
+
+                if (!byCardIndex.containsKey(cardCommand.cardIndex)) {
+                    byCardIndex.put(cardCommand.cardIndex, new ArrayList<>());
+                }
+
+                byCardIndex.get(cardCommand.cardIndex).add(command);
+            } else {
+                otherCommands.add(command);
+            }
+        }
+
+        ArrayList<Integer> sortedIndeces = new ArrayList(byCardIndex.keySet());
+        sortedIndeces.sort((index1, index2) -> {
+            AbstractCard card1 = AbstractDungeon.player.hand.group.get(index1);
+            AbstractCard card2 = AbstractDungeon.player.hand.group.get(index2);
+
+            if (card1.cardID.equals(BodySlam.ID)) {
+                if (AbstractDungeon.player.energy.energy <= card1.costForTurn) {
+                    return -1;
+                }
+            }
+
+            return combinedPlayHeuristic.compare(card1, card2);
+        });
+
+        ArrayList result = new ArrayList();
+
+        for (int sortedIndex : sortedIndeces) {
+            result.addAll(byCardIndex.get(sortedIndex));
+        }
+
+        result.addAll(otherCommands);
+
+        commands = result;
     }
 
     public boolean isDone() {

@@ -65,6 +65,13 @@ import static ludicrousspeed.LudicrousSpeedMod.plaidMode;
 
 @SpireInitializer
 public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscriber, OnStartBattleSubscriber, PreUpdateSubscriber, RenderSubscriber {
+    public static final HashMap<AbstractPlayer.PlayerClass, String> MESSAGE_WORDS = new HashMap<AbstractPlayer.PlayerClass, String>() {{
+        put(AbstractPlayer.PlayerClass.IRONCLAD, "Strategizing");
+        put(AbstractPlayer.PlayerClass.THE_SILENT, "Scheming");
+        put(AbstractPlayer.PlayerClass.WATCHER, "Foreseeing");
+        put(AbstractPlayer.PlayerClass.DEFECT, "Processing");
+    }};
+
     public final static long MESSAGE_TIME_MILLIS = 1500L;
     private static final int SERVER_GAME_PORT = 5124;
 
@@ -233,7 +240,8 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     @Override
     public void receivePostUpdate() {
         if (steveMessage != null) {
-            String messageToDisplay = " Processing... NL " + steveMessage;
+            String messageToDisplay = String.format(" %s... NL %s", MESSAGE_WORDS
+                    .getOrDefault(AbstractDungeon.player.chosenClass, "Processing"), steveMessage);
             steveMessage = null;
 
             AbstractDungeon.effectList
