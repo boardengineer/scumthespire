@@ -4,6 +4,7 @@ import battleaimod.BattleAiMod;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.red.BodySlam;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
 import ludicrousspeed.simulator.commands.CardCommand;
 import ludicrousspeed.simulator.commands.Command;
 import ludicrousspeed.simulator.commands.CommandList;
@@ -182,7 +183,15 @@ public class StateNode {
             AbstractCard card2 = AbstractDungeon.player.hand.group.get(index2);
 
             if (card1.cardID.equals(BodySlam.ID)) {
-                if (AbstractDungeon.player.energy.energy <= card1.costForTurn) {
+                if (EnergyPanel.totalCount > card1.costForTurn) {
+                    // Body Slam to the back
+                    return 1;
+                }
+            }
+
+            if (card2.cardID.equals(BodySlam.ID)) {
+                if (EnergyPanel.totalCount > card2.costForTurn) {
+                    // Non-Body Slam to the Front
                     return -1;
                 }
             }
