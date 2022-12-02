@@ -1,9 +1,17 @@
 package battleaimod.battleai;
 
 import battleaimod.BattleAiMod;
+import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.blue.Turbo;
+import com.megacrit.cardcrawl.cards.green.Concentrate;
+import com.megacrit.cardcrawl.cards.green.HeelHook;
+import com.megacrit.cardcrawl.cards.green.SneakyStrike;
 import com.megacrit.cardcrawl.cards.red.BodySlam;
+import com.megacrit.cardcrawl.cards.red.Dropkick;
+import com.megacrit.cardcrawl.cards.red.SpotWeakness;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
 import ludicrousspeed.simulator.commands.CardCommand;
 import ludicrousspeed.simulator.commands.Command;
@@ -15,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 
 import static battleaimod.ValueFunctions.getStateScore;
 
@@ -163,8 +172,113 @@ public class StateNode {
         HashMap<Integer, ArrayList<Command>> byCardIndex = new HashMap<>();
         ArrayList<Command> otherCommands = new ArrayList<>();
 
-        for (Command command : commands) {
+        // Free Eviscerate, Free dropkick, free heel hook
+        ArrayList<Command> reallyGoodCommandsToRunFirst = new ArrayList<>();
+        ArrayList<Command> reallyBadCommandsToRunLast = new ArrayList<>();
+
+        ArrayList<Function<Command, Boolean>> firstActionConditions = new ArrayList<>();
+        ArrayList<Function<Command, Boolean>> lastActionConditions = new ArrayList<>();
+
+        // Dropkick
+        firstActionConditions.add((command) -> {
             if (command instanceof CardCommand) {
+                CardCommand cardCommand = (CardCommand) command;
+                AbstractCard card = AbstractDungeon.player.hand.group.get(cardCommand.cardIndex);
+                if (card.cardID.equals(Dropkick.ID)) {
+                    if (cardCommand.monsterIndex > -1) {
+                        AbstractMonster monster = AbstractDungeon.getMonsters().monsters
+                                .get(cardCommand.monsterIndex);
+                        return !monster.isDeadOrEscaped() && monster.hasPower("Vulnerable");
+                    }
+                }
+            }
+
+            if (command instanceof CardCommand) {
+                CardCommand cardCommand = (CardCommand) command;
+                AbstractCard card = AbstractDungeon.player.hand.group.get(cardCommand.cardIndex);
+                if (card.cardID.equals(HeelHook.ID)) {
+                    if (cardCommand.monsterIndex > -1) {
+                        AbstractMonster monster = AbstractDungeon.getMonsters().monsters
+                                .get(cardCommand.monsterIndex);
+                        return !monster.isDeadOrEscaped() && monster.hasPower("Weakened");
+                    }
+                }
+            }
+
+            return false;
+        });
+
+        lastActionConditions.add((command) -> {
+            if (command instanceof CardCommand) {
+                CardCommand cardCommand = (CardCommand) command;
+                AbstractCard card = AbstractDungeon.player.hand.group.get(cardCommand.cardIndex);
+                if (card.cardID.equals(SpotWeakness.ID)) {
+                    if (cardCommand.monsterIndex > -1) {
+                        AbstractMonster monster = AbstractDungeon.getMonsters().monsters
+                                .get(cardCommand.monsterIndex);
+                        return monster != null && monster.getIntentBaseDmg() < 0;
+                    }
+                }
+            }
+
+            if (command instanceof CardCommand) {
+                CardCommand cardCommand = (CardCommand) command;
+                AbstractCard card = AbstractDungeon.player.hand.group.get(cardCommand.cardIndex);
+                if (card.cardID.equals(Concentrate.ID)) {
+                    int numCards = 3;
+                    if (card.upgraded) {
+                        numCards = 2;
+                    }
+
+                    return AbstractDungeon.player.hand.size() <= numCards + 1;
+                }
+            }
+
+            if (command instanceof CardCommand) {
+                CardCommand cardCommand = (CardCommand) command;
+                AbstractCard card = AbstractDungeon.player.hand.group.get(cardCommand.cardIndex);
+                if (card.cardID.equals(Turbo.ID)) {
+                    int totalHandCost = 0;
+                    for (AbstractCard handCard : AbstractDungeon.player.hand.group) {
+                        totalHandCost += handCard.costForTurn;
+                    }
+
+                    return totalHandCost >= EnergyPanel.totalCount;
+                }
+            }
+
+            return false;
+        });
+
+        // TODO: spot weakness
+        // TODO: catalyst
+
+        ArrayList<Function<AbstractCard, Boolean>> playCardsLastConditions = new ArrayList<>();
+        ArrayList<Function<AbstractCard, Boolean>> playCardsFirstConditions = new ArrayList<>();
+
+        for (Command command : commands) {
+            boolean shouldGoEarly = false;
+            boolean shouldGoLate = false;
+
+            for (Function<Command, Boolean> condition : firstActionConditions) {
+                if (condition.apply(command)) {
+                    shouldGoEarly = true;
+                    break;
+                }
+            }
+
+            for (Function<Command, Boolean> condition : lastActionConditions) {
+                if (condition.apply(command)) {
+                    shouldGoLate = true;
+                    break;
+                }
+            }
+
+            if (shouldGoEarly) {
+                reallyGoodCommandsToRunFirst.add(command);
+            } else if (shouldGoLate) {
+                reallyBadCommandsToRunLast.add(command);
+            } else if (command instanceof CardCommand) {
                 CardCommand cardCommand = (CardCommand) command;
 
                 if (!byCardIndex.containsKey(cardCommand.cardIndex)) {
@@ -177,21 +291,45 @@ public class StateNode {
             }
         }
 
+        // Body slam
+        playCardsLastConditions.add((card) -> {
+            // De-prioritize body slam if you have extra energy
+            return card.cardID.equals(BodySlam.ID) && EnergyPanel.totalCount > card.costForTurn;
+        });
+
+        // Sneaky Strike
+        playCardsFirstConditions.add((card) -> {
+            // its probably n4
+            return card.cardID
+                    .equals(SneakyStrike.ID) && GameActionManager.totalDiscardedThisTurn > 0;
+        });
+
+
         ArrayList<Integer> sortedIndeces = new ArrayList(byCardIndex.keySet());
         sortedIndeces.sort((index1, index2) -> {
             AbstractCard card1 = AbstractDungeon.player.hand.group.get(index1);
             AbstractCard card2 = AbstractDungeon.player.hand.group.get(index2);
 
-            if (card1.cardID.equals(BodySlam.ID)) {
-                if (EnergyPanel.totalCount > card1.costForTurn) {
-                    // Body Slam to the back
+            for (Function<AbstractCard, Boolean> command : playCardsFirstConditions) {
+                if (command.apply(card1)) {
+                    if (!command.apply(card2)) {
+                        return -1;
+                    }
+                }
+
+                if (command.apply(card2)) {
                     return 1;
                 }
             }
 
-            if (card2.cardID.equals(BodySlam.ID)) {
-                if (EnergyPanel.totalCount > card2.costForTurn) {
-                    // Non-Body Slam to the Front
+            for (Function<AbstractCard, Boolean> command : playCardsLastConditions) {
+                if (command.apply(card1)) {
+                    if (!command.apply(card2)) {
+                        return 1;
+                    }
+                }
+
+                if (command.apply(card2)) {
                     return -1;
                 }
             }
@@ -200,12 +338,14 @@ public class StateNode {
         });
 
         ArrayList result = new ArrayList();
+        result.addAll(reallyGoodCommandsToRunFirst);
 
         for (int sortedIndex : sortedIndeces) {
             result.addAll(byCardIndex.get(sortedIndex));
         }
 
         result.addAll(otherCommands);
+        result.addAll(reallyBadCommandsToRunLast);
 
         commands = result;
     }
