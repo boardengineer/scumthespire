@@ -243,7 +243,7 @@ public class StateNode {
                         totalHandCost += handCard.costForTurn;
                     }
 
-                    return totalHandCost >= EnergyPanel.totalCount;
+                    return totalHandCost <= EnergyPanel.totalCount;
                 }
             }
 

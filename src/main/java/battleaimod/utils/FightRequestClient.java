@@ -18,36 +18,36 @@ import java.util.stream.Collectors;
 
 public class FightRequestClient {
     public static HashSet<String> FORBIDDEN_RELIC_IDS = new HashSet<String>() {{
-        add("Achilles Heel Guard");
-        add("Blighted Snail");
-        add("Business Contract");
-        add("Clerics Golden Helm");
-        add("Comic Book");
-        add("Dice Of Fate");
-        add("Festivus Pole");
-        add("Filiform Needle");
-        add("Fresh Water");
-        add("Happy Flower Bed");
-        add("Horn Of Plenty");
-        add("Hotwired Cables");
-        add("Jade Mystic Knot");
-        add("Paper Bomb");
-        add("Preserved Amber");
-        add("PrismaticBranch");
-        add("Relic Compass");
-        add("Runic Replicator");
-        add("Sail");
-        add("Scales of Justice");
-        add("Snecko Charm");
-        add("Snecko Skin Boots");
-        add("Solid State Drive");
-        add("Tactical Harness");
-        add("Vampire Fang");
-        add("Venomous Scales");
-        add("Yin");
-        add("Toolbox");
-        add("hermit:BloodyTooth");
-        add("hermit:BrassTacks");
+//        add("Achilles Heel Guard");
+//        add("Blighted Snail");
+//        add("Business Contract");
+//        add("Clerics Golden Helm");
+//        add("Comic Book");
+//        add("Dice Of Fate");
+//        add("Festivus Pole");
+//        add("Filiform Needle");
+//        add("Fresh Water");
+//        add("Happy Flower Bed");
+//        add("Horn Of Plenty");
+//        add("Hotwired Cables");
+//        add("Jade Mystic Knot");
+//        add("Paper Bomb");
+//        add("Preserved Amber");
+//        add("PrismaticBranch");
+//        add("Relic Compass");
+//        add("Runic Replicator");
+//        add("Sail");
+//        add("Scales of Justice");
+//        add("Snecko Charm");
+//        add("Snecko Skin Boots");
+//        add("Solid State Drive");
+//        add("Tactical Harness");
+//        add("Vampire Fang");
+//        add("Venomous Scales");
+//        add("Yin");
+//        add("Toolbox");
+//        add("hermit:BloodyTooth");
+//        add("hermit:BrassTacks");
     }};
 
     private static final String HOST_IP = "127.0.0.1";
@@ -92,9 +92,10 @@ public class FightRequestClient {
             });
         }*/
 
-        runAllBattlesForSeed("2C1SBJ6UA8PZJ"); // Gamble for days
-        runAllBattlesForSeed("4Y2MSAT52IMU6"); // Sample 1
-        runAllBattlesForSeed("12MWK6QZQ6M3I"); // Sample 2
+//        runAllBattlesForSeed("2C1SBJ6UA8PZJ"); // Gamble for days (recorded and uploaded)
+//        runAllBattlesForSeed("4Y2MSAT52IMU6"); // Sample 1 (recorded)
+//        runAllBattlesForSeed("12MWK6QZQ6M3I"); // Sample 2 (recorded)
+//        runAllBattlesForSeed("3L9IBWMH6JM6X");
 
 //        runAllBattlesForSeed("EL7EAMUU8HH4"); // Reprogram (recorded)
 //        runAllBattlesForSeed("1AJNE74BS4XSG"); // broken
@@ -103,7 +104,35 @@ public class FightRequestClient {
 //        runAllBattlesForSeed("4GHCWVYLX0RJF"); // Winstone (recorded)
 
         // macro samples
-//        runAllBattlesForSeed("4Y2MSAT52IMU6");
+//        runAllBattlesForSeed("NCH68SATLPZT");
+//        runAllBattlesForSeed("2S7AWMPY1DI3R");
+//        runAllBattlesForSeed("373WGHXRLEA01");
+//        runAllBattlesForSeed("3IFYTCZFXUI1P");
+//        runAllBattlesForSeed("503D7D0NZ9XQR");
+//        runAllBattlesForSeed("3IFECG0HVK7S4");
+//        runAllBattlesForSeed("2GW2F5FCKL64C");
+
+        //runAllBattlesForSeed("119HMD6Y7VTKV");
+
+//        runAllBattlesForSeed("JPENLVL522MC");
+//        runAllBattlesForSeed("4ETS18L4EL4US");
+//        runAllBattlesForSeed("2V921K2QEUB29");
+//        runAllBattlesForSeed("3N9IKUSYU0144");
+
+
+//        runAllBattlesForSeed("2TG6S1NB8YWMH");
+//        runAllBattlesForSeed("3M8NNS7X5BNEW");
+//        runAllBattlesForSeed("1YVVM6LZK1X5A");
+//        runAllBattlesForSeed("5CYYYW3E8SDCX");
+
+
+//        runAllBattlesForSeed("9042FKURJ7E7");
+//        runAllBattlesForSeed("4ND6UL5GT6HTB");
+//        runAllBattlesForSeed("VTHA6KRZVD78");
+
+//        runAllBattlesForSeed("1U1C3HUD51N81");
+//        runAllBattlesForSeed("4BQMJLXHX443K");
+//        runAllBattlesForSeed("2V1HUUG7CXQ5P");
 
         // Watcher against champ Gets stuck in wrath and gets executed.  Looks really good,
         // Expected 0 Damage.
@@ -113,16 +142,22 @@ public class FightRequestClient {
 
 
         // Failed ghost chad against champ.
+//        String charClass = "RobotSpaceExplorer";
+//        String charClass = "THE_SILENT";
 //        String charClass = "DEFECT";
-//        String seed = "1HQRN2G94VY8W";
-//        int floor = 50;
-
-//        String path = String
-//                .format("C:\\stuff\\rundata\\runs\\%s\\%02d\\%s.autosave", seed, floor, charClass);
-//        fightSaveFile(path, charClass);
+//        String charClass = "IRONCLAD";
+//        String charClass = "WATCHER";
+//        String charClass = "THE_CURSED";
+        String charClass = "MARISA";
+        String seed = "3NEWUYBBVJQ0M";
+        int floor = 46;
+//
+        String path = String
+                .format("C:\\stuff\\rundata\\runs\\%s\\%02d\\%s.autosave", seed, floor, charClass);
+        fightSaveFile(path, charClass);
 //        sendLoadRequest(path, charClass);
 
-//        runAllBattlesForSeed("4Y2MSAT52IMU6");
+//        runAllBattlesForSeed("4Y2MSAT52IMU6" );
 
 //        socket.setSoTimeout(3000);
 //        boolean connect = true;
@@ -224,6 +259,8 @@ public class FightRequestClient {
 
                 requestJson.addProperty("path", path);
                 requestJson.addProperty("playerClass", playerClass);
+
+                requestJson.addProperty("recall_mode", true);
 
                 out.writeUTF(requestJson.toString());
             } catch (SocketTimeoutException e) {
@@ -402,6 +439,7 @@ public class FightRequestClient {
                     boolean isVanilla = playerClass.equals("DEFECT") ||
                             playerClass.equals("THE_SILENT") ||
                             playerClass.equals("IRONCLAD") ||
+                            playerClass.equals("RobotSpaceExplorer") ||
                             playerClass.equals("WATCHER");
 
                     if (!isVanilla) {
@@ -422,7 +460,7 @@ public class FightRequestClient {
                     JsonObject commandsJson = new JsonParser().parse(fileToString(paths[4]))
                                                               .getAsJsonObject();
 
-                    int predictedHpLoss = commandsJson.get("predictor_damage").getAsInt();
+                    int predictedHpLoss = commandsJson.has("predictor_damage") ? commandsJson.get("predictor_damage").getAsInt() : 0;
 
                     int startHp = startState.getCurrentHp();
                     int endHp = new ParsedSaveState(fileToString(paths[3])).getCurrentHp();

@@ -106,6 +106,11 @@ public class StatusAndControlThreads {
                         SaveStateMod.lastFloorToDisplay = parsedRequest.get("replay_floor_end")
                                                                        .getAsInt();
 
+                        if (parsedRequest.has("recall_mode")) {
+                            SavesPatches.recallMode = parsedRequest.get("recall_mode")
+                                                                   .getAsBoolean();
+                        }
+
                         SavesPatches.load(path, playerClass);
 
                         JsonObject response = new JsonObject();
