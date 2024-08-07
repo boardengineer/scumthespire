@@ -35,6 +35,7 @@ import com.megacrit.cardcrawl.characters.CharacterManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.dungeons.Exordium;
 import com.megacrit.cardcrawl.helpers.*;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
@@ -46,6 +47,7 @@ import com.megacrit.cardcrawl.relics.GamblingChip;
 import com.megacrit.cardcrawl.relics.MummifiedHand;
 import com.megacrit.cardcrawl.relics.TheSpecimen;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import com.megacrit.cardcrawl.rooms.EmptyRoom;
 import com.megacrit.cardcrawl.screens.mainMenu.MainMenuScreen;
 import com.megacrit.cardcrawl.screens.select.GridCardSelectScreen;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
@@ -636,6 +638,30 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             waitOnOpen = false;
         }
     }
+
+
+    @SpirePatch(clz = CardCrawlGame.class, method = "create")
+    public static class GameStartupPatch {
+        @SpirePostfixPatch
+        public static void afterStart(CardCrawlGame game) {
+            if (isServer) {
+                System.err.println("Skipping Splash Screen for Char Select");
+
+                // Sets the current dungeon
+                Settings.seed = 123L;
+                AbstractDungeon.generateSeeds();
+
+                // TODO this needs to be the actual character class or bad things happen
+                new Exordium(CardCrawlGame.characterManager
+                        .getCharacter(AbstractPlayer.PlayerClass.IRONCLAD), new ArrayList<>());
+
+                AbstractDungeon.currMapNode.room = new EmptyRoom();
+
+                CardCrawlGame.mode = CardCrawlGame.GameMode.GAMEPLAY;
+            }
+        }
+    }
+    
 
 //    @SpirePatch(clz = CampfireUI.class, method = "update")
 //    public static class FastCampUiPatch {

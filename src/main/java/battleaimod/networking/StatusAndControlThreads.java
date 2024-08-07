@@ -10,7 +10,6 @@ import com.megacrit.cardcrawl.actions.common.EscapeAction;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import ludicrousspeed.LudicrousSpeedMod;
 import ludicrousspeed.simulator.patches.ServerStartupPatches;
 import savestate.SaveStateMod;
 import savestate.patches.SavesPatches;
@@ -30,7 +29,7 @@ public class StatusAndControlThreads {
     public static class StartStatusServer {
         @SpirePostfixPatch
         public static void afterAfterStart(CardCrawlGame game) {
-            if (LudicrousSpeedMod.plaidMode) {
+            if (BattleAiMod.isServer) {
                 startServerStatusThread();
             } else {
                 startClientThread();
