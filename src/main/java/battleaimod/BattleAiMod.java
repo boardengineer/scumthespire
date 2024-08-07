@@ -12,11 +12,12 @@ import battleaimod.battleai.playorder.*;
 import battleaimod.networking.AiClient;
 import battleaimod.networking.AiServer;
 import battleaimod.networking.BattleClientController;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.Loader;
-import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
-import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
+import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.ui.ModSelectWindow;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.actions.common.DiscardAction;
@@ -30,21 +31,33 @@ import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.colorless.Forethought;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
+import com.megacrit.cardcrawl.characters.CharacterManager;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.*;
+import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
 import com.megacrit.cardcrawl.monsters.exordium.SlimeBoss;
-import com.megacrit.cardcrawl.relics.*;
+import com.megacrit.cardcrawl.random.Random;
+import com.megacrit.cardcrawl.relics.AbstractRelic;
+import com.megacrit.cardcrawl.relics.GamblingChip;
+import com.megacrit.cardcrawl.relics.MummifiedHand;
+import com.megacrit.cardcrawl.relics.TheSpecimen;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import com.megacrit.cardcrawl.screens.mainMenu.MainMenuScreen;
+import com.megacrit.cardcrawl.screens.select.GridCardSelectScreen;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
 import com.megacrit.cardcrawl.vfx.ThoughtBubble;
+import com.megacrit.cardcrawl.vfx.campfire.CampfireSmithEffect;
+import communicationmod.CommandExecutor;
+import communicationmod.GameStateListener;
 import ludicrousspeed.LudicrousSpeedMod;
 import ludicrousspeed.simulator.commands.GridSelectConfrimCommand;
 import ludicrousspeed.simulator.commands.HandSelectCommand;
 import ludicrousspeed.simulator.commands.HandSelectConfirmCommand;
+import org.lwjgl.opengl.Display;
 import savestate.PotionState;
 import savestate.SaveState;
 import savestate.SaveStateMod;
@@ -105,6 +118,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     static Socket serverGameSocket = null;
 
     public static SpireConfig optionsConfig;
+    static long lastCommandTime = System.currentTimeMillis();
 
     public BattleAiMod() {
         BaseMod.subscribe(this);
@@ -171,11 +185,20 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         }
 
         String isServerFlag = System.getProperty("isServer");
+        String isPlaidModeFlag = System.getProperty("isPlaidMode");
+
+        for (int i = 0; i < 100; i++) {
+            System.err.println("we are here");
+        }
 
         if (isServerFlag != null) {
             if (Boolean.parseBoolean(isServerFlag)) {
                 BattleAiMod.isServer = true;
             }
+        }
+
+        if (isPlaidModeFlag != null) {
+            plaidMode = true;
         }
 
         String isClientFlag = System.getProperty("isClient");
@@ -208,12 +231,10 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
 
         ReflectionHacks.setPrivateStaticFinal(EventUtils.class, "eventLogger", new SilentLogger());
 
-        if (isServer) {
+        if (plaidMode) {
             Settings.MASTER_VOLUME = 0;
-            Settings.isDemo = true;
             goFast = true;
             SaveStateMod.shouldGoFast = true;
-            plaidMode = true;
 
             Settings.ACTION_DUR_XFAST = 0.001F;
             Settings.ACTION_DUR_FASTER = 0.002F;
@@ -222,8 +243,10 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             Settings.ACTION_DUR_LONG = .01F;
             Settings.ACTION_DUR_XLONG = .015F;
 
-            if (aiServer == null) {
-                aiServer = new AiServer();
+            if (isServer) {
+                if (aiServer == null) {
+                    aiServer = new AiServer();
+                }
             }
         }
 
@@ -391,4 +414,240 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public void receiveRender(SpriteBatch spriteBatch) {
         clientController.render(spriteBatch);
     }
+
+    private static void executeStartCommand(String[] tokens) {
+
+        if (tokens.length < 2) {
+            System.err.println("not enough tokens");
+        } else {
+            int ascensionLevel = 0;
+            boolean seedSet = false;
+            long seed = 0L;
+            AbstractPlayer.PlayerClass selectedClass = null;
+            AbstractPlayer.PlayerClass[] var6 = AbstractPlayer.PlayerClass.values();
+            int var7 = var6.length;
+
+            for (int var8 = 0; var8 < var7; ++var8) {
+                AbstractPlayer.PlayerClass playerClass = var6[var8];
+                if (playerClass.name().equalsIgnoreCase(tokens[1])) {
+                    selectedClass = playerClass;
+                }
+            }
+
+            if (tokens[1].equalsIgnoreCase("silent")) {
+                selectedClass = AbstractPlayer.PlayerClass.THE_SILENT;
+            }
+
+            if (selectedClass == null) {
+                System.err.println("no class");
+            } else {
+                if (tokens.length >= 3) {
+                    System.err.println("Test 123");
+                    try {
+                        ascensionLevel = Integer.parseInt(tokens[2]);
+                    } catch (NumberFormatException var10) {
+                    }
+
+                    if (ascensionLevel < 0 || ascensionLevel > 20) {
+                    }
+                }
+
+                if (tokens.length >= 4) {
+                    String seedString = tokens[3].toUpperCase();
+                    System.err.println("seedstring " + seedString);
+                    if (!seedString.matches("^[A-Z0-9]+$")) {
+                    }
+
+                    seedSet = true;
+                    seed = SeedHelper.getLong(seedString);
+                    boolean isTrialSeed = TrialHelper.isTrialSeed(seedString);
+                    if (isTrialSeed) {
+                        Settings.specialSeed = seed;
+                        Settings.isTrial = true;
+                        seedSet = false;
+                    }
+                }
+
+                if (!seedSet) {
+                    seed = SeedHelper.generateUnoffensiveSeed(new Random(System.nanoTime()));
+                }
+
+                Settings.seed = seed;
+                Settings.seedSet = seedSet;
+                AbstractDungeon.generateSeeds();
+                AbstractDungeon.ascensionLevel = ascensionLevel;
+                AbstractDungeon.isAscensionMode = ascensionLevel > 0;
+                CardCrawlGame.startOver = true;
+                CardCrawlGame.screenTimer = 1.0F;
+                System.err.println("game mode " + CardCrawlGame.mode + " " + CardCrawlGame.screenTimer);
+                CardCrawlGame.mainMenuScreen.isFadingOut = true;
+                CardCrawlGame.mainMenuScreen.fadeOutMusic();
+                CharacterManager manager = new CharacterManager();
+                manager.setChosenCharacter(selectedClass);
+                CardCrawlGame.chosenCharacter = selectedClass;
+                GameStateListener.resetStateVariables();
+            }
+        }
+    }
+
+    // Patch Communication Mod to include the reroll option and process it when selected
+    @SpirePatch(clz = Display.class, method = "update", paramtypez = {boolean.class})
+    public static class DoUpdatesHappenPatch {
+        @SpirePrefixPatch
+        public static SpireReturn<Void> logType(boolean processMessages) {
+            if (plaidMode) {
+                return SpireReturn.Return(null);
+            } else {
+                return SpireReturn.Continue();
+            }
+        }
+    }
+
+
+    // Profile start command
+    static long startCommandStartTime;
+
+    @SpirePatch(clz = CommandExecutor.class, method = "executeStartCommand")
+    public static class StartProfilingStartCommandPatch {
+        @SpirePrefixPatch
+        public static SpireReturn<Void> logType() {
+            startCommandStartTime = System.currentTimeMillis();
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(clz = CommandExecutor.class, method = "executeStartCommand")
+    public static class StopProfilingStartCommandPatch {
+        @SpirePostfixPatch
+        public static void logType() {
+            long commandTime = System.currentTimeMillis() - startCommandStartTime;
+
+            // Spam a little bit to make it easier to find.
+            for (int i = 0; i < 5; i++)
+                System.err.println("command time " + commandTime);
+        }
+    }
+
+
+    // Fade out the main menu screen instantly as its just an artificial wait
+    @SpirePatch(clz = MainMenuScreen.class, method = "fadeOut")
+    public static class StartProfilingFadeOutPatch {
+        @SpirePrefixPatch
+        public static SpireReturn<Void> logType(MainMenuScreen screen) {
+            if (screen.isFadingOut) {
+                Color overlayColor = ReflectionHacks.getPrivate(screen, MainMenuScreen.class, "overlayColor");
+                overlayColor.a = 1.0F;
+                ReflectionHacks.setPrivate(screen, MainMenuScreen.class, "overlayColor", overlayColor);
+            }
+
+            return SpireReturn.Continue();
+        }
+    }
+
+    // Battle fadout
+    @SpirePatch(clz = AbstractRoom.class, method = "update")
+    public static class EndBattleFadeOutPatch {
+        @SpirePrefixPatch
+        public static SpireReturn<Void> logType(AbstractRoom room) {
+            if (room.isBattleOver) {
+                ReflectionHacks.setPrivate(room, AbstractRoom.class, "endBattleTimer", -.1F);
+            }
+
+            if (AbstractRoom.waitTimer > 0.0F) {
+                AbstractRoom.waitTimer = Gdx.graphics.getDeltaTime() / 2.0F;
+            }
+
+            return SpireReturn.Continue();
+        }
+    }
+
+    // Dungeon fade probably doesn't matter
+    /*@SpirePatch(clz = AbstractDungeon.class, method = "updateFading")
+    public static class DungeonFadeFastPatch {
+        @SpirePrefixPatch
+        public static void fadeFast(AbstractDungeon dungeon) {
+            float fadeTimer = ReflectionHacks.getPrivate(dungeon, AbstractDungeon.class, "fadeTimer");
+            boolean isFadingIn = ReflectionHacks.getPrivate(dungeon, AbstractDungeon.class, "isFadingIn");
+            boolean isFadingOut = ReflectionHacks.getPrivate(dungeon, AbstractDungeon.class, "isFadingOut");
+
+            if (isFadingIn) {
+                System.err.println("Dungeon fading in " + fadeTimer);
+            }
+
+            if (isFadingOut) {
+                System.err.println("Dungeon fading out " + fadeTimer);
+            }
+
+        }
+    }*/
+
+    @SpirePatch(clz = MapRoomNode.class, method = "update")
+    public static class MapMousePatch {
+        @SpirePrefixPatch
+        public static void fastMouse(MapRoomNode mapRoomNode) {
+            float animWaitTimer = ReflectionHacks.getPrivate(mapRoomNode, MapRoomNode.class, "animWaitTimer");
+            if (animWaitTimer > 0.0) {
+                ReflectionHacks.setPrivate(mapRoomNode, MapRoomNode.class, "animWaitTimer", -.1F);
+            }
+        }
+    }
+
+    static long campfireUpdatesInvoked = 0;
+    static boolean waitOnOpen = false;
+
+    @SpirePatch(clz = CampfireSmithEffect.class, method = SpirePatch.CONSTRUCTOR)
+    public static class FastSmithConstructorPatch {
+        @SpirePrefixPatch
+        public static void fastSmith(CampfireSmithEffect effect) {
+            campfireUpdatesInvoked = 0;
+            waitOnOpen = false;
+        }
+    }
+
+    @SpirePatch(clz = CampfireSmithEffect.class, method = "update")
+    public static class FastSmithPatch {
+        @SpirePrefixPatch
+        public static void fastSmith(CampfireSmithEffect effect) {
+            if (effect.duration > 0.0F) {
+                boolean openedScreen = ReflectionHacks.getPrivate(effect, CampfireSmithEffect.class, "openedScreen");
+                if (!waitOnOpen && !AbstractDungeon.isScreenUp) {
+                    if (campfireUpdatesInvoked == 10) {
+//                        effect.duration = 1.3F;
+//                        effect.duration -= Gdx.graphics.getDeltaTime();
+                        waitOnOpen = true;
+                    } else if (campfireUpdatesInvoked > 10) {
+                        if (openedScreen) {
+                            effect.duration = Gdx.graphics.getDeltaTime() / 2.0F;
+                        }
+                    }
+                }
+
+            }
+
+            campfireUpdatesInvoked++;
+        }
+    }
+
+    @SpirePatch(clz = GridCardSelectScreen.class, method = "open", paramtypez = {CardGroup.class, int.class, String.class, boolean.class, boolean.class, boolean.class, boolean.class})
+    public static class GridOpenPeekPatch {
+        @SpirePostfixPatch
+        public static void PeekThing(GridCardSelectScreen screen, CardGroup group, int numCards, String tipMsg, boolean forUpgrade, boolean forTransform, boolean canCancel, boolean forPurge) {
+            System.err.println("grid card select screen opened");
+            waitOnOpen = false;
+        }
+    }
+
+//    @SpirePatch(clz = CampfireUI.class, method = "update")
+//    public static class FastCampUiPatch {
+//        @SpirePrefixPatch
+//        public static void fastSmith(CampfireUI campfireUI) {
+//            if (campfireUI.somethingSelected) {
+//                float timer = ReflectionHacks.getPrivate(campfireUI, CampfireUI.class, "hideStuffTimer");
+//                if (timer > 0.0) {
+//                    ReflectionHacks.setPrivate(campfireUI, CampfireUI.class, "hideStuffTimer", Gdx.graphics.getDeltaTime() / 2.0F);
+//                }
+//                System.err.println("campfire hide stuff timer " + timer);
+//            }
+//        }
+//    }
 }
