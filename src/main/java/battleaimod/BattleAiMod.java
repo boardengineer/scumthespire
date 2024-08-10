@@ -661,7 +661,7 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
             }
         }
     }
-    
+
 
 //    @SpirePatch(clz = CampfireUI.class, method = "update")
 //    public static class FastCampUiPatch {

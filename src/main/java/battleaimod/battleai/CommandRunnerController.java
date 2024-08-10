@@ -54,7 +54,15 @@ public class CommandRunnerController implements Controller {
         }
 
         boolean foundCommand = false;
-        while (bestPathRunner.hasNext() && !foundCommand) {
+        while ((!isComplete || bestPathRunner.hasNext()) && !foundCommand) {
+            if (!bestPathRunner.hasNext()) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                continue;
+            }
             Command command = bestPathRunner.next();
             if (command != null) {
                 foundCommand = true;
@@ -70,21 +78,7 @@ public class CommandRunnerController implements Controller {
         if (!bestPathRunner.hasNext()) {
             if (isComplete) {
                 System.err.println("Rerun Controller reporting done");
-
                 isDone = true;
-            } else if (queuedPath != null && queuedPath.size() > bestPath.size()) {
-                System.err.println("Enqueueing path...");
-                Iterator<Command> oldPath = bestPath.iterator();
-                Iterator<Command> newPath = queuedPath.iterator();
-
-                while (oldPath.hasNext()) {
-                    oldPath.next();
-                    newPath.next();
-                }
-
-                bestPathRunner = newPath;
-                this.isComplete = wouldComplete;
-                bestPath = queuedPath;
             }
         }
     }
