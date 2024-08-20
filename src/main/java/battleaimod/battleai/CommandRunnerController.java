@@ -13,7 +13,7 @@ public class CommandRunnerController implements Controller {
     public boolean isDone = false;
 
     public List<Command> bestPath;
-    private List<Command> queuedPath;
+    private List<Command> queuedPath = null;
 
     public Iterator<Command> bestPathRunner;
 
@@ -31,20 +31,6 @@ public class CommandRunnerController implements Controller {
 
     public void updateBestPath(List<Command> commands, boolean wouldComplete) {
         queuedPath = commands;
-        if (!bestPathRunner.hasNext()) {
-            Iterator<Command> oldPath = bestPath.iterator();
-            Iterator<Command> newPath = commands.iterator();
-
-            while (oldPath.hasNext()) {
-                oldPath.next();
-                newPath.next();
-            }
-
-            bestPathRunner = newPath;
-            this.isComplete = wouldComplete;
-            bestPath = queuedPath;
-        }
-
         this.wouldComplete = wouldComplete;
     }
 
@@ -56,6 +42,21 @@ public class CommandRunnerController implements Controller {
         boolean foundCommand = false;
         while ((!isComplete || bestPathRunner.hasNext()) && !foundCommand) {
             if (!bestPathRunner.hasNext()) {
+                if (queuedPath != null) {
+                    Iterator<Command> oldPath = bestPath.iterator();
+                    Iterator<Command> newPath = queuedPath.iterator();
+
+                    while (oldPath.hasNext()) {
+                        oldPath.next();
+                        newPath.next();
+                    }
+
+                    bestPath = queuedPath;
+                    queuedPath = null;
+                    bestPathRunner = newPath;
+                    isComplete = wouldComplete;
+                }
+
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
@@ -77,7 +78,6 @@ public class CommandRunnerController implements Controller {
 
         if (!bestPathRunner.hasNext()) {
             if (isComplete) {
-                System.err.println("Rerun Controller reporting done");
                 isDone = true;
             }
         }

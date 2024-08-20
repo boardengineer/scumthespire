@@ -634,7 +634,6 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
     public static class GridOpenPeekPatch {
         @SpirePostfixPatch
         public static void PeekThing(GridCardSelectScreen screen, CardGroup group, int numCards, String tipMsg, boolean forUpgrade, boolean forTransform, boolean canCancel, boolean forPurge) {
-            System.err.println("grid card select screen opened");
             waitOnOpen = false;
         }
     }
