@@ -39,6 +39,7 @@ import com.megacrit.cardcrawl.dungeons.Exordium;
 import com.megacrit.cardcrawl.helpers.*;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.monsters.exordium.Lagavulin;
 import com.megacrit.cardcrawl.monsters.exordium.SlimeBoss;
 import com.megacrit.cardcrawl.random.Random;
@@ -48,6 +49,9 @@ import com.megacrit.cardcrawl.relics.MummifiedHand;
 import com.megacrit.cardcrawl.relics.TheSpecimen;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.EmptyRoom;
+import com.megacrit.cardcrawl.saveAndContinue.SaveAndContinue;
+import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
+import com.megacrit.cardcrawl.screens.DeathScreen;
 import com.megacrit.cardcrawl.screens.mainMenu.MainMenuScreen;
 import com.megacrit.cardcrawl.screens.select.GridCardSelectScreen;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
@@ -661,6 +665,77 @@ public class BattleAiMod implements PostInitializeSubscriber, PostUpdateSubscrib
         }
     }
 
+
+    @SpirePatch(
+            clz = DeathScreen.class,
+            paramtypez = {MonsterGroup.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class DisableDeathScreenpatch {
+        public static SpireReturn Prefix(DeathScreen _instance, MonsterGroup monsterGroup) {
+            if (isServer) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = DeathScreen.class,
+            paramtypez = {},
+            method = "reopen"
+    )
+    public static class DisableDeathReopenScreenpatch {
+        public static SpireReturn Prefix(DeathScreen _instance) {
+            if (isServer) {
+                AbstractDungeon.previousScreen = AbstractDungeon.CurrentScreen.DEATH;
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = SaveFile.class,
+            paramtypez = {SaveFile.SaveType.class},
+            method = SpirePatch.CONSTRUCTOR
+    )
+    public static class NoMakeSavePatch {
+        public static SpireReturn Prefix(SaveFile _instance, SaveFile.SaveType type) {
+            if (isServer) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = SaveAndContinue.class,
+            paramtypez = {SaveFile.class},
+            method = "save"
+    )
+    public static class NoSavingPatch {
+        public static SpireReturn Prefix(SaveFile save) {
+            if (isServer) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = File.class,
+            paramtypez = {},
+            method = "save"
+    )
+    public static class NoSavingOnOtherThreadPatch {
+        public static SpireReturn Prefix(File _instance) {
+            if (isServer) {
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
 
 //    @SpirePatch(clz = CampfireUI.class, method = "update")
 //    public static class FastCampUiPatch {
