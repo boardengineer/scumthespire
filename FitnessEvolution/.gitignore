@@ -1,0 +1,17 @@
+target/
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+logs/*.txt
+!logs/.gitkeep
+runs/
+
+# Runtime IPC artifacts — created on each run by Main (JeneticsOutput.txt)
+# and by the mod (ModOutput.txt). Not meant to be shared across machines.
+ipc/JeneticsOutput.txt
+ipc/ModOutput.txt
+
+# Internal dev notes, not for the shared repo.
+ROADMAP.md

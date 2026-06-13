@@ -4,6 +4,7 @@ import battleaimod.BattleAiMod;
 import battleaimod.battleai.BattleAiController;
 import battleaimod.battleai.StateNode;
 import battleaimod.battleai.TurnNode;
+import battleaimod.utils.FileLogger;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -60,13 +61,13 @@ public class AiServer {
                             JsonObject runRequest = new JsonParser().parse(runRequestString)
                                                                     .getAsJsonObject();
 
-                            System.err.println("runRequest is " + runRequest);
+                            FileLogger.logError("runRequest is " + runRequest);
 
                             requestFilePath = runRequest.get("fileName").getAsString();
                             Path filePath = Paths.get(requestFilePath);
 
-                            System.err.println("reading from " + requestFilePath);
-                            System.err.println("filePath is " + filePath);
+                            FileLogger.logError("reading from " + requestFilePath);
+                            FileLogger.logError("filePath is " + filePath);
 
                             if (runRequest.has("end_suffix")) {
                                 endSuffix = runRequest.get("end_suffix").getAsString();
@@ -75,7 +76,7 @@ public class AiServer {
                             if (runRequest.has("command_file")) {
                                 commandFileName = runRequest.get("command_file").getAsString();
                             } else {
-                                System.err.println("no command file path");
+                                FileLogger.logError("no command file path");
                             }
 
                             SaveState originalState = SaveState.forFile(filePath.toString());
@@ -85,10 +86,10 @@ public class AiServer {
                             BattleAiMod.saveState = originalState;
                             BattleAiMod.saveState.initPlayerAndCardPool();
 
-//                                System.err.println("start state equals: " + shouldWrite);
+//                                FileLogger.logError("start state equals: " + shouldWrite);
                             System.gc();
 
-                            System.err.println("state parsed " + commandFileName);
+                            FileLogger.logError("state parsed " + commandFileName);
                         } catch (Exception e) {
                             e.printStackTrace();
                             return;
@@ -103,14 +104,14 @@ public class AiServer {
                         // let the AI start before sending out requests
                         while (BattleAiMod.battleAiController == null) {
                             try {
-                                System.err.println("waiting for controller to init...");
+                                FileLogger.logError("waiting for controller to init...");
                                 Thread.sleep(50);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
 
-                        System.err.println("Battle Controller Started " + commandFileName);
+                        FileLogger.logError("Battle Controller Started " + commandFileName);
 
                         int latestWrittenTurn = 0;
 
@@ -152,10 +153,18 @@ public class AiServer {
                         }
 
 
-                        System.err.println("BattleAI finished " + commandFileName);
+                        FileLogger.logError("BattleAI finished " + commandFileName);
 
                         if (BattleAiMod.battleAiController != null && BattleAiMod.battleAiController
                                 .isDone()) {
+
+                            if(BattleAiMod.battleAiController.fitnessFailed){
+                                out.writeUTF("FAILED");
+                                out.writeUTF(doneString);
+                                LudicrousSpeedMod.controller = BattleAiMod.battleAiController = null;
+                                continue;
+                            }
+
                             JsonObject jsonToSend = new JsonObject();
                             JsonArray commands = commandsForStateNode(BattleAiMod.battleAiController.bestEnd, true);
 
@@ -174,8 +183,7 @@ public class AiServer {
 
                             if (commandFileName != null) {
                                 try {
-                                    System.err
-                                            .println("should be writing file to " + commandFileName);
+                                    FileLogger.logError("should be writing file to " + commandFileName);
                                     Path parent = Paths.get(commandFileName).getParent();
                                     new File(parent.toString()).mkdirs();
                                     FileWriter commandWriter = new FileWriter(commandFileName);
@@ -194,19 +202,19 @@ public class AiServer {
                                 jsonToSend.remove("commands");
 
                                 if (commandFileName != null) {
-                                    System.err.println("returning with command path");
+                                    FileLogger.logError("returning with command path");
                                     jsonToSend.addProperty("command_path", commandFileName);
                                     out.writeUTF(jsonToSend.toString());
                                 } else {
-                                    System.err.println("commandFileName is null");
+                                    FileLogger.logError("commandFileName is null");
                                 }
                             }
                             LudicrousSpeedMod.controller = BattleAiMod.battleAiController = null;
                         } else {
-                            System.err.println("This shouldn't have happened");
+                            FileLogger.logError("This shouldn't have happened");
                         }
 
-                        System.err.println("Sending done");
+                        FileLogger.log("Sending done");
                         out.writeUTF(doneString);
                     }
                 }
@@ -214,7 +222,7 @@ public class AiServer {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                System.err.println("Client Disconnected, clearing server for reset");
+                FileLogger.logError("Client Disconnected, clearing server for reset");
                 BattleAiMod.aiServer = null;
             }
         });
@@ -224,13 +232,14 @@ public class AiServer {
         JsonArray commands = new JsonArray();
 
         List<StateNode> stateNodes = BattleAiController.stateNodesToGetToNode(root);
+        FileLogger.log("stateNodes in commandsForStateNode size: " + stateNodes.size());
 
         // Print the best path for debugging
         Iterator<StateNode> printIterator = stateNodes.iterator();
 
         while (printIterator.hasNext() && shouldPrint) {
             StateNode stateNode = printIterator.next();
-            System.err.print(stateNode.lastCommand + " ");
+            FileLogger.log(stateNode.lastCommand + " ");
         }
 
         Iterator<StateNode> bestPath = stateNodes.iterator();

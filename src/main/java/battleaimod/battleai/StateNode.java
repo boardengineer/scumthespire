@@ -357,4 +357,5 @@ public class StateNode {
     public static int getPlayerDamage(StateNode node) {
         return node.controller.startingHealth - node.saveState.getPlayerHealth();
     }
+
 }

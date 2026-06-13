@@ -1,81 +1,106 @@
-<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>autoplay</groupId>
     <artifactId>BattleAiMod</artifactId>
-    <version>1.2.0</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
-    <name>Battle Ai Mod</name>
+    <name>Battle Ai Mod Evolution</name>
     <description>Server/Client setup allowing an AI to control the game</description>
 
+
     <properties>
+        <!-- Java -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Versions -->
         <SlayTheSpire.version>11-30-2020</SlayTheSpire.version>
         <ModTheSpire.version>3.18.1</ModTheSpire.version>
         <BaseMod.version>5.32.0</BaseMod.version>
+
+        <!-- Steam paths -->
+        <steam.windows>D:\SteamLibrary\steamapps</steam.windows>
+        <steam.path>${steam.windows}</steam.path>
+        <sts.path>/common/SlayTheSpire/desktop-1.0.jar</sts.path>
     </properties>
 
     <dependencies>
+
+        <!-- Slay the Spire -->
         <dependency>
             <groupId>com.megacrit.cardcrawl</groupId>
             <artifactId>slaythespire</artifactId>
             <version>${SlayTheSpire.version}</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../lib/desktop-1.0.jar</systemPath>
+            <systemPath>${steam.path}${sts.path}</systemPath>
         </dependency>
+
+        <!-- ModTheSpire -->
         <dependency>
             <groupId>com.evacipated.cardcrawl</groupId>
             <artifactId>ModTheSpire</artifactId>
             <version>${ModTheSpire.version}</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../lib/ModTheSpire.jar</systemPath>
+            <systemPath>${steam.path}/workshop/content/646570/1605060445/ModTheSpire.jar</systemPath>
         </dependency>
+
+        <!-- BaseMod -->
+        <dependency>
+            <groupId>basemod</groupId>
+            <artifactId>BaseMod</artifactId>
+            <version>${BaseMod.version}</version>
+            <scope>system</scope>
+            <systemPath>${steam.path}/workshop/content/646570/1605833019/BaseMod.jar</systemPath>
+        </dependency>
+
+        <!-- SaveStateMod -->
         <dependency>
             <groupId>savestatemod</groupId>
             <artifactId>savestatemod</artifactId>
             <version>1.1.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../_ModTheSpire/mods/SaveStateMod.jar</systemPath>
+            <systemPath>${steam.path}/common/SlayTheSpire/mods/SaveStateMod.jar</systemPath>
         </dependency>
-        <dependency>
-            <groupId>LudicrousSpeed</groupId>
-            <artifactId>LudicrousSpeed</artifactId>
-            <version>1.1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../_ModTheSpire/mods/LudicrousSpeed.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>30.1.1-jre</version>
-        </dependency>
+
+        <!-- CommunicationMod -->
         <dependency>
             <groupId>autoplay</groupId>
             <artifactId>CommunicationMod</artifactId>
             <version>1.1.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../_ModTheSpire/mods/CommunicationMod.jar</systemPath>
+            <systemPath>${steam.path}/workshop/content/646570/2131373661/CommunicationMod.jar</systemPath>
         </dependency>
+
+        <!-- LudicrousSpeed -->
         <dependency>
-            <groupId>basemod</groupId>
-            <artifactId>BaseMod-root</artifactId>
-            <version>${BaseMod.version}</version>
+            <groupId>LudicrousSpeed</groupId>
+            <artifactId>LudicrousSpeed</artifactId>
+            <version>1.1.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../_ModTheSpire/mods/BaseMod.jar</systemPath>
+            <systemPath>${steam.path}/common/SlayTheSpire/mods/LudicrousSpeed.jar</systemPath>
         </dependency>
+
+
+        <!-- External -->
         <dependency>
-            <groupId>fightpredictor</groupId>
-            <artifactId>FightPredictor</artifactId>
-            <version>1.0.4</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../_ModTheSpire/mods/FightPredictor.jar</systemPath>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>30.1.1-jre</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.objecthunter</groupId>
+            <artifactId>exp4j</artifactId>
+            <version>0.4.8</version>
+        </dependency>
+
     </dependencies>
 
     <build>
+
         <finalName>BattleAiMod</finalName>
         <plugins>
             <plugin>
@@ -109,7 +134,8 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <copy file="target/BattleAiMod.jar" tofile="../_ModTheSpire/mods/BattleAiMod.jar"/>
+                                <copy file="target/BattleAiMod.jar"
+                                      tofile="${steam.path}/common/SlayTheSpire/mods/BattleAiMod.jar"/>
                             </target>
                         </configuration>
                         <goals>

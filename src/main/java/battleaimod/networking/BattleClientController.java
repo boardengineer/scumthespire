@@ -215,7 +215,7 @@ public class BattleClientController {
                 .getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT;
     }
 
-    private static void startServerThread() {
+    public static void startServerThread() {
         String mtsPath = "";
         try {
             try {
@@ -224,10 +224,32 @@ public class BattleClientController {
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
-            String[] command = {SteamSearch.findJRE(), "-Xms1024m", "-Xmx2048m", "-jar", "-DisServer=true", mtsPath, "--profile", "Server", "--skip-launcher", "--skip-intro"};
+            String javaPath = SteamSearch.findJRE();
+            String[] command = {
+                    javaPath,
+                    "-DisServer=true",
+                    "-Xms1024m",
+                    "-Xmx2048m",
+                    "-jar",
+                    mtsPath,
+                    "--profile",
+                    "Server",
+                    "--skip-launcher",
+                    "--skip-intro"
+            };
             // ProcessBuilder will execute process named 'CMD' and will provide '/C' and 'dir' as command line arguments to 'CMD'
 
             ProcessBuilder pbuilder = new ProcessBuilder(command);
+            // Ensure relative game paths (e.g., desktop-1.0.jar) resolve on macOS.
+            File javaBin = new File(javaPath);
+            File resourcesDir = javaBin.getParentFile() != null
+                    && javaBin.getParentFile().getParentFile() != null
+                    && javaBin.getParentFile().getParentFile().getParentFile() != null
+                    ? javaBin.getParentFile().getParentFile().getParentFile()
+                    : null;
+            if (resourcesDir != null && resourcesDir.isDirectory()) {
+                pbuilder.directory(resourcesDir);
+            }
 
             System.out.println("Starting server game");
             serverProcess = pbuilder.start();
@@ -319,7 +341,7 @@ public class BattleClientController {
         return !serverReady && serverProcess != null && serverProcess.isAlive();
     }
 
-    private static boolean canSendState() {
+    public static boolean canSendState() {
         boolean controllerRunning = BattleAiMod.rerunController != null && !BattleAiMod.rerunController.isDone;
         return serverReady && !controllerRunning && readyForUpdate();
     }

@@ -33,6 +33,7 @@ public class StatusAndControlThreads {
                 startServerStatusThread();
             } else {
                 startClientThread();
+                BattleClientController.startServerThread();
             }
         }
     }
@@ -184,7 +185,29 @@ public class StatusAndControlThreads {
                                 serverOutputStream.writeUTF("LOADING");
                             }
                         }
-                    }
+                    }//TODO: if someone can figure this out it would be better but idc
+//                    else if (command.equals("sendWeights")) {
+//                        String weights = parsedRequest.get("weights").getAsString();
+//
+//                        WeightedSumFitness fitness = new WeightedSumFitness(weights);
+//
+//                        //TODO: STORE IT
+//
+//                        JsonObject response = new JsonObject();
+//                        response.addProperty("command", "ack");
+//                        response.addProperty("status", "received");
+//
+//                        serverOutputStream.writeUTF(response.toString());
+//                    }
+//                    else if (command.equals("getWeights")) {
+//                        //TODO: GET IT
+//
+//                        JsonObject response = new JsonObject();
+//                        response.addProperty("command", "weights");
+//                        response.addProperty("weights", best.toString());
+//
+//                        serverOutputStream.writeUTF(response.toString());
+//                    }
                 }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();

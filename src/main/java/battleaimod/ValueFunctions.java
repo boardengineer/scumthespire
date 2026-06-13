@@ -71,6 +71,21 @@ public class ValueFunctions {
                                                     .get();
     }
 
+    /**
+     * Counts the number of monsters currently alive.
+     */
+    public static int getAliveMonsterCount(SaveState saveState) {
+        if (saveState == null ||
+                saveState.curMapNodeState == null ||
+                saveState.curMapNodeState.monsterData == null) {
+            return 0;
+        }
+
+        return (int) saveState.curMapNodeState.monsterData.stream()
+                .filter(monster -> monster != null && monster.currentHealth > 0)
+                .count();
+    }
+
     public static int caclculateTurnScore(TurnNode turnNode) {
         int playerDamage = getPlayerDamage(turnNode);
         int monsterDamage = ValueFunctions
@@ -300,5 +315,10 @@ public class ValueFunctions {
                                                                                       .equals(LizardTail.ID) && relic.counter != -2)
                                                                               .findAny();
         return optionalLizardTail.isPresent() ? 400 : 0;
+    }
+
+    public static int getTotalDamageDealt(SaveState start, SaveState end) {
+        return ValueFunctions.getTotalMonsterHealth(start)
+                        - ValueFunctions.getTotalMonsterHealth(end);
     }
 }
